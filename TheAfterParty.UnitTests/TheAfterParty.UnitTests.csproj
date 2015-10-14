@@ -106,6 +106,12 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TheAfterParty.Domain\TheAfterParty.Domain.csproj">
+      <Project>{d187cca9-7f4e-41c9-b698-487ff6d7d35e}</Project>
+      <Name>TheAfterParty.Domain</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

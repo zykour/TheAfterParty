@@ -47,7 +47,7 @@ namespace TheAfterParty.WebUI.App_Start
 
                 RegisterServices(kernel);
                 return kernel;
-            }
+            }                                   
             catch
             {
                 kernel.Dispose();
@@ -61,6 +61,7 @@ namespace TheAfterParty.WebUI.App_Start
         /// <param name="kernel">The kernel.</param>
         private static void RegisterServices(IKernel kernel)
         {
+            System.Web.Mvc.DependencyResolver.SetResolver(new TheAfterParty.WebUI.Infrastructure.NinjectDependencyResolver(kernel));
         }        
     }
 }
