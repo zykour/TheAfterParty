@@ -1,7 +1,19 @@
-﻿
+﻿@using TheAfterParty.Domain.Entities
+@model IEnumerable<Product>
+
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Shop";
+    Layout = "~/Areas/CoopShop/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Index</h2>
+<h2>Inventory</h2>
 
+@foreach (Product product in Model)
+{
+    <div>
+        <div>@product.AppID</div>
+        <div>@product.ItemName</div>
+        <div>@product.Platform</div>
+        <div>@product.StoreID</div>
+    </div>
+}

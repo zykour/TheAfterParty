@@ -8,7 +8,7 @@ namespace TheAfterParty.Domain.Entities
 
     public class ProductKey
     {
-        [Key, Column(Order = 1), Required, ForeignKey("StockedProduct")]
+        [Key, Column(Order = 1), DatabaseGenerated(DatabaseGeneratedOption.None), Required, ForeignKey("StockedProduct")]
         public int StoreID { get; set; }
 
         [Key, Column(Order = 2), Required, StringLength(100), Display(Name = "Key")]

@@ -114,9 +114,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Abstract\IRepository.cs" />
+    <Compile Include="Concrete\AppIdentityDbContext.cs" />
+    <Compile Include="Concrete\AppUserManager.cs" />
     <Compile Include="Concrete\EFDbContext.cs" />
+    <Compile Include="Concrete\EFDbInit.cs" />
     <Compile Include="Concrete\EFRepository.cs" />
     <Compile Include="Entities\AppUser.cs" />
+    <Compile Include="Entities\BalanceEntry.cs" />
     <Compile Include="Entities\DiscountedProduct.cs" />
     <Compile Include="Entities\Objective.cs" />
     <Compile Include="Entities\Order.cs" />

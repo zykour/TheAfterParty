@@ -7,30 +7,31 @@ using TheAfterParty.Domain.Entities;
 
 namespace TheAfterParty.Domain.Concrete
 {
-    class EFRepository : IRepository
+    public class EFRepository : IRepository
     {
         private EFDbContext context = new EFDbContext();
-
-        public IEnumerable<AppUser> AppUsers
+        
+        public IEnumerable<BalanceEntry> BalanceEntries
         {
-            get { return context.AppUsers; }
+            get { return context.BalanceEntries; }
         }
 
-        public void SaveAppUser(AppUser appUser)
+        public void SaveBalanceEntry(BalanceEntry balanceEntry)
         {
-            if (string.IsNullOrEmpty(appUser.Id))
+            if (balanceEntry.BalanceID == 0)
             {
-                context.AppUsers.Add(appUser);
+                context.BalanceEntries.Add(balanceEntry);
             }
             else
             {
-                AppUser targetAppUser = context.AppUsers.Find(appUser.Id);
+                BalanceEntry targetBalanceEntry = context.BalanceEntries.Find(balanceEntry.BalanceID);
 
-                if (targetAppUser != null)
+                if (targetBalanceEntry != null)
                 {
-                    targetAppUser.Balance = appUser.Balance;
-                    targetAppUser.Email = appUser.Email;
-                    targetAppUser.UserName = appUser.UserName;
+                    targetBalanceEntry.EarnedPoints = balanceEntry.EarnedPoints;
+                    targetBalanceEntry.Notes = balanceEntry.Notes;
+                    targetBalanceEntry.SteamID = balanceEntry.SteamID;
+                    targetBalanceEntry.UpdateDate = balanceEntry.UpdateDate;
                 }
             }
 
@@ -86,10 +87,13 @@ namespace TheAfterParty.Domain.Concrete
 
         public void SaveOrderProduct(OrderProduct orderProduct)
         {
+            if (orderProduct.TransactionID == 0)
+            {
+                return;
+            }
+
             if (orderProduct.OrderID == 0)
             {
-                // throw excpetion if a new orderProduct is being added without corresponding Order?
-
                 context.OrderProducts.Add(orderProduct);
             }
             else
@@ -174,26 +178,30 @@ namespace TheAfterParty.Domain.Concrete
         {
             if (productKey.StoreID == 0)
             {
-                context.ProductKeys.Add(productKey);
+                return;
             }
             else
             {
-                ProductKey targetProductKey = context.ProductKeys.Find(productKey.StoreID);
+                ProductKey targetProductKey = context.ProductKeys.Find(productKey.StoreID, productKey.ItemKey);
 
                 if (targetProductKey != null)
                 {
                     targetProductKey.Platform = productKey.Platform;
                     targetProductKey.ItemKey = productKey.ItemKey;
                     targetProductKey.IsSold = productKey.IsSold;
-                } 
+                }
+                else
+                {
+                    context.ProductKeys.Add(productKey);
+                }
             }
 
             context.SaveChanges();
         }
 
-        public ProductKey DeleteProductKey(int productKeyID)
+        public ProductKey DeleteProductKey(int productKeyID, string itemKey)
         {
-            ProductKey targetProductKey = context.ProductKeys.Find(productKeyID);
+            ProductKey targetProductKey = context.ProductKeys.Find(productKeyID, itemKey);
 
             if (targetProductKey != null)
             {
@@ -215,7 +223,7 @@ namespace TheAfterParty.Domain.Concrete
         {
             if (discountedProduct.StoreID == 0)
             {
-                context.DiscountedProducts.Add(discountedProduct);
+                return;
             }
             else
             {
@@ -227,6 +235,10 @@ namespace TheAfterParty.Domain.Concrete
                     targetDiscountedProduct.ItemDiscountPercent = discountedProduct.ItemDiscountPercent;
                     targetDiscountedProduct.ItemSaleExpiry = discountedProduct.ItemSaleExpiry;
                     targetDiscountedProduct.StockedProduct = discountedProduct.StockedProduct;
+                }
+                else
+                {
+                    context.DiscountedProducts.Add(discountedProduct);
                 }
             }
 
@@ -284,7 +296,7 @@ namespace TheAfterParty.Domain.Concrete
         {
             if (stockedProduct.StoreID == 0)
             {
-                context.StockedProducts.Add(stockedProduct);
+                return;
             }
             else
             {
@@ -299,6 +311,10 @@ namespace TheAfterParty.Domain.Concrete
                     targetStockedProduct.ItemPrice = stockedProduct.ItemPrice;
                     targetStockedProduct.ItemQuantity = stockedProduct.ItemQuantity;
                     targetStockedProduct.Platform = stockedProduct.Platform;
+                }
+                else
+                {
+                    context.StockedProducts.Add(stockedProduct);
                 }
             }
 

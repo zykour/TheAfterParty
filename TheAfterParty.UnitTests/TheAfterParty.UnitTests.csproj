@@ -35,6 +35,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
       <Private>True</Private>
@@ -56,6 +57,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
       <Private>True</Private>
@@ -110,6 +112,10 @@
     <ProjectReference Include="..\TheAfterParty.Domain\TheAfterParty.Domain.csproj">
       <Project>{d187cca9-7f4e-41c9-b698-487ff6d7d35e}</Project>
       <Name>TheAfterParty.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TheAfterParty.WebUI\TheAfterParty.WebUI.csproj">
+      <Project>{1b72b577-73c3-40d6-b77c-861782a21e57}</Project>
+      <Name>TheAfterParty.WebUI</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

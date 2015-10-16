@@ -1,7 +1,18 @@
-﻿
+﻿@using TheAfterParty.Domain.Entities
+@model IEnumerable<AppUser>
+
 @{
-    ViewBag.Title = "Balances";
+    ViewBag.Title = "User Balances";
+    Layout = "~/Areas/CoopShop/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Index</h2>
+<h2>User Balances</h2>
+
+@foreach (AppUser user in Model)
+{
+    <div>
+        <div>@user.UserName</div>
+        <div>@user.Balance</div>
+    </div>
+}
 

@@ -176,6 +176,7 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\IdentityConfig.cs" />
     <Compile Include="App_Start\NinjectWebCommon.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Areas\CoopShop\Controllers\AboutController.cs" />
@@ -219,10 +220,6 @@
     <ProjectReference Include="..\TheAfterParty.Domain\TheAfterParty.Domain.csproj">
       <Project>{d187cca9-7f4e-41c9-b698-487ff6d7d35e}</Project>
       <Name>TheAfterParty.Domain</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TheAfterParty.UnitTests\TheAfterParty.UnitTests.csproj">
-      <Project>{594396c3-b0c1-4661-94d0-fad49d2023fd}</Project>
-      <Name>TheAfterParty.UnitTests</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

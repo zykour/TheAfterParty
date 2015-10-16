@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TheAfterParty.Domain.Entities
 {
@@ -7,7 +8,7 @@ namespace TheAfterParty.Domain.Entities
 
     public class Objective
     {
-        [Key, Required]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
         public int ObjectiveID { get; set; }
 
         [Required, StringLength(200)]

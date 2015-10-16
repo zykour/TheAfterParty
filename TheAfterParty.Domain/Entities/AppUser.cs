@@ -6,7 +6,7 @@ namespace TheAfterParty.Domain.Entities
 { 
     public class AppUser : IdentityUser
     {
-        [Key, ScaffoldColumn(false), Required, RegularExpression(@"^[0-9]{17}$", ErrorMessage = "SteamIDs are numeric only.")]
+        [Key, Required, RegularExpression(@"^[0-9]{17}$", ErrorMessage = "SteamIDs are numeric only.")]
         public string SteamID { get; set; }
 
         [Required]

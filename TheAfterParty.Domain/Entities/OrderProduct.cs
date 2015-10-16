@@ -9,10 +9,10 @@ namespace TheAfterParty.Domain.Entities
         [Key, Column(Order=1), ForeignKey("Order")]
         public int TransactionID { get; set; }
 
-        [Key, Column(Order=2), Required]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Column(Order=2), Required]
         public int OrderID { get; set; }
 
-        [ScaffoldColumn(false), Required]
+        [Required]
         public int StoreID { get; set; }
 
         [Required, Display(Name = "Price")]

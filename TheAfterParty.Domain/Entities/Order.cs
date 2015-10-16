@@ -10,7 +10,7 @@ namespace TheAfterParty.Domain.Entities
 
     public class Order
     {
-        [Key, Required]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
         public int TransactionID { get; set; }
 
         public bool IsActive { get; set; }

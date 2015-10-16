@@ -18,11 +18,11 @@ namespace TheAfterParty.Domain.Abstract
 
         IEnumerable<ProductKey> ProductKeys { get; }
         void SaveProductKey(ProductKey productKey);
-        ProductKey DeleteProductKey(int productKeyID);
+        ProductKey DeleteProductKey(int productKeyID, string itemKey);
 
 
-        IEnumerable<AppUser> AppUsers { get; }
-        void SaveAppUser(AppUser appUsers);
+        IEnumerable<BalanceEntry> BalanceEntries { get; }
+        void SaveBalanceEntry(BalanceEntry balanceEntry);
 
         IEnumerable<Order> Orders { get; }
         void SaveOrder(Order order);
