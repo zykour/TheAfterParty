@@ -19,7 +19,7 @@ namespace TheAfterParty.WebUI.Areas.CoopShop.Controllers
         // GET: CoopShop/Store
         public ActionResult Index()
         {
-            return View(repository.Products);    //repository.StockedProducts);
+            return View(repository.Listings);
         }
     }
 }

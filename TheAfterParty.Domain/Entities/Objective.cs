@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace TheAfterParty.Domain.Entities
 {
@@ -8,18 +9,36 @@ namespace TheAfterParty.Domain.Entities
 
     public class Objective
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ObjectiveID { get; set; }
 
-        [Required, StringLength(200)]
+        // the description of the objective
         public string Description { get; set; }
-
-        [StringLength(50)]
-        public string Games { get; set; }
-
+        
+        // what type of category this can be fitted into (i.e. Campaign, Missions, Versus)
+        public string Category { get; set; }
+        
+        // a list of products this objective can be completed in 
+        public virtual ICollection<ObjectiveGameMapping> ObjectiveGameMappings { get; set; }
+        
+        // how many points will be rewarded
         public int Reward { get; set; }
 
-        [Required]
+        // whether or not the player needs to play with the admin to play (must be self-reported if false)
         public bool RequiresAdmin { get; set; }
+    }
+
+    public class ObjectiveGameMapping
+    {
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
+        public int Id { get; set; }
+
+        public int ObjectiveID { get; set; }
+
+        public virtual Objective Objective { get; set; }
+
+        public int ProductID { get; set; }
+
+        public virtual Product Product { get; set;}
     }
 }

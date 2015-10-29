@@ -8,15 +8,17 @@ namespace TheAfterParty.Domain.Entities
 
     public class ProductKey
     {
-        [Key, Column(Order = 1), DatabaseGenerated(DatabaseGeneratedOption.None), Required, ForeignKey("StockedProduct")]
-        public int StoreID { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity), Key]
+        public int KeyID { get; set; }
 
-        [Key, Column(Order = 2), Required, StringLength(100), Display(Name = "Key")]
+        // the id of the product this key redeems
+        public int ListingID { get; set; }
+
+        public virtual Listing Listing { get; set; }
+
+        public bool IsGift { get; set; }
+        
+        // the key to be redeemed
         public string ItemKey { get; set; }
-
-        public bool IsSold { get; set; }
-
-        [Required]
-        public int Platform { get; set; }
     }
 }

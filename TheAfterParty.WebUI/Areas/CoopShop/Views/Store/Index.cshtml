@@ -1,5 +1,5 @@
 ﻿@using TheAfterParty.Domain.Entities
-@model IEnumerable<Product>
+@model IEnumerable<Listing>
 
 @{
     ViewBag.Title = "Shop";
@@ -8,12 +8,16 @@
 
 <h2>Inventory</h2>
 
-@foreach (Product product in Model)
+@foreach (Listing listing in Model)
 {
     <div>
-        <div>@product.AppID</div>
-        <div>@product.ItemName</div>
-        <div>@product.Platform</div>
-        <div>@product.StoreID</div>
+        <div>@listing.ListingPrice</div>
+        <div>@listing.ListingName</div>
+        <div>@listing.ListingID - @listing.Product.ProductName</div>
+        <div>
+            <div>@listing.Product.Platform</div>
+            <div>@listing.Product.AppID</div>
+            <div>@listing.Product.ProductDetail.HasAchievements</div>
+        </div>
     </div>
 }

@@ -120,14 +120,32 @@
     <Compile Include="Concrete\EFDbInit.cs" />
     <Compile Include="Concrete\EFRepository.cs" />
     <Compile Include="Entities\AppUser.cs" />
+    <Compile Include="Entities\Auction.cs" />
+    <Compile Include="Entities\AuctionBid.cs" />
     <Compile Include="Entities\BalanceEntry.cs" />
-    <Compile Include="Entities\DiscountedProduct.cs" />
+    <Compile Include="Entities\BoostedObjective.cs" />
+    <Compile Include="Entities\Coupon.cs" />
+    <Compile Include="Entities\DiscountedListing.cs" />
+    <Compile Include="Entities\Gift.cs" />
+    <Compile Include="Entities\Giveaway.cs" />
+    <Compile Include="Entities\GiveawayEntry.cs" />
+    <Compile Include="Entities\Mail.cs" />
     <Compile Include="Entities\Objective.cs" />
     <Compile Include="Entities\Order.cs" />
-    <Compile Include="Entities\OrderProduct.cs" />
+    <Compile Include="Entities\Prize.cs" />
+    <Compile Include="Entities\ProductOrderEntry.cs" />
     <Compile Include="Entities\Product.cs" />
+    <Compile Include="Entities\ProductComment.cs" />
     <Compile Include="Entities\ProductKey.cs" />
-    <Compile Include="Entities\StockedProduct.cs" />
+    <Compile Include="Entities\ClaimedProductKey.cs" />
+    <Compile Include="Entities\ProductReview.cs" />
+    <Compile Include="Entities\ShoppingCartEntry.cs" />
+    <Compile Include="Entities\Tag.cs" />
+    <Compile Include="Entities\Listing.cs" />
+    <Compile Include="Entities\UserCoupon.cs" />
+    <Compile Include="Entities\UserNotification.cs" />
+    <Compile Include="Entities\WishlistEntry.cs" />
+    <Compile Include="Entities\WonPrize.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

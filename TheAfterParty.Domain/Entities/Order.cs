@@ -10,16 +10,19 @@ namespace TheAfterParty.Domain.Entities
 
     public class Order
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TransactionID { get; set; }
 
-        public bool IsActive { get; set; }
+        // the ID of the user this order is associated with
+        public int UserID { get; set; }
 
+        // the appuser object associated to the user who made this order
         public virtual AppUser AppUser { get; set; }
 
-        public virtual IEnumerable<OrderProduct> OrderProducts { get; set; }
-
-        [Required]
+        // the products in this bundle
+        public virtual ICollection<ProductOrderEntry> ProductOrderEntries { get; set; }
+        
+        // date this order was made
         public DateTime? SaleDate { get; set; }
     }
 }
