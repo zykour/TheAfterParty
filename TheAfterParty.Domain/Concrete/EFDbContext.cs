@@ -112,7 +112,7 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<ProductReview>().HasRequired<Product>(pr => pr.Product).WithMany(p => p.ProductReviews).HasForeignKey(pr => pr.ProductID).WillCascadeOnDelete(false);
             modelBuilder.Entity<Tag>().HasRequired<Product>(t => t.Product).WithMany(p => p.Tags).HasForeignKey(t => t.ProductID).WillCascadeOnDelete(true);
             modelBuilder.Entity<ObjectiveGameMapping>().HasRequired<Product>(ogm => ogm.Product).WithMany(p => p.ObjectiveGameMappings).HasForeignKey(ogm => ogm.ProductID).WillCascadeOnDelete(false);
-            modelBuilder.Entity<ProductDetail>().HasRequired<Product>(pd => pd.Product).WithOptional(p => p.ProductDetail).WillCascadeOnDelete(true);
+            modelBuilder.Entity<ProductDetail>().HasMany<Product>(pd => pd.Products).WithOptional(p => p.ProductDetail).WillCascadeOnDelete(false);
         }
     }
 }

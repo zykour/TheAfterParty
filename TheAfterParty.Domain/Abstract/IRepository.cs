@@ -68,6 +68,7 @@ namespace TheAfterParty.Domain.Abstract
 
         IEnumerable<Listing> Listings { get; }
         void SaveListing(Listing listing);
+        Listing GetListingById(int listingId);
         //Listing DeleteListing(int listingID);
 
         //Mail
@@ -127,12 +128,14 @@ namespace TheAfterParty.Domain.Abstract
 
         IEnumerable<ProductDetail> ProductDetails { get; }
         void SaveProductDetail(ProductDetail productDetail);
+        ProductDetail DeleteProductDetail(int productId);
 
         //ProductKey
 
         IEnumerable<ProductKey> ProductKeys { get; }
         void SaveProductKey(ProductKey productKey);
         ProductKey DeleteProductKey(int productKeyID);
+        ProductKey GetProductKeyById(int keyId);
 
         //ProductOrderEntry
 

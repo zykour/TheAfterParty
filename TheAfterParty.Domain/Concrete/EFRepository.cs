@@ -168,6 +168,7 @@ namespace TheAfterParty.Domain.Concrete
                     targetClaimedProductKey.Key = claimedProductKey.Key;
                     targetClaimedProductKey.ListingID = claimedProductKey.ListingID;
                     targetClaimedProductKey.UserID = claimedProductKey.UserID;
+                    targetClaimedProductKey.IsGift = claimedProductKey.IsGift;
                 }
             }
 
@@ -387,6 +388,11 @@ namespace TheAfterParty.Domain.Concrete
             get { return context.Listings; }
         }
 
+        public Listing GetListingById(int listingId)
+        {
+            return context.Listings.Find(listingId);            
+        }
+
         public void SaveListing(Listing listing)
         {
             if (listing.ListingID == 0)
@@ -401,6 +407,7 @@ namespace TheAfterParty.Domain.Concrete
                 {
                     targetListing.ListingName = listing.ListingName;
                     targetListing.ListingPrice = listing.ListingPrice;
+                    targetListing.Quantity = listing.Quantity;
                 }
             }
 
@@ -727,23 +734,37 @@ namespace TheAfterParty.Domain.Concrete
             }
             else
             {
-                targetProductDetail.HasAchievements = productDetail.HasAchievements;
-                targetProductDetail.HasControllerSupport = productDetail.HasControllerSupport;
-                targetProductDetail.HasTradingCards = productDetail.HasTradingCards;
                 targetProductDetail.ImageData = productDetail.ImageData;
                 targetProductDetail.ImageMimeType = productDetail.ImageMimeType;
-                targetProductDetail.IsCoop = productDetail.IsCoop;
-                targetProductDetail.IsLocalCoop = productDetail.IsLocalCoop;
-                targetProductDetail.IsMultiplayer = productDetail.IsMultiplayer;
-                targetProductDetail.IsSinglePlayer = productDetail.IsSinglePlayer;
+                targetProductDetail.ProductName = productDetail.ProductName;
             }
 
             context.SaveChanges();
         }
 
+        public ProductDetail DeleteProductDetail(int productId)
+        {
+            ProductDetail targetProductDetail = context.ProductDetails.Find(productId);
+
+            if (targetProductDetail != null)
+            {
+                context.ProductDetails.Remove(targetProductDetail);
+                context.SaveChanges();
+
+                return targetProductDetail;
+            }
+
+            return null;
+        }
+
         public IEnumerable<ProductKey> ProductKeys
         {
             get { return context.ProductKeys; }
+        }
+
+        public ProductKey GetProductKeyById(int keyId)
+        {
+            return context.ProductKeys.Find(keyId);            
         }
 
         public void SaveProductKey(ProductKey productKey)
@@ -886,6 +907,7 @@ namespace TheAfterParty.Domain.Concrete
 
                 if (targetShoppingCartEntry != null)
                 {
+                    targetShoppingCartEntry.Quantity = shoppingCartEntry.Quantity;
                     targetShoppingCartEntry.DateAdded = shoppingCartEntry.DateAdded;
                     targetShoppingCartEntry.ListingID = shoppingCartEntry.ListingID;
                     targetShoppingCartEntry.UserID = shoppingCartEntry.UserID;

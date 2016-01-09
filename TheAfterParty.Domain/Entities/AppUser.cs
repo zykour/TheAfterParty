@@ -3,6 +3,8 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
+using SteamKit2;
+using System.Linq;
 
 namespace TheAfterParty.Domain.Entities
 { 
@@ -13,10 +15,31 @@ namespace TheAfterParty.Domain.Entities
 
         // the 64bit UserID representing the users on this site
         [Required]
-        public string SteamID { get; set; }
+        public ulong SteamID { get; set; }
+        public SteamID GetAsSteamID()
+        {
+            return new SteamKit2.SteamID(SteamID);
+        }
 
         // denotes the users balance (if any)
         public int Balance { get; set; }
+        public int ReservedBalance()
+        {
+            int reservedPoints = 0;
+
+            if (AuctionBids != null)
+            {
+                foreach (AuctionBid bid in AuctionBids)
+                {
+                    if (bid.Auction.EndTime.CompareTo(DateTime.Now) > 0)
+                    {
+                        reservedPoints += bid.BidAmount;
+                    }
+                }
+            }
+
+            return reservedPoints;
+        }
 
         // is there wishlist private?
         public bool IsPrivateWishlist { get; set; }
@@ -27,6 +50,21 @@ namespace TheAfterParty.Domain.Entities
 
         // the list of auctions the user has participated in
         public virtual ICollection<AuctionBid> AuctionBids { get; set; }
+        public void AddAuctionBid(AuctionBid auctionBid)
+        {
+            auctionBid.AppUser = this;
+            AuctionBids.Add(auctionBid);
+        }
+        public AuctionBid RemoveAuctionBid(AuctionBid auctionBid)
+        {
+            if (AuctionBids.Contains(aucitonBid))
+            {
+                AuctionBids.Remove(auctionBid);
+                return auctionBid;
+            }
+
+            return null;
+        }
 
         // the list of giveaways the user has entered
         public virtual ICollection<GiveawayEntry> GiveawayEntries { get; set; }
@@ -77,6 +115,90 @@ namespace TheAfterParty.Domain.Entities
         public virtual ICollection<OwnedGame> OwnedGames { get; set; }
 
         public virtual ICollection<ShoppingCartEntry> ShoppingCartEntries { get; set; }
+        public void ReduceEntry(int listingId, int quantityDeduction)
+        {
+            ShoppingCartEntry cartEntry = ShoppingCartEntries.Where(entry => entry.UserID == this.UserID && entry.ListingID == listingId).Single();
+            cartEntry.Quantity -= quantityDeduction;
+
+            ShoppingCartEntries.Remove(cartEntry);
+
+            // removing all the quantity is essentially a delete, only re-add if there is some quantity left
+            if (cartEntry.Quantity > 0)
+            {
+                ShoppingCartEntries.Add(cartEntry);
+            }
+        }
+        public void RemoveEntry(int listingId)
+        {
+            ShoppingCartEntry cartEntry = ShoppingCartEntries.Where(entry => entry.UserID == this.UserID && entry.ListingID == listingId).Single();
+            ShoppingCartEntries.Remove(cartEntry);
+        }
+        public void RemoveAllEntries()
+        {
+            // Get entries associated with this UserID
+            ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => entry.UserID == this.UserID).ToList();
+
+            foreach (ShoppingCartEntry entry in myEntries)
+            {
+                ShoppingCartEntries.Remove(entry);
+            }
+        }
+        public bool AssertBalanceExceedsCost()
+        {
+            if (GetCartTotal() > Balance)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        public bool AssertQuantityOfCart()
+        {
+            // Get entries associated with this UserID
+            ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => entry.UserID == this.UserID).ToList();
+
+            foreach (ShoppingCartEntry entry in myEntries)
+            {
+                if (entry.Quantity > entry.Listing.Quantity)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        public int GetCartTotal()
+        {
+            // Get entries associated with this UserID
+            ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => entry.UserID == this.UserID).ToList();
+
+            // Totals are always integer values
+            int total = 0;
+
+            foreach (ShoppingCartEntry entry in myEntries)
+            {
+                // SaleOrDefaultPrice returns the price, if it's on sale it's the discounted price, otherwise the base price
+                total += entry.Listing.SaleOrDefaultPrice() * entry.Quantity;
+            }
+
+            return total;
+        }
+        public int GetCartQuantity()
+        {
+            int total = 0;
+
+            // Get entries associated with this UserID
+            ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => entry.UserID == this.UserID).ToList();
+            
+            foreach (ShoppingCartEntry entry in myEntries)
+            {
+                total += entry.Quantity;
+            }
+
+            return total;
+        }
     }
 
     public class OwnedGame

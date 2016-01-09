@@ -6,6 +6,11 @@ namespace TheAfterParty.Domain.Entities
 {
     public class ClaimedProductKey
     {
+        public ClaimedProductKey(ProductKey productKey)
+        {
+            ListingID = productKey.ListingID;
+        }
+
         // need a key value that can be safely used in hidden forms
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int KeyID { get; set; }
@@ -14,6 +19,8 @@ namespace TheAfterParty.Domain.Entities
 
         // the user this key is claimed by
         public int UserID { get; set; }
+
+        public bool IsGift { get; set; }
 
         public virtual AppUser AppUser { get; set; }
 
