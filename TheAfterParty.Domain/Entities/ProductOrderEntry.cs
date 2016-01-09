@@ -6,6 +6,16 @@ namespace TheAfterParty.Domain.Entities
 {
     public class ProductOrderEntry
     {
+        public ProductOrderEntry(Order order, ShoppingCartEntry cartEntry, ClaimedProductKey claimedKey)
+        {
+            TransactionID = order.TransactionID;
+            ListingID = cartEntry.ListingID;
+            SalePrice = cartEntry.Listing.SaleOrDefaultPrice();
+            ClaimedProductKey = claimedKey;
+            KeyID = claimedKey.KeyID;
+            claimedKey.ProductOrderEntry = this;
+        }
+
         public int TransactionID { get; set; }
 
         [Key]

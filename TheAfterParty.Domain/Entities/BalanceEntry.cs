@@ -6,6 +6,14 @@ namespace TheAfterParty.Domain.Entities
 {
     public class BalanceEntry
     {
+        public BalanceEntry(int userId, string notes, int pointsAdjusted, DateTime date)
+        {
+            UserID = userId;
+            Notes = notes;
+            PointsAdjusted = pointsAdjusted;
+            Date = date;
+        }
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BalanceID { get; set; }
 

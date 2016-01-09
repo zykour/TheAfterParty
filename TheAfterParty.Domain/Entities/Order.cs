@@ -10,6 +10,12 @@ namespace TheAfterParty.Domain.Entities
 
     public class Order
     {
+        public Order(int userId, DateTime date)
+        {
+            this.UserID = userId;
+            SaleDate = date;
+        }
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TransactionID { get; set; }
 

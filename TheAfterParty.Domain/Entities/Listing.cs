@@ -255,6 +255,10 @@ namespace TheAfterParty.Domain.Entities
 
             return null;
         }
+        public ProductKey RemoveProductKey(int listingId)
+        {
+            return RemoveProductKey(ProductKeys.Where(key => key.ListingID == listingId).Single());
+        }
 
         public int Quantity { get; set; }
         public void UpdateQuantity()

@@ -73,9 +73,53 @@ namespace TheAfterParty.Domain.Entities
 
         // the list of orders the user has successfully made (cancel orders are temporary only, and appear in the shopping cart)
         public virtual ICollection<Order> Orders { get; set; }
+        public bool AssertValidOrder()
+        {
+            if (AssertBalanceExceedsCost() && AssertQuantityOfCart())
+                return true;
+            else
+                return false;
+        }
+        public Order CreateOrder()
+        {
+            DateTime orderDate = DateTime.Now;
+            Order order = new Order(UserID, orderDate);
+
+            ICollection<ShoppingCartEntry> cartEntries = ShoppingCartEntries.Where(entry => entry.UserID == UserID).ToList();
+
+            foreach (ShoppingCartEntry entry in cartEntries)
+            {
+                ClaimedProductKey claimedKey = ClaimKey(entry.Listing, orderDate);
+                ProductOrderEntry orderEntry = new ProductOrderEntry(order, entry, claimedKey);
+
+                order.ProductOrderEntries.Add(orderEntry);
+            }
+
+            CreateBalanceEntry(UserID, "Order #" + order.TransactionID, GetCartTotal(), orderDate);
+
+            RemoveAllEntries();
+
+            return order;
+        }
+        public String OrderSummary(int transactionId)
+        {
+            return "";
+        }
+        public List<String> OrderEntriesSummary(int transactionId)
+        {
+            return new List<String>();
+        }
 
         // the keys this user has gained on the site (by any means)
         public virtual ICollection<ClaimedProductKey> ClaimedProductKeys { get; set; }
+        public ClaimedProductKey ClaimKey(Listing listing, DateTime dateClaimed)
+        {
+            ClaimedProductKey newKey = new ClaimedProductKey(listing.RemoveProductKey(listing.ListingID), UserID, dateClaimed);
+            ClaimedProductKeys.Add(newKey);
+
+            return newKey;
+        }
+        //---- Add a method for  adding other keys not from the productkey list (giveawa, auctions, gifts)
 
         // the gifts this user has received from others
         public virtual ICollection<Gift> ReceivedGifts { get; set; }
@@ -85,6 +129,11 @@ namespace TheAfterParty.Domain.Entities
 
         // the entries for changes in user balance
         public virtual ICollection<BalanceEntry> BalanceEntries { get; set; }
+        public void CreateBalanceEntry(int userId, string notes, int pointsAdjusted, DateTime date)
+        {
+            BalanceEntries.Add(new BalanceEntry(userId, notes, pointsAdjusted, date));
+            Balance = Balance - pointsAdjusted;
+        }
 
         // the items this user has wishlisted
         public virtual ICollection<WishlistEntry> WishlistEntries { get; set; }
