@@ -13,7 +13,7 @@ namespace TheAfterParty.Domain.Entities
             this.DateAdded = dateAdded;
             this.Quantity = quantity;
         }
-        public ShoppingCartEntry(int userId, int listingId, int quantit)
+        public ShoppingCartEntry(int userId, int listingId, int quantity)
         {
             this.UserID = userId;
             this.ListingID = listingId;

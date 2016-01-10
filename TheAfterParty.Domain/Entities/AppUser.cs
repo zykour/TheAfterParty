@@ -89,7 +89,7 @@ namespace TheAfterParty.Domain.Entities
 
             foreach (ShoppingCartEntry entry in cartEntries)
             {
-                ClaimedProductKey claimedKey = ClaimKey(entry.Listing, orderDate);
+                ClaimedProductKey claimedKey = ClaimKey(entry.Listing, orderDate, "Purchase - Order #" + order.TransactionID);
                 ProductOrderEntry orderEntry = new ProductOrderEntry(order, entry, claimedKey);
 
                 order.ProductOrderEntries.Add(orderEntry);
@@ -97,7 +97,7 @@ namespace TheAfterParty.Domain.Entities
 
             CreateBalanceEntry(UserID, "Order #" + order.TransactionID, GetCartTotal(), orderDate);
 
-            RemoveAllEntries();
+            RemoveAllCartEntries();
 
             return order;
         }
@@ -112,9 +112,9 @@ namespace TheAfterParty.Domain.Entities
 
         // the keys this user has gained on the site (by any means)
         public virtual ICollection<ClaimedProductKey> ClaimedProductKeys { get; set; }
-        public ClaimedProductKey ClaimKey(Listing listing, DateTime dateClaimed)
+        public ClaimedProductKey ClaimKey(Listing listing, DateTime dateClaimed, string note)
         {
-            ClaimedProductKey newKey = new ClaimedProductKey(listing.RemoveProductKey(listing.ListingID), UserID, dateClaimed);
+            ClaimedProductKey newKey = new ClaimedProductKey(listing.RemoveProductKey(listing.ListingID), UserID, dateClaimed, note);
             ClaimedProductKeys.Add(newKey);
 
             return newKey;
@@ -182,7 +182,7 @@ namespace TheAfterParty.Domain.Entities
             ShoppingCartEntry cartEntry = ShoppingCartEntries.Where(entry => entry.UserID == this.UserID && entry.ListingID == listingId).Single();
             ShoppingCartEntries.Remove(cartEntry);
         }
-        public void RemoveAllEntries()
+        public void RemoveAllCartEntries()
         {
             // Get entries associated with this UserID
             ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => entry.UserID == this.UserID).ToList();
@@ -194,7 +194,7 @@ namespace TheAfterParty.Domain.Entities
         }
         public bool AssertBalanceExceedsCost()
         {
-            if (GetCartTotal() > Balance)
+            if (GetCartTotal() > (Balance - ReservedBalance()))
             {
                 return false;
             }

@@ -6,12 +6,16 @@ namespace TheAfterParty.Domain.Entities
 {
     public class ClaimedProductKey
     {
-        public ClaimedProductKey(ProductKey productKey, int userId, DateTime? dateAdded)
+        public ClaimedProductKey(ProductKey productKey, int userId, DateTime? dateAdded, string note)
         {
             UserID = userId;
             ListingID = productKey.ListingID;
             Key = productKey.ItemKey;
             Date = dateAdded ?? DateTime.Now;
+            IsGift = false;
+            IsUsed = false;
+            IsRevealed = false;
+            AcquisitionTitle = note;
         }
 
         // need a key value that can be safely used in hidden forms
