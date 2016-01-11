@@ -6,12 +6,15 @@ namespace TheAfterParty.Domain.Entities
 {
     public class BalanceEntry
     {
-        public BalanceEntry(int userId, string notes, int pointsAdjusted, DateTime date)
+        public BalanceEntry(AppUser user, string notes, int pointsAdjusted, DateTime date)
         {
-            UserID = userId;
             Notes = notes;
             PointsAdjusted = pointsAdjusted;
             Date = date;
+
+            UserID = user.UserID;
+            AppUser = user;
+            user.BalanceEntries.Add(this);
         }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]

@@ -6,19 +6,19 @@ namespace TheAfterParty.Domain.Entities
 {
     public class ShoppingCartEntry
     {
-        public ShoppingCartEntry(int userId, int listingId, DateTime dateAdded, int quantity)
+        public ShoppingCartEntry(AppUser user, Listing listing, int quantity)
         {
-            this.UserID = userId;
-            this.ListingID = listingId;
-            this.DateAdded = dateAdded;
+            DateAdded = DateTime.Now;
             this.Quantity = quantity;
-        }
-        public ShoppingCartEntry(int userId, int listingId, int quantity)
-        {
-            this.UserID = userId;
-            this.ListingID = listingId;
-            this.DateAdded = DateTime.Now;
-            this.Quantity = quantity;
+
+            this.ListingID = listing.ListingID;
+            this.Listing = listing;
+
+            this.UserID = user.UserID;
+            this.UserID = user;
+
+            user.ShoppingCartEntries.Add(this);
+            listing.ShoppingCartEntries.Add(this);
         }
         protected ShoppingCartEntry() { }
 

@@ -10,10 +10,28 @@ namespace TheAfterParty.Domain.Entities
 
     public class Order
     {
-        public Order(int userId, DateTime date)
+        public Order(AppUser user, DateTime date)
         {
-            this.UserID = userId;
+            this.UserID = user.UserID;
             SaleDate = date;
+
+            ProductOrderEntries = new HashSet<ProductOrderEntry>();
+
+            this.AppUser = user;
+            user.Orders.Add(this);
+        }
+
+        // Get the total price paid for this entire order
+        public int TotalSalePrice()
+        {
+            int total = 0;
+
+            foreach (ProductOrderEntry orderEntry in ProductOrderEntries)
+            {
+                total += orderEntry.SalePrice;
+            }
+
+            return total;
         }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]

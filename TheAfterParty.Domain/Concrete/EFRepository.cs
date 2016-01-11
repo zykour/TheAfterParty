@@ -450,6 +450,7 @@ namespace TheAfterParty.Domain.Concrete
                     targetMail.Message = mail.Message;
                     targetMail.ReceiverUserID = mail.ReceiverUserID;
                     targetMail.SenderUserID = mail.SenderUserID;
+                    targetMail.Heading = mail.Heading;
                 }
             }
 

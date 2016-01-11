@@ -6,6 +6,16 @@ namespace TheAfterParty.Domain.Entities
 {
     public class UserNotification
     {
+        public UserNotification(AppUser appUser, DateTime dateCreated, string message)
+        {
+            AppUser = appUser;
+            UserID = appUser.UserID;
+            appUser.UserNotifications.Add(this);
+
+            DateTime = dateCreated;
+            IsRead = false;
+        }
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int UserNotificationID { get; set; }
 

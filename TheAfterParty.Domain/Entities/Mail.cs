@@ -6,6 +6,21 @@ namespace TheAfterParty.Domain.Entities
 {
     public class Mail
     {
+        public Mail(AppUser receiver, AppUser sender, string heading, string body, DateTime dateSent)
+        {
+            AppUserReceiver = receiver;
+            ReceiverUserID = receiver.UserID;
+            receiver.ReceivedMail.Add(this);
+
+            AppUserSender = sender;
+            SenderUserID = sender.UserID;
+            sender.SentMail.Add(this);
+
+            Heading = heading;
+            Message = body;
+            DateSent = dateSent;
+        }
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int MailID { get; set; }
 
@@ -26,5 +41,8 @@ namespace TheAfterParty.Domain.Entities
 
         // the message
         public string Message { get; set; }
+
+        // the heading
+        public string Heading { get; set; }
     }
 }

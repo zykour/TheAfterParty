@@ -14,10 +14,13 @@
         <div>@listing.ListingPrice</div>
         <div>@listing.ListingName</div>
         <div>@listing.ListingID - @listing.Product.ProductName</div>
-        <div>
-            <div>@listing.Product.Platform</div>
-            <div>@listing.Product.AppID</div>
-            <div>@listing.Product.ProductDetail.HasAchievements</div>
-        </div>
+        @using (Html.BeginForm("AddToCart", "Cart"))
+        {
+            <div>
+                @Html.HiddenFor(l => listing);
+                @Html.Hidden("returnUrl", Request.Url.PathAndQuery);
+                <input type="submit" value="Add to cart"/>
+            </div>
+        }
     </div>
 }

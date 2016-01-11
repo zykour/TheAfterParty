@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
 using SteamKit2;
 using System.Linq;
+using System.Text;
 
 namespace TheAfterParty.Domain.Entities
 { 
@@ -57,7 +58,7 @@ namespace TheAfterParty.Domain.Entities
         }
         public AuctionBid RemoveAuctionBid(AuctionBid auctionBid)
         {
-            if (AuctionBids.Contains(aucitonBid))
+            if (AuctionBids.Contains(auctionBid))
             {
                 AuctionBids.Remove(auctionBid);
                 return auctionBid;
@@ -83,16 +84,17 @@ namespace TheAfterParty.Domain.Entities
         public Order CreateOrder()
         {
             DateTime orderDate = DateTime.Now;
-            Order order = new Order(UserID, orderDate);
+            Order order = new Order(this, orderDate);
 
             ICollection<ShoppingCartEntry> cartEntries = ShoppingCartEntries.Where(entry => entry.UserID == UserID).ToList();
 
             foreach (ShoppingCartEntry entry in cartEntries)
             {
-                ClaimedProductKey claimedKey = ClaimKey(entry.Listing, orderDate, "Purchase - Order #" + order.TransactionID);
-                ProductOrderEntry orderEntry = new ProductOrderEntry(order, entry, claimedKey);
-
-                order.ProductOrderEntries.Add(orderEntry);
+                for (int i = 0; i < entry.Quantity; i++)
+                {
+                    ClaimedProductKey claimedKey = ClaimKey(entry.Listing, orderDate, "Purchase - Order #" + order.TransactionID);
+                    ProductOrderEntry orderEntry = new ProductOrderEntry(order, entry, claimedKey);
+                }
             }
 
             CreateBalanceEntry(UserID, "Order #" + order.TransactionID, GetCartTotal(), orderDate);
@@ -103,21 +105,35 @@ namespace TheAfterParty.Domain.Entities
         }
         public String OrderSummary(int transactionId)
         {
-            return "";
+            Order order = Orders.Where(o => o.TransactionID == transactionId).Single();
+
+            StringBuilder summary = new StringBuilder("Order #" + order.TransactionID);
+
+            summary.Append("\n\nSale date: " + order.SaleDate);
+            summary.Append("\n\nTotal points paid: " + order.TotalSalePrice());
+
+            return summary.ToString();
         }
         public List<String> OrderEntriesSummary(int transactionId)
         {
-            return new List<String>();
+            Order order = Orders.Where(o => o.TransactionID == transactionId).Single();
+            List<String> entrySummaries = new List<String>();
+
+            foreach (ProductOrderEntry orderEntries in order.ProductOrderEntries)
+            {
+                entrySummaries.Add(orderEntries.SalePrice + "\t\t" + orderEntries.Listing.ListingName);
+            }
+
+            entrySummaries.Sort();
+
+            return entrySummaries;
         }
 
         // the keys this user has gained on the site (by any means)
         public virtual ICollection<ClaimedProductKey> ClaimedProductKeys { get; set; }
         public ClaimedProductKey ClaimKey(Listing listing, DateTime dateClaimed, string note)
         {
-            ClaimedProductKey newKey = new ClaimedProductKey(listing.RemoveProductKey(listing.ListingID), UserID, dateClaimed, note);
-            ClaimedProductKeys.Add(newKey);
-
-            return newKey;
+            return new ClaimedProductKey(listing.RemoveProductKey(listing.ListingID), this, dateClaimed, note);
         }
         //---- Add a method for  adding other keys not from the productkey list (giveawa, auctions, gifts)
 
@@ -131,7 +147,7 @@ namespace TheAfterParty.Domain.Entities
         public virtual ICollection<BalanceEntry> BalanceEntries { get; set; }
         public void CreateBalanceEntry(int userId, string notes, int pointsAdjusted, DateTime date)
         {
-            BalanceEntries.Add(new BalanceEntry(userId, notes, pointsAdjusted, date));
+            new BalanceEntry(this, notes, pointsAdjusted, date);
             Balance = Balance - pointsAdjusted;
         }
 
@@ -149,9 +165,20 @@ namespace TheAfterParty.Domain.Entities
 
         // notifications for this user
         public virtual ICollection<UserNotification> UserNotifications { get; set; }
+        public void CreateUserNotification(Mail mail)
+        {
+            new UserNotification(mail.AppUserReceiver, mail.DateSent, "New mail from " + mail.AppUserReceiver.UserName);
+        }
 
         // mail received by the user
         public virtual ICollection<Mail> ReceivedMail { get; set; }
+        public Mail CreateMail(AppUser sender, string heading, string body)
+        {
+            Mail mail = new Mail(this, sender, heading, body, DateTime.Now);
+            CreateUserNotification(mail);
+
+            return mail;
+        }
 
         // mail sent by the user
         public virtual ICollection<Mail> SentMail { get; set; }
@@ -164,6 +191,21 @@ namespace TheAfterParty.Domain.Entities
         public virtual ICollection<OwnedGame> OwnedGames { get; set; }
 
         public virtual ICollection<ShoppingCartEntry> ShoppingCartEntries { get; set; }
+        public ShoppingCartEntry AddEntry(Listing listing, int quantity = 1)
+        {
+            ShoppingCartEntry entry = ShoppingCartEntries.Where(e => e.ListingID == listing.ListingID && e.UserID == UserID).SingleOrDefault();
+
+            if (entry == null)
+            {
+                entry = new ShoppingCartEntry(this, listing, quantity);
+            }
+            else
+            {
+                entry.Quantity++;
+            }
+
+            return entry;
+        }
         public void ReduceEntry(int listingId, int quantityDeduction)
         {
             ShoppingCartEntry cartEntry = ShoppingCartEntries.Where(entry => entry.UserID == this.UserID && entry.ListingID == listingId).Single();
