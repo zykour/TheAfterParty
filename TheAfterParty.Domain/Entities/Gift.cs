@@ -6,7 +6,7 @@ namespace TheAfterParty.Domain.Entities
 {
     public class Gift
     {
-        [Key]
+        [Key, ForeignKey("ClaimedProductKey")]
         public int GiftID { get; set; }
 
         // the ID of the user who sent the gift
@@ -29,9 +29,6 @@ namespace TheAfterParty.Domain.Entities
         
         // has the gift been accepted yet?
         public bool IsPending { get; set; }
-
-        // the keyID of the gifted product
-        public int KeyID { get; set; }
 
         // the product key of the gifted product
         public virtual ClaimedProductKey ClaimedProductKey { get; set; }

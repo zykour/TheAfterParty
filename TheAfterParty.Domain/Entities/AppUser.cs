@@ -11,7 +11,10 @@ namespace TheAfterParty.Domain.Entities
 { 
     public class AppUser : IdentityUser
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
+        [Key]
+        public string ID { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
         public int UserID { get; set; }
 
         // the 64bit UserID representing the users on this site

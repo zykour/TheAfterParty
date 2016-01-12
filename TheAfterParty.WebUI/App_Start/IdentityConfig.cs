@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
+using Owin.Security.Providers.Steam;
 using Owin;
 using TheAfterParty.Domain.Concrete;
 

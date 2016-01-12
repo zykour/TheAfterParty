@@ -32,6 +32,7 @@ namespace TheAfterParty.Domain.Entities
 
         public string ProductName { get; set; }
 
+        [Required]
         public virtual Listing Listing { get; set; }
         
         public virtual ICollection<ProductReview> ProductReviews { get; set; }

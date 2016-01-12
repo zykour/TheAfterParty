@@ -20,6 +20,7 @@ namespace TheAfterParty.Domain.Entities
 
         public bool IsAvailable { get; set; }
         
+        [Required]
         public virtual Listing Listing { get; set; }
 
         public string Description { get; set; }

@@ -15,7 +15,7 @@ namespace TheAfterParty.Domain.Entities
             this.Listing = listing;
 
             this.UserID = user.UserID;
-            this.UserID = user;
+            this.AppUser = user;
 
             user.ShoppingCartEntries.Add(this);
             listing.ShoppingCartEntries.Add(this);

@@ -9,7 +9,8 @@ namespace TheAfterParty.Domain.Entities
         public int WonPrizeID { get; set; }
 
         public int PrizeID { get; set; }
-
+        
+        [Required]
         public virtual Prize Prize { get; set; }
 
         // what the user did when they won

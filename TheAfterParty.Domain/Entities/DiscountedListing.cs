@@ -23,6 +23,7 @@ namespace TheAfterParty.Domain.Entities
         public DateTime ItemSaleExpiry { get; set; }
 
         // the associated product that's on sale
+        [Required]
         public virtual Listing Listing { get; set; }
     }
 }

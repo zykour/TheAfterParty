@@ -823,7 +823,6 @@ namespace TheAfterParty.Domain.Concrete
             }
             else
             {
-                targetOrderProduct.KeyID = orderProduct.KeyID;
                 targetOrderProduct.SalePrice = orderProduct.SalePrice;
                 targetOrderProduct.ListingID = orderProduct.ListingID;
             }
