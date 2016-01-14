@@ -16,7 +16,7 @@ namespace TheAfterParty.Domain.Entities
             IsRevealed = false;
             AcquisitionTitle = note;
 
-            UserID = user.UserID;
+            UserID = user.Id;
             AppUser = user;
             user.ClaimedProductKeys.Add(this);
         }
@@ -28,7 +28,7 @@ namespace TheAfterParty.Domain.Entities
         public int ListingID { get; set; }
 
         // the user this key is claimed by
-        public int UserID { get; set; }
+        public string UserID { get; set; }
 
         public bool IsGift { get; set; }
 

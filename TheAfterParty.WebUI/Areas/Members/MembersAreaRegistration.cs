@@ -1,22 +1,22 @@
 ﻿using System.Web.Mvc;
 
-namespace TheAfterParty.WebUI.Areas.CoopShop
+namespace TheAfterParty.WebUI.Areas.Members
 {
-    public class CoopShopAreaRegistration : AreaRegistration 
+    public class MembersAreaRegistration : AreaRegistration 
     {
         public override string AreaName 
         {
             get 
             {
-                return "CoopShop";
+                return "Members";
             }
         }
 
         public override void RegisterArea(AreaRegistrationContext context) 
         {
             context.MapRoute(
-                "CoopShop_default",
-                "coop-shop/{controller}/{action}/{id}",
+                "Members_default",
+                "members/{controller}/{action}/{id}",
                 new { action = "Index", id = UrlParameter.Optional }
             );
         }

@@ -8,7 +8,7 @@ namespace TheAfterParty.Domain.Entities
     public class WishlistEntry
     {
         [Key, Column(Order=1)]
-        public int UserID { get; set; }
+        public string UserID { get; set; }
 
         [Key, Column(Order=2)]
         public int ListingID { get; set; }

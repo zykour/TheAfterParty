@@ -1,0 +1,14 @@
+﻿
+@{
+    ViewBag.Title = "Login";
+}
+
+<h2>Login</h2>
+
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("SteamLogin", "Account"))
+{
+    <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
+    <button class="btn btn-primary" type="submit">Log In via Steam</button>
+}

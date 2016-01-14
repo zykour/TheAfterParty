@@ -12,7 +12,7 @@ namespace TheAfterParty.Domain.Entities
     {
         public Order(AppUser user, DateTime date)
         {
-            this.UserID = user.UserID;
+            this.UserID = user.Id;
             SaleDate = date;
 
             ProductOrderEntries = new HashSet<ProductOrderEntry>();
@@ -38,7 +38,7 @@ namespace TheAfterParty.Domain.Entities
         public int TransactionID { get; set; }
 
         // the ID of the user this order is associated with
-        public int UserID { get; set; }
+        public string UserID { get; set; }
 
         // the appuser object associated to the user who made this order
         public virtual AppUser AppUser { get; set; }

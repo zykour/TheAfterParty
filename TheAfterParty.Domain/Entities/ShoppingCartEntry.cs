@@ -14,7 +14,7 @@ namespace TheAfterParty.Domain.Entities
             this.ListingID = listing.ListingID;
             this.Listing = listing;
 
-            this.UserID = user.UserID;
+            this.UserID = user.Id;
             this.AppUser = user;
 
             user.ShoppingCartEntries.Add(this);
@@ -25,7 +25,7 @@ namespace TheAfterParty.Domain.Entities
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ShoppingID { get; set; }
         
-        public int UserID { get; set; }
+        public string UserID { get; set; }
         
         public virtual AppUser AppUser { get; set; }
 

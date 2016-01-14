@@ -9,11 +9,11 @@ namespace TheAfterParty.Domain.Entities
         public Mail(AppUser receiver, AppUser sender, string heading, string body, DateTime dateSent)
         {
             AppUserReceiver = receiver;
-            ReceiverUserID = receiver.UserID;
+            ReceiverUserID = receiver.Id;
             receiver.ReceivedMail.Add(this);
 
             AppUserSender = sender;
-            SenderUserID = sender.UserID;
+            SenderUserID = sender.Id;
             sender.SentMail.Add(this);
 
             Heading = heading;
@@ -25,13 +25,13 @@ namespace TheAfterParty.Domain.Entities
         public int MailID { get; set; }
 
         // the ID of who sent the message
-        public int SenderUserID { get; set; }
+        public string SenderUserID { get; set; }
 
         // the senders AppUser object
         public virtual AppUser AppUserSender { get; set; }
 
         // the ID of who receives the message
-        public int ReceiverUserID { get; set; }
+        public string ReceiverUserID { get; set; }
 
         // the receivers AppUser object
         public virtual AppUser AppUserReceiver { get; set; }

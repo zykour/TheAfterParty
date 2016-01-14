@@ -17,7 +17,8 @@
     <AssemblyName>TheAfterParty.WebUI</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
-    <IISExpressSSLPort />
+    <IISExpressSSLPort>
+    </IISExpressSSLPort>
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
@@ -76,16 +77,16 @@
       <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.3.0.1\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Security.2.1.0\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.3.0.1\lib\net45\Microsoft.Owin.Security.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security.Cookies, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Security.Cookies.2.1.0\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security.Cookies, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.Cookies.3.0.1\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Owin.Security.OAuth, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Security.OAuth.2.1.0\lib\net45\Microsoft.Owin.Security.OAuth.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security.OAuth, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.OAuth.3.0.1\lib\net45\Microsoft.Owin.Security.OAuth.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Moq, Version=4.2.1507.118, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
@@ -93,7 +94,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
@@ -168,13 +169,14 @@
     <Content Include="Global.asax" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
-    <Content Include="Areas\CoopShop\Views\Account\Index.cshtml" />
-    <Content Include="Areas\CoopShop\Views\Balances\Index.cshtml" />
-    <Content Include="Areas\CoopShop\Views\Home\Index.cshtml" />
-    <Content Include="Areas\CoopShop\Views\Objectives\Index.cshtml" />
-    <Content Include="Areas\CoopShop\Views\Store\Index.cshtml" />
-    <Content Include="Areas\CoopShop\Views\Store\EditorTemplates\Listing.cshtml" />
+    <Content Include="Areas\Members\Views\Account\Index.cshtml" />
+    <Content Include="Areas\Members\Views\Balances\Index.cshtml" />
+    <Content Include="Areas\Members\Views\Home\Index.cshtml" />
+    <Content Include="Areas\Members\Views\Objectives\Index.cshtml" />
+    <Content Include="Areas\Members\Views\Store\Index.cshtml" />
+    <Content Include="Areas\Members\Views\Store\EditorTemplates\Listing.cshtml" />
     <Content Include="AppSettingsSecret.config" />
+    <Content Include="Areas\Members\Views\Account\Login.cshtml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -185,14 +187,14 @@
     <Compile Include="App_Start\IdentityConfig.cs" />
     <Compile Include="App_Start\NinjectWebCommon.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="Areas\CoopShop\Controllers\AboutController.cs" />
-    <Compile Include="Areas\CoopShop\Controllers\AccountController.cs" />
-    <Compile Include="Areas\CoopShop\Controllers\BalancesController.cs" />
-    <Compile Include="Areas\CoopShop\Controllers\CartController.cs" />
-    <Compile Include="Areas\CoopShop\Controllers\HomeController.cs" />
-    <Compile Include="Areas\CoopShop\Controllers\ObjectivesController.cs" />
-    <Compile Include="Areas\CoopShop\Controllers\StoreController.cs" />
-    <Compile Include="Areas\CoopShop\CoopShopAreaRegistration.cs" />
+    <Compile Include="Areas\Members\Controllers\AboutController.cs" />
+    <Compile Include="Areas\Members\Controllers\AccountController.cs" />
+    <Compile Include="Areas\Members\Controllers\BalancesController.cs" />
+    <Compile Include="Areas\Members\Controllers\CartController.cs" />
+    <Compile Include="Areas\Members\Controllers\HomeController.cs" />
+    <Compile Include="Areas\Members\Controllers\ObjectivesController.cs" />
+    <Compile Include="Areas\Members\Controllers\StoreController.cs" />
+    <Compile Include="Areas\Members\MembersAreaRegistration.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -202,10 +204,10 @@
   <ItemGroup>
     <Content Include="Views\web.config" />
     <Content Include="packages.config" />
-    <Content Include="Areas\CoopShop\Views\web.config" />
-    <Content Include="Areas\CoopShop\Views\_ViewStart.cshtml" />
-    <Content Include="Areas\CoopShop\Views\Shared\_Layout.cshtml" />
-    <Content Include="Areas\CoopShop\Views\About\Index.cshtml" />
+    <Content Include="Areas\Members\Views\web.config" />
+    <Content Include="Areas\Members\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\Members\Views\Shared\_Layout.cshtml" />
+    <Content Include="Areas\Members\Views\About\Index.cshtml" />
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
@@ -219,8 +221,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Areas\CoopShop\Models\" />
-    <Folder Include="Areas\CoopShop\Views\Cart\" />
+    <Folder Include="Areas\Members\Models\" />
+    <Folder Include="Areas\Members\Views\Cart\" />
     <Folder Include="Controllers\" />
     <Folder Include="Models\" />
   </ItemGroup>

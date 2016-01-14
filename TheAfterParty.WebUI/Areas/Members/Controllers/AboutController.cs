@@ -4,11 +4,11 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace TheAfterParty.WebUI.Areas.CoopShop.Controllers
+namespace TheAfterParty.WebUI.Areas.Members.Controllers
 {
-    public class HomeController : Controller
+    public class AboutController : Controller
     {
-        // GET: CoopShop/Home
+        // GET: CoopShop/About
         public ActionResult Index()
         {
             return View();

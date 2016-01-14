@@ -15,7 +15,7 @@ namespace TheAfterParty.Domain.Entities
         [Key, Column(Order = 2), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int EntryNumber { get; set; }
             
-        public int UserID { get; set; }
+        public string UserID { get; set; }
         
         // the associated Giveaway object for this entry
         public virtual Giveaway Giveaway { get; set; }

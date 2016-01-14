@@ -11,18 +11,24 @@ namespace TheAfterParty.Domain.Entities
 { 
     public class AppUser : IdentityUser
     {
-        [Key]
-        public string ID { get; set; }
+        public AppUser(string name, int balance, bool privateWishlist, Int64 steamId)
+        {
+            UserSteamID = steamId;
+            UserName = name;
+            Balance = balance;
+            IsPrivateWishlist = privateWishlist;
+        }
+        public AppUser()
+        {
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
-        public int UserID { get; set; }
-
+        }
+        
         // the 64bit UserID representing the users on this site
         [Required]
-        public ulong SteamID { get; set; }
+        public Int64 UserSteamID { get; set; }
         public SteamID GetAsSteamID()
         {
-            return new SteamKit2.SteamID(SteamID);
+            return new SteamKit2.SteamID((ulong)UserSteamID);
         }
 
         // denotes the users balance (if any)
@@ -89,7 +95,7 @@ namespace TheAfterParty.Domain.Entities
             DateTime orderDate = DateTime.Now;
             Order order = new Order(this, orderDate);
 
-            ICollection<ShoppingCartEntry> cartEntries = ShoppingCartEntries.Where(entry => entry.UserID == UserID).ToList();
+            ICollection<ShoppingCartEntry> cartEntries = ShoppingCartEntries.Where(entry => Object.Equals(entry.UserID, Id)).ToList();
 
             foreach (ShoppingCartEntry entry in cartEntries)
             {
@@ -100,7 +106,7 @@ namespace TheAfterParty.Domain.Entities
                 }
             }
 
-            CreateBalanceEntry(UserID, "Order #" + order.TransactionID, GetCartTotal(), orderDate);
+            CreateBalanceEntry("Order #" + order.TransactionID, GetCartTotal(), orderDate);
 
             RemoveAllCartEntries();
 
@@ -148,7 +154,7 @@ namespace TheAfterParty.Domain.Entities
 
         // the entries for changes in user balance
         public virtual ICollection<BalanceEntry> BalanceEntries { get; set; }
-        public void CreateBalanceEntry(int userId, string notes, int pointsAdjusted, DateTime date)
+        public void CreateBalanceEntry(string notes, int pointsAdjusted, DateTime date)
         {
             new BalanceEntry(this, notes, pointsAdjusted, date);
             Balance = Balance - pointsAdjusted;
@@ -196,7 +202,7 @@ namespace TheAfterParty.Domain.Entities
         public virtual ICollection<ShoppingCartEntry> ShoppingCartEntries { get; set; }
         public ShoppingCartEntry AddEntry(Listing listing, int quantity = 1)
         {
-            ShoppingCartEntry entry = ShoppingCartEntries.Where(e => e.ListingID == listing.ListingID && e.UserID == UserID).SingleOrDefault();
+            ShoppingCartEntry entry = ShoppingCartEntries.Where(e => e.ListingID == listing.ListingID && Object.Equals(e.UserID, Id)).SingleOrDefault();
 
             if (entry == null)
             {
@@ -211,7 +217,7 @@ namespace TheAfterParty.Domain.Entities
         }
         public void ReduceEntry(int listingId, int quantityDeduction)
         {
-            ShoppingCartEntry cartEntry = ShoppingCartEntries.Where(entry => entry.UserID == this.UserID && entry.ListingID == listingId).Single();
+            ShoppingCartEntry cartEntry = ShoppingCartEntries.Where(entry => Object.Equals(entry.UserID, this.Id) && entry.ListingID == listingId).Single();
             cartEntry.Quantity -= quantityDeduction;
 
             ShoppingCartEntries.Remove(cartEntry);
@@ -224,13 +230,13 @@ namespace TheAfterParty.Domain.Entities
         }
         public void RemoveEntry(int listingId)
         {
-            ShoppingCartEntry cartEntry = ShoppingCartEntries.Where(entry => entry.UserID == this.UserID && entry.ListingID == listingId).Single();
+            ShoppingCartEntry cartEntry = ShoppingCartEntries.Where(entry => Object.Equals(entry.UserID, this.Id) && entry.ListingID == listingId).Single();
             ShoppingCartEntries.Remove(cartEntry);
         }
         public void RemoveAllCartEntries()
         {
             // Get entries associated with this UserID
-            ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => entry.UserID == this.UserID).ToList();
+            ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => Object.Equals(entry.UserID, this.Id)).ToList();
 
             foreach (ShoppingCartEntry entry in myEntries)
             {
@@ -251,7 +257,7 @@ namespace TheAfterParty.Domain.Entities
         public bool AssertQuantityOfCart()
         {
             // Get entries associated with this UserID
-            ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => entry.UserID == this.UserID).ToList();
+            ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => Object.Equals(entry.UserID, this.Id)).ToList();
 
             foreach (ShoppingCartEntry entry in myEntries)
             {
@@ -266,7 +272,7 @@ namespace TheAfterParty.Domain.Entities
         public int GetCartTotal()
         {
             // Get entries associated with this UserID
-            ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => entry.UserID == this.UserID).ToList();
+            ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => Object.Equals(entry.UserID, this.Id)).ToList();
 
             // Totals are always integer values
             int total = 0;
@@ -284,7 +290,7 @@ namespace TheAfterParty.Domain.Entities
             int total = 0;
 
             // Get entries associated with this UserID
-            ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => entry.UserID == this.UserID).ToList();
+            ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => Object.Equals(entry.UserID, this.Id)).ToList();
             
             foreach (ShoppingCartEntry entry in myEntries)
             {
@@ -300,7 +306,7 @@ namespace TheAfterParty.Domain.Entities
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
         public int Id { get; set; }
 
-        public int UserID { get; set; }
+        public string UserID { get; set; }
 
         public int AppID { get; set; }
 

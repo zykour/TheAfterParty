@@ -4,11 +4,18 @@
     ViewBag.Title = "Index";
 }
 <div class="panel panel-primary">
+    <div>
+        @if (Context.User.Identity.IsAuthenticated)
+        {
+            <span>Welcome, @Context.User.Identity.Name</span>
+            <br/><span>ID:</span>
+        }
+    </div>
     <div class="panel-heading">
         User Accounts
     </div>
     <table class="table table-striped">
-        <tr><th>ID</th><th>Name</th><th>Email</th></tr>
+        <tr><th>ID</th><th>Name</th><th>Email</th><th>SteamID</th><th>Balance</th></tr>
         @if (Model.Count() == 0)
         {
             <tr><td colspan="3" class="text-center">No User Accounts</td></tr>
@@ -20,7 +27,8 @@
                     <td>@user.Id</td>
                     <td>@user.UserName</td>
                     <td>@user.Email</td>
-                    <td>@user.SteamID</td>
+                    <td>@user.UserSteamID</td>
+                    <td>@user.Balance</td>
                 </tr>
             }
         }

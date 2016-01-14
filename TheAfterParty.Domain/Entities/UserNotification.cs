@@ -9,7 +9,7 @@ namespace TheAfterParty.Domain.Entities
         public UserNotification(AppUser appUser, DateTime dateCreated, string message)
         {
             AppUser = appUser;
-            UserID = appUser.UserID;
+            UserID = appUser.Id;
             appUser.UserNotifications.Add(this);
 
             DateTime = dateCreated;
@@ -20,7 +20,7 @@ namespace TheAfterParty.Domain.Entities
         public int UserNotificationID { get; set; }
 
         // the user this notification is for
-        public int UserID { get; set; }
+        public string UserID { get; set; }
 
         // when the notification happened
         public DateTime DateTime { get; set; }

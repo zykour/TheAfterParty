@@ -10,13 +10,13 @@ namespace TheAfterParty.Domain.Entities
         public int GiftID { get; set; }
 
         // the ID of the user who sent the gift
-        public int SenderID { get; set; }
+        public string SenderID { get; set; }
 
         // the associated AppUser of the sender
         public virtual AppUser AppUserSender { get; set; }
 
         // the ID of the user who is targeted to receive the gift
-        public int ReceiverID { get; set; }
+        public string ReceiverID { get; set; }
 
         // the associated AppUser of the recipient
         public virtual AppUser AppUserReceiver { get; set; }

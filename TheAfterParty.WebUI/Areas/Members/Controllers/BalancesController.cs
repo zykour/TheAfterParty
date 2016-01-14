@@ -7,7 +7,7 @@ using TheAfterParty.Domain.Abstract;
 using Microsoft.AspNet.Identity.Owin;
 using TheAfterParty.Domain.Concrete;
 
-namespace TheAfterParty.WebUI.Areas.CoopShop.Controllers
+namespace TheAfterParty.WebUI.Areas.Members.Controllers
 {
     public class BalancesController : Controller
     {

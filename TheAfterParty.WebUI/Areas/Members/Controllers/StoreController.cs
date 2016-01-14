@@ -5,7 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using TheAfterParty.Domain.Abstract;
 
-namespace TheAfterParty.WebUI.Areas.CoopShop.Controllers
+namespace TheAfterParty.WebUI.Areas.Members.Controllers
 {
     public class StoreController : Controller
     {

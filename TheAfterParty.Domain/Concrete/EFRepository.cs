@@ -9,7 +9,7 @@ namespace TheAfterParty.Domain.Concrete
 {
     public class EFRepository : IRepository
     {
-        private EFDbContext context = new EFDbContext();
+        private AppIdentityDbContext context = new AppIdentityDbContext();
 
         public IEnumerable<Auction> Auctions
         {

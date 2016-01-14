@@ -18,7 +18,7 @@ namespace TheAfterParty.Domain.Entities
         public virtual Listing Listing { get; set; }
 
         // the user that posted this comment
-        public int UserID { get; set; }
+        public string UserID { get; set; }
 
         // the user object
         public virtual AppUser AppUser { get; set; }

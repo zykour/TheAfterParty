@@ -18,7 +18,7 @@ namespace TheAfterParty.Domain.Entities
         public virtual Auction Auction { get; set; }
 
         // the id of the bidder
-        public int UserID { get; set; }
+        public string UserID { get; set; }
 
         // the appuser who made this bid
         public virtual AppUser AppUser { get; set; }

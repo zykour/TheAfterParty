@@ -14,7 +14,7 @@ namespace TheAfterParty.Domain.Entities
 
         public int Quantity { get; set; }
 
-        public int UserID { get; set; }
+        public string UserID { get; set; }
 
         public virtual AppUser AppUser { get; set; }
     }

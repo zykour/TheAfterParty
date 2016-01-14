@@ -16,7 +16,7 @@ namespace TheAfterParty.Domain.Entities
         // what the user did when they won
         public string WinningAction { get; set; }
 
-        public int UserID { get; set; }
+        public string UserID { get; set; }
 
         public virtual AppUser AppUser { get; set; }
     }

@@ -1,10 +1,11 @@
 ﻿using System.Data.Entity;
 using TheAfterParty.Domain.Entities;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Identity;
 
 namespace TheAfterParty.Domain.Concrete
 {
-    public class EFDbContext : DbContext
+    public class AppIdentityDbContext : IdentityDbContext<AppUser>
     {
         public DbSet<Auction> Auctions { get; set; }
         public DbSet<AuctionBid> AuctionBids { get; set; }
@@ -37,23 +38,25 @@ namespace TheAfterParty.Domain.Concrete
         public DbSet<WishlistEntry> WishlistEntries { get; set; }
         public DbSet<WonPrize> WonPrizes { get; set; }
 
-        public EFDbContext()
+        public AppIdentityDbContext() : base("EFDbContext")
         {
             this.Configuration.LazyLoadingEnabled = true;
             this.Configuration.ProxyCreationEnabled = true;
         }
 
-        static EFDbContext()
+        static AppIdentityDbContext()
         {
-            Database.SetInitializer<EFDbContext>(new EFDbInit());
+            Database.SetInitializer<AppIdentityDbContext>(new EFDbInit());
         }
 
+        public static AppIdentityDbContext Create()
+        {
+            return new AppIdentityDbContext();
+        }
+                
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<IdentityUserLogin>().HasKey<string>(l => l.UserId);
-            modelBuilder.Entity<IdentityRole>().HasKey<string>(r => r.Id);
-            modelBuilder.Entity<IdentityUserRole>().HasKey(r => new { r.RoleId, r.UserId });
 
             // AppUser ---
             modelBuilder.Entity<Gift>().HasRequired<AppUser>(g => g.AppUserReceiver).WithMany(au => au.ReceivedGifts).HasForeignKey(g => g.ReceiverID).WillCascadeOnDelete(false);

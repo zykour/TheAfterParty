@@ -6,7 +6,7 @@ using System.Web.Mvc;
 using TheAfterParty.Domain.Abstract;
 using TheAfterParty.Domain.Entities;
 
-namespace TheAfterParty.WebUI.Areas.CoopShop.Controllers
+namespace TheAfterParty.WebUI.Areas.Members.Controllers
 {
     public class CartController : Controller
     {
