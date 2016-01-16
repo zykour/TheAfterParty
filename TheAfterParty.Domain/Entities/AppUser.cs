@@ -90,7 +90,7 @@ namespace TheAfterParty.Domain.Entities
             else
                 return false;
         }
-        public Order CreateOrder()
+        /*public Order CreateOrder()
         {
             DateTime orderDate = DateTime.Now;
             Order order = new Order(this, orderDate);
@@ -106,12 +106,8 @@ namespace TheAfterParty.Domain.Entities
                 }
             }
 
-            CreateBalanceEntry("Order #" + order.TransactionID, GetCartTotal(), orderDate);
-
-            RemoveAllCartEntries();
-
             return order;
-        }
+        }*/
         public String OrderSummary(int transactionId)
         {
             Order order = Orders.Where(o => o.TransactionID == transactionId).Single();
@@ -140,10 +136,10 @@ namespace TheAfterParty.Domain.Entities
 
         // the keys this user has gained on the site (by any means)
         public virtual ICollection<ClaimedProductKey> ClaimedProductKeys { get; set; }
-        public ClaimedProductKey ClaimKey(Listing listing, DateTime dateClaimed, string note)
+        /*public ClaimedProductKey ClaimKey(Listing listing, DateTime dateClaimed, string note)
         {
             return new ClaimedProductKey(listing.RemoveProductKey(listing.ListingID), this, dateClaimed, note);
-        }
+        }*/
         //---- Add a method for  adding other keys not from the productkey list (giveawa, auctions, gifts)
 
         // the gifts this user has received from others
@@ -200,7 +196,7 @@ namespace TheAfterParty.Domain.Entities
         public virtual ICollection<OwnedGame> OwnedGames { get; set; }
 
         public virtual ICollection<ShoppingCartEntry> ShoppingCartEntries { get; set; }
-        public ShoppingCartEntry AddEntry(Listing listing, int quantity = 1)
+        public ShoppingCartEntry AddShoppingCartEntry(Listing listing, int quantity = 1)
         {
             ShoppingCartEntry entry = ShoppingCartEntries.Where(e => e.ListingID == listing.ListingID && Object.Equals(e.UserID, Id)).SingleOrDefault();
 

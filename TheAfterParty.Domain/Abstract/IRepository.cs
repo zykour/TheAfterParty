@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using TheAfterParty.Domain.Entities;
+using TheAfterParty.Domain.Concrete;
 
 namespace TheAfterParty.Domain.Abstract
 {
     public interface IRepository
     {
 
+        AppIdentityDbContext GetContext();
         //AppUser*
         //Auction
 
@@ -139,9 +141,9 @@ namespace TheAfterParty.Domain.Abstract
 
         //ProductOrderEntry
 
-        IEnumerable<ProductOrderEntry> ProductOrderEntries { get; }
-        void SaveProductOrderEntry(ProductOrderEntry orderProduct);
-        ProductOrderEntry DeleteProductOrderEntry(int orderID);
+        //IEnumerable<ProductOrderEntry> ProductOrderEntries { get; }
+        //void SaveProductOrderEntry(ProductOrderEntry orderProduct);
+        //ProductOrderEntry DeleteProductOrderEntry(int orderID);
 
         //ProductReview
 

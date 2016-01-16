@@ -9,6 +9,8 @@ using TheAfterParty.Domain.Entities;
 using TheAfterParty.Domain.Concrete;
 using System.Text.RegularExpressions;
 using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace TheAfterParty.WebUI.Areas.Members.Controllers
 {
@@ -21,6 +23,18 @@ namespace TheAfterParty.WebUI.Areas.Members.Controllers
             return View(UserManager.Users);
         }
 
+
+
+
+
+
+
+
+
+
+        // -----------------------
+        // Login/logout and related methods
+
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
@@ -31,6 +45,14 @@ namespace TheAfterParty.WebUI.Areas.Members.Controllers
 
             ViewBag.returnUrl = returnUrl;
             return View();
+        }
+
+        [Authorize]
+        public ActionResult Logout()
+        {
+            AuthManager.SignOut();
+
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
@@ -49,38 +71,55 @@ namespace TheAfterParty.WebUI.Areas.Members.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> SteamLoginCallback(string returnUrl)
         {
+            // Get the external login info from Steam and find the corresponding user if it exists based on that info
             ExternalLoginInfo loginInfo = await AuthManager.GetExternalLoginInfoAsync();
             AppUser user = await UserManager.FindAsync(loginInfo.Login);
 
+            // regular expression logic for extracing a 64-bit steam id from the claimed id
+            Regex SteamIDRegex = new Regex(@"^http://steamcommunity\.com/openid/id/(7[0-9]{15,25})$");
+            Match IDMatch = SteamIDRegex.Match(loginInfo.Login.ProviderKey);
+
+            Int64 steamId = 0;
+
+            IdentityResult result;
+
+            if (IDMatch.Success)
+            {
+                steamId = Int64.Parse(IDMatch.Groups[1].Value);
+            }
+
             if (user == null)
             {
-                user = new AppUser
-                {
-                    UserName = loginInfo.DefaultUserName
-                };
+                // attempt to figure out if this user exists but hasn't logged in via the Steam external login provider before
+                user = UserManager.Users.Where(u => u.UserSteamID == steamId).SingleOrDefault();
 
-                Regex SteamIDRegex = new Regex(@"^http://steamcommunity\.com/openid/id/(7[0-9]{15,25})$");
-                Match IDMatch = SteamIDRegex.Match(loginInfo.Login.ProviderKey);
-
-                if (IDMatch.Success)
+                // if this user doesn't exist in our database at all, create a new user
+                if (user == null)
                 {
-                    user.UserSteamID = Int64.Parse(IDMatch.Groups[1].Value);
-                }
+                    user = new AppUser
+                    {
+                        UserName = loginInfo.DefaultUserName,
+                        UserSteamID = steamId
+                    };
 
-                IdentityResult result = await UserManager.CreateAsync(user);
-
-                if (!result.Succeeded)
-                {
-                    return View("Error", result.Errors);
-                }
-                else
-                {
-                    result = await UserManager.AddLoginAsync(user.Id, loginInfo.Login);
+                    result = await UserManager.CreateAsync(user);
 
                     if (!result.Succeeded)
                     {
                         return View("Error", result.Errors);
                     }
+                }
+                else if (user.UserSteamID == 0)
+                {
+                    user.UserSteamID = steamId;
+                }
+                
+                // add the login info to the existing or new user
+                result = await UserManager.AddLoginAsync(user.Id, loginInfo.Login);
+
+                if (!result.Succeeded)
+                {
+                    return View("Error", result.Errors);
                 }
             }
 
@@ -96,12 +135,13 @@ namespace TheAfterParty.WebUI.Areas.Members.Controllers
             return Redirect(returnUrl ?? "/");
         }
 
-        [Authorize]
-        public ActionResult Logout()
-        {
-            AuthManager.SignOut();
-            return RedirectToAction("Index", "Home");
-        }
+
+
+
+
+
+        // -------------------------
+        // Getter methods
 
         private IAuthenticationManager AuthManager
         {   
@@ -117,29 +157,6 @@ namespace TheAfterParty.WebUI.Areas.Members.Controllers
             {
                 return HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
             }
-        }
-
-        // Workaround code provided by StackOverflow
-        private async Task<ExternalLoginInfo> AuthenticationManager_GetExternalLoginInfoAsync_Workaround()
-        {
-            ExternalLoginInfo loginInfo = null;
-
-            var result = await AuthManager.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie);
-
-            if (result != null && result.Identity != null)
-            {
-                var idClaim = result.Identity.FindFirst(ClaimTypes.NameIdentifier);
-                if (idClaim != null)
-                {
-                    loginInfo = new ExternalLoginInfo()
-                    {
-                        DefaultUserName = result.Identity.Name == null ? "" : result.Identity.Name.Replace(" ", ""),
-                        Login = new UserLoginInfo(idClaim.Issuer, idClaim.Value)
-                    };
-                }
-            }
-
-            return loginInfo;
         }
     }
 }

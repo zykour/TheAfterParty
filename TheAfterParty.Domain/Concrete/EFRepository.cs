@@ -10,6 +10,10 @@ namespace TheAfterParty.Domain.Concrete
     public class EFRepository : IRepository
     {
         private AppIdentityDbContext context = new AppIdentityDbContext();
+        public AppIdentityDbContext GetContext()
+        {
+            return context;
+        }
 
         public IEnumerable<Auction> Auctions
         {
@@ -578,12 +582,16 @@ namespace TheAfterParty.Domain.Concrete
         {
             get { return context.Orders; }
         }
-
         public void SaveOrder(Order order)
         {
             if (order.TransactionID == 0)
             {
                 context.Orders.Add(order);
+
+                foreach (ProductOrderEntry entry in order.ProductOrderEntries)
+                {
+                    SaveProductOrderEntry(entry);
+                }
             }
             else
             {
@@ -598,7 +606,6 @@ namespace TheAfterParty.Domain.Concrete
 
             context.SaveChanges();
         }
-
         public Order DeleteOrder(int orderID)
         {
             Order targetOrder = context.Orders.Find(orderID);
@@ -606,9 +613,52 @@ namespace TheAfterParty.Domain.Concrete
             if (targetOrder != null)
             {
                 context.Orders.Remove(targetOrder);
+
+                foreach (ProductOrderEntry entry in targetOrder.ProductOrderEntries)
+                {
+                    context.ProductOrderEntries.Remove(entry);
+                }
+
                 context.SaveChanges();
 
                 return targetOrder;
+            }
+
+            return null;
+        }
+
+        private IEnumerable<ProductOrderEntry> ProductOrderEntries
+        {
+            get { return context.ProductOrderEntries; }
+        }
+        private void SaveProductOrderEntry(ProductOrderEntry orderProduct)
+        {
+            ProductOrderEntry targetOrderProduct = context.ProductOrderEntries.Find(orderProduct.OrderID);
+
+            if (targetOrderProduct == null)
+            {
+                context.ProductOrderEntries.Add(orderProduct);
+
+                SaveClaimedProductKey(orderProduct.ClaimedProductKey);
+            }
+            else
+            {
+                targetOrderProduct.SalePrice = orderProduct.SalePrice;
+                targetOrderProduct.ListingID = orderProduct.ListingID;
+            }
+
+            context.SaveChanges();
+        }
+        private ProductOrderEntry DeleteProductOrderEntry(int orderID)
+        {
+            ProductOrderEntry targetOrderProduct = context.ProductOrderEntries.Find(orderID);
+
+            if (targetOrderProduct != null)
+            {
+                context.ProductOrderEntries.Remove(targetOrderProduct);
+                context.SaveChanges();
+
+                return targetOrderProduct;
             }
 
             return null;
@@ -618,7 +668,6 @@ namespace TheAfterParty.Domain.Concrete
         {
             get { return context.OwnedGames; }
         }
-
         public void SaveOwnedGame(OwnedGame ownedGame)
         {
             if (ownedGame.Id == 0)
@@ -633,7 +682,6 @@ namespace TheAfterParty.Domain.Concrete
         {
             get { return context.Prizes; }
         }
-
         public void SavePrize(Prize prize)
         {
             Prize targetPrize = context.Prizes.Find(prize.PrizeID);
@@ -657,7 +705,6 @@ namespace TheAfterParty.Domain.Concrete
         {
             get { return context.Products; }
         }
-
         public void SaveProduct(Product product)
         {
             Product targetProduct = context.Products.Find(product.ProductID);
@@ -680,31 +727,29 @@ namespace TheAfterParty.Domain.Concrete
         {
             get { return context.ListingComments; }
         }
-
-        public void SaveListingComment(ListingComment ListingComment)
+        public void SaveListingComment(ListingComment listingComment)
         {
-            if (ListingComment.ListingCommentID == 0)
+            if (listingComment.ListingCommentID == 0)
             {
-                context.ListingComments.Add(ListingComment);
+                context.ListingComments.Add(listingComment);
             }
             else
             {
-                ListingComment targetListingComment = context.ListingComments.Find(ListingComment.ListingCommentID);
+                ListingComment targetListingComment = context.ListingComments.Find(listingComment.ListingCommentID);
 
                 if (targetListingComment != null)
                 {
-                    targetListingComment.Comment = ListingComment.Comment;
-                    targetListingComment.IsEdited = ListingComment.IsEdited;
-                    targetListingComment.LastEdited = ListingComment.LastEdited;
-                    targetListingComment.ListingID = ListingComment.ListingID;
-                    targetListingComment.PostDate = ListingComment.PostDate;
-                    targetListingComment.UserID = ListingComment.UserID;
+                    targetListingComment.Comment = listingComment.Comment;
+                    targetListingComment.IsEdited = listingComment.IsEdited;
+                    targetListingComment.LastEdited = listingComment.LastEdited;
+                    targetListingComment.ListingID = listingComment.ListingID;
+                    targetListingComment.PostDate = listingComment.PostDate;
+                    targetListingComment.UserID = listingComment.UserID;
                 }
             }
 
             context.SaveChanges();
         }
-
         public ListingComment DeleteListingComment(int ListingCommentID)
         {
             ListingComment targetListingComment = context.ListingComments.Find(ListingCommentID);
@@ -724,7 +769,6 @@ namespace TheAfterParty.Domain.Concrete
         {
             get { return context.ProductDetails; }
         }
-
         public void SaveProductDetail(ProductDetail productDetail)
         {
             ProductDetail targetProductDetail = context.ProductDetails.Find(productDetail.ProductID);
@@ -742,7 +786,6 @@ namespace TheAfterParty.Domain.Concrete
 
             context.SaveChanges();
         }
-
         public ProductDetail DeleteProductDetail(int productId)
         {
             ProductDetail targetProductDetail = context.ProductDetails.Find(productId);
@@ -762,12 +805,10 @@ namespace TheAfterParty.Domain.Concrete
         {
             get { return context.ProductKeys; }
         }
-
         public ProductKey GetProductKeyById(int keyId)
         {
             return context.ProductKeys.Find(keyId);            
         }
-
         public void SaveProductKey(ProductKey productKey)
         {
             if (productKey.KeyID == 0)
@@ -792,7 +833,6 @@ namespace TheAfterParty.Domain.Concrete
 
             context.SaveChanges();
         }
-
         public ProductKey DeleteProductKey(int productKeyID)
         {
             ProductKey targetProductKey = context.ProductKeys.Find(productKeyID);
@@ -803,43 +843,6 @@ namespace TheAfterParty.Domain.Concrete
                 context.SaveChanges();
 
                 return targetProductKey;
-            }
-
-            return null;
-        }
-
-        public IEnumerable<ProductOrderEntry> ProductOrderEntries
-        {
-            get { return context.ProductOrderEntries;  }
-        }
-
-        public void SaveProductOrderEntry(ProductOrderEntry orderProduct)
-        {
-            ProductOrderEntry targetOrderProduct = context.ProductOrderEntries.Find(orderProduct.OrderID);
-
-            if (targetOrderProduct == null)
-            {
-                context.ProductOrderEntries.Add(orderProduct);
-            }
-            else
-            {
-                targetOrderProduct.SalePrice = orderProduct.SalePrice;
-                targetOrderProduct.ListingID = orderProduct.ListingID;
-            }
-
-            context.SaveChanges();
-        }
-
-        public ProductOrderEntry DeleteProductOrderEntry(int orderID)
-        {
-            ProductOrderEntry targetOrderProduct = context.ProductOrderEntries.Find(orderID);
-
-            if (targetOrderProduct != null)
-            {
-                context.ProductOrderEntries.Remove(targetOrderProduct);
-                context.SaveChanges();
-
-                return targetOrderProduct;
             }
 
             return null;

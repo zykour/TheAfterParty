@@ -177,6 +177,7 @@
     <Content Include="Areas\Members\Views\Store\EditorTemplates\Listing.cshtml" />
     <Content Include="AppSettingsSecret.config" />
     <Content Include="Areas\Members\Views\Account\Login.cshtml" />
+    <Content Include="Areas\Members\Views\Cart\Index.cshtml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -195,6 +196,8 @@
     <Compile Include="Areas\Members\Controllers\ObjectivesController.cs" />
     <Compile Include="Areas\Members\Controllers\StoreController.cs" />
     <Compile Include="Areas\Members\MembersAreaRegistration.cs" />
+    <Compile Include="Areas\Members\Models\Balances\BalancesIndexViewModel.cs" />
+    <Compile Include="Areas\Members\Models\Cart\CartIndexViewModel.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -221,8 +224,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Areas\Members\Models\" />
-    <Folder Include="Areas\Members\Views\Cart\" />
     <Folder Include="Controllers\" />
     <Folder Include="Models\" />
   </ItemGroup>

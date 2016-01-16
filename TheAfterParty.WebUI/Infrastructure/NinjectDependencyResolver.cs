@@ -5,6 +5,7 @@ using TheAfterParty.Domain.Abstract;
 using TheAfterParty.Domain.Concrete;
 using TheAfterParty.Domain.Entities;
 using Ninject;
+using Ninject.Web.Common;
 
 namespace TheAfterParty.WebUI.Infrastructure
 {
@@ -31,6 +32,9 @@ namespace TheAfterParty.WebUI.Infrastructure
         private void AddBindings()
         {
             kernel.Bind<IRepository>().To<EFRepository>();
+            kernel.Bind<AppIdentityDbContext>().ToSelf().InRequestScope();
+            kernel.Bind<IListingRepository>().To<ListingRepository>().InRequestScope();
+            kernel.Bind<IUserRepository>().To<UserRepository>().InRequestScope();
         }
     }
 }

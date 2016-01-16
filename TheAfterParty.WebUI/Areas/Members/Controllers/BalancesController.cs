@@ -6,15 +6,26 @@ using System.Web.Mvc;
 using TheAfterParty.Domain.Abstract;
 using Microsoft.AspNet.Identity.Owin;
 using TheAfterParty.Domain.Concrete;
+using TheAfterParty.WebUI.Areas.Members.Models.Balances;
+using System.Threading.Tasks;
 
 namespace TheAfterParty.WebUI.Areas.Members.Controllers
 {
     public class BalancesController : Controller
     {
         // GET: CoopShop/Balances
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            return View(UserManager.Users);
+            BalancesIndexViewModel balanceViewModel = new BalancesIndexViewModel();
+
+            if (User.Identity.IsAuthenticated)
+            {
+                balanceViewModel.LoggedInUser = await UserManager.FindByNameAsync(User.Identity.Name);
+            }
+
+            balanceViewModel.SiteUsers = UserManager.Users;
+
+            return View(balanceViewModel);
         }
 
         private AppUserManager UserManager

@@ -38,7 +38,7 @@ namespace TheAfterParty.Domain.Concrete
         public DbSet<WishlistEntry> WishlistEntries { get; set; }
         public DbSet<WonPrize> WonPrizes { get; set; }
 
-        public AppIdentityDbContext() : base("EFDbContext")
+        public AppIdentityDbContext() : base("AppIdentityDbContext")
         {
             this.Configuration.LazyLoadingEnabled = true;
             this.Configuration.ProxyCreationEnabled = true;

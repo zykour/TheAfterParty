@@ -16,7 +16,7 @@ public class EFDbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
     {
         AppUserManager userMgr = new AppUserManager(new UserStore<AppUser>(context));
 
-        userMgr.Create(new AppUser { UserSteamID = 76561198030277114, UserName = "Monukai", Email = "monu.kai@example.com", Balance = 0, IsPrivateWishlist = true });
+        userMgr.Create(new AppUser { UserSteamID = 76561198030277114, UserName = "Monu", Email = "monu.kai@example.com", Balance = 152, IsPrivateWishlist = true });
         userMgr.Create(new AppUser { UserSteamID = 76561198019064906, UserName = "Lucky", Email = "luckyboy@example.com", Balance = 75, IsPrivateWishlist = false });
         userMgr.Create(new AppUser { UserSteamID = 76561197962202166, UserName = "Don_Vino", Balance = 50, IsPrivateWishlist = false });
         userMgr.Create(new AppUser("Lina", 420, false, 76561198040771781));//{ SteamID = 76561198040771781UL, UserName = "Lina", Balance = 420, IsPrivateWishlist = false });

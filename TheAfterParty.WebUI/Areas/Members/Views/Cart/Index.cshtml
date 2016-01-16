@@ -1,0 +1,41 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Areas.Members.Models.Cart
+@model CartIndexViewModel
+@{
+    ViewBag.Title = "Cart";
+    Layout = "~/Areas/Members/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Cart</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Quantity</th>
+            <th>Item</th>
+            <th class="text-right">Price</th>
+            <th class="text-right">Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (ShoppingCartEntry entry in Model.CartEntries)
+        {
+            <tr>
+                <td class="text-center">@entry.Quantity</td>
+                <td class="text-left">@entry.Listing.ListingName</td>
+                <td class="text-right">@entry.Listing.SaleOrDefaultPrice()</td>
+                <td class="text-right">@(entry.Listing.SaleOrDefaultPrice() * entry.Quantity)</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3" class="text-right">Total:</td>
+            <td class="text-right">@Model.LoggedInUser.GetCartTotal()</td>
+        </tr>
+    </tfoot>
+</table>
+
+<div class="text-center">
+    <a class="btn btn-primary" href="@Model.ReturnUrl">Continue shopping</a>
+</div>

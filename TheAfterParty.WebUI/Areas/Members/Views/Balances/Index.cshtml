@@ -1,5 +1,6 @@
 ﻿@using TheAfterParty.Domain.Entities
-@model ICollection<AppUser>
+@using TheAfterParty.WebUI.Areas.Members.Models.Balances
+@model BalancesIndexViewModel
 
 @{
     ViewBag.Title = "User Balances";
@@ -8,11 +9,21 @@
 
 <h2>User Balances</h2>
 
-@foreach (AppUser user in Model)
+@foreach (AppUser user in Model.SiteUsers)
 {
     <div>
-        <div>@user.UserName</div>
-        <div>@user.Balance</div>
+        @if (Object.Equals(user.Id, Model.LoggedInUser.Id ?? ""))
+        {
+            <b>
+                <div>@user.UserName</div>
+                <div>@user.Balance</div>
+            </b>
+        }
+        else
+        {
+            <div>@user.UserName</div>
+            <div>@user.Balance</div>
+        }
     </div>
 }
 

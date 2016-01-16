@@ -121,11 +121,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstract\IListingRepository.cs" />
     <Compile Include="Abstract\IRepository.cs" />
+    <Compile Include="Abstract\IUserRepository.cs" />
     <Compile Include="Concrete\AppUserManager.cs" />
-    <Compile Include="Concrete\EFDbContext.cs" />
+    <Compile Include="Concrete\AppIdentityDbContext.cs" />
     <Compile Include="Concrete\EFDbInit.cs" />
     <Compile Include="Concrete\EFRepository.cs" />
+    <Compile Include="Concrete\ListingRepository.cs" />
+    <Compile Include="Concrete\UserRepository.cs" />
     <Compile Include="Entities\AppUser.cs" />
     <Compile Include="Entities\Auction.cs" />
     <Compile Include="Entities\AuctionBid.cs" />
