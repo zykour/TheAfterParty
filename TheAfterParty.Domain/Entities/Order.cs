@@ -18,7 +18,6 @@ namespace TheAfterParty.Domain.Entities
             ProductOrderEntries = new HashSet<ProductOrderEntry>();
 
             this.AppUser = user;
-            user.Orders.Add(this);
         }
 
         // Get the total price paid for this entire order
@@ -48,5 +47,11 @@ namespace TheAfterParty.Domain.Entities
         
         // date this order was made
         public DateTime? SaleDate { get; set; }
+
+        public int BalanceEntryID { get; set; }
+
+        // a balance entry associated with this order
+        [ForeignKey("BalanceEntryID")]
+        public virtual BalanceEntry BalanceEntry { get; set; }
     }
 }

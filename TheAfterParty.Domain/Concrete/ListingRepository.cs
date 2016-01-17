@@ -14,9 +14,9 @@ namespace TheAfterParty.Domain.Concrete
             return context;
         }
 
-        public ListingRepository(AppIdentityDbContext context)
+        public ListingRepository(IUnitOfWork unitOfWork)
         {
-            this.context = context;
+            this.context = unitOfWork.DbContext;
         }
 
 

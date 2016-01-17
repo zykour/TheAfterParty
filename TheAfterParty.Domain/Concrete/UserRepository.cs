@@ -14,14 +14,14 @@ namespace TheAfterParty.Domain.Concrete
             return context;
         }
 
-        public UserRepository(AppIdentityDbContext context)
+        public UserRepository(IUnitOfWork unitOfWork)
         {
-            this.context = context;
+            this.context = unitOfWork.DbContext;
         }
+        
 
 
-
-        // ---- Shopping Cart persistance
+        // ---- ShoppingCartEntry entity persistance
 
         public IEnumerable<ShoppingCartEntry> GetShoppingCartEntries()
         {
@@ -54,6 +54,278 @@ namespace TheAfterParty.Domain.Concrete
         }
 
 
+        // ---- Order entity persistance
+
+        public IEnumerable<Order> GetOrders()
+        {
+            return context.Orders.ToList();
+        }
+        public Order GetOrderByID(int id)
+        {
+            return context.Orders.Find(id);
+        }
+        public void InsertOrder(Order order)
+        {
+            context.Orders.Add(order);
+        }
+        public void UpdateOrder(Order order)
+        {
+            Order targetOrder = context.Orders.Find(order.TransactionID);
+
+            if (targetOrder != null)
+            {
+                targetOrder.SaleDate = order.SaleDate;
+                targetOrder.UserID = order.UserID;
+            }
+        }
+        public void DeleteOrder(int orderId)
+        {
+            Order order = context.Orders.Find(orderId);
+            context.Orders.Remove(order);
+        }
+        
+
+        // ---- ProductOrderEntry entity persistance
+
+        public IEnumerable<ProductOrderEntry> GetProductOrderEntries()
+        {
+            return context.ProductOrderEntries.ToList();
+        }
+        public ProductOrderEntry GetProductOrderEntryByID(int id)
+        {
+            return context.ProductOrderEntries.Find(id);
+        }
+        public void InsertProductOrderEntry(ProductOrderEntry productOrderEntry)
+        {
+            context.ProductOrderEntries.Add(productOrderEntry);
+        }
+        public void UpdateProductOrderEntry(ProductOrderEntry productOrderEntry)
+        {
+            ProductOrderEntry targetOrderProduct = context.ProductOrderEntries.Find(productOrderEntry.OrderID);
+
+            if (targetOrderProduct != null)
+            {
+                targetOrderProduct.SalePrice = productOrderEntry.SalePrice;
+                targetOrderProduct.ListingID = productOrderEntry.ListingID;
+            }
+        }
+        public void DeleteProductOrderEntry(int productOrderEntryId)
+        {
+            ProductOrderEntry productOrderEntry = context.ProductOrderEntries.Find(productOrderEntryId);
+            context.ProductOrderEntries.Remove(productOrderEntry);
+        }
+
+
+        // ---- ClaimedProductKey entity persistance
+
+        public IEnumerable<ClaimedProductKey> GetClaimedProductKeys()
+        {
+            return context.ClaimedProductKeys.ToList();
+        }
+        public ClaimedProductKey GetClaimedProductKeyByID(int id)
+        {
+            return context.ClaimedProductKeys.Find(id);
+        }
+        public void InsertClaimedProductKey(ClaimedProductKey claimedProductKey)
+        {
+            context.ClaimedProductKeys.Add(claimedProductKey);
+        }
+        public void UpdateClaimedProductKey(ClaimedProductKey claimedProductKey)
+        {
+            ClaimedProductKey targetClaimedProductKey = context.ClaimedProductKeys.Find(claimedProductKey.KeyID);
+
+            if (targetClaimedProductKey != null)
+            {
+                targetClaimedProductKey.AcquisitionTitle = claimedProductKey.AcquisitionTitle;
+                targetClaimedProductKey.Date = claimedProductKey.Date;
+                targetClaimedProductKey.IsRevealed = claimedProductKey.IsRevealed;
+                targetClaimedProductKey.IsUsed = claimedProductKey.IsUsed;
+                targetClaimedProductKey.Key = claimedProductKey.Key;
+                targetClaimedProductKey.ListingID = claimedProductKey.ListingID;
+                targetClaimedProductKey.UserID = claimedProductKey.UserID;
+                targetClaimedProductKey.IsGift = claimedProductKey.IsGift;
+            }
+        }
+        public void DeleteClaimedProductKey(int claimedProductKeyId)
+        {
+            ClaimedProductKey claimedProductKey = context.ClaimedProductKeys.Find(claimedProductKeyId);
+            context.ClaimedProductKeys.Remove(claimedProductKey);
+        }
+
+
+        // ---- BalanceEntry entity persistance
+
+        public IEnumerable<BalanceEntry> GetBalanceEntries()
+        {
+            return context.BalanceEntries.ToList();
+        }
+        public BalanceEntry GetBalanceEntryByID(int id)
+        {
+            return context.BalanceEntries.Find(id);
+        }
+        public void InsertBalanceEntry(BalanceEntry balanceEntry)
+        {
+            context.BalanceEntries.Add(balanceEntry);
+        }
+        public void UpdateBalanceEntry(BalanceEntry balanceEntry)
+        {
+            BalanceEntry targetBalanceEntry = context.BalanceEntries.Find(balanceEntry.BalanceID);
+
+            if (targetBalanceEntry != null)
+            {
+                targetBalanceEntry.PointsAdjusted = balanceEntry.PointsAdjusted;
+                targetBalanceEntry.Notes = balanceEntry.Notes;
+                targetBalanceEntry.UserID = balanceEntry.UserID;
+                targetBalanceEntry.Date = balanceEntry.Date;
+            }
+        }
+        public void DeleteBalanceEntry(int balanceEntryId)
+        {
+            BalanceEntry balanceEntry = context.BalanceEntries.Find(balanceEntryId);
+            context.BalanceEntries.Remove(balanceEntry);
+        }
+
+
+        // ---- Gift entity persistance
+
+        public IEnumerable<Gift> GetGifts()
+        {
+            return context.Gifts.ToList();
+        }
+        public Gift GetGiftByID(int id)
+        {
+            return context.Gifts.Find(id);
+        }
+        public void InsertGift(Gift gift)
+        {
+            context.Gifts.Add(gift);
+        }
+        public void UpdateGift(Gift gift)
+        {
+            Gift targetGift = context.Gifts.Find(gift.GiftID);
+
+            if (targetGift != null)
+            {
+                targetGift.DateReceived = gift.DateReceived;
+                targetGift.DateSent = gift.DateSent;
+                targetGift.IsPending = gift.IsPending;
+                targetGift.ReceiverID = gift.ReceiverID;
+                targetGift.SenderID = gift.SenderID;
+            }
+        }
+        public void DeleteGift(int giftId)
+        {
+            Gift gift = context.Gifts.Find(giftId);
+            context.Gifts.Remove(gift);
+        }
+
+
+        // ---- Mail entity persistance
+
+        public IEnumerable<Mail> GetMail()
+        {
+            return context.Mail.ToList();
+        }
+        public Mail GetMailByID(int id)
+        {
+            return context.Mail.Find(id);
+        }
+        public void InsertMail(Mail mail)
+        {
+            context.Mail.Add(mail);
+        }
+        public void UpdateMail(Mail mail)
+        {
+            Mail targetMail = context.Mail.Find(mail.MailID);
+
+            if (targetMail != null)
+            {
+                targetMail.DateSent = mail.DateSent;
+                targetMail.Message = mail.Message;
+                targetMail.ReceiverUserID = mail.ReceiverUserID;
+                targetMail.SenderUserID = mail.SenderUserID;
+                targetMail.Heading = mail.Heading;
+            }
+        }
+        public void DeleteMail(int mailId)
+        {
+            Mail mail = context.Mail.Find(mailId);
+            context.Mail.Remove(mail);
+        }
+
+
+        // ---- UserNotification entity persistance
+
+        public IEnumerable<UserNotification> GetUserNotifications()
+        {
+            return context.UserNotifications.ToList();
+        }
+        public UserNotification GetUserNotificationByID(int id)
+        {
+            return context.UserNotifications.Find(id);
+        }
+        public void InsertUserNotification(UserNotification userNotification)
+        {
+            context.UserNotifications.Add(userNotification);
+        }
+        public void UpdateUserNotification(UserNotification userNotification)
+        {
+            UserNotification targetUserNotification = context.UserNotifications.Find(userNotification.UserNotificationID);
+
+            if (targetUserNotification != null)
+            {
+                targetUserNotification.DateTime = userNotification.DateTime;
+                targetUserNotification.IsRead = userNotification.IsRead;
+                targetUserNotification.Message = userNotification.Message;
+            }
+        }
+        public void DeleteUserNotification(int userNotificationId)
+        {
+            UserNotification userNotification = context.UserNotifications.Find(userNotificationId);
+            context.UserNotifications.Remove(userNotification);
+        }
+
+
+        // ---- WishlistEntry entity persistance
+
+        public IEnumerable<WishlistEntry> GetWishlistEntries()
+        {
+            return context.WishlistEntries.ToList();
+        }
+        public WishlistEntry GetWishlistEntryByID(int wishlistEntryId)
+        {
+            return context.WishlistEntries.Find(wishlistEntryId);
+        }
+        public void InsertWishlistEntry(WishlistEntry wishlistEntry)
+        {
+            context.WishlistEntries.Add(wishlistEntry);
+        }
+        public void DeleteWishlistEntry(int wishlistEntryId)
+        {
+            WishlistEntry wishlistEntry = context.WishlistEntries.Find(wishlistEntryId);
+            context.WishlistEntries.Remove(wishlistEntry);
+        }
+
+
+        // ---- OwnedGame entity persistance
+
+        public IEnumerable<OwnedGame> GetOwnedGames()
+        {
+            return context.OwnedGames.ToList();
+        }
+        public OwnedGame GetOwnedGameByID(int id)
+        {
+            return context.OwnedGames.Find(id);
+        }
+        public void InsertOwnedGame(OwnedGame ownedGame)
+        {
+            context.OwnedGames.Add(ownedGame);
+        }
+        public void DeleteOwnedGame(int ownedGameId)
+        {
+            OwnedGame ownedGame = context.OwnedGames.Find(ownedGameId);
+            context.OwnedGames.Remove(ownedGame);
+        }
 
         // ---- Repository methods
 
