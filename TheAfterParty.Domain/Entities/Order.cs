@@ -19,6 +19,7 @@ namespace TheAfterParty.Domain.Entities
 
             this.AppUser = user;
         }
+        public Order() { }
 
         // Get the total price paid for this entire order
         public int TotalSalePrice()
@@ -49,9 +50,5 @@ namespace TheAfterParty.Domain.Entities
         public DateTime? SaleDate { get; set; }
 
         public int BalanceEntryID { get; set; }
-
-        // a balance entry associated with this order
-        [ForeignKey("BalanceEntryID")]
-        public virtual BalanceEntry BalanceEntry { get; set; }
     }
 }

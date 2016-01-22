@@ -7,6 +7,8 @@ namespace TheAfterParty.Domain.Entities
 {
     public class Giveaway
     {
+        public Giveaway() { }
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int GiveawayID { get; set; }
 

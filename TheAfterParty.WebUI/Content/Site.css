@@ -16,3 +16,14 @@ textarea {
     max-width: 280px;
 }
 
+.tag-inline {
+    display: inline;
+}
+
+.btn-transparent {
+    background: transparent; border: none; padding: 0;
+}
+
+.quantity-width {
+    max-width: 40px;
+}

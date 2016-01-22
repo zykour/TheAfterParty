@@ -11,7 +11,7 @@ namespace TheAfterParty.Domain.Entities
 { 
     public class AppUser : IdentityUser
     {
-        public AppUser(string name, int balance, bool privateWishlist, Int64 steamId)
+        public AppUser(string name, int balance, bool privateWishlist, Int64 steamId) : this()
         {
             UserSteamID = steamId;
             UserName = name;
@@ -20,7 +20,25 @@ namespace TheAfterParty.Domain.Entities
         }
         public AppUser()
         {
-
+            AuctionBids = new HashSet<AuctionBid>();
+            BalanceEntries = new HashSet<BalanceEntry>();
+            GiveawayEntries = new HashSet<GiveawayEntry>();
+            CreatedGiveaways = new HashSet<Giveaway>();
+            Orders = new HashSet<Order>();
+            ClaimedProductKeys = new HashSet<ClaimedProductKey>();
+            ReceivedGifts = new HashSet<Gift>();
+            SentGifts = new HashSet<Gift>();
+            WishlistEntries = new HashSet<WishlistEntry>();
+            UserNotifications = new HashSet<UserNotification>();
+            ReceivedMail = new HashSet<Mail>();
+            SentMail = new HashSet<Mail>();
+            ListingComments = new HashSet<ListingComment>();
+            ProductReviews = new HashSet<ProductReview>();
+            Tags = new HashSet<Tag>();
+            ShoppingCartEntries = new HashSet<ShoppingCartEntry>();
+            WonPrizes = new HashSet<WonPrize>();
+            UserCoupons = new HashSet<UserCoupon>();
+            OwnedGames = new HashSet<OwnedGame>();
         }
         
         // the 64bit UserID representing the users on this site
@@ -90,24 +108,6 @@ namespace TheAfterParty.Domain.Entities
             else
                 return false;
         }
-        /*public Order CreateOrder()
-        {
-            DateTime orderDate = DateTime.Now;
-            Order order = new Order(this, orderDate);
-
-            ICollection<ShoppingCartEntry> cartEntries = ShoppingCartEntries.Where(entry => Object.Equals(entry.UserID, Id)).ToList();
-
-            foreach (ShoppingCartEntry entry in cartEntries)
-            {
-                for (int i = 0; i < entry.Quantity; i++)
-                {
-                    ClaimedProductKey claimedKey = ClaimKey(entry.Listing, orderDate, "Purchase - Order #" + order.TransactionID);
-                    ProductOrderEntry orderEntry = new ProductOrderEntry(order, entry, claimedKey);
-                }
-            }
-
-            return order;
-        }*/
         public String OrderSummary(int transactionId)
         {
             Order order = Orders.Where(o => o.TransactionID == transactionId).Single();
@@ -198,11 +198,12 @@ namespace TheAfterParty.Domain.Entities
         public virtual ICollection<ShoppingCartEntry> ShoppingCartEntries { get; set; }
         public ShoppingCartEntry AddShoppingCartEntry(Listing listing, int quantity = 1)
         {
-            ShoppingCartEntry entry = ShoppingCartEntries.Where(e => e.ListingID == listing.ListingID && Object.Equals(e.UserID, Id)).SingleOrDefault();
+            ShoppingCartEntry entry = ShoppingCartEntries.Where(e => e.ListingID == listing.ListingID).SingleOrDefault(); // && Object.Equals(e.UserID, Id)).SingleOrDefault();
 
             if (entry == null)
             {
                 entry = new ShoppingCartEntry(this, listing, quantity);
+                ShoppingCartEntries.Add(entry);
             }
             else
             {
@@ -299,6 +300,8 @@ namespace TheAfterParty.Domain.Entities
 
     public class OwnedGame
     {
+        public OwnedGame() { }
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
         public int Id { get; set; }
 

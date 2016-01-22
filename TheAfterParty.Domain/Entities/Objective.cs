@@ -9,6 +9,8 @@ namespace TheAfterParty.Domain.Entities
 
     public class Objective
     {
+        public Objective() { }
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ObjectiveID { get; set; }
 

@@ -178,9 +178,15 @@
     <Content Include="AppSettingsSecret.config" />
     <Content Include="Areas\Members\Views\Account\Login.cshtml" />
     <Content Include="Areas\Members\Views\Cart\Index.cshtml" />
+    <Content Include="Areas\Members\Views\Cart\Purchase.cshtml" />
+    <Content Include="Areas\Members\Views\Store\StoreEntry.cshtml" />
+    <Content Include="Areas\Members\Views\Shared\_ShoppingCart.cshtml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
-    <Content Include="Scripts\jquery-1.10.2.js" />
-    <Content Include="Scripts\jquery-1.10.2.min.js" />
+    <None Include="Scripts\jquery-2.2.0.intellisense.js" />
+    <Content Include="Scripts\jquery-2.2.0.js" />
+    <Content Include="Scripts\jquery-2.2.0.min.js" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -194,10 +200,12 @@
     <Compile Include="Areas\Members\Controllers\CartController.cs" />
     <Compile Include="Areas\Members\Controllers\HomeController.cs" />
     <Compile Include="Areas\Members\Controllers\ObjectivesController.cs" />
+    <Compile Include="Areas\Members\Controllers\PurchaseController.cs" />
     <Compile Include="Areas\Members\Controllers\StoreController.cs" />
     <Compile Include="Areas\Members\MembersAreaRegistration.cs" />
     <Compile Include="Areas\Members\Models\Balances\BalancesIndexViewModel.cs" />
     <Compile Include="Areas\Members\Models\Cart\CartIndexViewModel.cs" />
+    <Compile Include="Areas\Members\Models\Cart\CartLayoutViewModel.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -214,7 +222,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
-    <Content Include="Scripts\jquery-1.10.2.min.map" />
+    <Content Include="Scripts\jquery-2.2.0.min.map" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

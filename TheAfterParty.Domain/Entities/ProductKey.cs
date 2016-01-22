@@ -8,6 +8,19 @@ namespace TheAfterParty.Domain.Entities
 
     public class ProductKey
     {
+        public ProductKey() { }
+
+        public ProductKey(int listingId, string itemKey)
+        {
+            this.ListingID = listingId;
+            this.ItemKey = itemKey;
+        }
+        public ProductKey(int listingId, bool isGift)
+        {
+            this.ListingID = listingId;
+            this.IsGift = isGift;
+        }
+
         [DatabaseGenerated(DatabaseGeneratedOption.Identity), Key]
         public int KeyID { get; set; }
 

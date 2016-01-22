@@ -8,6 +8,7 @@ namespace TheAfterParty.Domain.Entities
     {
         public ClaimedProductKey(ProductKey productKey, AppUser user, DateTime? dateAdded, string note)
         {
+            KeyID = 0;
             ListingID = productKey.ListingID;
             Key = productKey.ItemKey;
             Date = dateAdded ?? DateTime.Now;
@@ -18,8 +19,8 @@ namespace TheAfterParty.Domain.Entities
 
             UserID = user.Id;
             AppUser = user;
-            user.ClaimedProductKeys.Add(this);
         }
+        public ClaimedProductKey() { }
 
         // need a key value that can be safely used in hidden forms
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]

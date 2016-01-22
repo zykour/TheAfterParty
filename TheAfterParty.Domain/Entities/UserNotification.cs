@@ -10,11 +10,11 @@ namespace TheAfterParty.Domain.Entities
         {
             AppUser = appUser;
             UserID = appUser.Id;
-            appUser.UserNotifications.Add(this);
 
             DateTime = dateCreated;
             IsRead = false;
         }
+        public UserNotification() { }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int UserNotificationID { get; set; }

@@ -6,6 +6,8 @@ namespace TheAfterParty.Domain.Entities
 {
     public class Coupon
     {
+        public Coupon() { }
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CouponID { get; set; }
 

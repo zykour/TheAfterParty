@@ -7,6 +7,8 @@ namespace TheAfterParty.Domain.Entities
 {
     public class GiveawayEntry
     {
+        public GiveawayEntry() { }
+
         // specifies which Giveaway this entry is for
         [Key, Column(Order = 1)]
         public int GiveawayID { get; set; }

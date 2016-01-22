@@ -7,6 +7,8 @@ namespace TheAfterParty.Domain.Entities
 {
     public class ProductReview
     {
+        public ProductReview() { }
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ProductReviewID { get; set; }
 

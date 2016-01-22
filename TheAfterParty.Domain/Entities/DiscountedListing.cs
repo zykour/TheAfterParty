@@ -9,6 +9,8 @@ namespace TheAfterParty.Domain.Entities
 
     public class DiscountedListing
     {
+        public DiscountedListing() { }
+
         // there is at most only one discount per product in the store, thus the FK can also be the key
         [Key, DatabaseGenerated(DatabaseGeneratedOption.None), Required]
         public int ListingID { get; set; }

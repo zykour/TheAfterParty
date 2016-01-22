@@ -6,6 +6,8 @@ namespace TheAfterParty.Domain.Entities
 {
     public class Gift
     {
+        public Gift() { }
+
         [Key, ForeignKey("ClaimedProductKey")]
         public int GiftID { get; set; }
 

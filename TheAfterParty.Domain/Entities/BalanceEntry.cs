@@ -14,8 +14,8 @@ namespace TheAfterParty.Domain.Entities
 
             UserID = user.Id;
             AppUser = user;
-            user.BalanceEntries.Add(this);
         }
+        public BalanceEntry(){}
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BalanceID { get; set; }

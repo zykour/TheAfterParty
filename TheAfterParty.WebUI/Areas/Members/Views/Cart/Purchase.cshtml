@@ -1,0 +1,48 @@
+﻿@using TheAfterParty.Domain.Entities
+@model Order
+
+@{
+    ViewBag.Title = "Purchase";
+    Layout = "~/Areas/Members/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Purchase success!</h2>
+<br/>
+<br/>
+<span>Order #@Model.TransactionID</span>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th>Platform</th>
+            <th class="text-right">Price</th>
+            <th>Product Key</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (ProductOrderEntry entry in Model.ProductOrderEntries)
+        {
+            <tr>
+                <td class="text-left">@entry.Listing.ListingName</td>
+                <td>@((entry.Listing.Product == null) ? "Steam" : entry.Listing.Product.Platform.ToString())</td>
+                <td class="text-right">@entry.SalePrice</td>
+                <td class="text-right">
+                    @entry.ClaimedProductKey.Key
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3" class="text-right">Total:</td>
+            <td class="text-right">@Model.TotalSalePrice()</td>
+        </tr>
+        <tr>
+            <td colspan="3" class="text-right">Order date:</td>
+            <td class="text-right">@Model.SaleDate</td>
+        </tr>
+    </tfoot>
+</table>
+<a class="btn btn-primary" href="/members/account">
+    My Account
+</a>

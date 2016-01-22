@@ -8,6 +8,8 @@ namespace TheAfterParty.Domain.Entities
 {
     public class ListingComment
     {
+        public ListingComment() { }
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ListingCommentID { get; set; }
 

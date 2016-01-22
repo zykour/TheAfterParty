@@ -32,6 +32,12 @@ public class EFDbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         context.Listings.Add(l);
         context.Products.Add(p);
         context.ProductDetails.Add(pd);
+        ProductKey pk = new ProductKey(l.ListingID, "ASD09-SDF7A-9D70S");
+        context.ProductKeys.Add(pk);
+        l.AddProductKey(pk);
+        pk = new ProductKey(l.ListingID, "FSD07-SDFSD-ZB9S9");
+        context.ProductKeys.Add(pk);
+        l.AddProductKey(pk);
 
         l = new Listing("Zero Gear", 3);
         p = new Product() { AppID = 18820, ProductName = "Zero_Gear", Platform = 1 };
@@ -42,6 +48,12 @@ public class EFDbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         context.Listings.Add(l);
         context.Products.Add(p);
         context.ProductDetails.Add(pd);
+        pk = new ProductKey(l.ListingID, "4A07B-SDS8N-MANSB");
+        context.ProductKeys.Add(pk);
+        l.AddProductKey(pk);/*
+        pk = new ProductKey(l.ListingID, "FSH00-29WMM-SWYZ8");
+        context.ProductKeys.Add(pk);
+        l.AddProductKey(pk);*/
 
         l = new Listing("Rocket League", 40);
         p = new Product() { AppID = 252950, ProductName = "Rocket_League", Platform = 1 };
@@ -52,6 +64,12 @@ public class EFDbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         context.Listings.Add(l);
         context.Products.Add(p);
         context.ProductDetails.Add(pd);
+        pk = new ProductKey(l.ListingID, "42B00-SD9Z8-BSBWN");
+        context.ProductKeys.Add(pk);
+        l.AddProductKey(pk);
+        pk = new ProductKey(l.ListingID, "NMSMW-AS9B8-SJZJW");
+        context.ProductKeys.Add(pk);
+        l.AddProductKey(pk);
 
         l = new Listing("Tabletop Simulator", 25);
         p = new Product() { AppID = 286160, ProductName = "Tabletop_Simulator", Platform = 1 };
@@ -62,6 +80,12 @@ public class EFDbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         context.Listings.Add(l);
         context.Products.Add(p);
         context.ProductDetails.Add(pd);
+        pk = new ProductKey(l.ListingID, "W0B0Z-SHDFM-AW88W");
+        context.ProductKeys.Add(pk);
+        l.AddProductKey(pk);
+        pk = new ProductKey(l.ListingID, "N0SHZ-S9D9F-BHZHZ");
+        context.ProductKeys.Add(pk);
+        l.AddProductKey(pk);
 
         l = new Listing("Warhammer: End Times - Vermintide", 60);
         p = new Product() { AppID = 235540, ProductName = "Warhammer:_End_Times_-_Vermintide", Platform = 1 };
@@ -72,8 +96,14 @@ public class EFDbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         context.Listings.Add(l);
         context.Products.Add(p);
         context.ProductDetails.Add(pd);
+        pk = new ProductKey(l.ListingID, "BAH0Z-29GGU-AQW2M");
+        context.ProductKeys.Add(pk);
+        l.AddProductKey(pk);
+        pk = new ProductKey(l.ListingID, "YXUB0-SYWBZM-S8CYB");
+        context.ProductKeys.Add(pk);
+        l.AddProductKey(pk);
 
-        l = new Listing("Portal_2", 15);
+        l = new Listing("Portal 2", 15);
         p = new Product() { AppID = 620, ProductName = "Portal_2", Platform = 1 };
         pd = new ProductDetail() {  };
         p.ProductDetail = pd;
@@ -82,6 +112,12 @@ public class EFDbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         context.Listings.Add(l);
         context.Products.Add(p);
         context.ProductDetails.Add(pd);
+        pk = new ProductKey(l.ListingID, "N0WHE-ATL3Y-ISBST");
+        context.ProductKeys.Add(pk);
+        l.AddProductKey(pk);
+        pk = new ProductKey(l.ListingID, "GL4D0-S1S7H-EB3ST");
+        context.ProductKeys.Add(pk);
+        l.AddProductKey(pk);
 
         context.SaveChanges();
     }

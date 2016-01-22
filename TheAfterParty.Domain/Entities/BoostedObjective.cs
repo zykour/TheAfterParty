@@ -6,6 +6,9 @@ namespace TheAfterParty.Domain.Entities
 {
     public class BoostedObjective
     {
+        public BoostedObjective() { }
+
+
         // specified the objective that will be boosted
         [Key, Required]
         public int ObjectiveID { get; set; }

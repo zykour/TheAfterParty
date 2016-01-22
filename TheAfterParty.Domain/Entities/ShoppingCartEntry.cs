@@ -16,9 +16,6 @@ namespace TheAfterParty.Domain.Entities
 
             this.UserID = user.Id;
             this.AppUser = user;
-
-            user.ShoppingCartEntries.Add(this);
-            listing.ShoppingCartEntries.Add(this);
         }
         protected ShoppingCartEntry() { }
 

@@ -16,9 +16,9 @@ namespace TheAfterParty.Domain.Entities
             claimedKey.ProductOrderEntry = this;
 
             TransactionID = order.TransactionID;
-            order.ProductOrderEntries.Add(this);
             this.Order = order;
         }
+        protected ProductOrderEntry(){}
 
         public int TransactionID { get; set; }
 

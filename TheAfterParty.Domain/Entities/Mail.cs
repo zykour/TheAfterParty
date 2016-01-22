@@ -10,16 +10,15 @@ namespace TheAfterParty.Domain.Entities
         {
             AppUserReceiver = receiver;
             ReceiverUserID = receiver.Id;
-            receiver.ReceivedMail.Add(this);
 
             AppUserSender = sender;
             SenderUserID = sender.Id;
-            sender.SentMail.Add(this);
 
             Heading = heading;
             Message = body;
             DateSent = dateSent;
         }
+        public Mail() { }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int MailID { get; set; }

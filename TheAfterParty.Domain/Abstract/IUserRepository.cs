@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using TheAfterParty.Domain.Entities;
 using TheAfterParty.Domain.Concrete;
+using System.Threading.Tasks;
 
 namespace TheAfterParty.Domain.Abstract
 {
     public interface IUserRepository : IDisposable
     {
-        /*	
-	        Order
-		        ProductOrderEntry
-        
-        */
-
         AppIdentityDbContext GetContext();
+
+        IEnumerable<AppUser> GetAppUsers();
+        Task<AppUser> GetAppUserByID(string appUserId);
+        Task InsertAppUser(AppUser appUser);
+        Task UpdateAppUser(AppUser appUser);
+        Task DeleteAppUser(string appUserId);
 
         IEnumerable<ShoppingCartEntry> GetShoppingCartEntries();
         ShoppingCartEntry GetShoppingCartEntryByID(int shoppingCartEntryId);
@@ -72,7 +73,7 @@ namespace TheAfterParty.Domain.Abstract
         void InsertMail(Mail mail);
         void UpdateMail(Mail mail);
         void DeleteMail(int mailId);
-
+        
         void Save();
     }
 }

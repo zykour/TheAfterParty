@@ -5,6 +5,8 @@ namespace TheAfterParty.Domain.Entities
 {
     public class WonPrize
     {
+        public WonPrize() { }
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int WonPrizeID { get; set; }
 

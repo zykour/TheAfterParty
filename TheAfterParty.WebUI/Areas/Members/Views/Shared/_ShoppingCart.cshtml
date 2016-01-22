@@ -1,0 +1,4 @@
+﻿@using TheAfterParty.WebUI.Areas.Members.Models.Cart
+@model CartLayoutViewModel
+
+@Model.LoggedInUser.GetCartQuantity() items - @Model.LoggedInUser.GetCartTotal() points

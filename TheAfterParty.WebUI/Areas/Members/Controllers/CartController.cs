@@ -1,26 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Web;
+﻿using System.Threading.Tasks;
+using System.Web.Routing;
 using System.Web.Mvc;
-using TheAfterParty.Domain.Abstract;
-using TheAfterParty.Domain.Entities;
-using Microsoft.AspNet.Identity.Owin;
-using TheAfterParty.Domain.Concrete;
-using Microsoft.AspNet.Identity.EntityFramework;
 using TheAfterParty.WebUI.Areas.Members.Models.Cart;
 using TheAfterParty.Domain.Services;
+using TheAfterParty.Domain.Entities;
 
 namespace TheAfterParty.WebUI.Areas.Members.Controllers
 {
+    [Authorize]
     public class CartController : Controller
     {
         private ICartService cartService;
-
+        
         public CartController(ICartService cartService)
         {
             this.cartService = cartService;
+        }
+
+        protected override void Initialize(RequestContext requestContext)
+        {
+            base.Initialize(requestContext);
+            
             cartService.SetUserName(User.Identity.Name);
         }
 
@@ -38,18 +38,72 @@ namespace TheAfterParty.WebUI.Areas.Members.Controllers
             return View(cartViewModel);
         }
 
-        [Authorize]
-        public ActionResult AddToCart(int listingId, string returnUrl)
+        // Navbar cart info
+        public PartialViewResult ShoppingCart()
         {
-            cartService.AddItemToCart(listingId);
+            CartLayoutViewModel model = new CartLayoutViewModel();
+            model.LoggedInUser = cartService.GetCurrentUserSynch();
+
+            return PartialView("~/Areas/Members/Views/Shared/_ShoppingCart.cshtml", model);
+        }
+
+        public async Task<ActionResult> AjaxAddToCart(int listingId)
+        {
+            CartLayoutViewModel model = new CartLayoutViewModel();
+            await cartService.AddItemToCart(listingId);
+
+            model.LoggedInUser = await cartService.GetCurrentUser();
+
+            return PartialView("~/Areas/Members/Views/Shared/_ShoppingCart.cshtml", model);
+        }
+
+        public async Task<ActionResult> AddToCart(int listingId, string returnUrl)
+        {
+            await cartService.AddItemToCart(listingId);
 
             return RedirectToAction("Index", new { returnUrl } );
         }
 
-        [Authorize]
-        public async Task<RedirectToRouteResult> Checkout(string returnUrl)
+        public ActionResult IncrementCartQuantity(int shoppingId, string returnUrl)
+        {
+            cartService.IncrementCartQuantity(shoppingId);
+
+            return RedirectToAction("Index", new { returnUrl });
+        }
+
+        public ActionResult DecrementCartQuantity(int shoppingId, string returnUrl)
+        {
+            cartService.DecrementCartQuantity(shoppingId);
+
+            return RedirectToAction("Index", new { returnUrl });
+        }
+
+        public ActionResult RemoveItem(int shoppingId, string returnUrl)
+        {
+            cartService.DeleteShoppingCartEntry(shoppingId);
+
+            return RedirectToAction("Index", new { returnUrl });
+        }
+
+        public async Task<ActionResult> EmptyCart(string returnUrl)
+        {
+            await cartService.DeleteShoppingCart();
+
+            return RedirectToAction("Index", new { returnUrl });
+        }
+
+        public ActionResult ModifyCartQuantity(int shoppingId, int newValue, string returnUrl)
+        {
+            cartService.UpdateShoppingCartEntry(shoppingId, newValue);
+
+            return RedirectToAction("Index", new { returnUrl });
+        }
+        
+        public async Task<ViewResult> Purchase(string returnUrl)
         {
             Order order = await cartService.CreateOrder();
+
+            return View(order);
         }
     }
 }

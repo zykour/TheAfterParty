@@ -19,7 +19,7 @@ namespace TheAfterParty.WebUI.Areas.Members.Controllers
         // GET: CoopShop/Store
         public ActionResult Index()
         {
-            return View(repository.Listings);
+            return View(repository.Listings.Where(l => l.Quantity > 0));
         }
     }
 }

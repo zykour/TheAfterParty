@@ -7,7 +7,7 @@ namespace TheAfterParty.Domain.Entities
 {
     public class Listing
     {
-        protected Listing()
+        public Listing()
         {
             ChildListings = new HashSet<MappedListing>();
             ParentListings = new HashSet<MappedListing>();
@@ -19,15 +19,15 @@ namespace TheAfterParty.Domain.Entities
             Giveaways = new HashSet<Giveaway>();
             ProductKeys = new HashSet<ProductKey>();
         }
-        public Listing(string listingName) : base()
+        public Listing(string listingName) : this()
         {
             this.ListingName = listingName;
         }
-        public Listing(int listingPrice)
+        public Listing(int listingPrice) : this()
         {
             this.ListingPrice = listingPrice;
         }
-        public Listing(string listingName, int listingPrice) : base()
+        public Listing(string listingName, int listingPrice) : this()
         {
             this.ListingName = listingName;
             this.ListingPrice = listingPrice;
@@ -237,6 +237,10 @@ namespace TheAfterParty.Domain.Entities
         public void AddProductKey(ProductKey productKey)
         {
             productKey.Listing = this;
+            if (ProductKeys == null)
+            {
+                ProductKeys = new HashSet<ProductKey>();
+            }
             this.ProductKeys.Add(productKey);
             Quantity++;
 
@@ -275,6 +279,9 @@ namespace TheAfterParty.Domain.Entities
         }
         public void UpdateParentQuantities()
         {
+            if (ParentListings == null)
+                return;
+
             foreach (MappedListing pl in ParentListings)
             {
                 pl.ParentListing.UpdateQuantity();
@@ -289,6 +296,8 @@ namespace TheAfterParty.Domain.Entities
 
     public class MappedListing
     {
+        public MappedListing() { }
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
         public int Id { get; set; }
 

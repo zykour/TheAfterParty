@@ -4,23 +4,42 @@
 @{
     ViewBag.Title = "Shop";
     Layout = "~/Areas/Members/Views/Shared/_Layout.cshtml";
+    AjaxOptions ajaxOptions = new AjaxOptions { UpdateTargetId = "cartInfo", Url = Url.Action("AjaxAddToCart", "Cart") };
 }
 
-<h2>Store</h2>
+<h2 class="text-center">The Co-op Shop</h2>
+<br/>
+<br/>
 
-@for (int i = 0; i < Model.ToList().Count; i++)//each (Listing listing in Model)
-{
-    <div>
-        <div>@Model.ElementAt(i).ListingPrice</div>
-        <div>@Model.ElementAt(i).ListingName</div>
-        <div>@Model.ElementAt(i).ListingID - @Model.ElementAt(i).Product.ProductName</div>
-        @using (Html.BeginForm("AddToCart", "Cart"))
+<table class="table">
+    <thead>
+        <tr>
+            <td></td>
+            <td>Quantity</td>
+            <td>Price</td>
+            <td>Item</td>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.ToList().Count; i++)//each (Listing listing in Model)
         {
-            <div>
-                @Html.HiddenFor(m => m.ElementAt(i).ListingID);
-                @Html.Hidden("returnUrl", Request.Url.PathAndQuery);
-                <input type="submit" value="Add to cart"/>
-            </div>
+            <tr>
+                <td class="text-left">
+                    @using (Ajax.BeginForm("AddToCart", "Cart", ajaxOptions))//, FormMethod.Post, new { @class = "tag-inline" }))
+                    {
+                        <div>
+                            @Html.HiddenFor(m => m.ElementAt(i).ListingID)
+                            @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
+                            <button type="submit" class="btn-transparent" title="Add to cart">
+                                <i class="glyphicon glyphicon-shopping-cart"></i>
+                            </button>
+                        </div>
+                    }
+                </td>
+                <td>@Model.ElementAt(i).Quantity</td>
+                <td>@Model.ElementAt(i).SaleOrDefaultPrice()</td>
+                <td>@Model.ElementAt(i).ListingName</td>
+            </tr>
         }
-    </div>
-}
+    </tbody>
+</table>

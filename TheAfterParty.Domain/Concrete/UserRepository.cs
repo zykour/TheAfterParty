@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using TheAfterParty.Domain.Abstract;
 using TheAfterParty.Domain.Entities;
+using Microsoft.AspNet.Identity.EntityFramework;
+using System.Threading.Tasks;
 
 namespace TheAfterParty.Domain.Concrete
 {
@@ -13,12 +15,126 @@ namespace TheAfterParty.Domain.Concrete
         {
             return context;
         }
+        public AppUserManager userManager;
 
-        public UserRepository(IUnitOfWork unitOfWork)
+        public UserRepository(IUnitOfWork unitOfWork) : this(new AppUserManager(new UserStore<AppUser>(unitOfWork.DbContext)))
         {
             this.context = unitOfWork.DbContext;
         }
-        
+        public UserRepository(AppUserManager userManager)
+        {
+            this.userManager = userManager;
+        }
+
+        public IEnumerable<AppUser> GetAppUsers()
+        {
+            return userManager.Users;
+        }
+        public async Task<AppUser> GetAppUserByID(string appUserId)
+        {
+            return await userManager.FindByIdAsync(appUserId);
+        }
+        public async Task InsertAppUser(AppUser appUser)
+        {
+            await userManager.CreateAsync(appUser);
+        }
+        public async Task UpdateAppUser(AppUser appUser)
+        {
+            await userManager.UpdateAsync(appUser);
+
+            foreach (BalanceEntry entry in appUser.BalanceEntries)
+            {
+                if (entry.BalanceID == 0)
+                {
+                    InsertBalanceEntry(entry);
+                }
+                else
+                {
+                    UpdateBalanceEntry(entry);
+                }
+            }
+
+            foreach (ClaimedProductKey entry in appUser.ClaimedProductKeys)
+            {
+                if (entry.KeyID == 0)
+                {
+                    InsertClaimedProductKey(entry);
+                }
+                else
+                {
+                    UpdateClaimedProductKey(entry);
+                }
+            }
+
+            foreach (Gift entry in appUser.ReceivedGifts)
+            {
+                if (entry.GiftID == 0)
+                {
+                    InsertGift(entry);
+                }
+                else
+                {
+                    UpdateGift(entry);
+                }
+            }
+
+            foreach (Mail entry in appUser.ReceivedMail)
+            {
+                if (entry.MailID == 0)
+                {
+                    InsertMail(entry);
+                }
+                else
+                {
+                    UpdateMail(entry);
+                }
+            }
+
+            foreach (Order entry in appUser.Orders)
+            {
+                if (entry.TransactionID == 0)
+                {
+                    InsertOrder(entry);
+                }
+                else
+                {
+                    UpdateOrder(entry);
+                }
+            }
+
+            foreach (OwnedGame entry in appUser.OwnedGames)
+            {
+                if (entry.Id == 0)
+                {
+                    InsertOwnedGame(entry);
+                }
+            }
+
+            foreach (UserNotification entry in appUser.UserNotifications)
+            {
+                if (entry.UserNotificationID == 0)
+                {
+                    InsertUserNotification(entry);
+                }
+                else
+                {
+                    UpdateUserNotification(entry);
+                }
+            }
+
+            foreach (WishlistEntry entry in appUser.WishlistEntries)
+            {
+                if (entry.Id == 0)
+                {
+                    InsertWishlistEntry(entry);
+                }
+            }
+        }
+        public async Task DeleteAppUser(string appUserId)
+        {
+            AppUser user = await userManager.FindByIdAsync(appUserId);
+            await userManager.DeleteAsync(user);
+        }
 
 
         // ---- ShoppingCartEntry entity persistance
@@ -67,6 +183,11 @@ namespace TheAfterParty.Domain.Concrete
         public void InsertOrder(Order order)
         {
             context.Orders.Add(order);
+
+            foreach (ProductOrderEntry entry in order.ProductOrderEntries)
+            {
+                InsertProductOrderEntry(entry);
+            }
         }
         public void UpdateOrder(Order order)
         {
@@ -76,6 +197,14 @@ namespace TheAfterParty.Domain.Concrete
             {
                 targetOrder.SaleDate = order.SaleDate;
                 targetOrder.UserID = order.UserID;
+            }
+
+            foreach (ProductOrderEntry entry in order.ProductOrderEntries)
+            {
+                if (entry.OrderID == 0)
+                    InsertProductOrderEntry(entry);
+                else
+                    UpdateProductOrderEntry(entry);
             }
         }
         public void DeleteOrder(int orderId)

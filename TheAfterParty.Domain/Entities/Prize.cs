@@ -9,6 +9,8 @@ namespace TheAfterParty.Domain.Entities
 
     public class Prize
     {
+        public Prize() { }
+
         [Key]
         public int PrizeID { get; set; }
 

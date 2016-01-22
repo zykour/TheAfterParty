@@ -7,6 +7,8 @@ namespace TheAfterParty.Domain.Entities
 {
     public class AuctionBid
     {
+        public AuctionBid() { }
+
         [Key, Column(Order = 1), DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int AuctionID { get; set; }
 
