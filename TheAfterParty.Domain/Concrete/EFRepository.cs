@@ -238,7 +238,6 @@ namespace TheAfterParty.Domain.Concrete
             }
             else
             {
-                targetDiscountedListing.ItemDiscountedPrice = discountedListing.ItemDiscountedPrice;
                 targetDiscountedListing.ItemDiscountPercent = discountedListing.ItemDiscountPercent;
                 targetDiscountedListing.ItemSaleExpiry = discountedListing.ItemSaleExpiry;
             }

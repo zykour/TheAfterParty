@@ -169,24 +169,29 @@
     <Content Include="Global.asax" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
-    <Content Include="Areas\Members\Views\Account\Index.cshtml" />
-    <Content Include="Areas\Members\Views\Balances\Index.cshtml" />
-    <Content Include="Areas\Members\Views\Home\Index.cshtml" />
-    <Content Include="Areas\Members\Views\Objectives\Index.cshtml" />
-    <Content Include="Areas\Members\Views\Store\Index.cshtml" />
-    <Content Include="Areas\Members\Views\Store\EditorTemplates\Listing.cshtml" />
+    <Content Include="Views\Account\Index.cshtml" />
+    <Content Include="Views\Balances\Index.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Objectives\Index.cshtml" />
+    <Content Include="Views\Store\Index.cshtml" />
+    <Content Include="Views\Store\EditorTemplates\Listing.cshtml" />
     <Content Include="AppSettingsSecret.config" />
-    <Content Include="Areas\Members\Views\Account\Login.cshtml" />
-    <Content Include="Areas\Members\Views\Cart\Index.cshtml" />
-    <Content Include="Areas\Members\Views\Cart\Purchase.cshtml" />
-    <Content Include="Areas\Members\Views\Store\StoreEntry.cshtml" />
-    <Content Include="Areas\Members\Views\Shared\_ShoppingCart.cshtml" />
+    <Content Include="Views\Account\Login.cshtml" />
+    <Content Include="Views\Cart\Index.cshtml" />
+    <Content Include="Views\Cart\Purchase.cshtml" />
+    <Content Include="Views\Store\StoreEntry.cshtml" />
+    <Content Include="Views\Shared\_ShoppingCart.cshtml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <None Include="Scripts\jquery-2.2.0.intellisense.js" />
     <Content Include="Scripts\jquery-2.2.0.js" />
     <Content Include="Scripts\jquery-2.2.0.min.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
+    <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.min.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -194,35 +199,39 @@
     <Compile Include="App_Start\IdentityConfig.cs" />
     <Compile Include="App_Start\NinjectWebCommon.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="Areas\Members\Controllers\AboutController.cs" />
-    <Compile Include="Areas\Members\Controllers\AccountController.cs" />
-    <Compile Include="Areas\Members\Controllers\BalancesController.cs" />
-    <Compile Include="Areas\Members\Controllers\CartController.cs" />
-    <Compile Include="Areas\Members\Controllers\HomeController.cs" />
-    <Compile Include="Areas\Members\Controllers\ObjectivesController.cs" />
-    <Compile Include="Areas\Members\Controllers\PurchaseController.cs" />
-    <Compile Include="Areas\Members\Controllers\StoreController.cs" />
-    <Compile Include="Areas\Members\MembersAreaRegistration.cs" />
-    <Compile Include="Areas\Members\Models\Balances\BalancesIndexViewModel.cs" />
-    <Compile Include="Areas\Members\Models\Cart\CartIndexViewModel.cs" />
-    <Compile Include="Areas\Members\Models\Cart\CartLayoutViewModel.cs" />
+    <Compile Include="Controllers\AboutController.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\BalancesController.cs" />
+    <Compile Include="Controllers\CartController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ObjectivesController.cs" />
+    <Compile Include="Controllers\PurchaseController.cs" />
+    <Compile Include="Controllers\StoreController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Models\Balances\BalancesIndexViewModel.cs" />
+    <Compile Include="Models\Cart\CartIndexViewModel.cs" />
+    <Compile Include="Models\Cart\CartLayoutViewModel.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Infrastructure\NinjectDependencyResolver.cs" />
+    <Compile Include="Models\Store\StoreBalancesViewModel.cs" />
+    <Compile Include="Models\Store\StoreDealsViewModel.cs" />
+    <Compile Include="Models\Store\StoreIndexViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
     <Content Include="packages.config" />
-    <Content Include="Areas\Members\Views\web.config" />
-    <Content Include="Areas\Members\Views\_ViewStart.cshtml" />
-    <Content Include="Areas\Members\Views\Shared\_Layout.cshtml" />
-    <Content Include="Areas\Members\Views\About\Index.cshtml" />
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\About\Index.cshtml" />
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="Scripts\jquery-2.2.0.min.map" />
+    <Content Include="Views\Store\UserBalances.cshtml" />
+    <Content Include="Views\Store\Deals.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -232,8 +241,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Controllers\" />
-    <Folder Include="Models\" />
+    <Folder Include="Views\User\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TheAfterParty.Domain\TheAfterParty.Domain.csproj">

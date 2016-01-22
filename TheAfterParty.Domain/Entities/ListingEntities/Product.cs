@@ -1,0 +1,51 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
+
+namespace TheAfterParty.Domain.Entities
+{
+
+    // Table to hold data for all items ever sold in the store, may include items that have never been sold on the store too.
+
+    // This table is a superset of the CurrentSaleItem table
+
+    public class Product
+    {
+        public Product()
+        {
+            ProductReviews = new HashSet<ProductReview>();
+            Tags = new HashSet<Tag>();
+            ObjectiveGameMappings = new HashSet<ObjectiveGameMapping>();
+        }
+        public Product(int appId, int platform) : base() { }
+
+        // id of an item in the store's database, many other entities rely on this key
+        [Key]
+        public int ProductID { get; set; }
+        
+        // a numeric int serving as an identifier for the platform (i.e. Steam = 1, Origin = 2)
+        [Required]
+        public int Platform { get; set; }
+
+        // if the corresponding platform has a publicly displayed application/game ID, this is stored here
+        public int AppID { get; set; }
+
+        public string ProductName { get; set; }
+
+        [Required]
+        public virtual Listing Listing { get; set; }
+        
+        public virtual ICollection<ProductReview> ProductReviews { get; set; }
+
+        public virtual ICollection<Tag> Tags { get; set; }
+
+        public virtual ICollection<ObjectiveGameMapping> ObjectiveGameMappings { get; set; }
+        
+        public virtual ProductDetail ProductDetail { get; set; }
+        public void AddProductDetail(ProductDetail productDetail)
+        {
+            productDetail.Products.Add(this);
+            ProductDetail = productDetail;
+        }
+    }
+}

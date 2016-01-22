@@ -106,9 +106,11 @@ namespace TheAfterParty.Domain.Concrete
 
             if (targetDiscountedListing != null)
             {
-                targetDiscountedListing.ItemDiscountedPrice = discountedListing.ItemDiscountedPrice;
                 targetDiscountedListing.ItemDiscountPercent = discountedListing.ItemDiscountPercent;
                 targetDiscountedListing.ItemSaleExpiry = discountedListing.ItemSaleExpiry;
+                targetDiscountedListing.ListingID = discountedListing.ListingID;
+                targetDiscountedListing.DailyDeal = discountedListing.DailyDeal;
+                targetDiscountedListing.WeeklyDeal = discountedListing.WeeklyDeal;
             }
         }
         public void DeleteDiscountedListing(int discountedListingId)

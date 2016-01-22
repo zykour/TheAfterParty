@@ -101,7 +101,7 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<ShoppingCartEntry>().HasRequired<Listing>(sce => sce.Listing).WithMany(l => l.ShoppingCartEntries).HasForeignKey(sce => sce.ListingID).WillCascadeOnDelete(true);
             modelBuilder.Entity<Auction>().HasRequired<Listing>(a => a.Listing).WithMany(l => l.Auctions).HasForeignKey(a => a.ListingID).WillCascadeOnDelete(false);
             modelBuilder.Entity<ClaimedProductKey>().HasRequired<Listing>(cpk => cpk.Listing).WithMany(l => l.ClaimedProductKeys).HasForeignKey(cpk => cpk.ListingID).WillCascadeOnDelete(false);
-            modelBuilder.Entity<DiscountedListing>().HasRequired<Listing>(dl => dl.Listing).WithOptional(dl => dl.DiscountedListing).WillCascadeOnDelete(true);
+            modelBuilder.Entity<DiscountedListing>().HasRequired<Listing>(dl => dl.Listing).WithMany(dl => dl.DiscountedListings).WillCascadeOnDelete(true);
             modelBuilder.Entity<Giveaway>().HasRequired<Listing>(g => g.Listing).WithMany(l => l.Giveaways).HasForeignKey(g => g.ListingID).WillCascadeOnDelete(false);
             modelBuilder.Entity<Prize>().HasRequired<Listing>(p => p.Listing).WithOptional(l => l.Prize).WillCascadeOnDelete(true);
             modelBuilder.Entity<ListingComment>().HasRequired<Listing>(lc => lc.Listing).WithMany(l => l.ListingComments).HasForeignKey(lc => lc.ListingID).WillCascadeOnDelete(true);

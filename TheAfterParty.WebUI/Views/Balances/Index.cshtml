@@ -1,0 +1,29 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Balances
+@model BalancesIndexViewModel
+
+@{
+    ViewBag.Title = "User Balances";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>User Balances</h2>
+
+@foreach (AppUser user in Model.SiteUsers)
+{
+    <div>
+        @if (Object.Equals(user.Id, Model.LoggedInUser.Id ?? ""))
+        {
+            <b>
+                <div>@user.UserName</div>
+                <div>@user.Balance</div>
+            </b>
+        }
+        else
+        {
+            <div>@user.UserName</div>
+            <div>@user.Balance</div>
+        }
+    </div>
+}
+

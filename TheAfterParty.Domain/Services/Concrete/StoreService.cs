@@ -1,84 +1,70 @@
 ﻿using TheAfterParty.Domain.Entities;
-using TheAfterParty.Domain.Abstract;
 using TheAfterParty.Domain.Concrete;
+using TheAfterParty.Domain.Abstract;
+using TheAfterParty.Domain.Services.Abstract;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using SteamKit2;
 using System;
+using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Identity;
 
 namespace TheAfterParty.Domain.Services
 {
-    class StoreService
+    public class StoreService : IStoreService
     {
-        private const int __Steam = 1;
-        private IRepository _repository;
+        private IListingRepository listingRepository;
+        private IUserRepository userRepository;
+        private IUnitOfWork unitOfWork;
+        public AppUserManager UserManager { get; private set; }
+        public string userName { get; set; }
 
-        public StoreService(IRepository repository)
+        public StoreService(IListingRepository listingRepository, IUserRepository userRepository, IUnitOfWork unitOfWork) : this(new AppUserManager(new UserStore<AppUser>(unitOfWork.DbContext)))
         {
-            _repository = repository;
+            this.listingRepository = listingRepository;
+            this.userRepository = userRepository;
+            this.unitOfWork = unitOfWork;
+        }
+        protected StoreService(AppUserManager userManager)
+        {
+            UserManager = userManager;
         }
 
-        public void AddKeyWithExistingListing(ProductKey productKey, int appId, int platform)
+        public void SetUserName(string userName)
         {
-            Listing listing = _repository.Listings.Where(l => (l.Product.AppID == appId) && (l.Product.Platform == platform)).SingleOrDefault();
-
-            listing.AddProductKey(productKey);
-            _repository.SaveProductKey(productKey);
+            this.userName = userName;
         }
 
-        public void AddKey(ProductKey productKey, int appId, int platform, int price)
-        {
-            Listing listing = _repository.Listings.Where(l => (l.Product.AppID == appId) && (l.Product.Platform == platform)).SingleOrDefault();
 
-            if (listing != null)
-            {
-                listing.ListingPrice = price;
-                listing.AddProductKey(productKey);
-                _repository.SaveProductKey(productKey);
-                _repository.SaveListing(listing);
-            }
-            else
-            {
-                AddKeyWithNewListing(productKey, new Product(appId, platform), new Listing(price));
-            }
+        public IEnumerable<Listing> GetStockedStoreListings()
+        {
+            return listingRepository.GetListings().Where(l => l.Quantity > 0).ToList();
         }
 
-        public void AddKeyWithNewListing(ProductKey productKey, Product product, Listing listing, string name = "")
+        public IEnumerable<AppUser> GetAppUsers()
         {
-            ProductDetail productDetail = new ProductDetail();
-
-            if (product.Platform == __Steam)
-            {
-                productDetail = GetSteamProductDetails(product.AppID);
-                name = productDetail.ProductName;
-            }
-
-            listing.AddProductKey(productKey);
-
-            product.ProductName = name;
-
-            product.AddProductDetail(productDetail);
-            listing.AddProduct(product);
-
-            _repository.SaveListing(listing);
-            _repository.SaveProductKey(productKey);
-            _repository.SaveProduct(product);
-            _repository.SaveProductDetail(productDetail);
+            return  UserManager.Users;
         }
 
-        public ProductDetail GetSteamProductDetails(int appId)
+        public IEnumerable<DiscountedListing> GetDeals()
         {
-
-            return new ProductDetail();
+            return listingRepository.GetDiscountedListings().ToList();
+        }
+        
+        public void Dispose()
+        {
+            this.unitOfWork.Dispose();
         }
 
-        public void CloneProductDetails(Listing blueprintListing, Listing recipientListing)
+        public AppUser GetCurrentUserSynch()
         {
-            _repository.DeleteProductDetail(recipientListing.Product.ProductDetail.ProductID);
-            recipientListing.Product.ProductDetail = blueprintListing.Product.ProductDetail;
-            recipientListing.Product.ProductDetail.Products.Add(recipientListing.Product);
-            _repository.SaveListing(recipientListing);
-            _repository.SaveProductDetail(recipientListing.Product.ProductDetail);
+            return UserManager.FindByName(userName);
+        }
+
+        public async Task<AppUser> GetCurrentUser()
+        {
+            return await UserManager.FindByNameAsync(userName);
         }
     }
 }
