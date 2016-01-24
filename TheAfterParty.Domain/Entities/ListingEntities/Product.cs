@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TheAfterParty.Domain.Entities
 {
@@ -36,8 +37,20 @@ namespace TheAfterParty.Domain.Entities
         public virtual Listing Listing { get; set; }
         
         public virtual ICollection<ProductReview> ProductReviews { get; set; }
+        public int TotalReviews()
+        {
+            return ProductReviews.Count();
+        }
+        public int PositiveReviews()
+        {
+            return ProductReviews.Where(r => r.IsRecommended == true).Count();
+        }
 
         public virtual ICollection<Tag> Tags { get; set; }
+        public bool HasTag(Tag tag)
+        {
+            return (Tags.Where(t => object.Equals(tag.TagName, t.TagName)).Count() >= 1) ? true : false;
+        }
 
         public virtual ICollection<ObjectiveGameMapping> ObjectiveGameMappings { get; set; }
         

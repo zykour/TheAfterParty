@@ -46,6 +46,59 @@ namespace TheAfterParty.Domain.Concrete
                 targetListing.ListingPrice = listing.ListingPrice;
                 targetListing.Quantity = listing.Quantity;
             }
+            
+            if (listing.Product.ProductID == 0)
+            {
+                InsertProduct(listing.Product);
+            }
+            else
+            {
+                UpdateProduct(listing.Product);
+            }
+
+            foreach (DiscountedListing entry in listing.DiscountedListings)
+            {
+                if (entry.Id == 0)
+                {
+                    InsertDiscountedListing(entry);
+                }
+                else
+                {
+                    UpdateDiscountedListing(entry);
+                }
+            }
+
+            foreach (ProductKey entry in listing.ProductKeys)
+            {
+                if (entry.KeyID == 0)
+                {
+                    InsertProductKey(entry);
+                }
+                else
+                {
+                    UpdateProductKey(entry);
+                }
+            }
+
+            foreach (ListingComment entry in listing.ListingComments)
+            {
+                if (entry.ListingCommentID == 0)
+                {
+                    InsertListingComment(entry);
+                }
+                else
+                {
+                    UpdateListingComment(entry);
+                }
+            }
+
+            foreach (MappedListing entry in listing.ChildListings)
+            {
+                if (entry.Id == 0)
+                {
+                    InsertMappedListing(entry);
+                }
+            }
         }
         public void DeleteListing(int listingID)
         {
@@ -79,6 +132,32 @@ namespace TheAfterParty.Domain.Concrete
                 targetProduct.Platform = product.Platform;
                 targetProduct.ProductName = product.ProductName;
             }
+
+            foreach (Tag entry in product.Tags)
+            {
+                if (entry.Id == 0)
+                {
+                    InsertTag(entry);
+                }
+                else
+                {
+                    UpdateTag(entry);
+                }
+            }
+
+            foreach (ProductReview entry in product.ProductReviews)
+            {
+                if (entry.ProductReviewID == 0)
+                {
+                    InsertProductReview(entry);
+                }
+                else
+                {
+                    UpdateProductReview(entry);
+                }
+            }
+
+            // productdetail
         }
         public void DeleteProduct(int productId)
         {

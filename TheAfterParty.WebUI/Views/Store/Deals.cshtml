@@ -7,6 +7,45 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     AjaxOptions ajaxOptions = new AjaxOptions { UpdateTargetId = "cartInfo", Url = Url.Action("AjaxAddToCart", "Cart") };
 }
-
-<h2>Deals</h2>
-
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Deals
+    </div>
+    <br/>
+    <div class="panel-heading">
+        @Model.DealType
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <td></td>
+                <td>Quantity</td>
+                <td>Price</td>
+                <td>Item</td>
+                <td>Expires</td>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Deals.Count(); i++)
+            {
+            <tr>
+                <td class="text-left">
+                    @using (Ajax.BeginForm("AddToCart", "Cart", ajaxOptions))
+                    {
+                        <div>
+                            @Html.HiddenFor(m => m.Deals.ElementAt(i).ListingID)
+                            @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
+                            <button type="submit" class="btn-transparent" title="Add to cart">
+                                <i class="glyphicon glyphicon-shopping-cart"></i>
+                            </button>
+                        </div>
+                    }
+                </td>
+                <td>@Model.Deals.ElementAt(i).Listing.Quantity</td>
+                <td>@Model.Deals.ElementAt(i).Listing.SaleOrDefaultPrice()</td>
+                <td>@Model.Deals.ElementAt(i).Listing.ListingName</td>
+                <td>@Model.Deals.ElementAt(i).ItemSaleExpiry</td>
+            </tr>
+            }
+    </table>
+</div> 

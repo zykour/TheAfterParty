@@ -19,6 +19,7 @@ namespace TheAfterParty.Domain.Entities
             Giveaways = new HashSet<Giveaway>();
             ProductKeys = new HashSet<ProductKey>();
             DiscountedListings = new HashSet<DiscountedListing>();
+            Tags = new HashSet<Tag>();
         }
         public Listing(string listingName) : this()
         {
@@ -125,7 +126,7 @@ namespace TheAfterParty.Domain.Entities
             else
                 return false;
         }
-
+        
         public virtual ICollection<ListingComment> ListingComments { get; set; }
         public void  AddListingComment(ListingComment comment)
         {

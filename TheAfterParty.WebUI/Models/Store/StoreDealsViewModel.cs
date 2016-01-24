@@ -8,6 +8,7 @@ namespace TheAfterParty.WebUI.Models.Store
 {
     public class StoreDealsViewModel
     {
+        public string DealType { get; set; }
         public IEnumerable<DiscountedListing> Deals { get; set; }
     }
 }
