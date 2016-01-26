@@ -56,9 +56,18 @@ namespace TheAfterParty.Domain.Concrete
                 UpdateProduct(listing.Product);
             }
 
+            if (listing.Platform.PlatformID == 0)
+            {
+                InsertPlatform(listing.Platform);
+            }
+            else
+            {
+                UpdatePlatform(listing.Platform);
+            }
+
             foreach (DiscountedListing entry in listing.DiscountedListings)
             {
-                if (entry.Id == 0)
+                if (entry.DiscountedListingID == 0)
                 {
                     InsertDiscountedListing(entry);
                 }
@@ -70,7 +79,7 @@ namespace TheAfterParty.Domain.Concrete
 
             foreach (ProductKey entry in listing.ProductKeys)
             {
-                if (entry.KeyID == 0)
+                if (entry.ProductKeyID == 0)
                 {
                     InsertProductKey(entry);
                 }
@@ -94,7 +103,7 @@ namespace TheAfterParty.Domain.Concrete
 
             foreach (MappedListing entry in listing.ChildListings)
             {
-                if (entry.Id == 0)
+                if (entry.MappedListingID == 0)
                 {
                     InsertMappedListing(entry);
                 }
@@ -129,13 +138,12 @@ namespace TheAfterParty.Domain.Concrete
             if (targetProduct != null)
             {
                 targetProduct.AppID = product.AppID;
-                targetProduct.Platform = product.Platform;
                 targetProduct.ProductName = product.ProductName;
             }
 
             foreach (Tag entry in product.Tags)
             {
-                if (entry.Id == 0)
+                if (entry.TagID == 0)
                 {
                     InsertTag(entry);
                 }
@@ -157,7 +165,17 @@ namespace TheAfterParty.Domain.Concrete
                 }
             }
 
-            // productdetail
+            if (product.ProductDetail != null)
+            {
+                if (product.ProductDetail.ProductDetailID == 0)
+                {
+                    InsertProductDetail(product.ProductDetail);
+                }
+                else
+                {
+                    UpdateProductDetail(product.ProductDetail);
+                }
+            }
         }
         public void DeleteProduct(int productId)
         {

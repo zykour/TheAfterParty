@@ -18,7 +18,7 @@ namespace TheAfterParty.Domain.Entities
         public BalanceEntry(){}
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int BalanceID { get; set; }
+        public int BalanceEntryID { get; set; }
 
         // the steam id of the user who had a balance change
         public string UserID { get; set; }

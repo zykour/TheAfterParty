@@ -8,7 +8,7 @@ namespace TheAfterParty.Domain.Entities
         public MappedListing() { }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
-        public int Id { get; set; }
+        public int MappedListingID { get; set; }
 
         public int ParentListingID { get; set; }
 

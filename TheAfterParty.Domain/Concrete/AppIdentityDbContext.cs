@@ -90,9 +90,10 @@ namespace TheAfterParty.Domain.Concrete
 
             // Objective ---
             modelBuilder.Entity<ObjectiveGameMapping>().HasRequired<Objective>(ogm => ogm.Objective).WithMany(o => o.ObjectiveGameMappings).HasForeignKey(ogm => ogm.ObjectiveID).WillCascadeOnDelete(true);
+            modelBuilder.Entity<BoostedObjective>().HasRequired<Objective>(bo => bo.Objective).WithOptional(o => o.BoostedObjective).WillCascadeOnDelete(true);
 
             // Order ---
-            modelBuilder.Entity<ProductOrderEntry>().HasRequired<Order>(poe => poe.Order).WithMany(o => o.ProductOrderEntries).HasForeignKey(poe => poe.TransactionID).WillCascadeOnDelete(true);
+            modelBuilder.Entity<ProductOrderEntry>().HasRequired<Order>(poe => poe.Order).WithMany(o => o.ProductOrderEntries).HasForeignKey(poe => poe.OrderID).WillCascadeOnDelete(true);
 
             // Prize ---
             modelBuilder.Entity<WonPrize>().HasRequired<Prize>(wp => wp.Prize).WithMany(p => p.WonPrizes).HasForeignKey(wp => wp.PrizeID).WillCascadeOnDelete(false);
@@ -109,13 +110,14 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<WishlistEntry>().HasRequired<Listing>(we => we.Listing).WithMany(l => l.WishlistEntries).HasForeignKey(we => we.ListingID).WillCascadeOnDelete(false);
             modelBuilder.Entity<MappedListing>().HasRequired<Listing>(ml => ml.ChildListing).WithMany(l => l.ChildListings).HasForeignKey(ml => ml.ChildListingID).WillCascadeOnDelete(false);
             modelBuilder.Entity<MappedListing>().HasRequired<Listing>(ml => ml.ParentListing).WithMany(l => l.ParentListings).HasForeignKey(ml => ml.ParentListingID).WillCascadeOnDelete(true);
-            modelBuilder.Entity<Product>().HasRequired<Listing>(p => p.Listing).WithOptional(l => l.Product).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Product>().HasMany<Listing>(p => p.Listing).WithOptional(l => l.Product).WillCascadeOnDelete(false); //.HasRequired<Listing>(p => p.Listing).WithOptional(l => l.Product).WillCascadeOnDelete(false);
 
             // Product ---
             modelBuilder.Entity<ProductReview>().HasRequired<Product>(pr => pr.Product).WithMany(p => p.ProductReviews).HasForeignKey(pr => pr.ProductID).WillCascadeOnDelete(false);
             modelBuilder.Entity<Tag>().HasRequired<Product>(t => t.Product).WithMany(p => p.Tags).HasForeignKey(t => t.ProductID).WillCascadeOnDelete(true);
             modelBuilder.Entity<ObjectiveGameMapping>().HasRequired<Product>(ogm => ogm.Product).WithMany(p => p.ObjectiveGameMappings).HasForeignKey(ogm => ogm.ProductID).WillCascadeOnDelete(false);
             modelBuilder.Entity<ProductDetail>().HasMany<Product>(pd => pd.Products).WithOptional(p => p.ProductDetail).WillCascadeOnDelete(false);
+            modelBuilder.Entity<ProductCategory>().HasMany<Product>(pc => pc.Products).WithMany(p => p.ProductCategories);
         }
     }
 }

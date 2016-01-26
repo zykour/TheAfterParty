@@ -63,8 +63,8 @@ namespace TheAfterParty.Domain.Abstract
         Tag GetTagByID(int tagId);
         void InsertTag(Tag tag);
         void UpdateTag(Tag tag);
-        void DeleteTag(int tagId);
-        
+        void DeleteTag(int tagId)
+
         void Save();
     }
 }

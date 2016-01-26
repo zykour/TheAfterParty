@@ -7,10 +7,10 @@ namespace TheAfterParty.Domain.Entities
     public class BoostedObjective
     {
         public BoostedObjective() { }
-
+        
+        public int BoostedObjectiveID { get; set; }
 
         // specified the objective that will be boosted
-        [Key, Required]
         public int ObjectiveID { get; set; }
 
         // the associated objective that is being boosted

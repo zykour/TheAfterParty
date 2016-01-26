@@ -121,20 +121,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstract\IAuctionRepository.cs" />
+    <Compile Include="Abstract\ICouponRepository.cs" />
+    <Compile Include="Abstract\IGiveawayRepository.cs" />
     <Compile Include="Abstract\IListingRepository.cs" />
+    <Compile Include="Abstract\IObjectiveRepository.cs" />
+    <Compile Include="Abstract\IPrizeRepository.cs" />
     <Compile Include="Abstract\IRepository.cs" />
     <Compile Include="Abstract\IUnitOfWork.cs" />
     <Compile Include="Abstract\IUserRepository.cs" />
     <Compile Include="Concrete\AppUserManager.cs" />
     <Compile Include="Concrete\AppIdentityDbContext.cs" />
+    <Compile Include="Concrete\AuctionRepository.cs" />
+    <Compile Include="Concrete\CouponRepository.cs" />
     <Compile Include="Concrete\EFDbInit.cs" />
     <Compile Include="Concrete\EFRepository.cs" />
+    <Compile Include="Concrete\GiveawayRepository.cs" />
     <Compile Include="Concrete\ListingRepository.cs" />
+    <Compile Include="Concrete\ObjectiveRepository.cs" />
+    <Compile Include="Concrete\PrizeRepository.cs" />
     <Compile Include="Concrete\UnitOfWork.cs" />
     <Compile Include="Concrete\UserRepository.cs" />
     <Compile Include="Entities\ListingEntities\AppMovie.cs" />
     <Compile Include="Entities\ListingEntities\AppScreenshot.cs" />
     <Compile Include="Entities\ObjectiveEntities\ObjectiveGameMapping.cs" />
+    <Compile Include="Entities\ListingEntities\Platform.cs" />
+    <Compile Include="Entities\ListingEntities\ProductCategory.cs" />
     <Compile Include="Entities\UserEntities\AppUser.cs" />
     <Compile Include="Entities\AuctionEntities\Auction.cs" />
     <Compile Include="Entities\AuctionEntities\AuctionBid.cs" />

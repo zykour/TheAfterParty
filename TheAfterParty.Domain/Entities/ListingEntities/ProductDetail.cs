@@ -7,9 +7,11 @@ namespace TheAfterParty.Domain.Entities
     public class ProductDetail
     {
 
-        //https://wiki.teamfortress.com/wiki/User:RJackson/StorefrontAPI#appdetails
-        //http://store.steampowered.com/api/appdetails?appids=205630
+        //https: //wiki.teamfortress.com/wiki/User:RJackson/StorefrontAPI#appdetails
+        //http: //store.steampowered.com/api/appdetails?appids=205630
         [Key]
+        public int ProductDetailID { get; set; }
+
         public int ProductID { get; set; }
         public virtual ICollection<Product> Products { get; set; }
 
@@ -78,8 +80,6 @@ namespace TheAfterParty.Domain.Entities
         public int MetacriticScore { get; set; }
         public string MetacriticURL { get; set; }
 
-        // steam categories, i.e. Co-op, Multiplayer, Steam Trading Cards, Partial Controller Support, Steam Cloud
-        public string Categories { get; set; }
         public string Genres { get; set; }
 
         // probably not needed, total number of people who have recommended it

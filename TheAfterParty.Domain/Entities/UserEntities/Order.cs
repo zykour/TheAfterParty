@@ -35,7 +35,7 @@ namespace TheAfterParty.Domain.Entities
         }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int TransactionID { get; set; }
+        public int OrderID { get; set; }
 
         // the ID of the user this order is associated with
         public string UserID { get; set; }

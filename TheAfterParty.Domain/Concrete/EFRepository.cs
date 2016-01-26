@@ -352,13 +352,13 @@ namespace TheAfterParty.Domain.Concrete
 
         public void SaveGiveawayEntry(GiveawayEntry giveawayEntry)
         {
-            if (giveawayEntry.EntryNumber == 0)
+            if (giveawayEntry.ID == 0)
             {
                 context.GiveawayEntries.Add(giveawayEntry);
             }
             else
             {
-                GiveawayEntry targetGiveawayEntry = context.GiveawayEntries.Find(giveawayEntry.GiveawayID, giveawayEntry.EntryNumber);
+                GiveawayEntry targetGiveawayEntry = context.GiveawayEntries.Find(giveawayEntry.ID);
                 
                 if (giveawayEntry != null)
                 {

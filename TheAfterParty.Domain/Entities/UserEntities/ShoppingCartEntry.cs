@@ -20,7 +20,7 @@ namespace TheAfterParty.Domain.Entities
         protected ShoppingCartEntry() { }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ShoppingID { get; set; }
+        public int ShoppingCartEntryID { get; set; }
         
         public string UserID { get; set; }
         

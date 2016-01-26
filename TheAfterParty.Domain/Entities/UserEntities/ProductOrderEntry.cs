@@ -12,18 +12,16 @@ namespace TheAfterParty.Domain.Entities
             SalePrice = cartEntry.Listing.SaleOrDefaultPrice();
 
             ClaimedProductKey = claimedKey;
-            OrderID = claimedKey.KeyID;
+            OrderID = claimedKey.ClaimedProductKeyID;
             claimedKey.ProductOrderEntry = this;
 
-            TransactionID = order.TransactionID;
+            OrderID = order.OrderID;
             this.Order = order;
         }
         protected ProductOrderEntry(){}
-
-        public int TransactionID { get; set; }
-
+        
         [Key]
-        public int OrderID { get; set; }
+        public int ProductOrderEntryID { get; set; }
 
         public int ListingID { get; set; }
 
@@ -33,6 +31,8 @@ namespace TheAfterParty.Domain.Entities
         
         [Required]
         public virtual ClaimedProductKey ClaimedProductKey { get; set; }
+
+        public int OrderID { get; set; }
 
         public virtual Order Order { get; set; }
     }

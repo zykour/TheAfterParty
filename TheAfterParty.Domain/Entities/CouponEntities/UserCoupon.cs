@@ -8,7 +8,7 @@ namespace TheAfterParty.Domain.Entities
         public UserCoupon() { }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
-        public int Id { get; set; }
+        public int UserCouponID { get; set; }
 
         public int CouponID { get; set; }
 

@@ -6,7 +6,7 @@ namespace TheAfterParty.Domain.Entities
     public class ObjectiveGameMapping
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
-        public int Id { get; set; }
+        public int ObjectiveGameMappingID { get; set; }
 
         public int ObjectiveID { get; set; }
 

@@ -8,7 +8,7 @@ namespace TheAfterParty.Domain.Entities
         public OwnedGame() { }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
-        public int Id { get; set; }
+        public int OwnedGameID { get; set; }
 
         public string UserID { get; set; }
 

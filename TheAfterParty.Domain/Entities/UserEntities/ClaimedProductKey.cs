@@ -24,7 +24,7 @@ namespace TheAfterParty.Domain.Entities
 
         // need a key value that can be safely used in hidden forms
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int KeyID { get; set; }
+        public int ClaimedProductKeyID { get; set; }
         
         public int ListingID { get; set; }
 

@@ -8,7 +8,7 @@ namespace TheAfterParty.Domain.Entities
         public Tag() { }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
-        public int Id { get; set; }
+        public int TagID { get; set; }
 
         public string UserID { get; set; }
 

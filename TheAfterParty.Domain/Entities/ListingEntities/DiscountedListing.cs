@@ -12,7 +12,7 @@ namespace TheAfterParty.Domain.Entities
         public DiscountedListing() { }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public int DiscountedListingID { get; set; }
 
         public int ListingID { get; set; }
         

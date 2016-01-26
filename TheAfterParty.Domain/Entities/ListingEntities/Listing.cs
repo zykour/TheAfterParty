@@ -19,7 +19,6 @@ namespace TheAfterParty.Domain.Entities
             Giveaways = new HashSet<Giveaway>();
             ProductKeys = new HashSet<ProductKey>();
             DiscountedListings = new HashSet<DiscountedListing>();
-            Tags = new HashSet<Tag>();
         }
         public Listing(string listingName) : this()
         {
@@ -61,8 +60,49 @@ namespace TheAfterParty.Domain.Entities
         public virtual Product Product { get; set; }
         public void AddProduct(Product product)
         {
-            product.Listing = this;
+            product.Listing.Add(this);
             Product = product;
+        }
+
+        // a child listing will have a single platform, compositite listings will have a null here
+        public virtual Platform Platform { get; set; }
+        public IEnumerable<Platform> GetPlatforms()
+        {
+            ICollection<Platform> platforms = new HashSet<Platform>();
+
+            if (ChildListings == null)
+            {
+                platforms.Add(Platform);
+                return platforms.ToList();
+            }
+
+            GetPlatforms(platforms);
+                
+            return platforms.ToList();
+        }
+        // recursion helper
+        public void GetPlatforms(ICollection<Platform> platforms)
+        {
+            if (ChildListings == null)
+                return;
+
+            foreach (MappedListing mappedListing in ChildListings)
+            {
+                //following the convention that Platform is either null (and thus the current listing is composite and has children) or it's not null (and it's a leaf node in the composite hiearchy)
+                if (mappedListing.ChildListing.Platform != null)
+                {
+                    if (platforms.Where(p => object.Equals(p.PlatformName, mappedListing.ChildListing.Platform.PlatformName)).Count() == 0)
+                    {
+                        platforms.Add(mappedListing.ChildListing.Platform);
+                    }
+                }
+                else
+                {
+                    mappedListing.ChildListing.GetPlatforms(platforms);
+                }
+            }
+
+            return;
         }
 
         // the name of this listing, in practice, most/all parent nodes should be given a name

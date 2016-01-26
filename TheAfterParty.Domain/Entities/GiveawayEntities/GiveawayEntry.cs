@@ -9,14 +9,12 @@ namespace TheAfterParty.Domain.Entities
     {
         public GiveawayEntry() { }
 
-        // specifies which Giveaway this entry is for
-        [Key, Column(Order = 1)]
-        public int GiveawayID { get; set; }
+        [Key]
+        public int GiveawayEntryID { get; set; }
 
-        // the user who has entered the giveaway specified by GiveawayID
-        [Key, Column(Order = 2), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int EntryNumber { get; set; }
-            
+        // specifies which Giveaway this entry is for
+        public int GiveawayID { get; set; }
+                    
         public string UserID { get; set; }
         
         // the associated Giveaway object for this entry

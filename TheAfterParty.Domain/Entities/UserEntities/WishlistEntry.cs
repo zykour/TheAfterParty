@@ -10,7 +10,7 @@ namespace TheAfterParty.Domain.Entities
         public WishlistEntry() { }
 
         [Key]
-        public int Id { get; set; }
+        public int WishlistEntryID { get; set; }
 
         public string UserID { get; set; }
 

@@ -17,6 +17,7 @@ namespace TheAfterParty.Domain.Entities
             ProductReviews = new HashSet<ProductReview>();
             Tags = new HashSet<Tag>();
             ObjectiveGameMappings = new HashSet<ObjectiveGameMapping>();
+            ProductCategories = new HashSet<ProductCategory>();
         }
         public Product(int appId, int platform) : base() { }
 
@@ -24,18 +25,18 @@ namespace TheAfterParty.Domain.Entities
         [Key]
         public int ProductID { get; set; }
         
-        // a numeric int serving as an identifier for the platform (i.e. Steam = 1, Origin = 2)
-        [Required]
-        public int Platform { get; set; }
-
         // if the corresponding platform has a publicly displayed application/game ID, this is stored here
         public int AppID { get; set; }
 
         public string ProductName { get; set; }
 
         [Required]
-        public virtual Listing Listing { get; set; }
-        
+        public virtual ICollection<Listing> Listing { get; set; }
+
+        // steam categories, i.e. Co-op, Multiplayer, Steam Trading Cards, Partial Controller Support, Steam Cloud
+        //public string Categories { get; set; }
+        public virtual ICollection<ProductCategory> ProductCategories { get; set; }
+
         public virtual ICollection<ProductReview> ProductReviews { get; set; }
         public int TotalReviews()
         {

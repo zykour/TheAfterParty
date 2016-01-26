@@ -28,5 +28,7 @@ namespace TheAfterParty.Domain.Entities
 
         // whether or not the player needs to play with the admin to play (must be self-reported if false)
         public bool RequiresAdmin { get; set; }
+
+        public virtual BoostedObjective BoostedObjective { get; set; }
     }
 }

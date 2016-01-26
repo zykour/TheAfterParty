@@ -9,11 +9,12 @@ namespace TheAfterParty.Domain.Entities
     {
         public AuctionBid() { }
 
-        [Key, Column(Order = 1), DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [Key]
+        public int AuctionBidID { get; set; }
+
         public int AuctionID { get; set; }
 
         // the bid number of this bid
-        [Key, Column(Order = 2), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BidNumber { get; set; }
 
         // the auction info for the auction this bid is associated with
