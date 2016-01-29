@@ -6,12 +6,9 @@
     ViewBag.Title = "User Balances";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div class="panel panel-primary">
     @if (Model.LoggedInUser != null)
     {
-        <div class="panel-heading">
-            Your balance
-        </div>
+        <h3 class="text-left">Your balance</h3>
         <table class="table table-striped">
             <tr>
                 <th>Name</th>
@@ -22,10 +19,10 @@
                 <td>@Model.LoggedInUser.Balance</td>
             </tr>
         </table>
+        <br/>
+        <br/>
     }
-    <div class="panel-heading">
-        User Accounts
-    </div>
+    <h3 class="text-left">User Accounts</h3>
     <table class="table table-striped">
         <tr>
             <th class="col-md-9">Name</th>
@@ -47,4 +44,3 @@
             }
         }
     </table>
-</div> 

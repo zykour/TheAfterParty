@@ -8,14 +8,17 @@
     AjaxOptions ajaxOptions = new AjaxOptions { UpdateTargetId = "cartInfo", Url = Url.Action("AjaxAddToCart", "Cart") };
 }
 <div class="panel panel-primary">
-    <div class="panel-heading">
-        Deals
-    </div>
+    <h2 class="text-center">Deals</h2>
     <br/>
-    <div class="panel-heading">
-        @Model.DealType
-    </div>
-    <table class="table table-striped">
+    <h3 class="text-center">@Model.DealType</h3>
+    <br/>
+    @if (Model.ListingsWithDeals.Count() == 0)
+    {
+        <h4 class="text-left">There are no @Model.DealType!</h4>
+    }
+    else
+    {
+    <table class="table">
         <thead>
             <tr>
                 <td></td>
@@ -26,14 +29,14 @@
             </tr>
         </thead>
         <tbody>
-            @for (int i = 0; i < Model.Deals.Count(); i++)
+            @for (int i = 0; i < Model.ListingsWithDeals.Count(); i++)
             {
             <tr>
                 <td class="text-left">
                     @using (Ajax.BeginForm("AddToCart", "Cart", ajaxOptions))
                     {
                         <div>
-                            @Html.HiddenFor(m => m.Deals.ElementAt(i).ListingID)
+                            @Html.HiddenFor(m => m.ListingsWithDeals.ElementAt(i).ListingID)
                             @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
                             <button type="submit" class="btn-transparent" title="Add to cart">
                                 <i class="glyphicon glyphicon-shopping-cart"></i>
@@ -41,11 +44,12 @@
                         </div>
                     }
                 </td>
-                <td>@Model.Deals.ElementAt(i).Listing.Quantity</td>
-                <td>@Model.Deals.ElementAt(i).Listing.SaleOrDefaultPrice()</td>
-                <td>@Model.Deals.ElementAt(i).Listing.ListingName</td>
-                <td>@Model.Deals.ElementAt(i).ItemSaleExpiry</td>
+                <td>@Model.ListingsWithDeals.ElementAt(i).Quantity</td>
+                <td>@Model.ListingsWithDeals.ElementAt(i).SaleOrDefaultPrice()</td>
+                <td>@Model.ListingsWithDeals.ElementAt(i).ListingName</td>
+                <td>@Model.ListingsWithDeals.ElementAt(i).GetEarliestExpiry(Model.IsDaily, Model.IsWeekly)</td>
             </tr>
             }
     </table>
+    }
 </div> 

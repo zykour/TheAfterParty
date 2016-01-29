@@ -47,7 +47,7 @@ namespace TheAfterParty.Domain.Concrete
 
             foreach (AuctionBid bid in auction.AuctionBids)
             {
-                if (bid.ID == 0)
+                if (bid.AuctionBidID == 0)
                 {
                     InsertAuctionBid(bid);
                 }
@@ -81,7 +81,7 @@ namespace TheAfterParty.Domain.Concrete
         }
         public void UpdateAuctionBid(AuctionBid auctionBid)
         {
-            AuctionBid targetAuctionBid = context.AuctionBids.Find(auctionBid.ID);
+            AuctionBid targetAuctionBid = context.AuctionBids.Find(auctionBid.AuctionBidID);
 
             if (targetAuctionBid != null)
             {

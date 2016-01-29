@@ -37,14 +37,10 @@ namespace TheAfterParty.Domain.Concrete
         public async Task InsertAppUser(AppUser appUser)
         {
             await userManager.CreateAsync(appUser);
-        }
-        public async Task UpdateAppUser(AppUser appUser)
-        {
-            await userManager.UpdateAsync(appUser);
 
             foreach (BalanceEntry entry in appUser.BalanceEntries)
             {
-                if (entry.BalanceID == 0)
+                if (entry.BalanceEntryID == 0)
                 {
                     InsertBalanceEntry(entry);
                 }
@@ -56,7 +52,79 @@ namespace TheAfterParty.Domain.Concrete
 
             foreach (ClaimedProductKey entry in appUser.ClaimedProductKeys)
             {
-                if (entry.KeyID == 0)
+                if (entry.ClaimedProductKeyID == 0)
+                {
+                    InsertClaimedProductKey(entry);
+                }
+                else
+                {
+                    UpdateClaimedProductKey(entry);
+                }
+            }
+            
+            foreach (Mail entry in appUser.ReceivedMail)
+            {
+                if (entry.MailID == 0)
+                {
+                    InsertMail(entry);
+                }
+                else
+                {
+                    UpdateMail(entry);
+                }
+            }
+
+            foreach (Order entry in appUser.Orders)
+            {
+                if (entry.OrderID == 0)
+                {
+                    InsertOrder(entry);
+                }
+                else
+                {
+                    UpdateOrder(entry);
+                }
+            }
+
+            foreach (OwnedGame entry in appUser.OwnedGames)
+            {
+                if (entry.OwnedGameID == 0)
+                {
+                    InsertOwnedGame(entry);
+                }
+            }
+
+            foreach (UserNotification entry in appUser.UserNotifications)
+            {
+                if (entry.UserNotificationID == 0)
+                {
+                    InsertUserNotification(entry);
+                }
+                else
+                {
+                    UpdateUserNotification(entry);
+                }
+            }
+        }
+        public async Task UpdateAppUser(AppUser appUser)
+        {
+            await userManager.UpdateAsync(appUser);
+
+            foreach (BalanceEntry entry in appUser.BalanceEntries)
+            {
+                if (entry.BalanceEntryID == 0)
+                {
+                    InsertBalanceEntry(entry);
+                }
+                else
+                {
+                    UpdateBalanceEntry(entry);
+                }
+            }
+
+            foreach (ClaimedProductKey entry in appUser.ClaimedProductKeys)
+            {
+                if (entry.ClaimedProductKeyID == 0)
                 {
                     InsertClaimedProductKey(entry);
                 }
@@ -92,7 +160,7 @@ namespace TheAfterParty.Domain.Concrete
 
             foreach (Order entry in appUser.Orders)
             {
-                if (entry.TransactionID == 0)
+                if (entry.OrderID == 0)
                 {
                     InsertOrder(entry);
                 }
@@ -104,7 +172,7 @@ namespace TheAfterParty.Domain.Concrete
 
             foreach (OwnedGame entry in appUser.OwnedGames)
             {
-                if (entry.Id == 0)
+                if (entry.OwnedGameID == 0)
                 {
                     InsertOwnedGame(entry);
                 }
@@ -124,7 +192,7 @@ namespace TheAfterParty.Domain.Concrete
 
             foreach (WishlistEntry entry in appUser.WishlistEntries)
             {
-                if (entry.Id == 0)
+                if (entry.WishlistEntryID == 0)
                 {
                     InsertWishlistEntry(entry);
                 }
@@ -158,7 +226,7 @@ namespace TheAfterParty.Domain.Concrete
         }
         public void UpdateShoppingCartEntry(ShoppingCartEntry shoppingCartEntry)
         {
-            ShoppingCartEntry targetShoppingCartEntry = context.ShoppingCartEntries.Find(shoppingCartEntry.ShoppingID);
+            ShoppingCartEntry targetShoppingCartEntry = context.ShoppingCartEntries.Find(shoppingCartEntry.ShoppingCartEntryID);
 
             if (targetShoppingCartEntry != null)
             {
@@ -191,7 +259,7 @@ namespace TheAfterParty.Domain.Concrete
         }
         public void UpdateOrder(Order order)
         {
-            Order targetOrder = context.Orders.Find(order.TransactionID);
+            Order targetOrder = context.Orders.Find(order.OrderID);
 
             if (targetOrder != null)
             {
@@ -261,7 +329,7 @@ namespace TheAfterParty.Domain.Concrete
         }
         public void UpdateClaimedProductKey(ClaimedProductKey claimedProductKey)
         {
-            ClaimedProductKey targetClaimedProductKey = context.ClaimedProductKeys.Find(claimedProductKey.KeyID);
+            ClaimedProductKey targetClaimedProductKey = context.ClaimedProductKeys.Find(claimedProductKey.ClaimedProductKeyID);
 
             if (targetClaimedProductKey != null)
             {
@@ -298,7 +366,7 @@ namespace TheAfterParty.Domain.Concrete
         }
         public void UpdateBalanceEntry(BalanceEntry balanceEntry)
         {
-            BalanceEntry targetBalanceEntry = context.BalanceEntries.Find(balanceEntry.BalanceID);
+            BalanceEntry targetBalanceEntry = context.BalanceEntries.Find(balanceEntry.BalanceEntryID);
 
             if (targetBalanceEntry != null)
             {

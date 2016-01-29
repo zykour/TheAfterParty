@@ -116,14 +116,14 @@ namespace TheAfterParty.Domain.Services
                 for (int i = 0; i < entry.Quantity; i++)
                 {
                     ProductKey productKey = keys.First();
-                    listingRepository.DeleteProductKey(productKey.KeyID);
+                    listingRepository.DeleteProductKey(productKey.ProductKeyID);
                     keys.Remove(productKey);
 
                     Listing listing = listingRepository.GetListingByID(entry.ListingID);
                     listing.Quantity--;
                     listingRepository.UpdateListing(listing);
                     
-                    ClaimedProductKey claimedKey = new ClaimedProductKey(productKey, user, orderDate, "Purchase - Order #" + order.TransactionID);
+                    ClaimedProductKey claimedKey = new ClaimedProductKey(productKey, user, orderDate, "Purchase - Order #" + order.OrderID);
                     user.ClaimedProductKeys.Add(claimedKey);
                     //userRepository.InsertClaimedProductKey(claimedKey);
 
@@ -135,7 +135,7 @@ namespace TheAfterParty.Domain.Services
 
             await DeleteShoppingCart();
 
-            BalanceEntry balanceEntry = new BalanceEntry(user, "Purchase - Order #" + order.TransactionID, order.TotalSalePrice(), orderDate);
+            BalanceEntry balanceEntry = new BalanceEntry(user, "Purchase - Order #" + order.OrderID, order.TotalSalePrice(), orderDate);
             user.BalanceEntries.Add(balanceEntry);
             //userRepository.InsertBalanceEntry(balanceEntry);
 
@@ -158,7 +158,7 @@ namespace TheAfterParty.Domain.Services
         {
             AppUser user = await GetCurrentUser();
 
-            List<Int32> entryIds = user.ShoppingCartEntries.Select(e => e.ShoppingID).ToList();
+            List<Int32> entryIds = user.ShoppingCartEntries.Select(e => e.ShoppingCartEntryID).ToList();
             //IEnumerable<ShoppingCartEntry> entries = user.ShoppingCartEntries; //userRepository.GetShoppingCartEntries().Where(e => Object.Equals(user.Id, e.UserID));
 
             foreach (Int32 id in entryIds)
@@ -172,7 +172,7 @@ namespace TheAfterParty.Domain.Services
         public async Task UpdateShoppingCartEntry(int entryId, int quantity)
         {
             AppUser user = await GetCurrentUser();
-            ShoppingCartEntry entry = user.ShoppingCartEntries.Where(e => e.ShoppingID == entryId).Single(); //userRepository.GetShoppingCartEntryByID(entryId);
+            ShoppingCartEntry entry = user.ShoppingCartEntries.Where(e => e.ShoppingCartEntryID == entryId).Single(); //userRepository.GetShoppingCartEntryByID(entryId);
             entry.Quantity = quantity;
             await userRepository.UpdateAppUser(user);
 
@@ -182,7 +182,7 @@ namespace TheAfterParty.Domain.Services
         public async Task IncrementCartQuantity(int entryId)
         {
             AppUser user = await GetCurrentUser();
-            ShoppingCartEntry entry = user.ShoppingCartEntries.Where(e => e.ShoppingID == entryId).Single(); //userRepository.GetShoppingCartEntryByID(entryId);
+            ShoppingCartEntry entry = user.ShoppingCartEntries.Where(e => e.ShoppingCartEntryID == entryId).Single(); //userRepository.GetShoppingCartEntryByID(entryId);
             entry.Quantity++;
             await userRepository.UpdateAppUser(user);
 
@@ -192,7 +192,7 @@ namespace TheAfterParty.Domain.Services
         public async Task DecrementCartQuantity(int entryId)
         {
             AppUser user = await GetCurrentUser();
-            ShoppingCartEntry entry = user.ShoppingCartEntries.Where(e => e.ShoppingID == entryId).Single(); //userRepository.GetShoppingCartEntryByID(entryId);
+            ShoppingCartEntry entry = user.ShoppingCartEntries.Where(e => e.ShoppingCartEntryID == entryId).Single(); //userRepository.GetShoppingCartEntryByID(entryId);
             entry.Quantity--;
 
             if (entry.Quantity > 0)
@@ -206,7 +206,7 @@ namespace TheAfterParty.Domain.Services
         public async Task<bool> ListingQuantityExceedsCartQuantity(int listingId, int entryId)
         {
             AppUser user = await GetCurrentUser();
-            ShoppingCartEntry entry = user.ShoppingCartEntries.Where(e => e.ShoppingID == entryId).Single(); //userRepository.GetShoppingCartEntryByID(entryId);
+            ShoppingCartEntry entry = user.ShoppingCartEntries.Where(e => e.ShoppingCartEntryID == entryId).Single(); //userRepository.GetShoppingCartEntryByID(entryId);
             Listing listing = listingRepository.GetListingByID(listingId);
 
             if (listing.Quantity > entry.Quantity)

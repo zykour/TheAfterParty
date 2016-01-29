@@ -1,0 +1,31 @@
+﻿@using TheAfterParty.WebUI.Models.Store
+@model AddEditPlatformViewModel
+
+@{
+    ViewBag.Title = "EditPlatform";
+}
+
+@if (Model.Success)
+{
+    <span>Successfully added the following platform:</span>
+}
+
+<h2>Add/Edit Platform</h2>
+
+@Html.BeginForm("EditPlatform","Store", FormMethod.Post)
+{
+    @Html.HiddenFor(m => m.Platform.PlatformID)
+<div>
+    @Html.LabelFor(m => m.Platform.HasAppID)
+    @Html.CheckBoxFor(m => m.Platform.HasAppID)
+</div>
+<div>
+    @Html.LabelFor(m => m.Platform.PlatformURL)
+    @Html.TextBoxFor(m => m.Platform.PlatformURL)
+</div>
+<div>
+    @Html.LabelFor(m => m.Platform.PlatformName)
+    @Html.TextBoxFor(m => m.Platform.PlatformName)
+</div>
+<input type="submit" value="Save" class="btn btn-primary" />
+}

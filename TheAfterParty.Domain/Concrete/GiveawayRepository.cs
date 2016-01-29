@@ -49,7 +49,7 @@ namespace TheAfterParty.Domain.Concrete
 
             foreach (GiveawayEntry entry in giveaway.GiveawayEntries)
             {
-                if (entry.ID == 0)
+                if (entry.GiveawayEntryID == 0)
                 {
                     InsertGiveawayEntry(entry);
                 }
@@ -83,7 +83,7 @@ namespace TheAfterParty.Domain.Concrete
         }
         public void UpdateGiveawayEntry(GiveawayEntry giveawayEntry)
         {
-            GiveawayEntry targetGiveawayEntry = context.GiveawayEntries.Find(giveawayEntry.ID);
+            GiveawayEntry targetGiveawayEntry = context.GiveawayEntries.Find(giveawayEntry.GiveawayEntryID);
 
             if (targetGiveawayEntry != null)
             {

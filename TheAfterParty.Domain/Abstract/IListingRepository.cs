@@ -22,18 +22,18 @@ namespace TheAfterParty.Domain.Abstract
         void InsertDiscountedListing(DiscountedListing discountedListing);
         void UpdateDiscountedListing(DiscountedListing discoutnedListing);
         void DeleteDiscountedListing(int discountedListingId);
-
-        IEnumerable<MappedListing> GetMappedListings();
-        MappedListing GetMappedListingByID(int mappedListingId);
-        void InsertMappedListing(MappedListing mappedListing);
-        //void UpdateMappedListing(MappedListing mappedListing);
-        void DeleteMappedListing(int mappedListingId);
-
+        
         IEnumerable<ListingComment> GetListingComments();
         ListingComment GetListingCommentByID(int listingCommentId);
         void InsertListingComment(ListingComment listingComment);
         void UpdateListingComment(ListingComment listingComment);
         void DeleteListingComment(int listingCommentId);
+
+        IEnumerable<Platform> GetPlatforms();
+        Platform GetPlatformByID(int platformId);
+        void InsertPlatform(Platform platform);
+        void UpdatePlatform(Platform platform);
+        void DeletePlatform(int platformId);
 
         IEnumerable<Product> GetProducts();
         Product GetProductByID(int productId);
@@ -41,11 +41,29 @@ namespace TheAfterParty.Domain.Abstract
         void UpdateProduct(Product product);
         void DeleteProduct(int productId);
 
+        IEnumerable<ProductCategory> GetProductCategories();
+        ProductCategory GetProductCategoryByID(int productCategoryId);
+        void InsertProductCategory(ProductCategory productCategory);
+        void UpdateProductCategory(ProductCategory productCategory);
+        void DeleteProductCategory(int productCategoryId);
+
         IEnumerable<ProductDetail> GetProductDetails();
         ProductDetail GetProductDetailByID(int productDetailId);
         void InsertProductDetail(ProductDetail productDetail);
         void UpdateProductDetail(ProductDetail productDetail);
         void DeleteProductDetail(int productDetailId);
+
+        IEnumerable<AppMovie> GetAppMovies();
+        AppMovie GetAppMovieByID(int appMovieId);
+        void InsertAppMovie(AppMovie appMovie);
+        void UpdateAppMovie(AppMovie appMovie);
+        void DeleteAppMovie(int appMovieId);
+
+        IEnumerable<AppScreenshot> GetAppScreenshots();
+        AppScreenshot GetAppScreenshotByID(int appScreenshotId);
+        void InsertAppScreenshot(AppScreenshot appScreenshot);
+        void UpdateAppScreenshot(AppScreenshot appScreenshot);
+        void DeleteAppScreenshot(int appScreenshotId);
 
         IEnumerable<ProductKey> GetProductKeys();
         ProductKey GetProductKeyByID(int productKeyId);
@@ -63,7 +81,7 @@ namespace TheAfterParty.Domain.Abstract
         Tag GetTagByID(int tagId);
         void InsertTag(Tag tag);
         void UpdateTag(Tag tag);
-        void DeleteTag(int tagId)
+        void DeleteTag(int tagId);
 
         void Save();
     }

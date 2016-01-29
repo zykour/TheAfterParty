@@ -2,33 +2,22 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System;
 
 namespace TheAfterParty.Domain.Entities
 {
     public class Listing
     {
-        public Listing()
-        {
-            ChildListings = new HashSet<MappedListing>();
-            ParentListings = new HashSet<MappedListing>();
-            ListingComments = new HashSet<ListingComment>();
-            WishlistEntries = new HashSet<WishlistEntry>();
-            Auctions = new HashSet<Auction>();
-            ShoppingCartEntries = new HashSet<ShoppingCartEntry>();
-            ClaimedProductKeys = new HashSet<ClaimedProductKey>();
-            Giveaways = new HashSet<Giveaway>();
-            ProductKeys = new HashSet<ProductKey>();
-            DiscountedListings = new HashSet<DiscountedListing>();
-        }
-        public Listing(string listingName) : this()
+        public Listing(){}
+        public Listing(string listingName)
         {
             this.ListingName = listingName;
         }
-        public Listing(int listingPrice) : this()
+        public Listing(int listingPrice)
         {
             this.ListingPrice = listingPrice;
         }
-        public Listing(string listingName, int listingPrice) : this()
+        public Listing(string listingName, int listingPrice)
         {
             this.ListingName = listingName;
             this.ListingPrice = listingPrice;
@@ -37,20 +26,20 @@ namespace TheAfterParty.Domain.Entities
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ListingID { get; set; }
         
-        public virtual ICollection<MappedListing> ChildListings { get; set; }
+        public virtual ICollection<Listing> ChildListings { get; set; }
 
-        public virtual ICollection<MappedListing> ParentListings { get; set; }
-        public void AddParent(MappedListing ml)
+        public virtual ICollection<Listing> ParentListings { get; set; }
+        public void AddParent(Listing listing)
         {
-            ParentListings.Add(ml);
-            ml.ParentListing.ChildListings.Add(ml);
+            ParentListings.Add(listing);
+            listing.ChildListings.Add(listing);
         }
-        public MappedListing RemoveParent(MappedListing ml)
+        public Listing RemoveParent(Listing listing)
         {
-            if (ParentListings.Contains(ml))
+            if (ParentListings.Contains(listing))
             {
-                ParentListings.Remove(ml);
-                return ml;
+                ParentListings.Remove(listing);
+                return listing;
             }
 
             return null;
@@ -60,49 +49,41 @@ namespace TheAfterParty.Domain.Entities
         public virtual Product Product { get; set; }
         public void AddProduct(Product product)
         {
-            product.Listing.Add(this);
+            if (product.Listings == null)
+            {
+                product.Listings = new HashSet<Listing>();
+            }
+
+            product.Listings.Add(this);
             Product = product;
         }
 
         // a child listing will have a single platform, compositite listings will have a null here
-        public virtual Platform Platform { get; set; }
-        public IEnumerable<Platform> GetPlatforms()
+        public virtual ICollection<Platform> Platforms { get; set; }
+        public void AddPlatform(Platform platform)
         {
-            ICollection<Platform> platforms = new HashSet<Platform>();
+            if (Platforms == null)
+                Platforms = new HashSet<Platform>();
 
-            if (ChildListings == null)
-            {
-                platforms.Add(Platform);
-                return platforms.ToList();
-            }
+            if (Platforms.Where(p => object.Equals(p.PlatformName, platform.PlatformName)).Count() == 0)
+                Platforms.Add(platform);
 
-            GetPlatforms(platforms);
-                
-            return platforms.ToList();
+            if (platform.Listings == null)
+                platform.Listings = new HashSet<Listing>();
+
+            platform.Listings.Add(this);
         }
-        // recursion helper
-        public void GetPlatforms(ICollection<Platform> platforms)
+        public bool ContainsPlatform(Platform platform)
         {
-            if (ChildListings == null)
-                return;
-
-            foreach (MappedListing mappedListing in ChildListings)
+            foreach (Platform listingPlatform in Platforms)
             {
-                //following the convention that Platform is either null (and thus the current listing is composite and has children) or it's not null (and it's a leaf node in the composite hiearchy)
-                if (mappedListing.ChildListing.Platform != null)
+                if (listingPlatform.PlatformName.CompareTo(platform.PlatformName) == 0)
                 {
-                    if (platforms.Where(p => object.Equals(p.PlatformName, mappedListing.ChildListing.Platform.PlatformName)).Count() == 0)
-                    {
-                        platforms.Add(mappedListing.ChildListing.Platform);
-                    }
-                }
-                else
-                {
-                    mappedListing.ChildListing.GetPlatforms(platforms);
+                    return true;
                 }
             }
 
-            return;
+            return false;
         }
 
         // the name of this listing, in practice, most/all parent nodes should be given a name
@@ -126,9 +107,9 @@ namespace TheAfterParty.Domain.Entities
 
             int sum = 0;
             
-            foreach (MappedListing cl in ChildListings)
+            foreach (Listing listing in ChildListings)
             {
-                sum += cl.ChildListing.ChildPriceSum();
+                sum += listing.ChildPriceSum();
             }
 
             return (sum <= SaleOrDefaultPrice()) ? sum : SaleOrDefaultPrice();
@@ -143,19 +124,26 @@ namespace TheAfterParty.Domain.Entities
                 {
                     finalPercent *= (1 - (discount.ItemDiscountPercent / 100.00));
                 }
-                
+
                 int finalPrice = (int)System.Math.Floor(finalPercent * ListingPrice);
 
                 return (finalPrice > 0) ? finalPrice : 1;
             }
             else
+            {
                 return ListingPrice;
+            }
         }
 
         // a discountedlisting object if this listing is on sale
         public virtual ICollection<DiscountedListing> DiscountedListings { get; set; }
         public void AddDiscountedListing(DiscountedListing  discountListing)
         {
+            if (DiscountedListings == null)
+            {
+                DiscountedListings = new HashSet<DiscountedListing>();
+            }
+
             discountListing.Listing = this;
             DiscountedListings.Add(discountListing);
         }
@@ -165,6 +153,57 @@ namespace TheAfterParty.Domain.Entities
                 return true;
             else
                 return false;
+        }
+        public bool HasDailyDeal()
+        {
+            foreach (DiscountedListing discount in DiscountedListings)
+            {
+                if (discount.DailyDeal)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        public bool HasWeeklyDeal()
+        {
+            foreach (DiscountedListing discount in DiscountedListings)
+            {
+                if (discount.WeeklyDeal)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        public DateTime? GetEarliestExpiry(bool daily, bool weekly)
+        {
+            if (DiscountedListings == null)
+                return null;
+
+            if (daily)
+            {
+                if (DiscountedListings.Where(d => d.DailyDeal).SingleOrDefault() != null)
+                {
+                    return DiscountedListings.Where(d => d.DailyDeal).SingleOrDefault().ItemSaleExpiry;
+                }
+
+                return null;
+            }
+
+            if (weekly)
+            {
+                if (DiscountedListings.Where(d => d.WeeklyDeal).SingleOrDefault() != null)
+                {
+                    return DiscountedListings.Where(d => d.WeeklyDeal).SingleOrDefault().ItemSaleExpiry;
+                }
+
+                return null;
+            }
+
+            return DiscountedListings.OrderBy(d => d.ItemSaleExpiry).FirstOrDefault().ItemSaleExpiry;
         }
         
         public virtual ICollection<ListingComment> ListingComments { get; set; }
@@ -312,10 +351,10 @@ namespace TheAfterParty.Domain.Entities
         {
             int min = System.Int32.MaxValue;
 
-            foreach (MappedListing cl in ChildListings)
+            foreach (Listing listing in ChildListings)
             {
-                if (cl.ChildListing.Quantity < min)
-                    min = cl.ChildListing.Quantity;
+                if (listing.Quantity < min)
+                    min = listing.Quantity;
             }
 
             this.Quantity = min;
@@ -325,13 +364,13 @@ namespace TheAfterParty.Domain.Entities
             if (ParentListings == null)
                 return;
 
-            foreach (MappedListing pl in ParentListings)
+            foreach (Listing listing in ParentListings)
             {
-                pl.ParentListing.UpdateQuantity();
+                listing.UpdateQuantity();
 
-                if (pl.ParentListing.ParentListings != null)
+                if (listing.ParentListings != null)
                 {
-                    pl.ParentListing.UpdateParentQuantities();
+                    listing.UpdateParentQuantities();
                 }
             }
         }

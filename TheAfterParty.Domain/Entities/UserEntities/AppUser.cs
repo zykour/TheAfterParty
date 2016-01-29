@@ -11,35 +11,14 @@ namespace TheAfterParty.Domain.Entities
 { 
     public class AppUser : IdentityUser
     {
-        public AppUser(string name, int balance, bool privateWishlist, Int64 steamId) : this()
+        public AppUser(string name, int balance, bool privateWishlist, Int64 steamId)
         {
             UserSteamID = steamId;
             UserName = name;
             Balance = balance;
             IsPrivateWishlist = privateWishlist;
         }
-        public AppUser()
-        {
-            AuctionBids = new HashSet<AuctionBid>();
-            BalanceEntries = new HashSet<BalanceEntry>();
-            GiveawayEntries = new HashSet<GiveawayEntry>();
-            CreatedGiveaways = new HashSet<Giveaway>();
-            Orders = new HashSet<Order>();
-            ClaimedProductKeys = new HashSet<ClaimedProductKey>();
-            ReceivedGifts = new HashSet<Gift>();
-            SentGifts = new HashSet<Gift>();
-            WishlistEntries = new HashSet<WishlistEntry>();
-            UserNotifications = new HashSet<UserNotification>();
-            ReceivedMail = new HashSet<Mail>();
-            SentMail = new HashSet<Mail>();
-            ListingComments = new HashSet<ListingComment>();
-            ProductReviews = new HashSet<ProductReview>();
-            Tags = new HashSet<Tag>();
-            ShoppingCartEntries = new HashSet<ShoppingCartEntry>();
-            WonPrizes = new HashSet<WonPrize>();
-            UserCoupons = new HashSet<UserCoupon>();
-            OwnedGames = new HashSet<OwnedGame>();
-        }
+        public AppUser() {  }
         
         // the 64bit UserID representing the users on this site
         [Required]
@@ -110,9 +89,9 @@ namespace TheAfterParty.Domain.Entities
         }
         public String OrderSummary(int transactionId)
         {
-            Order order = Orders.Where(o => o.TransactionID == transactionId).Single();
+            Order order = Orders.Where(o => o.OrderID == transactionId).Single();
 
-            StringBuilder summary = new StringBuilder("Order #" + order.TransactionID);
+            StringBuilder summary = new StringBuilder("Order #" + order.OrderID);
 
             summary.Append("\n\nSale date: " + order.SaleDate);
             summary.Append("\n\nTotal points paid: " + order.TotalSalePrice());
@@ -121,7 +100,7 @@ namespace TheAfterParty.Domain.Entities
         }
         public List<String> OrderEntriesSummary(int transactionId)
         {
-            Order order = Orders.Where(o => o.TransactionID == transactionId).Single();
+            Order order = Orders.Where(o => o.OrderID == transactionId).Single();
             List<String> entrySummaries = new List<String>();
 
             foreach (ProductOrderEntry orderEntries in order.ProductOrderEntries)

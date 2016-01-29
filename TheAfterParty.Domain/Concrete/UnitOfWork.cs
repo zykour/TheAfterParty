@@ -20,6 +20,12 @@ namespace TheAfterParty.Domain.Concrete
             }
         }
 
+        public UnitOfWork() { }
+        public UnitOfWork(AppIdentityDbContext context)
+        {
+            this.context = context;
+        }
+
         public int Save()
         {
             return context.SaveChanges();

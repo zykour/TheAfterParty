@@ -1,5 +1,5 @@
-﻿@using TheAfterParty.Domain.Entities
-@model IEnumerable<Listing>
+﻿@using TheAfterParty.WebUI.Models.Store
+@model StoreIndexViewModel
 
 @{
     ViewBag.Title = "Shop";
@@ -21,14 +21,14 @@
         </tr>
     </thead>
     <tbody>
-        @for (int i = 0; i < Model.ToList().Count; i++)//each (Listing listing in Model)
+        @for (int i = 0; i < Model.StoreListings.ToList().Count; i++)//each (Listing listing in Model)
         {
             <tr>
                 <td class="text-left">
                     @using (Ajax.BeginForm("AddToCart", "Cart", ajaxOptions))//, FormMethod.Post, new { @class = "tag-inline" }))
                     {
                         <div>
-                            @Html.HiddenFor(m => m.ElementAt(i).ListingID)
+                            @Html.HiddenFor(m => m.StoreListings.ElementAt(i).ListingID)
                             @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
                             <button type="submit" class="btn-transparent" title="Add to cart">
                                 <i class="glyphicon glyphicon-shopping-cart"></i>
@@ -36,9 +36,9 @@
                         </div>
                     }
                 </td>
-                <td>@Model.ElementAt(i).Quantity</td>
-                <td>@Model.ElementAt(i).SaleOrDefaultPrice()</td>
-                <td>@Model.ElementAt(i).ListingName</td>
+                <td>@Model.StoreListings.ElementAt(i).Quantity</td>
+                <td>@Model.StoreListings.ElementAt(i).SaleOrDefaultPrice()</td>
+                <td>@Model.StoreListings.ElementAt(i).ListingName</td>
             </tr>
         }
     </tbody>

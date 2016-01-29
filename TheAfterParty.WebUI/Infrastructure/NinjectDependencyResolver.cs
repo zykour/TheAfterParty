@@ -31,15 +31,21 @@ namespace TheAfterParty.WebUI.Infrastructure
 
         private void AddBindings()
         {
-            kernel.Bind<IRepository>().To<EFRepository>();
             kernel.Bind<AppIdentityDbContext>().ToSelf().InRequestScope();
 
+            kernel.Bind<IAuctionRepository>().To<AuctionRepository>().InRequestScope();
+            kernel.Bind<ICouponRepository>().To<CouponRepository>().InRequestScope();
+            kernel.Bind<IGiveawayRepository>().To<GiveawayRepository>().InRequestScope();
             kernel.Bind<IListingRepository>().To<ListingRepository>().InRequestScope();
+            kernel.Bind<IObjectiveRepository>().To<ObjectiveRepository>().InRequestScope();
+            kernel.Bind<IPrizeRepository>().To<PrizeRepository>().InRequestScope();
             kernel.Bind<IUserRepository>().To<UserRepository>().InRequestScope();
 
             kernel.Bind<IUnitOfWork>().To<UnitOfWork>().InRequestScope();
 
             kernel.Bind<ICartService>().To<CartService>().InRequestScope();
+            kernel.Bind<IPurchaseService>().To<PurchaseService>().InRequestScope();
+            kernel.Bind<IStoreService>().To<StoreService>().InRequestScope();
         }
     }
 }

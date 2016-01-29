@@ -1,0 +1,18 @@
+﻿@using TheAfterParty.WebUI.Models.Store
+@using TheAfterParty.Domain.Entities;
+@model AddGamesViewModel
+
+@{
+    ViewBag.Title = "AddGames";
+}
+
+<h2>AddGames</h2>
+
+@using (Html.BeginForm("AddGames", "Store", FormMethod.Post))
+{
+@Html.HiddenFor(m => m.Platform.PlatformID)
+@Html.TextAreaFor(m => m.Input, new { @class = "text-box-multi-line form-control", rows = 5 })
+<div class="panel-footer">
+    <input type="submit" value="Save" class="btn btn-primary" />
+</div>
+}

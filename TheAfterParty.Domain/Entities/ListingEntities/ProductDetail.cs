@@ -6,6 +6,7 @@ namespace TheAfterParty.Domain.Entities
 {
     public class ProductDetail
     {
+        public ProductDetail() { }
 
         //https: //wiki.teamfortress.com/wiki/User:RJackson/StorefrontAPI#appdetails
         //http: //store.steampowered.com/api/appdetails?appids=205630
@@ -13,7 +14,9 @@ namespace TheAfterParty.Domain.Entities
         public int ProductDetailID { get; set; }
 
         public int ProductID { get; set; }
-        public virtual ICollection<Product> Products { get; set; }
+        public virtual Product Product { get; set; }
+        public virtual ICollection<AppMovie> AppMovies { get; set; }
+        public virtual ICollection<AppScreenshot> AppScreenshots { get; set; }
 
         // demo, movie, game, software
         public string ProductType { get; set; }

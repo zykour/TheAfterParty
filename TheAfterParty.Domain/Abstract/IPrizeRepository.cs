@@ -10,7 +10,7 @@ namespace TheAfterParty.Domain.Abstract
         AppIdentityDbContext GetContext();
 
         IEnumerable<Prize> GetPrizes();
-        Prize GetAuctionByID(int prizeId);
+        Prize GetPrizeByID(int prizeId);
         void InsertPrize(Prize prize);
         void UpdatePrize(Prize prize);
         void DeletePrize(int prizeId);

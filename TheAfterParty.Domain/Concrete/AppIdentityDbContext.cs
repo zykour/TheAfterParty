@@ -19,9 +19,7 @@ namespace TheAfterParty.Domain.Concrete
         public DbSet<GiveawayEntry> GiveawayEntries { get; set; }
         public DbSet<Listing> Listings { get; set; }
         public DbSet<Mail> Mail { get; set; }
-        public DbSet<MappedListing> MappedListings { get; set; }
         public DbSet<Objective> Objectives { get; set; }
-        public DbSet<ObjectiveGameMapping> ObjectiveGameMappings { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OwnedGame> OwnedGames { get; set; }
         public DbSet<Prize> Prizes { get; set; }
@@ -37,6 +35,10 @@ namespace TheAfterParty.Domain.Concrete
         public DbSet<UserNotification> UserNotifications { get; set; }
         public DbSet<WishlistEntry> WishlistEntries { get; set; }
         public DbSet<WonPrize> WonPrizes { get; set; }
+        public DbSet<Platform> Platforms { get; set; }
+        public DbSet<ProductCategory> ProductCategories { get; set; }
+        public DbSet<AppMovie> AppMovies { get; set; }
+        public DbSet<AppScreenshot> AppScreenshots { get; set; }
 
         public AppIdentityDbContext() : base("AppIdentityDbContext")
         {
@@ -46,7 +48,7 @@ namespace TheAfterParty.Domain.Concrete
 
         static AppIdentityDbContext()
         {
-            Database.SetInitializer<AppIdentityDbContext>(new EFDbInit());
+            Database.SetInitializer<AppIdentityDbContext>(new DbInit());
         }
 
         public static AppIdentityDbContext Create()
@@ -89,7 +91,6 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<GiveawayEntry>().HasRequired<Giveaway>(ge => ge.Giveaway).WithMany(g => g.GiveawayEntries).HasForeignKey(ge => ge.GiveawayID).WillCascadeOnDelete(true);
 
             // Objective ---
-            modelBuilder.Entity<ObjectiveGameMapping>().HasRequired<Objective>(ogm => ogm.Objective).WithMany(o => o.ObjectiveGameMappings).HasForeignKey(ogm => ogm.ObjectiveID).WillCascadeOnDelete(true);
             modelBuilder.Entity<BoostedObjective>().HasRequired<Objective>(bo => bo.Objective).WithOptional(o => o.BoostedObjective).WillCascadeOnDelete(true);
 
             // Order ---
@@ -108,16 +109,28 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<ListingComment>().HasRequired<Listing>(lc => lc.Listing).WithMany(l => l.ListingComments).HasForeignKey(lc => lc.ListingID).WillCascadeOnDelete(true);
             modelBuilder.Entity<ProductKey>().HasRequired<Listing>(pk => pk.Listing).WithMany(l => l.ProductKeys).HasForeignKey(pk => pk.ListingID).WillCascadeOnDelete(false);
             modelBuilder.Entity<WishlistEntry>().HasRequired<Listing>(we => we.Listing).WithMany(l => l.WishlistEntries).HasForeignKey(we => we.ListingID).WillCascadeOnDelete(false);
-            modelBuilder.Entity<MappedListing>().HasRequired<Listing>(ml => ml.ChildListing).WithMany(l => l.ChildListings).HasForeignKey(ml => ml.ChildListingID).WillCascadeOnDelete(false);
-            modelBuilder.Entity<MappedListing>().HasRequired<Listing>(ml => ml.ParentListing).WithMany(l => l.ParentListings).HasForeignKey(ml => ml.ParentListingID).WillCascadeOnDelete(true);
-            modelBuilder.Entity<Product>().HasMany<Listing>(p => p.Listing).WithOptional(l => l.Product).WillCascadeOnDelete(false); //.HasRequired<Listing>(p => p.Listing).WithOptional(l => l.Product).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Product>().HasMany<Listing>(p => p.Listings).WithOptional(l => l.Product).WillCascadeOnDelete(false); //.HasRequired<Listing>(p => p.Listing).WithOptional(l => l.Product).WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Listing>().HasMany<Listing>(l => l.ChildListings).WithMany(l => l.ParentListings);
+
+            // Platform ---
+            modelBuilder.Entity<Listing>().HasMany<Platform>(l => l.Platforms).WithMany(p => p.Listings); //.WithOptional(l => l.Platform).HasForeignKey(l => l.PlatformID).WillCascadeOnDelete(false);
 
             // Product ---
             modelBuilder.Entity<ProductReview>().HasRequired<Product>(pr => pr.Product).WithMany(p => p.ProductReviews).HasForeignKey(pr => pr.ProductID).WillCascadeOnDelete(false);
             modelBuilder.Entity<Tag>().HasRequired<Product>(t => t.Product).WithMany(p => p.Tags).HasForeignKey(t => t.ProductID).WillCascadeOnDelete(true);
-            modelBuilder.Entity<ObjectiveGameMapping>().HasRequired<Product>(ogm => ogm.Product).WithMany(p => p.ObjectiveGameMappings).HasForeignKey(ogm => ogm.ProductID).WillCascadeOnDelete(false);
-            modelBuilder.Entity<ProductDetail>().HasMany<Product>(pd => pd.Products).WithOptional(p => p.ProductDetail).WillCascadeOnDelete(false);
+            modelBuilder.Entity<ProductDetail>().HasRequired<Product>(pd => pd.Product).WithOptional(p => p.ProductDetail).WillCascadeOnDelete(false);
             modelBuilder.Entity<ProductCategory>().HasMany<Product>(pc => pc.Products).WithMany(p => p.ProductCategories);
+
+            // Product/Objective ---
+            modelBuilder.Entity<Objective>().HasMany<Product>(o => o.Products).WithMany(p => p.Objectives);
+
+            // ProductDetail ---
+            modelBuilder.Entity<AppMovie>().HasRequired<ProductDetail>(am => am.ProductDetail).WithMany(pd => pd.AppMovies).HasForeignKey(am => am.ProductDetailID).WillCascadeOnDelete(true);
+            modelBuilder.Entity<AppScreenshot>().HasRequired<ProductDetail>(a => a.ProductDetail).WithMany(pd => pd.AppScreenshots).HasForeignKey(a => a.ProductDetailID).WillCascadeOnDelete(true);
+
+            // Coupon ---
+            modelBuilder.Entity<UserCoupon>().HasRequired<Coupon>(c => c.Coupon).WithMany(uc => uc.UserCoupons).HasForeignKey(uc => uc.CouponID).WillCascadeOnDelete(false);
         }
     }
 }

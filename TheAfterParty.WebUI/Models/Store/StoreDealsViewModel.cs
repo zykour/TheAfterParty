@@ -9,6 +9,8 @@ namespace TheAfterParty.WebUI.Models.Store
     public class StoreDealsViewModel
     {
         public string DealType { get; set; }
-        public IEnumerable<DiscountedListing> Deals { get; set; }
+        public IEnumerable<Listing> ListingsWithDeals { get; set; }
+        public bool IsWeekly { get; set; }
+        public bool IsDaily { get; set; }
     }
 }

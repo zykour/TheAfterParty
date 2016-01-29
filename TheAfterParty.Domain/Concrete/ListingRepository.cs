@@ -35,6 +35,63 @@ namespace TheAfterParty.Domain.Concrete
         public void InsertListing(Listing listing)
         {
             context.Listings.Add(listing);
+
+            if (listing.Product != null)
+            {
+                if (listing.Product.ProductID == 0)
+                {
+                    InsertProduct(listing.Product);
+                }
+                else
+                {
+                    UpdateProduct(listing.Product);
+                }
+            }
+
+            if (listing.DiscountedListings != null)
+            {
+                foreach (DiscountedListing entry in listing.DiscountedListings)
+                {
+                    if (entry.DiscountedListingID == 0)
+                    {
+                        InsertDiscountedListing(entry);
+                    }
+                    else
+                    {
+                        UpdateDiscountedListing(entry);
+                    }
+                }
+            }
+
+            if (listing.ProductKeys != null)
+            {
+                foreach (ProductKey entry in listing.ProductKeys)
+                {
+                    if (entry.ProductKeyID == 0)
+                    {
+                        InsertProductKey(entry);
+                    }
+                    else
+                    {
+                        UpdateProductKey(entry);
+                    }
+                }
+            }
+
+            if (listing.ListingComments != null)
+            {
+                foreach (ListingComment entry in listing.ListingComments)
+                {
+                    if (entry.ListingCommentID == 0)
+                    {
+                        InsertListingComment(entry);
+                    }
+                    else
+                    {
+                        UpdateListingComment(entry);
+                    }
+                }
+            }
         }
         public void UpdateListing(Listing listing)
         {
@@ -47,22 +104,16 @@ namespace TheAfterParty.Domain.Concrete
                 targetListing.Quantity = listing.Quantity;
             }
             
-            if (listing.Product.ProductID == 0)
-            {
-                InsertProduct(listing.Product);
-            }
-            else
-            {
-                UpdateProduct(listing.Product);
-            }
-
-            if (listing.Platform.PlatformID == 0)
-            {
-                InsertPlatform(listing.Platform);
-            }
-            else
-            {
-                UpdatePlatform(listing.Platform);
+            if (listing.Product != null)
+            { 
+                if (listing.Product.ProductID == 0)
+                {
+                    InsertProduct(listing.Product);
+                }
+                else
+                {
+                    UpdateProduct(listing.Product);
+                }
             }
 
             foreach (DiscountedListing entry in listing.DiscountedListings)
@@ -100,14 +151,6 @@ namespace TheAfterParty.Domain.Concrete
                     UpdateListingComment(entry);
                 }
             }
-
-            foreach (MappedListing entry in listing.ChildListings)
-            {
-                if (entry.MappedListingID == 0)
-                {
-                    InsertMappedListing(entry);
-                }
-            }
         }
         public void DeleteListing(int listingID)
         {
@@ -130,6 +173,63 @@ namespace TheAfterParty.Domain.Concrete
         public void InsertProduct(Product product)
         {
             context.Products.Add(product);
+
+            if (product.Tags != null)
+            {
+                foreach (Tag entry in product.Tags)
+                {
+                    if (entry.TagID == 0)
+                    {
+                        InsertTag(entry);
+                    }
+                    else
+                    {
+                        UpdateTag(entry);
+                    }
+                }
+            }
+
+            if (product.ProductReviews != null)
+            {
+                foreach (ProductReview entry in product.ProductReviews)
+                {
+                    if (entry.ProductReviewID == 0)
+                    {
+                        InsertProductReview(entry);
+                    }
+                    else
+                    {
+                        UpdateProductReview(entry);
+                    }
+                }
+            }
+
+            if (product.ProductDetail != null)
+            {
+                if (product.ProductDetail.ProductDetailID == 0)
+                {
+                    InsertProductDetail(product.ProductDetail);
+                }
+                else
+                {
+                    UpdateProductDetail(product.ProductDetail);
+                }
+            }
+
+            if (product.ProductCategories != null)
+            {
+                foreach (ProductCategory category in product.ProductCategories)
+                {
+                    if (category.ProductCategoryID == 0)
+                    {
+                        InsertProductCategory(category);
+                    }
+                    else
+                    {
+                        UpdateProductCategory(category);
+                    }
+                }
+            }
         }
         public void UpdateProduct(Product product)
         {
@@ -176,6 +276,18 @@ namespace TheAfterParty.Domain.Concrete
                     UpdateProductDetail(product.ProductDetail);
                 }
             }
+
+            foreach (ProductCategory category in product.ProductCategories)
+            {
+                if (category.ProductCategoryID == 0)
+                {
+                    InsertProductCategory(category);
+                }
+                else
+                {
+                    UpdateProductCategory(category);
+                }
+            }
         }
         public void DeleteProduct(int productId)
         {
@@ -216,28 +328,7 @@ namespace TheAfterParty.Domain.Concrete
             context.DiscountedListings.Remove(discountedListing);
         }
 
-
-        // ---- MappedListing entity persistance
-
-        public IEnumerable<MappedListing> GetMappedListings()
-        {
-            return context.MappedListings.ToList();
-        }
-        public MappedListing GetMappedListingByID(int id)
-        {
-            return context.MappedListings.Find(id);
-        }
-        public void InsertMappedListing(MappedListing mappedListing)
-        {
-            context.MappedListings.Add(mappedListing);
-        }
-        public void DeleteMappedListing(int mappedListingId)
-        {
-            MappedListing mappedListing = context.MappedListings.Find(mappedListingId);
-            context.MappedListings.Remove(mappedListing);
-        }
-
-
+        
         //  ---- ListingComment entity persistance
 
         public IEnumerable<ListingComment> GetListingComments()
@@ -286,8 +377,37 @@ namespace TheAfterParty.Domain.Concrete
         public void InsertProductDetail(ProductDetail productDetail)
         {
             context.ProductDetails.Add(productDetail);
+
+            if (productDetail.AppMovies != null)
+            {
+                foreach (AppMovie movie in productDetail.AppMovies)
+                {
+                    if (movie.AppMovieID == 0)
+                    {
+                        InsertAppMovie(movie);
+                    }
+                    else
+                    {
+                        UpdateAppMovie(movie);
+                    }
+                }
+            }
+
+            if (productDetail.AppScreenshots != null)
+            {
+                foreach (AppScreenshot screenshot in productDetail.AppScreenshots)
+                {
+                    if (screenshot.AppScreenshotID == 0)
+                    {
+                        InsertAppScreenshot(screenshot);
+                    }
+                    else
+                    {
+                        UpdateAppScreenshot(screenshot);
+                    }
+                }
+            }
         }
-        // check this once Product Detail is finalized
         public void UpdateProductDetail(ProductDetail productDetail)
         {
             ProductDetail targetProductDetail = context.ProductDetails.Find(productDetail.ProductID);
@@ -297,6 +417,67 @@ namespace TheAfterParty.Domain.Concrete
                 targetProductDetail.ImageData = productDetail.ImageData;
                 targetProductDetail.ImageMimeType = productDetail.ImageMimeType;
                 targetProductDetail.ProductName = productDetail.ProductName;
+                targetProductDetail.AboutTheGame = productDetail.AboutTheGame;
+                targetProductDetail.AgeRequirement = productDetail.AgeRequirement;
+                targetProductDetail.AppID = productDetail.AppID;
+                targetProductDetail.AvailableOnLinux = productDetail.AvailableOnLinux;
+                targetProductDetail.AvailableOnMac = productDetail.AvailableOnMac;
+                targetProductDetail.AvailableOnPC = productDetail.AvailableOnPC;
+                targetProductDetail.BaseProductID = productDetail.BaseProductID;
+                targetProductDetail.BaseProductName = productDetail.BaseProductName;
+                targetProductDetail.CurrencyType = productDetail.CurrencyType;
+                targetProductDetail.DemoAppID = productDetail.DemoAppID;
+                targetProductDetail.DemoRestrictions = productDetail.DemoRestrictions;
+                targetProductDetail.DetailedDescription = productDetail.DetailedDescription;
+                targetProductDetail.Developers = productDetail.Developers;
+                targetProductDetail.DiscountPercent = productDetail.DiscountPercent;
+                targetProductDetail.DLCAppIDs = productDetail.DLCAppIDs;
+                targetProductDetail.FinalPrice = productDetail.FinalPrice;
+                targetProductDetail.Genres = productDetail.Genres;
+                targetProductDetail.HeaderImageURL = productDetail.HeaderImageURL;
+                targetProductDetail.InitialPrice = productDetail.InitialPrice;
+                targetProductDetail.LinuxMinimumRequirements = productDetail.LinuxMinimumRequirements;
+                targetProductDetail.LinuxRecommendedRequirements = productDetail.LinuxRecommendedRequirements;
+                targetProductDetail.MacMinimumRequirements = productDetail.MacMinimumRequirements;
+                targetProductDetail.MacRecommendedRequirements = productDetail.MacRecommendedRequirements;
+                targetProductDetail.MetacriticScore = productDetail.MetacriticScore;
+                targetProductDetail.MetacriticURL = productDetail.MetacriticURL;
+                targetProductDetail.NumAchievements = productDetail.NumAchievements;
+                targetProductDetail.PackageIDs = productDetail.PackageIDs;
+                targetProductDetail.PCMinimumRequirements = productDetail.PCMinimumRequirements;
+                targetProductDetail.PCRecommendedRequirements = productDetail.PCRecommendedRequirements;
+                targetProductDetail.ProductID = productDetail.ProductID;
+                targetProductDetail.ProductType = productDetail.ProductType;
+                targetProductDetail.ProductWebsite = productDetail.ProductWebsite;
+                targetProductDetail.Publishers = productDetail.Publishers;
+                targetProductDetail.ReleaseDate = productDetail.ReleaseDate;
+                targetProductDetail.SupportedLanguages = productDetail.SupportedLanguages;
+                targetProductDetail.TotalRecommendations = productDetail.TotalRecommendations;
+                targetProductDetail.Unreleased = productDetail.Unreleased;
+            }
+
+            foreach (AppMovie movie in productDetail.AppMovies)
+            {
+                if (movie.AppMovieID == 0)
+                {
+                    InsertAppMovie(movie);
+                }
+                else
+                {
+                    UpdateAppMovie(movie);
+                }
+            }
+
+            foreach (AppScreenshot screenshot in productDetail.AppScreenshots)
+            {
+                if (screenshot.AppScreenshotID == 0)
+                {
+                    InsertAppScreenshot(screenshot);
+                }
+                else
+                {
+                    UpdateAppScreenshot(screenshot);
+                }
             }
         }
         public void DeleteProductDetail(int productDetailId)
@@ -322,7 +503,7 @@ namespace TheAfterParty.Domain.Concrete
         }
         public void UpdateProductKey(ProductKey productKey)
         {
-            ProductKey targetProductKey = context.ProductKeys.Find(productKey.KeyID, productKey.ItemKey);
+            ProductKey targetProductKey = context.ProductKeys.Find(productKey.ProductKeyID);
 
             if (targetProductKey != null)
             {
@@ -390,7 +571,7 @@ namespace TheAfterParty.Domain.Concrete
         }
         public void UpdateTag(Tag tag)
         {
-            Tag targetTag = context.Tags.Find(tag.Id);
+            Tag targetTag = context.Tags.Find(tag.TagID);
 
             if (targetTag != null)
             {
@@ -403,6 +584,156 @@ namespace TheAfterParty.Domain.Concrete
             context.Tags.Remove(tag);
         }
         
+
+        // ---- Platform entity persistance
+
+        public IEnumerable<Platform> GetPlatforms()
+        {
+            return context.Platforms.ToList();
+        }
+        public Platform GetPlatformByID(int platformId)
+        {
+            return context.Platforms.Find(platformId);
+        }
+        public void InsertPlatform(Platform platform)
+        {
+            context.Platforms.Add(platform);
+        }
+        public void UpdatePlatform(Platform platform)
+        {
+            Platform targetPlatform = context.Platforms.Find(platform.PlatformID);
+
+            if (targetPlatform != null)
+            {
+                targetPlatform.PlatformIcon = platform.PlatformIcon;
+                targetPlatform.PlatformIconMimeType = platform.PlatformIconMimeType;
+                targetPlatform.PlatformName = platform.PlatformName;
+                targetPlatform.PlatformURL = platform.PlatformURL;
+                targetPlatform.HasAppID = platform.HasAppID;
+            }
+        }
+        public void DeletePlatform(int platformId)
+        {
+            Platform targetPlatform = context.Platforms.Find(platformId);
+
+            if (targetPlatform != null)
+            {
+                context.Platforms.Remove(targetPlatform);
+            }
+        }
+
+
+        // ---- ProductCategory persistance
+
+        public IEnumerable<ProductCategory> GetProductCategories()
+        {
+            return context.ProductCategories.ToList();
+        }
+        public ProductCategory GetProductCategoryByID(int productCategoryId)
+        {
+            return context.ProductCategories.Find(productCategoryId);
+        }
+        public void InsertProductCategory(ProductCategory productCategory)
+        {
+            context.ProductCategories.Add(productCategory);
+        }
+        public void UpdateProductCategory(ProductCategory productCategory)
+        {
+            ProductCategory targetProductCategory = context.ProductCategories.Find(productCategory.ProductCategoryID);
+
+            if (targetProductCategory != null)
+            {
+                targetProductCategory.CategoryString = productCategory.CategoryString;
+                targetProductCategory.ProductCategoryIcon = productCategory.ProductCategoryIcon;
+                targetProductCategory.ProductCategoryMimeType = productCategory.ProductCategoryMimeType;
+            }
+        }
+        public void DeleteProductCategory(int productCategoryId)
+        {
+            ProductCategory targetProductCategory = context.ProductCategories.Find(productCategoryId);
+
+            if (targetProductCategory != null)
+            {
+                context.ProductCategories.Remove(targetProductCategory);
+            }
+        }
+
+
+        // ---- AppMovie persistance
+
+        public IEnumerable<AppMovie> GetAppMovies()
+        {
+            return context.AppMovies.ToList();
+        }
+        public AppMovie GetAppMovieByID(int appMovieId)
+        {
+            return context.AppMovies.Find(appMovieId);
+        }
+        public void InsertAppMovie(AppMovie appMovie)
+        {
+            context.AppMovies.Add(appMovie);
+        }
+        public void UpdateAppMovie(AppMovie appMovie)
+        {
+            AppMovie targetAppMovie = context.AppMovies.Find(appMovie.AppMovieID);
+
+            if (targetAppMovie != null)
+            {
+                targetAppMovie.Highlight = appMovie.Highlight;
+                targetAppMovie.LargeMovieURL = appMovie.LargeMovieURL;
+                targetAppMovie.Name = appMovie.Name;
+                targetAppMovie.ProductDetailID = appMovie.ProductDetailID;
+                targetAppMovie.SmallMovieURL = appMovie.SmallMovieURL;
+                targetAppMovie.ThumbnailURL = appMovie.ThumbnailURL;
+            }
+        }
+        public void DeleteAppMovie(int appMovieId)
+        {
+            AppMovie targetAppMovie = context.AppMovies.Find(appMovieId);
+
+            if (targetAppMovie != null)
+            {
+                context.AppMovies.Remove(targetAppMovie);
+            }
+        }
+
+
+        // ---- AppScreenshot persistance
+
+        public IEnumerable<AppScreenshot> GetAppScreenshots()
+        {
+            return context.AppScreenshots.ToList();
+        }
+        public AppScreenshot GetAppScreenshotByID(int appScreenshotId)
+        {
+            return context.AppScreenshots.Find(appScreenshotId);
+        }
+        public void InsertAppScreenshot(AppScreenshot appScreenshot)
+        {
+            context.AppScreenshots.Add(appScreenshot);
+        }
+        public void UpdateAppScreenshot(AppScreenshot appScreenshot)
+        {
+            AppScreenshot targetAppScreenshot = context.AppScreenshots.Find(appScreenshot.AppScreenshotID);
+
+            if (targetAppScreenshot != null)
+            {
+                targetAppScreenshot.FullSizeURL = appScreenshot.FullSizeURL;
+                targetAppScreenshot.ProductDetailID = appScreenshot.ProductDetailID;
+                targetAppScreenshot.Screenshot = appScreenshot.Screenshot;
+                targetAppScreenshot.ScreenshotMimeType = appScreenshot.ScreenshotMimeType;
+                targetAppScreenshot.ThumbnailURL = appScreenshot.ThumbnailURL;
+            }
+        }
+        public void DeleteAppScreenshot(int appScreenshotId)
+        {
+            AppScreenshot targetAppScreenshot = context.AppScreenshots.Find(appScreenshotId);
+
+            if (targetAppScreenshot != null)
+            {
+                context.AppScreenshots.Remove(targetAppScreenshot);
+            }
+        }
 
         // ---- Repository methods
 

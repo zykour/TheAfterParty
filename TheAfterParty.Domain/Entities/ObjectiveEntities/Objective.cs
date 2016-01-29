@@ -21,7 +21,7 @@ namespace TheAfterParty.Domain.Entities
         public string Category { get; set; }
         
         // a list of products this objective can be completed in 
-        public virtual ICollection<ObjectiveGameMapping> ObjectiveGameMappings { get; set; }
+        public virtual ICollection<Product> Products { get; set; }
         
         // how many points will be rewarded
         public int Reward { get; set; }

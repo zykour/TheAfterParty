@@ -14,9 +14,7 @@ namespace TheAfterParty.Domain.Entities
         {
             this.UserID = user.Id;
             SaleDate = date;
-
-            ProductOrderEntries = new HashSet<ProductOrderEntry>();
-
+            
             this.AppUser = user;
         }
         public Order() { }

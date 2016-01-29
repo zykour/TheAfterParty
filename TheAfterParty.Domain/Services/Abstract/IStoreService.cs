@@ -3,7 +3,7 @@ using TheAfterParty.Domain.Entities;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace TheAfterParty.Domain.Services.Abstract
+namespace TheAfterParty.Domain.Services
 {
     public interface IStoreService : IDisposable
     {
@@ -13,6 +13,11 @@ namespace TheAfterParty.Domain.Services.Abstract
 
         IEnumerable<Listing> GetStockedStoreListings();
         IEnumerable<AppUser> GetAppUsers();
-        IEnumerable<DiscountedListing> GetDeals();
+        IEnumerable<Listing> GetListingsWithDeals();
+
+        IEnumerable<Platform> GetPlatforms();
+        void EditPlatform(Platform platform);
+        IEnumerable<Listing> AddProductKeys(Platform platform, string input);
+        Platform GetPlatformByID(int id);
     }
 }

@@ -31,6 +31,18 @@ namespace TheAfterParty.Domain.Concrete
         public void InsertCoupon(Coupon coupon)
         {
             context.Coupons.Add(coupon);
+
+            foreach (UserCoupon userCoupon in coupon.UserCoupons)
+            {
+                if (userCoupon.UserCouponID == 0)
+                {
+                    InsertUserCoupon(userCoupon);
+                }
+                else
+                {
+                    UpdateUserCoupon(userCoupon);
+                }
+            }
         }
         public void UpdateCoupon(Coupon coupon)
         {
@@ -44,6 +56,18 @@ namespace TheAfterParty.Domain.Concrete
                 targetCoupon.IsOrderWide = coupon.IsOrderWide;
                 targetCoupon.IsStackable = coupon.IsStackable;
                 targetCoupon.ListingID = coupon.ListingID;
+            }
+
+            foreach (UserCoupon userCoupon in coupon.UserCoupons)
+            {
+                if (userCoupon.UserCouponID == 0)
+                {
+                    InsertUserCoupon(userCoupon);
+                }
+                else
+                {
+                    UpdateUserCoupon(userCoupon);
+                }
             }
         }
         public void DeleteCoupon(int couponId)
@@ -70,7 +94,7 @@ namespace TheAfterParty.Domain.Concrete
         }
         public void UpdateUserCoupon(UserCoupon userCoupon)
         {
-            UserCoupon targetUserCoupon = context.UserCoupons.Find(userCoupon.Id);
+            UserCoupon targetUserCoupon = context.UserCoupons.Find(userCoupon.UserCouponID);
 
             if (targetUserCoupon != null)
             {

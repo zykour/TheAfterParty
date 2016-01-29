@@ -32,6 +32,14 @@ namespace TheAfterParty.Domain.Concrete
         public void InsertObjective(Objective objective)
         {
             context.Objectives.Add(objective);
+
+            if (objective.BoostedObjective != null)
+            {
+                if (objective.BoostedObjective.BoostedObjectiveID == 0)
+                {
+                    InsertBoostedObjective(objective.BoostedObjective);
+                }
+            }
         }
         public void UpdateObjective(Objective objective)
         {
@@ -45,16 +53,11 @@ namespace TheAfterParty.Domain.Concrete
                 targetObjective.Reward = objective.Reward;
             }
 
-            if (objective.BoostedObjective != null && objective.BoostedObjective.ObjectiveID == 0)
+            if (objective.BoostedObjective != null)
             {
-                InsertBoostedObjective(objective.BoostedObjective);
-            }
-
-            foreach (ObjectiveGameMapping mapping in objective.ObjectiveGameMappings)
-            {
-                if (mapping.Id == 0)
+                if (objective.BoostedObjective.BoostedObjectiveID == 0)
                 {
-                    InsertObjectiveGameMapping(mapping);
+                    InsertBoostedObjective(objective.BoostedObjective);
                 }
             }
         }
@@ -82,7 +85,7 @@ namespace TheAfterParty.Domain.Concrete
         }
         public void UpdateBoostedObjective(BoostedObjective boostedObjective)
         {
-            BoostedObjective targetBoostedObjective = context.BoostedObjectives.Find(boostedObjective.ID);
+            BoostedObjective targetBoostedObjective = context.BoostedObjectives.Find(boostedObjective.BoostedObjectiveID);
              
             if (targetBoostedObjective != null)
             {
@@ -97,28 +100,6 @@ namespace TheAfterParty.Domain.Concrete
             if (targetBoostedObjective != null)
             {
                 context.BoostedObjectives.Remove(targetBoostedObjective);
-            }
-        }
-
-        public IEnumerable<ObjectiveGameMapping> GetObjectiveGameMappings()
-        {
-            return context.ObjectiveGameMappings.ToList();
-        }
-        public ObjectiveGameMapping GetObjectiveGameMappingByID(int objecctiveGameMappingId)
-        {
-            return context.ObjectiveGameMappings.Find(objecctiveGameMappingId);
-        }
-        public void InsertObjectiveGameMapping(ObjectiveGameMapping objectiveGameMapping)
-        {
-            context.ObjectiveGameMappings.Add(objectiveGameMapping);
-        }
-        public void DeleteObjectiveGameMapping(int objectiveGameMappingId)
-        {
-            ObjectiveGameMapping targetObjectiveGameMapping = context.ObjectiveGameMappings.Find(objectiveGameMappingId);
-
-            if (targetObjectiveGameMapping != null)
-            {
-                context.ObjectiveGameMappings.Remove(targetObjectiveGameMapping);
             }
         }
 

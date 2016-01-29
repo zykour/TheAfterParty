@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace TheAfterParty.WebUI.Controllers
 {

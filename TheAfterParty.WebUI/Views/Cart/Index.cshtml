@@ -60,7 +60,7 @@ else
                         @using (Html.BeginForm("RemoveItem", "Cart"))
                         {
                         <div>
-                            @Html.HiddenFor(m => m.CartEntries.ElementAt(i).ShoppingID)
+                            @Html.HiddenFor(m => m.CartEntries.ElementAt(i).ShoppingCartEntryID)
                             @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
                             <button type="submit" class="btn-transparent">
                                 <i class="glyphicon glyphicon-remove"></i>
@@ -72,7 +72,7 @@ else
                         @using (Html.BeginForm("DecrementCartQuantity", "Cart", FormMethod.Post, new { @class = "tag-inline" }))
                         {
                         <div class="tag-inline">
-                            @Html.HiddenFor(m => m.CartEntries.ElementAt(i).ShoppingID)
+                            @Html.HiddenFor(m => m.CartEntries.ElementAt(i).ShoppingCartEntryID)
                             @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
                             <button type="submit" class="btn-transparent tag-inline">
                                 <i class="glyphicon glyphicon-minus tag-inline"></i>
@@ -85,7 +85,7 @@ else
                         @using (Html.BeginForm("IncrementCartQuantity", "Cart", FormMethod.Post, new { @class = "tag-inline" }))
                         {
                         <div class="tag-inline">
-                            @Html.HiddenFor(m => m.CartEntries.ElementAt(i).ShoppingID)
+                            @Html.HiddenFor(m => m.CartEntries.ElementAt(i).ShoppingCartEntryID)
                             @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
                             <button type="submit" class="btn-transparent">
                                 <i class="glyphicon glyphicon-plus tag-inline"></i>

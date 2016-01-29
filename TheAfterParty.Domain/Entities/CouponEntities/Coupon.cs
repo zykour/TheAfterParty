@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace TheAfterParty.Domain.Entities
 {
@@ -28,5 +29,7 @@ namespace TheAfterParty.Domain.Entities
 
         // can this coupon be used on the entire order
         public bool IsOrderWide { get; set; }
+
+        public ICollection<UserCoupon> UserCoupons { get; set; }
     }
 }

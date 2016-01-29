@@ -10,8 +10,12 @@ namespace TheAfterParty.Domain.Entities
         [Key]
         public int ProductCategoryID { get; set; }
 
-        public string CategoryString { get; set; }
+        public string CategoryString { get; set; }  
 
         public virtual ICollection<Product> Products { get; set; }
+
+        public byte[] ProductCategoryIcon { get; set; }
+
+        public string ProductCategoryMimeType { get; set; }
     }
 }

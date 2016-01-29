@@ -20,6 +20,11 @@ namespace TheAfterParty.Domain.Entities
             this.ListingID = listingId;
             this.IsGift = isGift;
         }
+        public ProductKey(bool isGift, string itemKey)
+        {
+            this.IsGift = isGift;
+            this.ItemKey = itemKey;
+        }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity), Key]
         public int ProductKeyID { get; set; }

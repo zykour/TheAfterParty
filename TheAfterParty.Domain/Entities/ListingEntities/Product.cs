@@ -12,14 +12,16 @@ namespace TheAfterParty.Domain.Entities
 
     public class Product
     {
-        public Product()
+        public Product() { }
+        public Product(int appId)
         {
-            ProductReviews = new HashSet<ProductReview>();
-            Tags = new HashSet<Tag>();
-            ObjectiveGameMappings = new HashSet<ObjectiveGameMapping>();
-            ProductCategories = new HashSet<ProductCategory>();
+            this.AppID = appId;
         }
-        public Product(int appId, int platform) : base() { }
+        public Product(int appId, string productName)
+        {
+            this.AppID = appId;
+            this.ProductName = productName;
+        }
 
         // id of an item in the store's database, many other entities rely on this key
         [Key]
@@ -29,9 +31,8 @@ namespace TheAfterParty.Domain.Entities
         public int AppID { get; set; }
 
         public string ProductName { get; set; }
-
-        [Required]
-        public virtual ICollection<Listing> Listing { get; set; }
+        
+        public virtual ICollection<Listing> Listings { get; set; }
 
         // steam categories, i.e. Co-op, Multiplayer, Steam Trading Cards, Partial Controller Support, Steam Cloud
         //public string Categories { get; set; }
@@ -47,18 +48,18 @@ namespace TheAfterParty.Domain.Entities
             return ProductReviews.Where(r => r.IsRecommended == true).Count();
         }
 
+        public virtual ICollection<Objective> Objectives { get; set; }
+
         public virtual ICollection<Tag> Tags { get; set; }
         public bool HasTag(Tag tag)
         {
             return (Tags.Where(t => object.Equals(tag.TagName, t.TagName)).Count() >= 1) ? true : false;
         }
-
-        public virtual ICollection<ObjectiveGameMapping> ObjectiveGameMappings { get; set; }
-        
+                
         public virtual ProductDetail ProductDetail { get; set; }
         public void AddProductDetail(ProductDetail productDetail)
         {
-            productDetail.Products.Add(this);
+            productDetail.Product = this;
             ProductDetail = productDetail;
         }
     }

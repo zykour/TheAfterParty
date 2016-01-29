@@ -21,11 +21,6 @@ namespace TheAfterParty.Domain.Abstract
         void UpdateBoostedObjective(BoostedObjective boostedObjective);
         void DeleteBoostedObjective(int boostedObjectiveId);
 
-        IEnumerable<ObjectiveGameMapping> GetObjectiveGameMappings();
-        ObjectiveGameMapping GetObjectiveGameMappingByID(int objectiveGameMappingId);
-        void InsertObjectiveGameMapping(ObjectiveGameMapping objectiveGameMapping);
-        void DeleteObjectiveGameMapping(int objectiveGameMappingId);
-
         void Save();
     }
 }

@@ -215,6 +215,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Infrastructure\NinjectDependencyResolver.cs" />
+    <Compile Include="Models\Store\AddedListingsViewModel.cs" />
+    <Compile Include="Models\Store\AddGamesViewModel.cs" />
+    <Compile Include="Models\Store\AddEditPlatformViewModel.cs" />
     <Compile Include="Models\Store\StoreBalancesViewModel.cs" />
     <Compile Include="Models\Store\StoreDealsViewModel.cs" />
     <Compile Include="Models\Store\StoreIndexViewModel.cs" />
@@ -232,6 +235,8 @@
     <Content Include="Scripts\jquery-2.2.0.min.map" />
     <Content Include="Views\Store\UserBalances.cshtml" />
     <Content Include="Views\Store\Deals.cshtml" />
+    <Content Include="Views\Store\AddGames.cshtml" />
+    <Content Include="Views\Store\EditPlatform.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
