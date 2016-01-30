@@ -8,6 +8,6 @@ namespace TheAfterParty.WebUI.Models.Store
 {
     public class AddedListingsViewModel
     {
-        public IEnumerable<Listing> NewListings { get; set; } 
+        public List<String> NewListings { get; set; } 
     }
 }
