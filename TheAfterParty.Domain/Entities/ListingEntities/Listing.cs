@@ -22,6 +22,12 @@ namespace TheAfterParty.Domain.Entities
             this.ListingName = listingName;
             this.ListingPrice = listingPrice;
         }
+        public Listing(string listingName, int listingPrice, DateTime dateEdited)
+        {
+            this.ListingName = listingName;
+            this.ListingPrice = listingPrice;
+            this.DateEdited = dateEdited;
+        }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ListingID { get; set; }
@@ -206,6 +212,8 @@ namespace TheAfterParty.Domain.Entities
             return DiscountedListings.OrderBy(d => d.ItemSaleExpiry).FirstOrDefault().ItemSaleExpiry;
         }
         
+        public DateTime DateEdited { get; set; }
+
         public virtual ICollection<ListingComment> ListingComments { get; set; }
         public void  AddListingComment(ListingComment comment)
         {

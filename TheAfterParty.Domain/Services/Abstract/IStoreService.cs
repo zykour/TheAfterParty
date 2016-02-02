@@ -19,5 +19,7 @@ namespace TheAfterParty.Domain.Services
         void EditPlatform(Platform platform);
         IList<String> AddProductKeys(Platform platform, string input);
         Platform GetPlatformByID(int id);
+
+        Listing GetListingByAppID(int id, string platformName);
     }
 }

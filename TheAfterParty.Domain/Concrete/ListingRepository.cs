@@ -102,6 +102,7 @@ namespace TheAfterParty.Domain.Concrete
                 targetListing.ListingName = listing.ListingName;
                 targetListing.ListingPrice = listing.ListingPrice;
                 targetListing.Quantity = listing.Quantity;
+                targetListing.DateEdited = listing.DateEdited;
             }
             
             if (listing.Product != null)

@@ -80,27 +80,38 @@ namespace TheAfterParty.Domain.Services
                 listingRepository.UpdatePlatform(platform);
             }
         }
-        
-        public IList<String> AddProductKeys(Platform platform, string input)
-        {
-            //platform
-            //productkey
-            //listing
-            //app movie / app screenshot
-            // product
-            // productdetail
-            // productcategory
 
+        public Listing GetListingByAppID(int id, string platformName)
+        {
+            return listingRepository.GetListings().Where(l => l.Product.AppID == id && l.Platforms.Where(p => object.Equals(platformName,p.PlatformName)).Count() > 0).SingleOrDefault();
+        }
+        
+        public async Task<IList<String>> AddProductKeys(Platform platform, string input)
+        {
+            if (platform.PlatformName.ToLower().CompareTo("steam") == 0)
+            {
+                return await AddSteamProductKeys(platform, input);
+            }
+
+
+
+            return new List<String>();
+        }
+
+        public async Task<IList<String>> AddSteamProductKeys(Platform platform, string input)
+        {
             List<String> addedKeys = new List<String>();
 
             input = input.Replace("\r\n", "\r");
 
             List<String> lines = input.Split(new string[] { "\r" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            
+
+            Regex SubIDPriceKey = new Regex(@"^sub/([0-9]+)(\t+[^\t]+)?\t+([0-9]+)\t+([^\t]+)$");
+            Regex SubIDPrice = new Regex(@"^sub/([0-9]+)(\t+[^\t]+)?\t+([0-9]+)$");
             Regex AppIDPriceKey = new Regex(@"^([0-9]+)\t+([0-9]+)\t+([^\t]+)$");
-            Regex NamePriceKey = new Regex(@"^([^\t]+)\t+([0-9]+)\t+([^\t]+)$");
             Regex AppIDPrice = new Regex(@"^([0-9]+)\t+([0-9]+)$");
-            Regex NamePrice = new Regex(@"^([^\t]+)\t+([0-9]+)$");
+
+            DateTime dateAdded = DateTime.Now;
 
             Match match;
             bool isGift = false;
@@ -108,6 +119,7 @@ namespace TheAfterParty.Domain.Services
             string gameName = "";
             int appId = 0;
             int price = 0;
+            int subId = 0;
 
             foreach (String line in lines)
             {
@@ -115,7 +127,8 @@ namespace TheAfterParty.Domain.Services
                 appId = 0;
                 gameName = "";
                 key = "";
-                isGift = false;                
+                isGift = false;
+                subId = 0;           
 
                 if (AppIDPriceKey.Match(line).Success)
                 {
@@ -125,13 +138,14 @@ namespace TheAfterParty.Domain.Services
                     price = Int32.Parse(match.Groups[2].ToString());
                     key = match.Groups[3].ToString();
                 }
-                else if (NamePriceKey.Match(line).Success)
+                else if (SubIDPriceKey.Match(line).Success)
                 {
-                    match = NamePriceKey.Match(line);
+                    match = SubIDPriceKey.Match(line);
 
-                    gameName = match.Groups[1].ToString();
-                    price = Int32.Parse(match.Groups[2].ToString());
-                    key = match.Groups[3].ToString();
+                    subId = Int32.Parse(match.Groups[1].ToString());
+                    gameName = match.Groups[2].Value ?? gameName;
+                    price = Int32.Parse(match.Groups[3].ToString());
+                    key = match.Groups[4].ToString();
                 }
                 else if (AppIDPrice.Match(line).Success)
                 {
@@ -141,12 +155,13 @@ namespace TheAfterParty.Domain.Services
                     price = Int32.Parse(match.Groups[2].ToString());
                     isGift = true;
                 }
-                else if (NamePrice.Match(line).Success)
+                else if (SubIDPrice.Match(line).Success)
                 {
-                    match = NamePrice.Match(line);
+                    match = SubIDPrice.Match(line);
 
-                    gameName = match.Groups[1].ToString();
-                    price = Int32.Parse(match.Groups[2].ToString());
+                    subId = Int32.Parse(match.Groups[1].ToString());
+                    gameName = match.Groups[2].Value ?? gameName;
+                    price = Int32.Parse(match.Groups[3].ToString());
                     isGift = true;
                 }
 
@@ -172,33 +187,44 @@ namespace TheAfterParty.Domain.Services
                 {
                     listing.ListingPrice = price;
                     listing.AddProductKey(new ProductKey(isGift, key));
+                    listing.DateEdited = dateAdded;
                     listingRepository.UpdateListing(listing);
+
+                    addedKeys.Add(platform.PlatformName + ": " + listing.ListingName + "...+1!");
                 }
                 else
                 {
-                    listing = new Listing(gameName, price);
+                    ListingBuilder builder = new ListingBuilder(this);
+
+                    listing = new Listing(gameName, price, dateAdded);
                     listing.AddPlatform(platform);
                     listing.AddProductKey(new ProductKey(isGift, key));
 
                     Product product = new Product(appId, gameName);
                     //Add logic to get data from api on product info & product details
 
-                    product = BuildProduct(product, platform.PlatformName);
-
                     listing.AddProduct(product);
+
+                    if (appId != 0)
+                    {
+                        builder.BuildListingWithAppID(listing, appId);
+
+                        if (String.IsNullOrEmpty(listing.ListingName))
+                        {
+                            listing.ListingName = product.ProductName;
+                        }
+                    }
+                    else if (subId != 0)
+                    {
+                        await builder.BuildListingWithPackageID(listing, subId, gameName);
+                    }
+
                     listingRepository.InsertListing(listing);
+
+                    addedKeys.Add(platform.PlatformName + ": " + listing.ListingName + "...created!");
                 }
 
                 // test regex
-
-                if (listing.ListingID == 0)
-                {
-                    addedKeys.Add(platform.PlatformName + ": " + listing.ListingName + "...created!");
-                }
-                else
-                {
-                    addedKeys.Add(platform.PlatformName + ": " + listing.ListingName + "...+1!");
-                }
 
                 unitOfWork.Save();
             }
@@ -222,16 +248,29 @@ namespace TheAfterParty.Domain.Services
 
             string result = new System.Net.WebClient().DownloadString(url);
 
-            JObject appData = JObject.Parse(result);
+            JObject jsonResult = JObject.Parse(result);
 
             string appID = product.AppID.ToString();
 
-            if (!appData[appID].Any())
+            if (!jsonResult[appID].Any() || !jsonResult[appID]["data"].Any())
             {
                 return product;
             }
 
-            //productDetail.ProductType = appData[appID]["data"]
+            JToken appData = jsonResult[appID]["data"];
+
+            productDetail.ProductType = (string)appData["type"];
+            productDetail.ProductName = (string)appData["name"];
+            productDetail.AgeRequirement = (int)appData["required_age"];
+            productDetail.DetailedDescription = (string)appData["detailed_description"];
+            productDetail.DLCAppIDs = appData["dlc"].Select(d => (int)d).ToArray();
+            productDetail.AboutTheGame = (string)appData["about_the_game"];
+
+            product.AddProductDetail(productDetail);
+            if (String.IsNullOrEmpty(product.ProductName))
+            {
+                product.ProductName = productDetail.ProductName;
+            }
 
             return product;
         }
