@@ -93,9 +93,79 @@ namespace TheAfterParty.Domain.Services
                 return await AddSteamProductKeys(platform, input);
             }
 
+            List<String> addedKeys = new List<String>();
 
+            input = input.Replace("\r\n", "\r");
 
-            return new List<String>();
+            List<String> lines = input.Split(new string[] { "\r" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            Regex NamePriceKey = new Regex("^([^\t]+)\t+([0-9]+)\t+([^\t]+)$");
+            Regex NamePrice = new Regex("^([^\t]+)\t+([0-9]+)$");
+
+            DateTime dateAdded = DateTime.Now;
+
+            Match match;
+            
+            bool isGift = false;
+            string key = "";
+            string gameName = "";
+            int price = 0;
+
+            foreach (String line in lines)
+            {
+                price = 0;
+                gameName = "";
+                key = "";
+                isGift = false;
+
+                if (NamePriceKey.Match(line).Success)
+                {
+                    match = NamePriceKey.Match(line);
+
+                    gameName = match.Groups[1].Value;
+                    price = Int32.Parse(match.Groups[2].ToString());
+                    key = match.Groups[3].ToString();
+                }
+                else if (NamePrice.Match(line).Success)
+                {
+                    match = NamePrice.Match(line);
+
+                    gameName = match.Groups[1].Value;
+                    price = Int32.Parse(match.Groups[2].ToString());
+                    isGift = true;
+                }
+
+                Listing listing;
+
+                listing = listingRepository.GetListings().Where(l => l.ContainsPlatform(platform) && object.Equals(l.Product.ProductName, gameName)).SingleOrDefault();
+                
+                if (listing != null)
+                {
+                    listing.ListingPrice = price;
+                    listing.AddProductKey(new ProductKey(isGift, key));
+                    listing.DateEdited = dateAdded;
+                    listingRepository.UpdateListing(listing);
+
+                    addedKeys.Add(platform.PlatformName + ": " + listing.ListingName + "...+1!");
+                }
+                else
+                {
+                    listing = new Listing(gameName, price, dateAdded);
+                    listing.AddPlatform(platform);
+                    listing.AddProductKey(new ProductKey(isGift, key));
+
+                    Product product = new Product(gameName);
+                    //Add logic to get data from api on product info & product details
+
+                    listing.AddProduct(product);
+
+                    listingRepository.InsertListing(listing);
+
+                    addedKeys.Add(platform.PlatformName + ": " + listing.ListingName + "...created!");
+                }
+            }
+
+            return addedKeys;
         }
 
         public async Task<IList<String>> AddSteamProductKeys(Platform platform, string input)
@@ -273,6 +343,16 @@ namespace TheAfterParty.Domain.Services
             }
 
             return product;
+        }
+
+        public ProductCategory GetProductCategoryByName(string categoryName)
+        {
+            return listingRepository.GetProductCategories().Where(c => object.Equals(c.CategoryString, categoryName)).SingleOrDefault();
+        }
+
+        public void AddProductCategory(ProductCategory category)
+        {
+            listingRepository.InsertProductCategory(category);
         }
 
         public void Dispose()

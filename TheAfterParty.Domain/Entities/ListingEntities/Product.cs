@@ -22,6 +22,10 @@ namespace TheAfterParty.Domain.Entities
             this.AppID = appId;
             this.ProductName = productName;
         }
+        public Product(string productName)
+        {
+            this.ProductName = productName;
+        }
 
         // id of an item in the store's database, many other entities rely on this key
         [Key]
@@ -37,6 +41,15 @@ namespace TheAfterParty.Domain.Entities
         // steam categories, i.e. Co-op, Multiplayer, Steam Trading Cards, Partial Controller Support, Steam Cloud
         //public string Categories { get; set; }
         public virtual ICollection<ProductCategory> ProductCategories { get; set; }
+        public void AddProductCategory(ProductCategory category)
+        {
+            if (ProductCategories == null)
+            {
+                ProductCategories = new HashSet<ProductCategory>();
+            }
+
+            ProductCategories.Add(category);
+        }
 
         public virtual ICollection<ProductReview> ProductReviews { get; set; }
         public int TotalReviews()

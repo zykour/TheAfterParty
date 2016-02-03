@@ -21,5 +21,8 @@ namespace TheAfterParty.Domain.Services
         Platform GetPlatformByID(int id);
 
         Listing GetListingByAppID(int id, string platformName);
+
+        ProductCategory GetProductCategoryByName(string name);
+        void AddProductCategory(ProductCategory category);
     }
 }

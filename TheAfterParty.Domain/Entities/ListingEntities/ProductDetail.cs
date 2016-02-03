@@ -16,7 +16,27 @@ namespace TheAfterParty.Domain.Entities
         public int ProductID { get; set; }
         public virtual Product Product { get; set; }
         public virtual ICollection<AppMovie> AppMovies { get; set; }
+        public void AddAppMovie(AppMovie movie)
+        {
+            if (AppMovies == null)
+            {
+                AppMovies = new HashSet<AppMovie>();
+            }
+
+            AppMovies.Add(movie);
+            movie.ProductDetail = this;
+        }
         public virtual ICollection<AppScreenshot> AppScreenshots { get; set; }
+        public void AddAppScreenshot(AppScreenshot screenshot)
+        {
+            if (AppScreenshots == null)
+            {
+                AppScreenshots = new HashSet<AppScreenshot>();
+            }
+
+            AppScreenshots.Add(screenshot);
+            screenshot.ProductDetail = this;
+        }
 
         // demo, movie, game, software
         public string ProductType { get; set; }
@@ -83,7 +103,7 @@ namespace TheAfterParty.Domain.Entities
         public int MetacriticScore { get; set; }
         public string MetacriticURL { get; set; }
 
-        public string Genres { get; set; }
+        public string[] Genres { get; set; }
 
         // probably not needed, total number of people who have recommended it
         public int TotalRecommendations { get; set; }

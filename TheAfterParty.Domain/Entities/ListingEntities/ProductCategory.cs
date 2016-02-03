@@ -5,6 +5,10 @@ namespace TheAfterParty.Domain.Entities
 {
     public class ProductCategory
     {
+        public ProductCategory(string categoryName)
+        {
+            this.CategoryString = categoryName;
+        }
         public ProductCategory() { }
 
         [Key]
