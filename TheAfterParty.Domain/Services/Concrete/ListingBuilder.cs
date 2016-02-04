@@ -55,6 +55,7 @@ namespace TheAfterParty.Domain.Services
                 if (subListing == null)
                 {
                     BuildListingWithAppID(subListing, id);
+                    _storeService.AddListing(subListing);
                     listing.ChildListings.Add(subListing);
                 }
                 else
@@ -83,22 +84,10 @@ namespace TheAfterParty.Domain.Services
             }
         }
 
-        //platform
-        //productkey
-        //listing
-        //app movie / app screenshot
-        // product
-        // productdetail
-        // productcategory
-
         public void BuildListingWithAppID(Listing listing, int appId)
         {
             Product product = listing.Product ?? new Product();
-
-            ProductDetail productDetail = new ProductDetail();
-            ICollection<AppMovie> AppMovies = new HashSet<AppMovie>();
-            ICollection<AppScreenshot> AppScreenshots = new HashSet<AppScreenshot>();
-            ICollection<ProductCategory> ProductCategories = new HashSet<ProductCategory>();
+            ProductDetail productDetail = product.ProductDetail ?? new ProductDetail();
 
             string url = String.Format("http://store.steampowered.com/api/appdetails?appids={0}", product.AppID);
 
@@ -188,8 +177,11 @@ namespace TheAfterParty.Domain.Services
                     if (_storeService.GetProductCategoryByName(categories[i]) == null)
                     {
                         ProductCategory category = new ProductCategory(categories[i]);
-                        //_storeService.AddProductCategory(category);
                         product.AddProductCategory(category);
+                    }
+                    else
+                    {
+                        product.AddProductCategory(_storeService.GetProductCategoryByName(categories[i]));
                     }
                 }
             }
@@ -199,9 +191,11 @@ namespace TheAfterParty.Domain.Services
             {
                 product.ProductName = productDetail.ProductName;
             }
+        }
 
-            //run subroutine to add DLC
-            // or if DLC, the base game
+        public void BuildProduct(Product product, ProductDetail productDetail)
+        {
+
         }
 
         public void UpdateListing(int listingID)

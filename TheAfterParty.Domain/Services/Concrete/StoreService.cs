@@ -85,6 +85,12 @@ namespace TheAfterParty.Domain.Services
         {
             return listingRepository.GetListings().Where(l => l.Product.AppID == id && l.Platforms.Where(p => object.Equals(platformName,p.PlatformName)).Count() > 0).SingleOrDefault();
         }
+
+        public void AddListing(Listing listing)
+        {
+            listingRepository.InsertListing(listing);
+            unitOfWork.Save();
+        }
         
         public async Task<IList<String>> AddProductKeys(Platform platform, string input)
         {

@@ -20,6 +20,7 @@ namespace TheAfterParty.Domain.Services
         IList<String> AddProductKeys(Platform platform, string input);
         Platform GetPlatformByID(int id);
 
+        void AddListing(Listing listing);
         Listing GetListingByAppID(int id, string platformName);
 
         ProductCategory GetProductCategoryByName(string name);
