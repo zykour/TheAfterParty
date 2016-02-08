@@ -17,7 +17,7 @@ namespace TheAfterParty.Domain.Services
 
         IEnumerable<Platform> GetPlatforms();
         void EditPlatform(Platform platform);
-        IList<String> AddProductKeys(Platform platform, string input);
+        Task<List<String>> AddProductKeys(Platform platform, string input);
         Platform GetPlatformByID(int id);
 
         void AddListing(Listing listing);

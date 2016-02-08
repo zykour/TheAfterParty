@@ -8,16 +8,19 @@ namespace TheAfterParty.Domain.Entities
 {
     public class Listing
     {
-        public Listing(){}
-        public Listing(string listingName)
+        public Listing()
+        {
+            this.DateEdited = DateTime.Now;
+        }
+        public Listing(string listingName) : this()
         {
             this.ListingName = listingName;
         }
-        public Listing(int listingPrice)
+        public Listing(int listingPrice) : this()
         {
             this.ListingPrice = listingPrice;
         }
-        public Listing(string listingName, int listingPrice)
+        public Listing(string listingName, int listingPrice) : this()
         {
             this.ListingName = listingName;
             this.ListingPrice = listingPrice;
@@ -84,6 +87,18 @@ namespace TheAfterParty.Domain.Entities
             foreach (Platform listingPlatform in Platforms)
             {
                 if (listingPlatform.PlatformName.CompareTo(platform.PlatformName) == 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        public bool ContainsPlatform(string platformName)
+        {
+            foreach (Platform listingPlatform in Platforms)
+            {
+                if (listingPlatform.PlatformName.CompareTo(platformName) == 0)
                 {
                     return true;
                 }

@@ -104,9 +104,9 @@ namespace TheAfterParty.Domain.Concrete
                 targetListing.Quantity = listing.Quantity;
                 targetListing.DateEdited = listing.DateEdited;
             }
-            
+
             if (listing.Product != null)
-            { 
+            {
                 if (listing.Product.ProductID == 0)
                 {
                     InsertProduct(listing.Product);
@@ -117,39 +117,48 @@ namespace TheAfterParty.Domain.Concrete
                 }
             }
 
-            foreach (DiscountedListing entry in listing.DiscountedListings)
+            if (listing.DiscountedListings != null)
             {
-                if (entry.DiscountedListingID == 0)
+                foreach (DiscountedListing entry in listing.DiscountedListings)
                 {
-                    InsertDiscountedListing(entry);
-                }
-                else
-                {
-                    UpdateDiscountedListing(entry);
+                    if (entry.DiscountedListingID == 0)
+                    {
+                        InsertDiscountedListing(entry);
+                    }
+                    else
+                    {
+                        UpdateDiscountedListing(entry);
+                    }
                 }
             }
 
-            foreach (ProductKey entry in listing.ProductKeys)
+            if (listing.ProductKeys != null)
             {
-                if (entry.ProductKeyID == 0)
+                foreach (ProductKey entry in listing.ProductKeys)
                 {
-                    InsertProductKey(entry);
-                }
-                else
-                {
-                    UpdateProductKey(entry);
+                    if (entry.ProductKeyID == 0)
+                    {
+                        InsertProductKey(entry);
+                    }
+                    else
+                    {
+                        UpdateProductKey(entry);
+                    }
                 }
             }
 
-            foreach (ListingComment entry in listing.ListingComments)
+            if (listing.ListingComments != null)
             {
-                if (entry.ListingCommentID == 0)
+                foreach (ListingComment entry in listing.ListingComments)
                 {
-                    InsertListingComment(entry);
-                }
-                else
-                {
-                    UpdateListingComment(entry);
+                    if (entry.ListingCommentID == 0)
+                    {
+                        InsertListingComment(entry);
+                    }
+                    else
+                    {
+                        UpdateListingComment(entry);
+                    }
                 }
             }
         }
@@ -242,27 +251,33 @@ namespace TheAfterParty.Domain.Concrete
                 targetProduct.ProductName = product.ProductName;
             }
 
-            foreach (Tag entry in product.Tags)
+            if (product.Tags != null)
             {
-                if (entry.TagID == 0)
+                foreach (Tag entry in product.Tags)
                 {
-                    InsertTag(entry);
-                }
-                else
-                {
-                    UpdateTag(entry);
+                    if (entry.TagID == 0)
+                    {
+                        InsertTag(entry);
+                    }
+                    else
+                    {
+                        UpdateTag(entry);
+                    }
                 }
             }
 
-            foreach (ProductReview entry in product.ProductReviews)
+            if (product.ProductReviews != null)
             {
-                if (entry.ProductReviewID == 0)
+                foreach (ProductReview entry in product.ProductReviews)
                 {
-                    InsertProductReview(entry);
-                }
-                else
-                {
-                    UpdateProductReview(entry);
+                    if (entry.ProductReviewID == 0)
+                    {
+                        InsertProductReview(entry);
+                    }
+                    else
+                    {
+                        UpdateProductReview(entry);
+                    }
                 }
             }
 
@@ -278,15 +293,18 @@ namespace TheAfterParty.Domain.Concrete
                 }
             }
 
-            foreach (ProductCategory category in product.ProductCategories)
+            if (product.ProductCategories != null)
             {
-                if (category.ProductCategoryID == 0)
+                foreach (ProductCategory category in product.ProductCategories)
                 {
-                    InsertProductCategory(category);
-                }
-                else
-                {
-                    UpdateProductCategory(category);
+                    if (category.ProductCategoryID == 0)
+                    {
+                        InsertProductCategory(category);
+                    }
+                    else
+                    {
+                        UpdateProductCategory(category);
+                    }
                 }
             }
         }
@@ -457,27 +475,33 @@ namespace TheAfterParty.Domain.Concrete
                 targetProductDetail.Unreleased = productDetail.Unreleased;
             }
 
-            foreach (AppMovie movie in productDetail.AppMovies)
+            if (productDetail.AppMovies != null)
             {
-                if (movie.AppMovieID == 0)
+                foreach (AppMovie movie in productDetail.AppMovies)
                 {
-                    InsertAppMovie(movie);
-                }
-                else
-                {
-                    UpdateAppMovie(movie);
+                    if (movie.AppMovieID == 0)
+                    {
+                        InsertAppMovie(movie);
+                    }
+                    else
+                    {
+                        UpdateAppMovie(movie);
+                    }
                 }
             }
 
-            foreach (AppScreenshot screenshot in productDetail.AppScreenshots)
+            if (productDetail.AppScreenshots != null)
             {
-                if (screenshot.AppScreenshotID == 0)
+                foreach (AppScreenshot screenshot in productDetail.AppScreenshots)
                 {
-                    InsertAppScreenshot(screenshot);
-                }
-                else
-                {
-                    UpdateAppScreenshot(screenshot);
+                    if (screenshot.AppScreenshotID == 0)
+                    {
+                        InsertAppScreenshot(screenshot);
+                    }
+                    else
+                    {
+                        UpdateAppScreenshot(screenshot);
+                    }
                 }
             }
         }

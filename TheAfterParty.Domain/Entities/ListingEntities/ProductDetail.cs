@@ -49,6 +49,16 @@ namespace TheAfterParty.Domain.Entities
         // DLC
         public int[] DLCAppIDs { get; set; }
         public virtual ICollection<Product> DLCs { get; set; }
+        public void AddDLC(Product product)
+        {
+            if (DLCs == null)
+            {
+                DLCs = new HashSet<Product>();
+            }
+
+            DLCs.Add(product);
+            product.ProductDetail.BaseProduct = this.Product;
+        }
         // description, has HTML
         public string DetailedDescription { get; set; }
         // about the game, has HTML
