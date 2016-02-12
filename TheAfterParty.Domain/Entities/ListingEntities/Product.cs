@@ -49,6 +49,18 @@ namespace TheAfterParty.Domain.Entities
             }
 
             ProductCategories.Add(category);
+
+            if (category.Products == null)
+            {
+                category.Products = new HashSet<Product>();
+            }
+
+            category.Products.Add(this);
+        }
+        public bool HasProductCategory(ProductCategory category)
+        {
+            if (ProductCategories == null) return false;
+            return (ProductCategories.Where(p => object.Equals(category.CategoryString, p.CategoryString)).Count() >= 1) ? true : false;
         }
 
         public virtual ICollection<ProductReview> ProductReviews { get; set; }
@@ -66,7 +78,24 @@ namespace TheAfterParty.Domain.Entities
         public virtual ICollection<Tag> Tags { get; set; }
         public bool HasTag(Tag tag)
         {
+            if (Tags == null) return false;
             return (Tags.Where(t => object.Equals(tag.TagName, t.TagName)).Count() >= 1) ? true : false;
+        }
+        public void AddTag(Tag tag)
+        {
+            if (Tags == null)
+            {
+                Tags = new HashSet<Tag>();
+            }
+
+            Tags.Add(tag);
+
+            if (tag.Products == null)
+            {
+                tag.Products = new HashSet<Product>();
+            }
+
+            tag.Products.Add(this);
         }
                 
         public virtual ProductDetail ProductDetail { get; set; }

@@ -223,9 +223,12 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Infrastructure\NinjectDependencyResolver.cs" />
+    <Compile Include="Models\Home\HomeTestModel.cs" />
     <Compile Include="Models\Store\AddedListingsViewModel.cs" />
     <Compile Include="Models\Store\AddGamesViewModel.cs" />
     <Compile Include="Models\Store\AddEditPlatformViewModel.cs" />
+    <Compile Include="Models\Store\SelectedProductCategoryMapping.cs" />
+    <Compile Include="Models\Store\SelectedTagMapping.cs" />
     <Compile Include="Models\Store\StoreBalancesViewModel.cs" />
     <Compile Include="Models\Store\StoreDealsViewModel.cs" />
     <Compile Include="Models\Store\StoreIndexViewModel.cs" />
@@ -245,6 +248,7 @@
     <Content Include="Views\Store\Deals.cshtml" />
     <Content Include="Views\Store\AddGames.cshtml" />
     <Content Include="Views\Store\EditPlatform.cshtml" />
+    <Content Include="Views\Home\Test.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -6,6 +6,10 @@ namespace TheAfterParty.Domain.Entities
     public class OwnedGame
     {
         public OwnedGame() { }
+        public OwnedGame(int appId)
+        {
+            AppID = appId;
+        }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
         public int OwnedGameID { get; set; }

@@ -86,13 +86,28 @@ namespace TheAfterParty.Domain.Services
             }
         }
 
-
+        public IEnumerable<Tag> GetTags()
+        {
+            return listingRepository.GetTags();
+        }
+        public Tag GetTagByID(int id)
+        {
+            return listingRepository.GetTagByID(id);
+        }
+        public IEnumerable<ProductCategory> GetProductCategories()
+        {
+            return listingRepository.GetProductCategories();
+        }
+        public ProductCategory GetProductCategoryByID(int id)
+        {
+            return listingRepository.GetProductCategoryByID(id);
+        }
         
-        public async Task<List<String>> AddProductKeys(Platform platform, string input)
+        public List<String> AddProductKeys(Platform platform, string input)
         {
             if (platform.PlatformName.ToLower().CompareTo("steam") == 0)
             {
-                return await AddSteamProductKeys(platform, input);
+                return AddSteamProductKeys(platform, input);
             }
 
             List<String> addedKeys = new List<String>();
@@ -192,12 +207,16 @@ namespace TheAfterParty.Domain.Services
             unitOfWork.Save();
         }
 
+        public Tag GetTagByName(string tagName)
+        {
+            return listingRepository.GetTags().Where(t => object.Equals(t.TagName, tagName)).SingleOrDefault();
+        }
 
 
 
         // --- Listing building logic
 
-        public async Task<List<String>> AddSteamProductKeys(Platform platform, string input)
+        public List<String> AddSteamProductKeys(Platform platform, string input)
         {
             List<String> addedKeys = new List<String>();
 
@@ -205,10 +224,9 @@ namespace TheAfterParty.Domain.Services
 
             List<String> lines = input.Split(new string[] { "\r" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-            Regex SubIDPriceKey = new Regex(@"^sub/([0-9]+)(\t+[^\t]+)?\t+([0-9]+)\t+([^\t]+)$");
-            Regex SubIDPrice = new Regex(@"^sub/([0-9]+)(\t+[^\t]+)?\t+([0-9]+)$");
-            Regex AppIDPriceKey = new Regex(@"^([0-9]+)\t+([0-9]+)\t+([^\t]+)$");
-            Regex AppIDPrice = new Regex(@"^([0-9]+)\t+([0-9]+)$");
+            Regex SubIDPriceKey = new Regex(@"^sub/([0-9]+)\t+([0-9,]+)\t+([0-9]+)\t+([^\t]+)(\t+[^\t]+)?$");
+            Regex AppIDPriceKey = new Regex(@"^([0-9]+)\t+([0-9]+)\t+([^\t]+)(\t+[^\t]+)?$");
+            //Regex ExistingSubKey = new Regex(@"^sub/([0-9]+)\t+([0-9]+)(\t+[^\t]+)?$");
 
             DateTime dateAdded = DateTime.Now;
 
@@ -219,6 +237,7 @@ namespace TheAfterParty.Domain.Services
             int appId = 0;
             int price = 0;
             int subId = 0;
+            List<int> appIds = new List<int>();
 
             foreach (String line in lines)
             {
@@ -228,6 +247,7 @@ namespace TheAfterParty.Domain.Services
                 key = "";
                 isGift = false;
                 subId = 0;
+                appIds = new List<int>();
 
                 if (AppIDPriceKey.Match(line).Success)
                 {
@@ -235,33 +255,41 @@ namespace TheAfterParty.Domain.Services
 
                     appId = Int32.Parse(match.Groups[1].ToString());
                     price = Int32.Parse(match.Groups[2].ToString());
-                    key = match.Groups[3].ToString();
+
+                    gameName = match.Groups[3].Value;
+
+                    if (String.IsNullOrEmpty(match.Groups[4].Value))
+                    {
+                        isGift = true;
+                    }
+                    else
+                    {
+                        key = match.Groups[4].Value.Trim();
+                    }
                 }
                 else if (SubIDPriceKey.Match(line).Success)
                 {
                     match = SubIDPriceKey.Match(line);
 
-                    subId = Int32.Parse(match.Groups[1].ToString());
-                    gameName = match.Groups[2].Value ?? gameName;
-                    price = Int32.Parse(match.Groups[3].ToString());
-                    key = match.Groups[4].ToString();
-                }
-                else if (AppIDPrice.Match(line).Success)
-                {
-                    match = AppIDPrice.Match(line);
+                    subId = Int32.Parse(match.Groups[1].Value);
 
-                    appId = Int32.Parse(match.Groups[1].ToString());
-                    price = Int32.Parse(match.Groups[2].ToString());
-                    isGift = true;
-                }
-                else if (SubIDPrice.Match(line).Success)
-                {
-                    match = SubIDPrice.Match(line);
+                    string[] separator = new string[] { "," };
+                    foreach (string splitId in match.Groups[2].Value.Split(separator, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        appIds.Add(Int32.Parse(splitId));
+                    }
+                    
+                    if (String.IsNullOrEmpty(match.Groups[5].Value))
+                    {
+                        isGift = true;
+                    }
+                    else
+                    {
+                        key = match.Groups[5].Value.Trim();
+                    }
 
-                    subId = Int32.Parse(match.Groups[1].ToString());
-                    gameName = match.Groups[2].Value ?? gameName;
+                    gameName = match.Groups[4].Value;
                     price = Int32.Parse(match.Groups[3].ToString());
-                    isGift = true;
                 }
                 else
                 {
@@ -302,22 +330,19 @@ namespace TheAfterParty.Domain.Services
 
                     // insert this listing entry for now, as we build the listing with data gathered from Steam's store api
                     // we may need to build more listings recursively, we need this listing to be in the repository so it doesn't get stuck in a loop
-                    listingRepository.InsertListing(listing);
-                    // I'm okay with saving it to the database in this state, no harm done even if the building process fails, so let's save it to the database so we don't have to check
-                    // against the context's local cache
-                    unitOfWork.Save();
+                    AddListing(listing);
 
                     if (appId != 0)
                     {
                         BuildListingWithAppID(listing, appId);
                     }
-                    else if (subId != 0)
+                    else if (appIds.Count != 0)
                     {
-                        await BuildListingWithPackageID(listing, subId, gameName);
+                        listing.Product.AppID = subId;
+                        BuildListingWithPackageID(listing, appIds, gameName);
                     }
 
-                    listingRepository.UpdateListing(listing);
-                    unitOfWork.Save();
+                    UpdateListing(listing);
 
                     addedKeys.Add(platform.PlatformName + ": " + listing.ListingName + "...created!");
                 }
@@ -331,10 +356,8 @@ namespace TheAfterParty.Domain.Services
         }
 
         // gets the AppIDs contained within the package and then builds a listing for each one (and recursively builds listings for DLCs or the base game for each AppID, if any exists) using BuildListingWithAppID
-        private async Task BuildListingWithPackageID(Listing listing, int packageId, string name = "")
+        private void BuildListingWithPackageID(Listing listing, List<int> appIds, string name = "")
         {
-            List<int> appIds = await GetPackagesAppIDs(packageId);
-
             foreach (int id in appIds)
             {
                 Listing subListing = GetListingByAppID(id, "Steam");
@@ -351,11 +374,11 @@ namespace TheAfterParty.Domain.Services
 
                     UpdateListing(subListing);
                     
-                    listing.ChildListings.Add(subListing);
+                    listing.AddChildListing(subListing);
                 }
                 else
                 {
-                    listing.ChildListings.Add(subListing);
+                    listing.AddChildListing(subListing);
                 }
             }
 
@@ -394,6 +417,11 @@ namespace TheAfterParty.Domain.Services
 
             ProductDetail productDetail = listing.Product.ProductDetail ?? new ProductDetail();
 
+            if (listing.Product.ProductDetail == null)
+            {
+                listing.Product.AddProductDetail(productDetail);
+            }
+
             string url = String.Format("http://store.steampowered.com/api/appdetails?appids={0}", listing.Product.AppID);
 
             string result = new System.Net.WebClient().DownloadString(url);
@@ -411,8 +439,11 @@ namespace TheAfterParty.Domain.Services
             int baseAppID = 0;
 
             //get all the product details from the jtoken
+            productDetail.AppID = (appData["steam_appid"].IsNullOrEmpty()) ? 0 : (int)appData["steam_appid"];
             productDetail.ProductType = (string)appData["type"] ?? "";
             productDetail.ProductName = (string)appData["name"] ?? "";
+            listing.ListingName = (String.IsNullOrEmpty(productDetail.ProductName) ? listing.ListingName : productDetail.ProductName);
+
             productDetail.AgeRequirement = (appData["required_age"].IsNullOrEmpty()) ? 0 : (int)appData["required_age"];
             productDetail.DetailedDescription = (string)appData["detailed_description"] ?? "";
 
@@ -425,8 +456,8 @@ namespace TheAfterParty.Domain.Services
 
             if (!appData["fullgame"].IsNullOrEmpty())
             {
-                productDetail.BaseProductName = (appData["fullgame"]["name"].Any()) ? (string)appData["fullgame"]["name"] : "";
-                baseAppID = (appData["fullgame"]["appid"].Any()) ? (int)appData["fullgame"]["appid"] : 0;
+                productDetail.BaseProductName = (string)appData["fullgame"]["name"] ?? "";
+                baseAppID = (appData["fullgame"]["appid"].IsNullOrEmpty()) ? 0 : (int)appData["fullgame"]["appid"];
             }
 
             productDetail.SupportedLanguages = (string)appData["supported_languages"] ?? "";
@@ -463,8 +494,8 @@ namespace TheAfterParty.Domain.Services
 
             if (!appData["demos"].IsNullOrEmpty())
             {
-                productDetail.DemoAppID = (appData["demos"]["appid"].IsNullOrEmpty()) ? 0 : (int)appData["demos"]["appid"];
-                productDetail.DemoRestrictions = (string)appData["demos"]["description"] ?? "";
+                productDetail.DemoAppID = (appData["demos"][0]["appid"].IsNullOrEmpty()) ? 0 : (int)appData["demos"][0]["appid"];
+                productDetail.DemoRestrictions = (string)appData["demos"][0]["description"] ?? "";
             }
 
             if (!appData["price_overview"].IsNullOrEmpty())
@@ -496,10 +527,28 @@ namespace TheAfterParty.Domain.Services
             {
                 JArray jGenres = (JArray)appData["genres"];
                 List<string> genresList = new List<string>();
-
+                
                 for (int i = 0; i < jGenres.Count; i++)
                 {
                     genresList.Add((string)jGenres[i]["description"]);
+                }
+
+                string[] genres = genresList.ToArray();
+
+                if (genres != null)
+                {
+                    for (int i = 0; i < genres.Count(); i++)
+                    {
+                        if (GetTagByName(genres[i]) != null)
+                        {
+                            listing.Product.AddTag(GetTagByName(genres[i]));
+                        }
+                        else
+                        {
+                            Tag tag = new Tag(genres[i]);
+                            listing.Product.AddTag(tag);
+                        }
+                    }
                 }
                 
                 productDetail.Genres = genresList.ToArray();
@@ -526,7 +575,7 @@ namespace TheAfterParty.Domain.Services
                 Listing baseGameListing = GetListingByAppID(baseAppID, "Steam");
 
                 if (baseGameListing == null)
-                { 
+                {
                     baseGameListing = new Listing(productDetail.BaseProductName);
                     baseGameListing.AddPlatform(GetPlatforms().Where(p => object.Equals(p.PlatformName, "Steam")).SingleOrDefault());
                     baseGameListing.AddProduct(new Product(baseAppID));
@@ -535,10 +584,28 @@ namespace TheAfterParty.Domain.Services
 
                     BuildListingWithAppID(baseGameListing, baseAppID);
 
+                    if (productDetail.ProductType.CompareTo("dlc") == 0)
+                    {
+                        baseGameListing.Product.ProductDetail.AddDLC(productDetail.Product);
+                    }
+                    else
+                    {
+                        productDetail.BaseProduct = baseGameListing.Product;
+                    }
+
                     UpdateListing(baseGameListing);
                 }
-
-                productDetail.BaseProduct = baseGameListing.Product;
+                else
+                {
+                    if (productDetail.ProductType.CompareTo("dlc") == 0)
+                    {
+                        baseGameListing.Product.ProductDetail.AddDLC(productDetail.Product);
+                    }
+                    else
+                    {
+                        productDetail.BaseProduct = baseGameListing.Product;
+                    }
+                }
             }
 
             // run a series of sub-routines to build listings/products for each DLC of this game (if applicable)
@@ -558,10 +625,14 @@ namespace TheAfterParty.Domain.Services
 
                         BuildListingWithAppID(DLCListing, productDetail.DLCAppIDs[i]);
 
+                        productDetail.AddDLC(DLCListing.Product);
+
                         UpdateListing(DLCListing);
                     }
-                    
-                    productDetail.AddDLC(DLCListing.Product);
+                    else
+                    {
+                        productDetail.AddDLC(DLCListing.Product);
+                    }
                 }
             }
 
@@ -639,44 +710,7 @@ namespace TheAfterParty.Domain.Services
             }
         }
                 
-        // queries SteamClient via SteamKit2 and generates a list of AppIDs that are contained within a Steam package
-        private async Task<List<int>> GetPackagesAppIDs(int packageId)
-        {
-            List<int> appIds = new List<int>();
-
-            SteamClient client = new SteamClient();
-            SteamApps steamApps = client.GetHandler<SteamApps>();
-            AsyncJobMultiple<SteamApps.PICSProductInfoCallback>.ResultSet resultSet = await steamApps.PICSGetProductInfo(app: null, package: (uint)packageId);
-
-
-            if (resultSet.Complete)
-            {
-                SteamApps.PICSProductInfoCallback productInfo = resultSet.Results.First();
-
-                SteamApps.PICSProductInfoCallback.PICSProductInfo packageInfo = productInfo.Packages.FirstOrDefault().Value;
-                List<KeyValue> list = packageInfo.KeyValues.Children.FirstOrDefault().Children;
-
-                foreach (KeyValue val in list)
-                {
-                    if (val.Name.CompareTo("appids") == 0)
-                    {
-                        foreach (KeyValue appVal in val.Children)
-                        {
-                            appIds.Add(Int32.Parse(appVal.Value));
-                        }
-                    }
-                }
-            }
-
-            return appIds;
-        }
-
-
-
-
-
-
-
+        
 
         // --- GC and User logic
 

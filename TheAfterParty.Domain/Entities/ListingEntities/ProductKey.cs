@@ -25,6 +25,10 @@ namespace TheAfterParty.Domain.Entities
             this.IsGift = isGift;
             this.ItemKey = itemKey;
         }
+        public ProductKey(string itemKey)
+        {
+            this.ItemKey = itemKey;
+        }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity), Key]
         public int ProductKeyID { get; set; }

@@ -36,12 +36,27 @@ namespace TheAfterParty.Domain.Entities
         public int ListingID { get; set; }
         
         public virtual ICollection<Listing> ChildListings { get; set; }
+        public void AddChildListing(Listing listing)
+        {
+            if (ChildListings == null)
+            {
+                ChildListings = new HashSet<Listing>();
+            }
+
+            if (listing.ParentListings == null)
+            {
+                listing.ParentListings = new HashSet<Listing>();
+            }
+
+            ChildListings.Add(listing);
+            listing.ParentListings.Add(this);
+        }
 
         public virtual ICollection<Listing> ParentListings { get; set; }
         public void AddParent(Listing listing)
         {
             ParentListings.Add(listing);
-            listing.ChildListings.Add(listing);
+            listing.ChildListings.Add(this);
         }
         public Listing RemoveParent(Listing listing)
         {
@@ -65,6 +80,14 @@ namespace TheAfterParty.Domain.Entities
 
             product.Listings.Add(this);
             Product = product;
+        }
+        public bool ContainsTag(Tag tag)
+        {
+            return Product.HasTag(tag);
+        }
+        public bool ContainsProductCategory(ProductCategory category)
+        {
+            return Product.HasProductCategory(category);
         }
 
         // a child listing will have a single platform, compositite listings will have a null here

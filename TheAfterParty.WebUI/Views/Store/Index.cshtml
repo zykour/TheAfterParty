@@ -1,4 +1,5 @@
 ﻿@using TheAfterParty.WebUI.Models.Store
+@using TheAfterParty.Domain.Entities
 @model StoreIndexViewModel
 
 @{
@@ -6,40 +7,194 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     AjaxOptions ajaxOptions = new AjaxOptions { UpdateTargetId = "cartInfo", Url = Url.Action("AjaxAddToCart", "Cart") };
 }
-
-<h2 class="text-center">The Co-op Shop</h2>
-<br/>
-<br/>
-
-<table class="table">
-    <thead>
-        <tr>
-            <td></td>
-            <td>Quantity</td>
-            <td>Price</td>
-            <td>Item</td>
-        </tr>
-    </thead>
-    <tbody>
-        @for (int i = 0; i < Model.StoreListings.ToList().Count; i++)//each (Listing listing in Model)
+<div style="height:auto; overflow:auto">
+    @using (Html.BeginForm("Index", "Store", FormMethod.Post))
+    {
+    @Html.HiddenFor(x => x.PreviousBeginsWithFilter)
+    @Html.HiddenFor(x => x.PreviousSelectedPlatformID)
+    @Html.HiddenFor(x => x.PreviousSelectedDealsPlatformID)
+    @Html.HiddenFor(x => x.PreviousSearchText)
+    @Html.HiddenFor(x => x.PreviousGameSort)
+    @Html.HiddenFor(x => x.PreviousPriceSort)
+    @Html.HiddenFor(x => x.PreviousQuantitySort)
+    
+    <div class="col-lg-2">
+        <br/>
+        <br/>
+        Platforms
+        <br/>
+        @for (int i = 0; i < Model.StorePlatforms.Count; i++)
         {
-            <tr>
-                <td class="text-left">
-                    @using (Ajax.BeginForm("AddToCart", "Cart", ajaxOptions))//, FormMethod.Post, new { @class = "tag-inline" }))
-                    {
-                        <div>
-                            @Html.HiddenFor(m => m.StoreListings.ElementAt(i).ListingID)
-                            @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
-                            <button type="submit" class="btn-transparent" title="Add to cart">
-                                <i class="glyphicon glyphicon-shopping-cart"></i>
-                            </button>
-                        </div>
-                    }
-                </td>
-                <td>@Model.StoreListings.ElementAt(i).Quantity</td>
-                <td>@Model.StoreListings.ElementAt(i).SaleOrDefaultPrice()</td>
-                <td>@Model.StoreListings.ElementAt(i).ListingName</td>
-            </tr>
+            <button type="submit" value="@Model.StorePlatforms[i].PlatformID" name="SelectedPlatformID">
+                @Model.StorePlatforms[i].PlatformName (@Model.StorePlatforms[i].Listings.Count(x => x.Quantity > 0))
+            </button>
+            <br/>
         }
-    </tbody>
-</table>
+        <br/>
+        Deals
+        <br/>
+        @for (int i = 0; i < Model.StorePlatforms.Count; i++)
+        {
+            if (Model.StorePlatforms[i].Listings.Any(x => x.HasSale()))
+            {
+                <button type="submit" value="@Model.StorePlatforms[i].PlatformID" name="SelectedPlatformID">
+                    @Model.StorePlatforms[i].PlatformName (@Model.StorePlatforms[i].Listings.Count(x => x.HasSale()))
+                </button>
+                <br/>
+            }
+        }
+        <br/>
+    </div>
+    <div class="col-lg-8">
+        <h2 class="text-center">The Co-op Shop</h2>
+        <br />
+            @if (Model.FilterLibrary)
+            {
+                <input type="checkbox" id="FilterLibrary" name="FilterLibrary" value="true" checked="checked"/> @Html.Label("Filter owned games")
+            }
+            else
+            {
+                <input type="checkbox" id="FilterLibrary" name="FilterLibrary" value="true"/> @Html.Label("Filter owned games")
+            }
+        <br />
+        <div class="tag-inline text-right">
+             <button class="btn-primary" type="submit" name="SearchTextBool" value="true" title="Search">Search</button>
+             <input type="text" name="SearchText" style="width:100%" value="@Model.SearchText" />
+        </div>
+        <br/>
+        Filter by starting letter:
+        <div>
+            <button type="submit" value="0" name="BeginsWithFilter" title="#">#</button>
+            @for (int i = 97; i < 123; i++)
+            {
+                char letter = (char)i;
+                <span>|</span><button class="btn-transparent" type="submit" value="@letter" name="BeginsWithFilter" title="@letter">@letter</button>
+            }
+        </div>
+        <br/>
+        <table class="table">
+            <thead>
+                <tr>
+                    <td></td>
+                    <td>
+                        @if (Model.PreviousQuantitySort == 1)
+                        {
+                            <button name="QuantitySort" value="2" type="submit" class="btn-transparent">Quantity v</button>
+                        }
+                        else if (Model.PreviousQuantitySort == 2)
+                        {
+                            <button name="QuantitySort" value="1" type="submit" class="btn-transparent">Quantity ^</button>
+                        }
+                        else
+                        {
+                            <button name="QuantitySort" value="1" type="submit" class="btn-transparent">Quantity</button>
+                        }
+                    </td>
+                    <td>
+                        @if (Model.PreviousPriceSort == 1)
+                        {
+                            <button name="PriceSort" value="2" type="submit" class="btn-transparent">Price v</button>
+                        }
+                        else if (Model.PreviousQuantitySort == 2)
+                        {
+                            <button name="PriceSort" value="1" type="submit" class="btn-transparent">Price ^</button>
+                        }
+                        else
+                        {
+                            <button name="PriceSort" value="1" type="submit" class="btn-transparent">Price</button>
+                        }
+                    </td>
+                    <td>
+                        @if (Model.PreviousGameSort == 1)
+                        {
+                            <button name="GameSort" value="2" type="submit" class="btn-transparent">Game v</button>
+                        }
+                        else if (Model.PreviousGameSort == 2)
+                        {
+                            <button name="GameSort" value="1" type="submit" class="btn-transparent">Game ^</button>
+                        }
+                        else
+                        {
+                            <button name="GameSort" value="1" type="submit" class="btn-transparent">Game</button>
+                        }
+                    </td>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <div class="col-lg-2">
+        <br/>
+        <br/>
+        Categories
+        <br/>
+        @if (Model.SelectedProductCategoryMappings != null)
+        {
+            for (int i = 0; i < Model.SelectedProductCategoryMappings.Count(); i++)
+            {
+                string idString = "SelectedProductCategoryMappings_" + i + "__IsSelected";
+                @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].ProductCategory.ProductCategoryID);
+                @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].ProductCategory.CategoryString);
+                if (Model.SelectedTagMappings[i].IsSelected)
+                {
+                    <input type="checkbox" id="@idString" name="SelectedProductCategoryMappings[@i].IsSelected" value="true" checked="checked" /> @Html.Label(Model.SelectedProductCategoryMappings[i].ProductCategory.CategoryString)
+                }
+                else
+                {
+                    <input type="checkbox" id="@idString" name="SelectedProductCategoryMappings[@i].IsSelected" value="true" /> @Html.Label(Model.SelectedProductCategoryMappings[i].ProductCategory.CategoryString)
+                }
+                <br/>
+            }
+        }
+        <br/>
+        Genres & Tags
+        <br/>
+        @if (Model.SelectedTagMappings != null)
+        {
+            for (int i = 0; i < Model.SelectedTagMappings.Count(); i++)
+            {
+                string idString = "SelectedTagMappings_" + i + "__IsSelected";
+                @Html.HiddenFor(x => x.SelectedTagMappings[i].StoreTag.TagID);
+                @Html.HiddenFor(x => x.SelectedTagMappings[i].StoreTag.TagName);
+                if (Model.SelectedTagMappings[i].IsSelected)
+                {
+                    <input type="checkbox" id="@idString" name="SelectedTagMappings[@i].IsSelected" value="true" checked="checked"/> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName)
+                }
+                else
+                {
+                    <input type="checkbox" id="@idString" name="SelectedTagMappings[@i].IsSelected" value="true" /> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName)
+                }
+                <br />
+            }
+        }
+    </div>
+    }
+    <div class="col-lg-2"></div>
+    <div class="col-lg-8">
+        <br />
+        <table class="table">
+            <tbody>
+                @for (int i = 0; i < Model.StoreListings.ToList().Count; i++)
+                {
+                    <tr>
+                        <td class="text-left">
+                            @using (Ajax.BeginForm("AddToCart", "Cart", ajaxOptions))
+                            {
+                                <div>
+                                    @Html.HiddenFor(m => m.StoreListings.ElementAt(i).ListingID)
+                                    @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
+                                    <button type="submit" class="btn-transparent" title="Add to cart">
+                                        <i class="glyphicon glyphicon-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            }
+                        </td>
+                        <td>@Model.StoreListings.ElementAt(i).Quantity</td>
+                        <td>@Model.StoreListings.ElementAt(i).SaleOrDefaultPrice()</td>
+                        <td>@Model.StoreListings.ElementAt(i).ListingName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-lg-2"></div>
+</div>

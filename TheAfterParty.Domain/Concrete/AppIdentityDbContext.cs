@@ -71,7 +71,7 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<Order>().HasRequired<AppUser>(o => o.AppUser).WithMany(au => au.Orders).HasForeignKey(o => o.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<ClaimedProductKey>().HasRequired<AppUser>(cpk => cpk.AppUser).WithMany(au => au.ClaimedProductKeys).HasForeignKey(cpk => cpk.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<BalanceEntry>().HasRequired<AppUser>(be => be.AppUser).WithMany(au => au.BalanceEntries).HasForeignKey(be => be.UserID).WillCascadeOnDelete(false);
-            modelBuilder.Entity<Tag>().HasRequired<AppUser>(t => t.AppUser).WithMany(au => au.Tags).HasForeignKey(t => t.UserID).WillCascadeOnDelete(false);
+            //modelBuilder.Entity<Tag>().HasRequired<AppUser>(t => t.AppUser).WithMany(au => au.Tags).HasForeignKey(t => t.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<WishlistEntry>().HasRequired<AppUser>(we => we.AppUser).WithMany(au => au.WishlistEntries).HasForeignKey(we => we.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<ListingComment>().HasRequired<AppUser>(lc => lc.AppUser).WithMany(au => au.ListingComments).HasForeignKey(lc => lc.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<UserNotification>().HasRequired<AppUser>(un => un.AppUser).WithMany(au => au.UserNotifications).HasForeignKey(un => un.UserID).WillCascadeOnDelete(false);
@@ -118,7 +118,7 @@ namespace TheAfterParty.Domain.Concrete
 
             // Product ---
             modelBuilder.Entity<ProductReview>().HasRequired<Product>(pr => pr.Product).WithMany(p => p.ProductReviews).HasForeignKey(pr => pr.ProductID).WillCascadeOnDelete(false);
-            modelBuilder.Entity<Tag>().HasRequired<Product>(t => t.Product).WithMany(p => p.Tags).HasForeignKey(t => t.ProductID).WillCascadeOnDelete(true);
+            modelBuilder.Entity<Tag>().HasMany<Product>(t => t.Products).WithMany(p => p.Tags);
             modelBuilder.Entity<ProductDetail>().HasRequired<Product>(pd => pd.Product).WithOptional(p => p.ProductDetail).WillCascadeOnDelete(false);
             modelBuilder.Entity<ProductCategory>().HasMany<Product>(pc => pc.Products).WithMany(p => p.ProductCategories);
 

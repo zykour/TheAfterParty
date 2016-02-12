@@ -14,16 +14,23 @@ namespace TheAfterParty.Domain.Services
         IEnumerable<Listing> GetStockedStoreListings();
         IEnumerable<AppUser> GetAppUsers();
         IEnumerable<Listing> GetListingsWithDeals();
-
+        IEnumerable<Tag> GetTags();
+        IEnumerable<ProductCategory> GetProductCategories();
         IEnumerable<Platform> GetPlatforms();
+
         void EditPlatform(Platform platform);
-        Task<List<String>> AddProductKeys(Platform platform, string input);
         Platform GetPlatformByID(int id);
+
+        List<String> AddProductKeys(Platform platform, string input);
 
         void AddListing(Listing listing);
         Listing GetListingByAppID(int id, string platformName);
 
         ProductCategory GetProductCategoryByName(string name);
         void AddProductCategory(ProductCategory category);
+        ProductCategory GetProductCategoryByID(int id);
+
+        Tag GetTagByName(string name);
+        Tag GetTagByID(int id);
     }
 }

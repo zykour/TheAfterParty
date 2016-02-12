@@ -139,7 +139,7 @@ namespace TheAfterParty.Domain.Entities
         public virtual ICollection<WishlistEntry> WishlistEntries { get; set; }
 
         // the tags this user has created
-        public virtual ICollection<Tag> Tags { get; set; }
+        //public virtual ICollection<Tag> Tags { get; set; }
 
         // the reviews this user has posted (for products)
         public virtual ICollection<ProductReview> ProductReviews { get; set; }
@@ -173,6 +173,21 @@ namespace TheAfterParty.Domain.Entities
         public virtual ICollection<WonPrize> WonPrizes { get; set; }
 
         public virtual ICollection<OwnedGame> OwnedGames { get; set; }
+        public bool OwnsListing(Listing listing)
+        {
+            if (OwnedGames == null) return false;
+            return (OwnedGames.Where(o => o.AppID == listing.Product.AppID).Count() >= 1) ? true : false;
+        }
+        public void AddOwnedGame(OwnedGame ownedGame)
+        {
+            if (OwnedGames == null)
+            {
+                OwnedGames = new HashSet<OwnedGame>();
+            }
+
+            OwnedGames.Add(ownedGame);
+            ownedGame.AppUser = this;
+        }
 
         public virtual ICollection<ShoppingCartEntry> ShoppingCartEntries { get; set; }
         public ShoppingCartEntry AddShoppingCartEntry(Listing listing, int quantity = 1)
