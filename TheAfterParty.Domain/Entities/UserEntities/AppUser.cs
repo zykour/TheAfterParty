@@ -290,5 +290,24 @@ namespace TheAfterParty.Domain.Entities
 
             return total;
         }
+
+        public virtual ICollection<UserTag> UserTags { get; set; }
+
+        public virtual ICollection<Listing> BlacklistedListings { get; set; }
+        public void AddListingBlacklistEntry(Listing listing)
+        {
+            if (BlacklistedListings == null)
+            {
+                BlacklistedListings = new HashSet<Listing>();
+            }
+
+            if (listing.UsersBlacklist == null)
+            {
+                listing.UsersBlacklist = new HashSet<AppUser>();
+            }
+
+            BlacklistedListings.Add(listing);
+            listing.UsersBlacklist.Add(this);
+        }
     }
 }

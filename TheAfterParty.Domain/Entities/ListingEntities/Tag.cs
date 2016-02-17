@@ -24,5 +24,7 @@ namespace TheAfterParty.Domain.Entities
         public virtual ICollection<Product> Products { get; set; }
 
         public string TagName { get; set; }
+
+        public virtual ICollection<UserTag> UserTags { get; set; }
     }
 }

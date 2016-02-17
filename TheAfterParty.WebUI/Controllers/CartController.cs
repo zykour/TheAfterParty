@@ -47,6 +47,7 @@ namespace TheAfterParty.WebUI.Controllers
             return PartialView("~/Views/Shared/_ShoppingCart.cshtml", model);
         }
 
+        [HttpPost]
         public async Task<ActionResult> AjaxAddToCart(int listingId)
         {
             CartLayoutViewModel model = new CartLayoutViewModel();

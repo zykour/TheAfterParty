@@ -18,7 +18,7 @@
         string idString = "MyIntStringBools_" + i + "__IsSelected";
         if (Model.MyIntStringBools[i].IsSelected)
         {
-            @Html.Label(Model.MyIntStringBools[i].MyIntString.MyString)<input type="checkbox" id="@idString" name="MyIntStringBools[@i].IsSelected" value="true" checked="checked" />
+            @Html.Label(Model.MyIntStringBools[i].MyIntString.MyString) <input type="checkbox" id="@idString" name="MyIntStringBools[@i].IsSelected" value="true" checked="checked" />
         }
         else
         {
@@ -27,10 +27,11 @@
         <br/>
     }
     @Html.HiddenFor(x => x.PreviousInt)
-    <button class="btn-primary" name="TestInt" value="5" type="submit" >
+    @Model.PreviousInt
+    <button class="btn-primary" name="PreviousInt" value="5" type="submit" >
         Submit Query
     </button>
-    <button class="btn-primary" type="submit">
+    <button class="btn-primary" name="PreviousInt"  type="submit">
         Submit Query (2)
     </button>
 }

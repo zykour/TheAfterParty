@@ -39,6 +39,7 @@ namespace TheAfterParty.Domain.Concrete
         public DbSet<ProductCategory> ProductCategories { get; set; }
         public DbSet<AppMovie> AppMovies { get; set; }
         public DbSet<AppScreenshot> AppScreenshots { get; set; }
+        public DbSet<UserTag> UserTags { get; set; }
 
         public AppIdentityDbContext() : base("AppIdentityDbContext")
         {
@@ -71,7 +72,7 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<Order>().HasRequired<AppUser>(o => o.AppUser).WithMany(au => au.Orders).HasForeignKey(o => o.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<ClaimedProductKey>().HasRequired<AppUser>(cpk => cpk.AppUser).WithMany(au => au.ClaimedProductKeys).HasForeignKey(cpk => cpk.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<BalanceEntry>().HasRequired<AppUser>(be => be.AppUser).WithMany(au => au.BalanceEntries).HasForeignKey(be => be.UserID).WillCascadeOnDelete(false);
-            //modelBuilder.Entity<Tag>().HasRequired<AppUser>(t => t.AppUser).WithMany(au => au.Tags).HasForeignKey(t => t.UserID).WillCascadeOnDelete(false);
+            modelBuilder.Entity<UserTag>().HasRequired<AppUser>(t => t.AppUser).WithMany(au => au.UserTags).HasForeignKey(t => t.AppUserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<WishlistEntry>().HasRequired<AppUser>(we => we.AppUser).WithMany(au => au.WishlistEntries).HasForeignKey(we => we.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<ListingComment>().HasRequired<AppUser>(lc => lc.AppUser).WithMany(au => au.ListingComments).HasForeignKey(lc => lc.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<UserNotification>().HasRequired<AppUser>(un => un.AppUser).WithMany(au => au.UserNotifications).HasForeignKey(un => un.UserID).WillCascadeOnDelete(false);
@@ -79,6 +80,7 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<WonPrize>().HasRequired<AppUser>(wp => wp.AppUser).WithMany(au => au.WonPrizes).HasForeignKey(wp => wp.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<OwnedGame>().HasRequired<AppUser>(og => og.AppUser).WithMany(au => au.OwnedGames).HasForeignKey(og => og.UserID).WillCascadeOnDelete(true);
             modelBuilder.Entity<ShoppingCartEntry>().HasRequired<AppUser>(sce => sce.AppUser).WithMany(au => au.ShoppingCartEntries).HasForeignKey(sce => sce.UserID).WillCascadeOnDelete(true);
+            modelBuilder.Entity<Listing>().HasMany<AppUser>(l => l.UsersBlacklist).WithMany(au => au.BlacklistedListings);
 
             // Auction ---
             modelBuilder.Entity<AuctionBid>().HasRequired<Auction>(ab => ab.Auction).WithMany(a => a.AuctionBids).HasForeignKey(ab => ab.AuctionID).WillCascadeOnDelete(true);
@@ -131,6 +133,9 @@ namespace TheAfterParty.Domain.Concrete
 
             // Coupon ---
             modelBuilder.Entity<UserCoupon>().HasRequired<Coupon>(c => c.Coupon).WithMany(uc => uc.UserCoupons).HasForeignKey(uc => uc.CouponID).WillCascadeOnDelete(false);
+
+            // Tag ---
+            modelBuilder.Entity<UserTag>().HasRequired<Tag>(ut => ut.Tag).WithMany(t => t.UserTags).HasForeignKey(ut => ut.TagID).WillCascadeOnDelete(true);
         }
     }
 }

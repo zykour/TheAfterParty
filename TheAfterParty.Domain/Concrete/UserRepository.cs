@@ -105,6 +105,14 @@ namespace TheAfterParty.Domain.Concrete
                     UpdateUserNotification(entry);
                 }
             }
+
+            foreach (UserTag entry in appUser.UserTags)
+            {
+                if (entry.UserTagID == 0)
+                {
+                    InsertUserTag(entry);
+                }
+            }
         }
         public async Task UpdateAppUser(AppUser appUser)
         {
@@ -195,6 +203,14 @@ namespace TheAfterParty.Domain.Concrete
                 if (entry.WishlistEntryID == 0)
                 {
                     InsertWishlistEntry(entry);
+                }
+            }
+
+            foreach (UserTag entry in appUser.UserTags)
+            {
+                if (entry.UserTagID == 0)
+                {
+                    InsertUserTag(entry);
                 }
             }
         }
@@ -522,6 +538,28 @@ namespace TheAfterParty.Domain.Concrete
         {
             OwnedGame ownedGame = context.OwnedGames.Find(ownedGameId);
             context.OwnedGames.Remove(ownedGame);
+        }
+
+        public IEnumerable<UserTag> GetUserTags()
+        {
+            return context.UserTags.ToList();
+        }
+        public UserTag GetUserTagByID(int userTagId)
+        {
+            return context.UserTags.Find(userTagId);
+        }
+        public void InsertUserTag(UserTag userTag)
+        {
+            context.UserTags.Add(userTag);
+        }
+        public void DeleteUserTag(int userTagId)
+        {
+            UserTag targetUserTag = context.UserTags.Find(userTagId);
+
+            if (targetUserTag != null)
+            {
+                context.UserTags.Remove(targetUserTag);
+            }
         }
 
         // ---- Repository methods

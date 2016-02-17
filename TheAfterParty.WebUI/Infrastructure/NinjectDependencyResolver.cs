@@ -46,6 +46,7 @@ namespace TheAfterParty.WebUI.Infrastructure
             kernel.Bind<ICartService>().To<CartService>().InRequestScope();
             kernel.Bind<IPurchaseService>().To<PurchaseService>().InRequestScope();
             kernel.Bind<IStoreService>().To<StoreService>().InRequestScope();
+            kernel.Bind<IUserService>().To<UserService>().InRequestScope();
         }
     }
 }

@@ -5,196 +5,276 @@
 @{
     ViewBag.Title = "Shop";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    AjaxOptions ajaxOptions = new AjaxOptions { UpdateTargetId = "cartInfo", Url = Url.Action("AjaxAddToCart", "Cart") };
+    //AjaxOptions ajaxOptions = new AjaxOptions { UpdateTargetId = "cartInfo", Url = Url.Action("AjaxAddToCart", "Cart") };
 }
-<div style="height:auto; overflow:auto">
-    @using (Html.BeginForm("Index", "Store", FormMethod.Post))
-    {
-    @Html.HiddenFor(x => x.PreviousBeginsWithFilter)
-    @Html.HiddenFor(x => x.PreviousSelectedPlatformID)
-    @Html.HiddenFor(x => x.PreviousSelectedDealsPlatformID)
-    @Html.HiddenFor(x => x.PreviousSearchText)
-    @Html.HiddenFor(x => x.PreviousGameSort)
-    @Html.HiddenFor(x => x.PreviousPriceSort)
-    @Html.HiddenFor(x => x.PreviousQuantitySort)
-    
-    <div class="col-lg-2">
-        <br/>
-        <br/>
-        Platforms
-        <br/>
-        @for (int i = 0; i < Model.StorePlatforms.Count; i++)
-        {
-            <button type="submit" value="@Model.StorePlatforms[i].PlatformID" name="SelectedPlatformID">
-                @Model.StorePlatforms[i].PlatformName (@Model.StorePlatforms[i].Listings.Count(x => x.Quantity > 0))
-            </button>
+
+@using (Html.BeginForm("Index", "Store", FormMethod.Post))
+{
+@Html.HiddenFor(x => x.PreviousBeginsWithFilter)
+@Html.HiddenFor(x => x.PreviousSelectedPlatformID)
+@Html.HiddenFor(x => x.PreviousSelectedDealsPlatformID)
+@Html.HiddenFor(x => x.PreviousSearchText)
+@Html.HiddenFor(x => x.PreviousGameSort)
+@Html.HiddenFor(x => x.PreviousPriceSort)
+@Html.HiddenFor(x => x.PreviousQuantitySort)
+@Html.HiddenFor(x => x.PreviousFilterLibrary)
+@Html.HiddenFor(x => x.PreviousFilterBlacklist)
+@Html.HiddenFor(x => x.PreviousAffordableFilter)
+@Html.HiddenFor(x => x.PreviousCartAffordableFilter)
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="text-center">The Co-op Shop</h2>
+            <br />
+            <br />
+        </div>
+    </div>        
+    <div class="row">
+        <div class="col-lg-2">
+            <div class="input-group input-group-sm">
+                <input type="text" class="form-control" name="SearchText" value="@Model.SearchText" />
+                <span class="input-group-btn" style="width:0;">
+                    <button class="btn btn-default btn-sm" title="Search" type="submit" name="SearchTextBool" value="true"><i class="fa fa-search"></i></button>
+                </span>
+            </div>
             <br/>
-        }
-        <br/>
-        Deals
-        <br/>
-        @for (int i = 0; i < Model.StorePlatforms.Count; i++)
-        {
-            if (Model.StorePlatforms[i].Listings.Any(x => x.HasSale()))
+            <span class="text-primary">Actions</span>
+            <br/>
+            <button class="btn-transparent" onclick="location.href='@Url.Action("Index", "Store")';return false;">@Html.Label("Clear Search")</button>
+            <br />
+            <br />
+            <span class="text-primary">Platforms</span>
+            <br />
+            @for (int i = 0; i < Model.StorePlatforms.Count; i++)
             {
-                <button type="submit" value="@Model.StorePlatforms[i].PlatformID" name="SelectedPlatformID">
-                    @Model.StorePlatforms[i].PlatformName (@Model.StorePlatforms[i].Listings.Count(x => x.HasSale()))
+                int count = Model.StoreListings.Where(l => l.ContainsPlatform(Model.StorePlatforms[i])).Count();
+                string countText = "";
+                if (count > 0)
+                {
+                    countText = " (" + count + ")"; //" (" + @Model.StorePlatforms[i].Listings.Count(x => x.Quantity > 0) + ")")
+                }
+                <button type="submit" value="@Model.StorePlatforms[i].PlatformID" name="SelectedPlatformID" class="btn-transparent">
+                    @Html.Label(Model.StorePlatforms[i].PlatformName + countText)
                 </button>
-                <br/>
+                <br />
             }
-        }
-        <br/>
-    </div>
-    <div class="col-lg-8">
-        <h2 class="text-center">The Co-op Shop</h2>
-        <br />
-            @if (Model.FilterLibrary)
+            <br />
+            <span class="text-primary">Deals</span>
+            <br />
+            @for (int i = 0; i < Model.StorePlatforms.Count; i++)
             {
-                <input type="checkbox" id="FilterLibrary" name="FilterLibrary" value="true" checked="checked"/> @Html.Label("Filter owned games")
+                if (Model.StorePlatforms[i].Listings.Any(x => x.HasSale()))
+                {
+                    int count = Model.StoreListings.Where(l => l.ContainsPlatform(Model.StorePlatforms[i]) && l.HasSale()).Count();
+                    string countText = "";
+                    if (count > 0)
+                    {
+                        countText = " (" + count + ")"; //" (" + @Model.StorePlatforms[i].Listings.Count(x => x.Quantity > 0) + ")")
+                    }
+                    <button type="submit" value="@Model.StorePlatforms[i].PlatformID" name="SelectedPlatformID" class="btn-transparent">
+                        @Html.Label(Model.StorePlatforms[i].PlatformName + countText)
+                    </button>
+                    <br />
+                }
             }
-            else
-            {
-                <input type="checkbox" id="FilterLibrary" name="FilterLibrary" value="true"/> @Html.Label("Filter owned games")
-            }
-        <br />
-        <div class="tag-inline text-right">
-             <button class="btn-primary" type="submit" name="SearchTextBool" value="true" title="Search">Search</button>
-             <input type="text" name="SearchText" style="width:100%" value="@Model.SearchText" />
+            <br />
         </div>
-        <br/>
-        Filter by starting letter:
-        <div>
-            <button type="submit" value="0" name="BeginsWithFilter" title="#">#</button>
-            @for (int i = 97; i < 123; i++)
-            {
-                char letter = (char)i;
-                <span>|</span><button class="btn-transparent" type="submit" value="@letter" name="BeginsWithFilter" title="@letter">@letter</button>
-            }
-        </div>
-        <br/>
-        <table class="table">
-            <thead>
-                <tr>
-                    <td></td>
-                    <td>
+        <div class="col-lg-8">
+            <div class="btn-group-justified">
+                @if (Model.PreviousBeginsWithFilter == '#')
+                {
+                    <button class="btn btn-transparent" type="submit" value="0" name="BeginsWithFilter" title="#"><b>#</b></button>
+                }
+                else
+                {
+                    <button class="btn btn-transparent" type="submit" value="0" name="BeginsWithFilter" title="#">#</button>
+                }
+                @for (int i = 97; i < 123; i++)
+                {
+                    char letter = (char)i;
+                    if (Model.PreviousBeginsWithFilter == letter)
+                    {
+                        <button class="btn btn-transparent" type="submit" value="@letter" name="BeginsWithFilter" title="@letter"><b>@letter</b></button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-transparent" type="submit" value="@letter" name="BeginsWithFilter" title="@letter">@letter</button>
+                    }
+                }
+            </div>
+            <br />
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-1"></div>
+                    <div class="col-lg-2 text-center">
                         @if (Model.PreviousQuantitySort == 1)
                         {
-                            <button name="QuantitySort" value="2" type="submit" class="btn-transparent">Quantity v</button>
+                            <button name="QuantitySort" value="2" type="submit" class="btn-transparent text-primary">Quantity <i class="glyphicon glyphicon-chevron-down"></i></button>
                         }
                         else if (Model.PreviousQuantitySort == 2)
                         {
-                            <button name="QuantitySort" value="1" type="submit" class="btn-transparent">Quantity ^</button>
+                            <button name="QuantitySort" value="1" type="submit" class="btn-transparent text-primary">Quantity <i class="glyphicon glyphicon-chevron-up"></i></button>
                         }
                         else
                         {
                             <button name="QuantitySort" value="1" type="submit" class="btn-transparent">Quantity</button>
                         }
-                    </td>
-                    <td>
+                    </div>
+                    <div class="col-lg-2 text-center">
                         @if (Model.PreviousPriceSort == 1)
                         {
-                            <button name="PriceSort" value="2" type="submit" class="btn-transparent">Price v</button>
+                            <button name="PriceSort" value="2" type="submit" class="btn-transparent text-primary">Price <i class="glyphicon glyphicon-chevron-down"></i></button>
                         }
-                        else if (Model.PreviousQuantitySort == 2)
+                        else if (Model.PreviousPriceSort == 2)
                         {
-                            <button name="PriceSort" value="1" type="submit" class="btn-transparent">Price ^</button>
+                            <button name="PriceSort" value="1" type="submit" class="btn-transparent text-primary">Price <i class="glyphicon glyphicon-chevron-up"></i></button>
                         }
                         else
                         {
                             <button name="PriceSort" value="1" type="submit" class="btn-transparent">Price</button>
                         }
-                    </td>
-                    <td>
+                    </div>
+                    <div class="col-lg-7">
                         @if (Model.PreviousGameSort == 1)
                         {
-                            <button name="GameSort" value="2" type="submit" class="btn-transparent">Game v</button>
+                            <button name="GameSort" value="2" type="submit" class="btn-transparent text-primary">Game <i class="glyphicon glyphicon-chevron-down"></i></button>
                         }
                         else if (Model.PreviousGameSort == 2)
                         {
-                            <button name="GameSort" value="1" type="submit" class="btn-transparent">Game ^</button>
+                            <button name="GameSort" value="1" type="submit" class="btn-transparent text-primary">Game <i class="glyphicon glyphicon-chevron-up"></i></button>
                         }
                         else
                         {
                             <button name="GameSort" value="1" type="submit" class="btn-transparent">Game</button>
                         }
-                    </td>
-                </tr>
-            </thead>
-        </table>
-    </div>
-    <div class="col-lg-2">
-        <br/>
-        <br/>
-        Categories
-        <br/>
-        @if (Model.SelectedProductCategoryMappings != null)
-        {
-            for (int i = 0; i < Model.SelectedProductCategoryMappings.Count(); i++)
-            {
-                string idString = "SelectedProductCategoryMappings_" + i + "__IsSelected";
-                @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].ProductCategory.ProductCategoryID);
-                @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].ProductCategory.CategoryString);
-                if (Model.SelectedTagMappings[i].IsSelected)
-                {
-                    <input type="checkbox" id="@idString" name="SelectedProductCategoryMappings[@i].IsSelected" value="true" checked="checked" /> @Html.Label(Model.SelectedProductCategoryMappings[i].ProductCategory.CategoryString)
-                }
-                else
-                {
-                    <input type="checkbox" id="@idString" name="SelectedProductCategoryMappings[@i].IsSelected" value="true" /> @Html.Label(Model.SelectedProductCategoryMappings[i].ProductCategory.CategoryString)
-                }
-                <br/>
-            }
-        }
-        <br/>
-        Genres & Tags
-        <br/>
-        @if (Model.SelectedTagMappings != null)
-        {
-            for (int i = 0; i < Model.SelectedTagMappings.Count(); i++)
-            {
-                string idString = "SelectedTagMappings_" + i + "__IsSelected";
-                @Html.HiddenFor(x => x.SelectedTagMappings[i].StoreTag.TagID);
-                @Html.HiddenFor(x => x.SelectedTagMappings[i].StoreTag.TagName);
-                if (Model.SelectedTagMappings[i].IsSelected)
-                {
-                    <input type="checkbox" id="@idString" name="SelectedTagMappings[@i].IsSelected" value="true" checked="checked"/> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName)
-                }
-                else
-                {
-                    <input type="checkbox" id="@idString" name="SelectedTagMappings[@i].IsSelected" value="true" /> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName)
-                }
-                <br />
-            }
-        }
-    </div>
-    }
-    <div class="col-lg-2"></div>
-    <div class="col-lg-8">
-        <br />
-        <table class="table">
-            <tbody>
+                    </div>
+                </div>
                 @for (int i = 0; i < Model.StoreListings.ToList().Count; i++)
                 {
-                    <tr>
-                        <td class="text-left">
-                            @using (Ajax.BeginForm("AddToCart", "Cart", ajaxOptions))
-                            {
-                                <div>
-                                    @Html.HiddenFor(m => m.StoreListings.ElementAt(i).ListingID)
-                                    @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
-                                    <button type="submit" class="btn-transparent" title="Add to cart">
-                                        <i class="glyphicon glyphicon-shopping-cart"></i>
-                                    </button>
-                                </div>
-                            }
-                        </td>
-                        <td>@Model.StoreListings.ElementAt(i).Quantity</td>
-                        <td>@Model.StoreListings.ElementAt(i).SaleOrDefaultPrice()</td>
-                        <td>@Model.StoreListings.ElementAt(i).ListingName</td>
-                    </tr>
+                    var rowId = "listingRow" + i;
+                    <div class="row" id="@rowId">
+                        <div class="col-lg-1">
+                            <div class="btn-transparent pull-left" style="cursor: pointer;" id="blacklistButton" onclick="AddToBlacklist(@Model.StoreListings.ElementAt(i).ListingID, @i);"><i class="fa fa-ban"></i></div>
+                            <div class="btn-transparent pull-right" style="cursor: pointer;" id="cartButton" onclick="AddToCart(@Model.StoreListings.ElementAt(i).ListingID);"><i class="fa fa-shopping-cart"></i></div>
+                        </div>
+                        <div class="col-lg-2 text-center">@Model.StoreListings.ElementAt(i).Quantity</div>
+                        <div class="col-lg-2 text-center">@Model.StoreListings.ElementAt(i).SaleOrDefaultPrice()</div>
+                        <div class="col-lg-7">@Model.StoreListings.ElementAt(i).ListingName</div>
+                    </div>
                 }
-            </tbody>
-        </table>
+            </div>
+        </div>
+        <div class="col-lg-2">
+            @if (Context.User.Identity.IsAuthenticated)
+            {
+            <span class="text-primary">User Filters</span>
+            <br />
+            if (Model.PreviousFilterLibrary)
+            {
+                <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
+                    <i class="glyphicon glyphicon-check"></i> <i class="fa fa-steam-square"></i> @Html.Label("Unowned")
+                </button>
+            }
+            else
+            {
+                <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
+                    <i class="glyphicon glyphicon-unchecked"></i><i class="fa fa-steam-square"></i> @Html.Label("Unowned")
+                </button>
+            }
+            <br />
+            if (Model.PreviousFilterBlacklist)
+            {
+                <button type="submit" class="btn-transparent" name="FilterBlacklist" value="true">
+                    <i class="glyphicon glyphicon-check"></i> <i class="fa fa-ban"></i> @Html.Label("Blacklist")
+                </button>
+            }
+            else
+            {
+                <button type="submit" class="btn-transparent" name="FilterBlacklist" value="true">
+                    <i class="glyphicon glyphicon-unchecked"></i><i class="fa fa-ban"></i> @Html.Label("Blacklist")
+                </button>
+            }
+            <br />
+            if (Model.PreviousAffordableFilter)
+            {
+                <button type="submit" class="btn-transparent" name="AffordableFilter" value="true">
+                    <i class="glyphicon glyphicon-check"></i> <i class="fa fa-dollar"></i> @Html.Label("Affordable")
+                </button>
+            }
+            else
+            {
+                <button type="submit" class="btn-transparent" name="AffordableFilter" value="true">
+                    <i class="glyphicon glyphicon-unchecked"></i><i class="fa fa-dollar"></i> @Html.Label("Affordable")
+                </button>
+            }
+            <br />
+            if (Model.PreviousCartAffordableFilter)
+            {
+                <button type="submit" class="btn-transparent" name="CartAffordableFilter" value="true">
+                    <i class="glyphicon glyphicon-check"></i> <i class="fa fa-dollar"></i><i class="fa fa-shopping-cart"></i> @Html.Label("Affordable")
+                </button>
+            }
+            else
+            {
+                <button type="submit" class="btn-transparent" name="CartAffordableFilter" value="true">
+                    <i class="glyphicon glyphicon-unchecked"></i><i class="fa fa-dollar"></i><i class="fa fa-shopping-cart"></i> @Html.Label("Affordable")
+                </button>
+            }
+            <br />
+            <br />
+            }
+            <span class="text-primary">Categories</span>
+            <br />
+            @if (Model.SelectedProductCategoryMappings != null)
+            {
+                for (int i = 0; i < Model.SelectedProductCategoryMappings.Count(); i++)
+                {
+                    string idString = "SelectedProductCategoryMappings_" + i + "__IsSelected";
+                    @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].ProductCategory.ProductCategoryID);
+                    @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].ProductCategory.CategoryString);
+                    @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].IsSelected);
+                    if (Model.SelectedProductCategoryMappings[i].IsSelected)
+                    {
+                        <button type="submit" class="btn-transparent" name="CategoryToChange" value="@Model.SelectedProductCategoryMappings[i].ProductCategory.ProductCategoryID">
+                            <i class="glyphicon glyphicon-check"></i> @Html.Label(Model.SelectedProductCategoryMappings[i].ProductCategory.CategoryString)
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn-transparent" name="CategoryToChange" value="@Model.SelectedProductCategoryMappings[i].ProductCategory.ProductCategoryID">
+                            <i class="glyphicon glyphicon-unchecked"></i> @Html.Label(Model.SelectedProductCategoryMappings[i].ProductCategory.CategoryString)
+                        </button>
+                    }
+                    <br />
+                }
+            }
+            <br />
+            <span class="text-primary">Genres & Tags</span>
+            <br />
+            @if (Model.SelectedTagMappings != null)
+            {
+                for (int i = 0; i < Model.SelectedTagMappings.Count(); i++)
+                {
+                    string idString = "SelectedTagMappings_" + i + "__IsSelected";
+                    @Html.HiddenFor(x => x.SelectedTagMappings[i].StoreTag.TagID)
+                    @Html.HiddenFor(x => x.SelectedTagMappings[i].StoreTag.TagName)
+                    @Html.HiddenFor(x => x.SelectedTagMappings[i].IsSelected)
+                    if (Model.SelectedTagMappings[i].IsSelected)
+                    {
+                        <button class="btn-transparent" type="submit" name="TagToChange" value="@Model.SelectedTagMappings[i].StoreTag.TagID">
+                            <i class="glyphicon glyphicon-check"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName)
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn-transparent" type="submit" name="TagToChange" value="@Model.SelectedTagMappings[i].StoreTag.TagID">
+                            <i class="glyphicon glyphicon-unchecked"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName)
+                        </button>
+                    }
+                    <br />
+                }
+            }
+        </div>
     </div>
-    <div class="col-lg-2"></div>
 </div>
+}

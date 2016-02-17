@@ -28,6 +28,19 @@ namespace TheAfterParty.WebUI.Models.Store
             PreviousQuantitySort = 0;
             PreviousPriceSort = 0;
             PreviousGameSort = 1;
+
+            TagToChange = 0;
+            CategoryToChange = 0;
+
+            AffordableFilter = false;
+            CartAffordableFilter = false;
+            FilterBlacklist = false;
+            FilterLibrary = false;
+            PreviousAffordableFilter = false;
+            PreviousCartAffordableFilter = false;
+            PreviousFilterBlacklist = false;
+            PreviousFilterLibrary = false;
+
         }
 
         public List<Listing> StoreListings { get; set; }
@@ -36,6 +49,23 @@ namespace TheAfterParty.WebUI.Models.Store
         // Container objects for storing the entity (tags and ProductCategories) and whether or not that tag is selected)
         public List<SelectedTagMapping> SelectedTagMappings { get; set; }
         public List<SelectedProductCategoryMapping> SelectedProductCategoryMappings { get; set; }
+        public int TagToChange { get; set; }
+        public int CategoryToChange { get; set; }
+
+        // price range filters
+        /*public int LowPrice { get; set; }
+        public int PreviousLowPrice { get; set; }
+        public int HighPrice { get; set; }
+        public int PreviousHighPrice { get; set; }*/
+
+        public bool AffordableFilter { get; set; }
+        public bool PreviousAffordableFilter { get; set; }
+        public bool CartAffordableFilter { get; set; }
+        public bool PreviousCartAffordableFilter { get; set; }
+        public bool FilterLibrary { get; set; }
+        public bool PreviousFilterLibrary { get; set; }
+        public bool FilterBlacklist { get; set; }
+        public bool PreviousFilterBlacklist { get; set; }
 
         // The entered Search text
         public string SearchText { get; set; }
@@ -45,7 +75,6 @@ namespace TheAfterParty.WebUI.Models.Store
         // We may want to let the user enter some new text without hitting the search button, so we'll need to save the actual text we're using to filter the listings
         public string PreviousSearchText { get; set; }
 
-        public bool FilterLibrary { get; set; }
 
         // character results must start with
         public char BeginsWithFilter { get; set; }

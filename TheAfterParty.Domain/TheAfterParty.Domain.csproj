@@ -173,14 +173,17 @@
     <Compile Include="Entities\UserEntities\UserNotification.cs" />
     <Compile Include="Entities\UserEntities\WishlistEntry.cs" />
     <Compile Include="Entities\PrizeEntities\WonPrize.cs" />
+    <Compile Include="Entities\UserEntities\UserTag.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Abstract\ICartService.cs" />
     <Compile Include="Services\Abstract\IPurchaseService.cs" />
     <Compile Include="Services\Abstract\IStoreService.cs" />
+    <Compile Include="Services\Abstract\IUserService.cs" />
     <Compile Include="Services\Concrete\CartService.cs" />
     <Compile Include="Services\Concrete\ListingBuilder.cs" />
     <Compile Include="Services\Concrete\PurchaseService.cs" />
     <Compile Include="Services\Concrete\StoreService.cs" />
+    <Compile Include="Services\Concrete\UserService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

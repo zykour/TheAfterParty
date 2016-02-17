@@ -420,5 +420,7 @@ namespace TheAfterParty.Domain.Entities
                 }
             }
         }
+
+        public virtual ICollection<AppUser> UsersBlacklist { get; set; }
     }
 }

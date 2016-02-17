@@ -73,7 +73,12 @@ namespace TheAfterParty.Domain.Abstract
         void InsertMail(Mail mail);
         void UpdateMail(Mail mail);
         void DeleteMail(int mailId);
-        
+
+        IEnumerable<UserTag> GetUserTags();
+        UserTag GetUserTagByID(int userTagId);
+        void InsertUserTag(UserTag userTag);
+        void DeleteUserTag(int userTagId);
+
         void Save();
     }
 }
