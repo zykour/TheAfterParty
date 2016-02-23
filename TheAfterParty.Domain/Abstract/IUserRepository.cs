@@ -60,6 +60,7 @@ namespace TheAfterParty.Domain.Abstract
         IEnumerable<OwnedGame> GetOwnedGames();
         OwnedGame GetOwnedGameByID(int ownedGameId);
         void InsertOwnedGame(OwnedGame ownedGame);
+        void UpdateOwnedGame(OwnedGame ownedGame);
         void DeleteOwnedGame(int ownedGameId);
 
         IEnumerable<UserNotification> GetUserNotifications();

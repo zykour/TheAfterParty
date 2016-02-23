@@ -12,26 +12,38 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNet.Identity.EntityFramework;
+using TheAfterParty.Domain.Services;
+using System.Web.Routing;
 
 namespace TheAfterParty.WebUI.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
+        private IUserService userService;
+
+        public AccountController(IUserService userService) : base()
+        {
+            this.userService = userService;
+        }
+
+        protected override void Initialize(RequestContext requestContext)
+        {
+            base.Initialize(requestContext);
+
+            if (User.Identity.IsAuthenticated)
+            {
+                userService.SetUserName(User.Identity.Name);
+            }
+        }
+
         // GET: CoopShop/Account
         public ActionResult Index()
         {
-            return View(UserManager.Users);
+            return View();
         }
 
-
-
-
-
-
-
-
-
+        
 
         // -----------------------
         // Login/logout and related methods
@@ -93,24 +105,18 @@ namespace TheAfterParty.WebUI.Controllers
             {
                 // attempt to figure out if this user exists but hasn't logged in via the Steam external login provider before
                 user = UserManager.Users.Where(u => u.UserSteamID == steamId).SingleOrDefault();
-
-                // if this user doesn't exist in our database at all, create a new user
+                
+                // pre-authorized users only
                 if (user == null)
                 {
-                    user = new AppUser
-                    {
-                        UserName = loginInfo.DefaultUserName,
-                        UserSteamID = steamId
-                    };
-
-                    result = await UserManager.CreateAsync(user);
-
-                    if (!result.Succeeded)
-                    {
-                        return View("Error", result.Errors);
-                    }
+                    return View("Error", new string[] { "Sorry but you are not a member of The After Party Steam group. If you are, and you receive this error, please contact Monu." });
                 }
-                else if (user.UserSteamID == 0)
+                else
+                {
+                    userService.BuildUser(await userService.GetUserByID(user.Id), System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
+                }
+
+                if (user.UserSteamID == 0)
                 {
                     user.UserSteamID = steamId;
                 }

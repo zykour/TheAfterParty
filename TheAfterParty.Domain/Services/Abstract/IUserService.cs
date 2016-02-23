@@ -13,5 +13,11 @@ namespace TheAfterParty.Domain.Services
 
         Task AddBlacklistEntry(int listingId);
         Task TransferPoints(int points, string userId);
+
+        AppUser GetRequestedUser(string profileName);
+        ICollection<AppUser> GetAllUsers();
+        Task<AppUser> GetUserByID(string id);
+
+        void BuildUser(AppUser user, string apiKey);
     }
 }

@@ -534,6 +534,15 @@ namespace TheAfterParty.Domain.Concrete
         {
             context.OwnedGames.Add(ownedGame);
         }
+        public void UpdateOwnedGame(OwnedGame ownedGame)
+        {
+            OwnedGame targetOwnedGame = context.OwnedGames.Find(ownedGame.OwnedGameID);
+
+            if (targetOwnedGame != null)
+            {
+                targetOwnedGame.MinutesPlayed = ownedGame.MinutesPlayed;
+            }
+        }
         public void DeleteOwnedGame(int ownedGameId)
         {
             OwnedGame ownedGame = context.OwnedGames.Find(ownedGameId);

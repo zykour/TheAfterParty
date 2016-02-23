@@ -52,8 +52,10 @@ namespace TheAfterParty.Domain.Entities
         public bool IsPrivateWishlist { get; set; }
 
         public byte[] AvatarData { get; set; }
-
         public string AvatarMimeType { get; set; }
+        public string SmallAvatar { get; set; }
+        public string MediumAvatar { get; set; }
+        public string LargeAvatar { get; set; }
 
         // the list of auctions the user has participated in
         public virtual ICollection<AuctionBid> AuctionBids { get; set; }

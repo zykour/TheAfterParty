@@ -4,7 +4,6 @@ using TheAfterParty.Domain.Abstract;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SteamKit2;
 using System;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity;

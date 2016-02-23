@@ -1,0 +1,39 @@
+﻿@using TheAfterParty.WebUI.Models.User
+@model UserProfileModel
+
+@{
+    ViewBag.Title = Model.RequestedUser.UserName;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>@Model.RequestedUser.UserName</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-2">
+            Nav here
+        </div>
+        <div class="col-lg-10">
+            <div>
+                <img class="pull-left" style="border: thin;" src="@Model.RequestedUser.LargeAvatar" />
+            </div>
+            <div style="float: left;"><h3>>User</h3></div>
+            <div style="float: left;"><h4>@Model.RequestedUser.UserName</h4></div>
+        </div>
+    </div>
+</div>
+<div>
+    @if (User.IsInRole("Admin"))
+    {
+        <span>You are an admin</span>
+    }
+    @if (User.IsInRole("Member"))
+    {
+        <span>You are a member</span>
+    }
+</div>
+
+
+
