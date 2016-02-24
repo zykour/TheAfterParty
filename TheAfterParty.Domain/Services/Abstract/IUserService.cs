@@ -19,5 +19,6 @@ namespace TheAfterParty.Domain.Services
         Task<AppUser> GetUserByID(string id);
 
         void BuildUser(AppUser user, string apiKey);
+        bool AddBalances(string input);
     }
 }

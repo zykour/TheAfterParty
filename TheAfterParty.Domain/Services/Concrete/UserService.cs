@@ -58,17 +58,33 @@ namespace TheAfterParty.Domain.Services
 
             if (donor.Balance - donor.ReservedBalance() > points)
             {
-                donor.Balance -= points;
-                recipient.Balance += points;
+                donor.CreateBalanceEntry("Transfer of points to " + recipient.UserName, 0 - points, DateTime.Now);
+                recipient.CreateBalanceEntry("Gift of points from " + donor.UserName, points, DateTime.Now);
                 UserManager.Update(donor);
                 UserManager.Update(recipient);
                 unitOfWork.Save();
             }
         }
 
-        public AppUser GetRequestedUser(string profileName)
+        public AppUser GetRequestedUser(string profileName, bool nickname = false)
         {
-            return UserManager.Users.Where(u => object.Equals(u.UserName.ToLower(), profileName.Trim().ToLower())).SingleOrDefault();
+            if (nickname)
+            {
+                AppUser user = UserManager.Users.Where(u => object.Equals(u.Nickname.ToLower(), profileName.Trim().ToLower())).SingleOrDefault();
+
+                if (user != null)
+                {
+                    return user;
+                }
+                else
+                {
+                    return UserManager.Users.Where(u => object.Equals(u.UserName.ToLower(), profileName.Trim().ToLower())).SingleOrDefault();
+                }
+            }
+            else
+            {
+                return UserManager.Users.Where(u => object.Equals(u.UserName.ToLower(), profileName.Trim().ToLower())).SingleOrDefault();
+            }
         }
 
         public ICollection<AppUser> GetAllUsers()
@@ -119,6 +135,57 @@ namespace TheAfterParty.Domain.Services
         public async Task<AppUser> GetUserByID(string id)
         {
             return await userRepository.GetAppUserByID(id);
+        }
+
+        public bool AddBalances(string input)
+        {
+            /*
+                SAMPLE:
+
+                Game Night 02-24
+                Bob     10
+                Fred    8
+                George  8
+                Objective "Beat Me at Chess"
+                Fred    5
+            
+                Each balance entry should use the plain text note preceding it as a note
+                Convention is to use a tab delimiter for balance entries and no tab in the note
+            */
+
+            bool fullSuccess = true;
+
+            string currentNote = "";
+            DateTime currentTime = DateTime.Now;
+
+            input = input.Replace("\r\n", "\r");
+
+            List<String> balanceEntries = input.Split(new string[] { "\r" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            Regex userBalance = new Regex("^(-?[^\t]+)\t+([0-9]+)$");
+            Regex note = new Regex("^([^\t]+)$");
+
+            for (int i = 0; i < balanceEntries.Count; i++)
+            {
+                if (note.Match(balanceEntries[i]).Success)
+                {
+                    currentNote = note.Match(balanceEntries[i]).Groups[1].Value;
+                }
+                else if (userBalance.Match(balanceEntries[i]).Success)
+                {
+                    Match userBalanceMatch = userBalance.Match(balanceEntries[i]);
+                    AppUser user = GetRequestedUser(userBalanceMatch.Groups[1].Value.Trim(), true);
+                    int points = Int32.Parse(userBalanceMatch.Groups[2].Value, System.Globalization.NumberStyles.AllowLeadingSign);
+                    user.CreateBalanceEntry(currentNote, points, currentTime);
+                    UserManager.Update(user);
+                }
+                else
+                {
+                    fullSuccess = false;
+                }
+            }
+
+            return fullSuccess;
         }
 
 

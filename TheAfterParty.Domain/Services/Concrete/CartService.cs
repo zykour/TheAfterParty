@@ -135,7 +135,7 @@ namespace TheAfterParty.Domain.Services
 
             await DeleteShoppingCart();
 
-            BalanceEntry balanceEntry = new BalanceEntry(user, "Purchase - Order #" + order.OrderID, order.TotalSalePrice(), orderDate);
+            BalanceEntry balanceEntry = new BalanceEntry(user, "Purchase - Order #" + order.OrderID, 0 - order.TotalSalePrice() , orderDate);
             user.BalanceEntries.Add(balanceEntry);
             //userRepository.InsertBalanceEntry(balanceEntry);
 

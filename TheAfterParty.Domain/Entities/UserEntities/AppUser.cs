@@ -19,7 +19,7 @@ namespace TheAfterParty.Domain.Entities
             IsPrivateWishlist = privateWishlist;
         }
         public AppUser() {  }
-        
+
         // the 64bit UserID representing the users on this site
         [Required]
         public Int64 UserSteamID { get; set; }
@@ -27,6 +27,10 @@ namespace TheAfterParty.Domain.Entities
         {
             return new SteamKit2.SteamID((ulong)UserSteamID);
         }
+
+        // for my use as admin, the goal of nicknames is to make it easier for me to write up parseable input for admin commands rather than writing out full usernames or IDs
+        [Index(IsUnique = true)]
+        public string Nickname { get; set; }
 
         // denotes the users balance (if any)
         public int Balance { get; set; }
@@ -134,7 +138,7 @@ namespace TheAfterParty.Domain.Entities
         public void CreateBalanceEntry(string notes, int pointsAdjusted, DateTime date)
         {
             new BalanceEntry(this, notes, pointsAdjusted, date);
-            Balance = Balance - pointsAdjusted;
+            Balance = Balance + pointsAdjusted;
         }
 
         // the items this user has wishlisted

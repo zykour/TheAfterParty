@@ -268,6 +268,7 @@
     <Compile Include="Models\Store\StoreBalancesViewModel.cs" />
     <Compile Include="Models\Store\StoreDealsViewModel.cs" />
     <Compile Include="Models\Store\StoreIndexViewModel.cs" />
+    <Compile Include="Models\User\UserAddBalancesViewModel.cs" />
     <Compile Include="Models\User\UserIndexModel.cs" />
     <Compile Include="Models\User\UserProfileModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

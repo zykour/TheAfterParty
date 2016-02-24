@@ -71,6 +71,27 @@ namespace TheAfterParty.WebUI.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
+        public ActionResult AddBalances()
+        {
+            return View(new UserAddBalancesViewModel());
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public ActionResult AddBalances(UserAddBalancesViewModel model)
+        {
+            if (String.IsNullOrEmpty(model.Input))
+            {
+                return View(model);
+            }
+
+            // handle failed attempts ?
+            userService.AddBalances(model.Input);
+
+            return RedirectToAction("Index");
+        }
+
         [Authorize]
         public async Task<ActionResult> AjaxAddToBlacklist(int listingId)
         {
