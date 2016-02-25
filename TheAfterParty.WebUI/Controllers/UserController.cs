@@ -74,7 +74,10 @@ namespace TheAfterParty.WebUI.Controllers
         [Authorize(Roles = "Admin")]
         public ActionResult AddBalances()
         {
-            return View(new UserAddBalancesViewModel());
+            UserAddBalancesViewModel model = new UserAddBalancesViewModel();
+            model.Users = userService.GetAllUsers().OrderBy(u => u.UserName).ToList();
+
+            return View(model);
         }
 
         [HttpPost]
@@ -83,6 +86,7 @@ namespace TheAfterParty.WebUI.Controllers
         {
             if (String.IsNullOrEmpty(model.Input))
             {
+                model.Users = userService.GetAllUsers().OrderBy(u => u.UserName).ToList();
                 return View(model);
             }
             
@@ -90,6 +94,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             if (!success)
             {
+                model.Users = userService.GetAllUsers().OrderBy(u => u.UserName).ToList();
                 // add validation errors ?
                 return View(model);
             }

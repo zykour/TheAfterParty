@@ -140,6 +140,9 @@
     <Compile Include="Concrete\PrizeRepository.cs" />
     <Compile Include="Concrete\UnitOfWork.cs" />
     <Compile Include="Concrete\UserRepository.cs" />
+    <Compile Include="Entities\SiteEntities\SiteNotification.cs" />
+    <Compile Include="Entities\_EntityBase\ActivityItem.cs" />
+    <Compile Include="Entities\_EntityBase\Commentable.cs" />
     <Compile Include="Entities\ListingEntities\AppMovie.cs" />
     <Compile Include="Entities\ListingEntities\AppScreenshot.cs" />
     <Compile Include="Entities\ListingEntities\Platform.cs" />
@@ -179,6 +182,7 @@
     <Compile Include="Services\Abstract\IPurchaseService.cs" />
     <Compile Include="Services\Abstract\IStoreService.cs" />
     <Compile Include="Services\Abstract\IUserService.cs" />
+    <Compile Include="Services\Model\ActivityFeedContainer.cs" />
     <Compile Include="Services\Concrete\CartService.cs" />
     <Compile Include="Services\Concrete\ListingBuilder.cs" />
     <Compile Include="Services\Concrete\PurchaseService.cs" />

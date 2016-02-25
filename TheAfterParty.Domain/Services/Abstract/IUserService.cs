@@ -14,7 +14,7 @@ namespace TheAfterParty.Domain.Services
         Task AddBlacklistEntry(int listingId);
         Task TransferPoints(int points, string userId);
 
-        AppUser GetRequestedUser(string profileName);
+        AppUser GetRequestedUser(string profileName, bool nickname = false);
         ICollection<AppUser> GetAllUsers();
         Task<AppUser> GetUserByID(string id);
 

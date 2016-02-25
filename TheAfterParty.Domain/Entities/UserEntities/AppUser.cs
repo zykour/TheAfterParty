@@ -29,7 +29,6 @@ namespace TheAfterParty.Domain.Entities
         }
 
         // for my use as admin, the goal of nicknames is to make it easier for me to write up parseable input for admin commands rather than writing out full usernames or IDs
-        [Index(IsUnique = true)]
         public string Nickname { get; set; }
 
         // denotes the users balance (if any)
@@ -121,11 +120,6 @@ namespace TheAfterParty.Domain.Entities
 
         // the keys this user has gained on the site (by any means)
         public virtual ICollection<ClaimedProductKey> ClaimedProductKeys { get; set; }
-        /*public ClaimedProductKey ClaimKey(Listing listing, DateTime dateClaimed, string note)
-        {
-            return new ClaimedProductKey(listing.RemoveProductKey(listing.ListingID), this, dateClaimed, note);
-        }*/
-        //---- Add a method for  adding other keys not from the productkey list (giveawa, auctions, gifts)
 
         // the gifts this user has received from others
         public virtual ICollection<Gift> ReceivedGifts { get; set; }
@@ -137,8 +131,25 @@ namespace TheAfterParty.Domain.Entities
         public virtual ICollection<BalanceEntry> BalanceEntries { get; set; }
         public void CreateBalanceEntry(string notes, int pointsAdjusted, DateTime date)
         {
-            new BalanceEntry(this, notes, pointsAdjusted, date);
+            BalanceEntry entry = new BalanceEntry(this, notes, pointsAdjusted, date);
+
+            if (BalanceEntries == null)
+            {
+                BalanceEntries = new HashSet<BalanceEntry>();
+            }
+
+            BalanceEntries.Add(entry);
+
             Balance = Balance + pointsAdjusted;
+        }
+        public void AddBalanceEntry(BalanceEntry entry)
+        {
+            if (BalanceEntries == null)
+            {
+                BalanceEntries = new HashSet<BalanceEntry>();
+            }
+
+            BalanceEntries.Add(entry);
         }
 
         // the items this user has wishlisted
