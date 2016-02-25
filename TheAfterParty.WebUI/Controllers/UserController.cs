@@ -85,9 +85,14 @@ namespace TheAfterParty.WebUI.Controllers
             {
                 return View(model);
             }
+            
+            bool success = userService.AddBalances(model.Input);
 
-            // handle failed attempts ?
-            userService.AddBalances(model.Input);
+            if (!success)
+            {
+                // add validation errors ?
+                return View(model);
+            }
 
             return RedirectToAction("Index");
         }

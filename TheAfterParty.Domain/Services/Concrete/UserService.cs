@@ -175,7 +175,9 @@ namespace TheAfterParty.Domain.Services
                 {
                     Match userBalanceMatch = userBalance.Match(balanceEntries[i]);
                     AppUser user = GetRequestedUser(userBalanceMatch.Groups[1].Value.Trim(), true);
+
                     int points = Int32.Parse(userBalanceMatch.Groups[2].Value, System.Globalization.NumberStyles.AllowLeadingSign);
+
                     user.CreateBalanceEntry(currentNote, points, currentTime);
                     UserManager.Update(user);
                 }
@@ -183,6 +185,12 @@ namespace TheAfterParty.Domain.Services
                 {
                     fullSuccess = false;
                 }
+            }
+
+            // If all rows have successfully been parsed, then persist!
+            if (fullSuccess)
+            {
+                unitOfWork.Save();
             }
 
             return fullSuccess;

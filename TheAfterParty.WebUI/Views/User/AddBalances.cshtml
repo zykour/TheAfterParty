@@ -1,0 +1,16 @@
+﻿@using TheAfterParty.WebUI.Models.User
+@model UserAddBalancesViewModel
+
+@{
+    ViewBag.Title = "AddBalances";
+}
+
+<h2>AddBalances</h2>
+
+@using (Html.BeginForm("AddBalances", "User", FormMethod.Post))
+{
+    @Html.TextAreaFor(m => m.Input, new { @class = "text-box-multi-line form-control", rows = 5 })
+    <div class="panel-footer">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+}

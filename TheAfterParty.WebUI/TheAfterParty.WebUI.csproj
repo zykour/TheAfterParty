@@ -292,6 +292,7 @@
     <Content Include="Views\User\Index.cshtml" />
     <Content Include="Views\User\UserProfile.cshtml" />
     <Content Include="Views\User\AjaxTransferPoints.cshtml" />
+    <Content Include="Views\User\AddBalances.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
