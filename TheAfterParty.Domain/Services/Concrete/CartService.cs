@@ -124,11 +124,11 @@ namespace TheAfterParty.Domain.Services
                     listingRepository.UpdateListing(listing);
                     
                     ClaimedProductKey claimedKey = new ClaimedProductKey(productKey, user, orderDate, "Purchase - Order #" + order.OrderID);
-                    user.ClaimedProductKeys.Add(claimedKey);
+                    user.AddClaimedProductKey(claimedKey);
                     //userRepository.InsertClaimedProductKey(claimedKey);
 
                     ProductOrderEntry orderEntry = new ProductOrderEntry(order, entry, claimedKey);
-                    order.ProductOrderEntries.Add(orderEntry);
+                    order.AddProductOrderEntry(orderEntry);
                     //userRepository.InsertProductOrderEntry(orderEntry);
                 }
             }

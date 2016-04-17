@@ -33,10 +33,78 @@ namespace TheAfterParty.Domain.Services
             ItemDate = (entry.Date == null) ? siteEpoch : entry.Date;
             BalanceEntry = entry;
         }
-        public ActivityFeedContainer(Order order)
+        public ActivityFeedContainer(Order order) : this()
         {
-            ItemDate = Order.SaleDate ?? siteEpoch;
+            ItemDate = order.SaleDate ?? siteEpoch;
             Order = order;
+        }
+        public ActivityFeedContainer(GiveawayEntry entry) : this()
+        {
+            ItemDate = entry.Giveaway.EndDate;
+            WonGiveaway = entry;
+        }
+        public ActivityFeedContainer(Giveaway giveaway) : this()
+        {
+            ItemDate = giveaway.EndDate;
+            CreatedGiveaway = giveaway;
+        }
+        public ActivityFeedContainer(AuctionBid entry) : this()
+        {
+            ItemDate = entry.Auction.EndTime;
+            AuctionBid = entry;
+        }
+        public ActivityFeedContainer(Auction auction) : this()
+        {
+            ItemDate = auction.EndTime;
+            CreatedAuction = auction;
+        }
+        public ActivityFeedContainer(WonPrize prize) : this()
+        {
+            ItemDate = prize.TimeWon;
+            WonPrize = prize;
+        }
+        public ActivityFeedContainer(ProductReview productReview)
+        {
+            ItemDate = productReview.PostDate;
+            ProductReview = productReview;
+        }
+
+        public Object GetActivityFeedItem()
+        {
+            if (BalanceEntry != null)
+            {
+                return BalanceEntry;
+            }
+            else if (Order != null)
+            {
+                return Order;
+            }
+            else if (WonGiveaway != null)
+            {
+                return WonGiveaway;
+            }
+            else if (CreatedGiveaway != null)
+            {
+                return CreatedGiveaway;
+            }
+            else if (AuctionBid != null)
+            {
+                return AuctionBid;
+            }
+            else if (CreatedAuction != null)
+            {
+                return CreatedAuction;
+            }
+            else if (WonPrize != null)
+            {
+                return WonPrize;
+            }
+            else if (ProductReview != null)
+            {
+                return ProductReview;
+            }
+
+            return null;
         }
         
     }

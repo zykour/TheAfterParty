@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using System.Web.Mvc;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 using System.Web.Routing;
 using TheAfterParty.Domain.Services;
 using TheAfterParty.WebUI.Models.User;
@@ -39,9 +39,32 @@ namespace TheAfterParty.WebUI.Controllers
             return View(model);
         }
 
+        [Authorize]
+        public async Task<ActionResult> Orders()
+        {
+            UserOrdersModel view = new UserOrdersModel();
+
+            view.Orders = await userService.GetOrders();
+
+            view.Orders.OrderBy(o => o.SaleDate);
+
+            return View(view);
+        }
+
+        [Authorize]
+        public async Task<ActionResult> Keys()
+        {
+            UserKeysModel view = new UserKeysModel();
+
+            view.Keys = await userService.GetKeys();
+
+            view.Keys.OrderBy(k => k.Listing.ListingName);
+
+            return View(view);
+        }
+
         // GET: User/Profile/name
         // base class Controller has a "Profile" method, thus need to rename this action and give it a custom route
-        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> UserProfile(string id = "")
         {
             

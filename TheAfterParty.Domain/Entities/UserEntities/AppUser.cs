@@ -118,8 +118,19 @@ namespace TheAfterParty.Domain.Entities
             return entrySummaries;
         }
 
+        public virtual ICollection<Auction> Auctions { get; set; }
+
         // the keys this user has gained on the site (by any means)
         public virtual ICollection<ClaimedProductKey> ClaimedProductKeys { get; set; }
+        public void AddClaimedProductKey(ClaimedProductKey key)
+        {
+            if (ClaimedProductKeys == null)
+            {
+                ClaimedProductKeys = new HashSet<ClaimedProductKey>();
+            }
+
+            ClaimedProductKeys.Add(key);
+        }
 
         // the gifts this user has received from others
         public virtual ICollection<Gift> ReceivedGifts { get; set; }

@@ -43,6 +43,15 @@ namespace TheAfterParty.Domain.Entities
 
         // the products in this bundle
         public virtual ICollection<ProductOrderEntry> ProductOrderEntries { get; set; }
+        public void AddProductOrderEntry(ProductOrderEntry entry)
+        {
+            if (ProductOrderEntries == null)
+            {
+                ProductOrderEntries = new HashSet<ProductOrderEntry>();
+            }
+
+            ProductOrderEntries.Add(entry);
+        }
         
         // date this order was made
         public DateTime? SaleDate { get; set; }

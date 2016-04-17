@@ -13,6 +13,9 @@ namespace TheAfterParty.Domain.Entities
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ListingCommentID { get; set; }
 
+        //public int CommentableID { get; set; }
+        //public virtual Commentable CommentableEntity { get; set; }
+
         // the product this comment is about
         public int ListingID { get; set; }
 

@@ -61,6 +61,9 @@ namespace TheAfterParty.Domain.Concrete
         {
             base.OnModelCreating(modelBuilder);
 
+            // Comments
+            //modelBuilder.Entity<ListingComment>().HasRequired<Commentable>(c => c.CommentableEntity).WithMany(c => c.Comments).HasForeignKey(g => g.CommentableID);
+
             // AppUser ---
             modelBuilder.Entity<Gift>().HasRequired<AppUser>(g => g.AppUserReceiver).WithMany(au => au.ReceivedGifts).HasForeignKey(g => g.ReceiverID).WillCascadeOnDelete(false);
             modelBuilder.Entity<Gift>().HasRequired<AppUser>(g => g.AppUserSender).WithMany(au => au.SentGifts).HasForeignKey(g => g.SenderID).WillCascadeOnDelete(false);
@@ -68,6 +71,7 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<Mail>().HasRequired<AppUser>(m => m.AppUserSender).WithMany(au => au.SentMail).HasForeignKey(m => m.SenderUserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<Giveaway>().HasRequired<AppUser>(g => g.AppUserCreator).WithMany(au => au.CreatedGiveaways).HasForeignKey(g => g.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<AuctionBid>().HasRequired<AppUser>(ab => ab.AppUser).WithMany(au => au.AuctionBids).HasForeignKey(ab => ab.UserID).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Auction>().HasRequired<AppUser>(a => a.Creator).WithMany(au => au.Auctions).HasForeignKey(a => a.CreatorID).WillCascadeOnDelete(false);
             modelBuilder.Entity<GiveawayEntry>().HasRequired<AppUser>(ge => ge.AppUser).WithMany(au => au.GiveawayEntries).HasForeignKey(ge => ge.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<Order>().HasRequired<AppUser>(o => o.AppUser).WithMany(au => au.Orders).HasForeignKey(o => o.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<ClaimedProductKey>().HasRequired<AppUser>(cpk => cpk.AppUser).WithMany(au => au.ClaimedProductKeys).HasForeignKey(cpk => cpk.UserID).WillCascadeOnDelete(false);
@@ -111,12 +115,11 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<ListingComment>().HasRequired<Listing>(lc => lc.Listing).WithMany(l => l.ListingComments).HasForeignKey(lc => lc.ListingID).WillCascadeOnDelete(true);
             modelBuilder.Entity<ProductKey>().HasRequired<Listing>(pk => pk.Listing).WithMany(l => l.ProductKeys).HasForeignKey(pk => pk.ListingID).WillCascadeOnDelete(false);
             modelBuilder.Entity<WishlistEntry>().HasRequired<Listing>(we => we.Listing).WithMany(l => l.WishlistEntries).HasForeignKey(we => we.ListingID).WillCascadeOnDelete(false);
-            modelBuilder.Entity<Product>().HasMany<Listing>(p => p.Listings).WithOptional(l => l.Product).WillCascadeOnDelete(false); //.HasRequired<Listing>(p => p.Listing).WithOptional(l => l.Product).WillCascadeOnDelete(false);
-
+            modelBuilder.Entity<Product>().HasMany<Listing>(p => p.Listings).WithOptional(l => l.Product).WillCascadeOnDelete(false); 
             modelBuilder.Entity<Listing>().HasMany<Listing>(l => l.ChildListings).WithMany(l => l.ParentListings);
 
             // Platform ---
-            modelBuilder.Entity<Listing>().HasMany<Platform>(l => l.Platforms).WithMany(p => p.Listings); //.WithOptional(l => l.Platform).HasForeignKey(l => l.PlatformID).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Listing>().HasMany<Platform>(l => l.Platforms).WithMany(p => p.Listings); 
 
             // Product ---
             modelBuilder.Entity<ProductReview>().HasRequired<Product>(pr => pr.Product).WithMany(p => p.ProductReviews).HasForeignKey(pr => pr.ProductID).WillCascadeOnDelete(false);

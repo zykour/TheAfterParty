@@ -9,7 +9,7 @@
 <h2>Purchase success!</h2>
 <br/>
 <br/>
-<span>Order #@Model.TransactionID</span>
+<span>Order #@Model.OrderID</span>
 <table class="table">
     <thead>
         <tr>
@@ -24,7 +24,7 @@
         {
             <tr>
                 <td class="text-left">@entry.Listing.ListingName</td>
-                <td>@((entry.Listing.Product == null) ? "Steam" : entry.Listing.Product.Platform.ToString())</td>
+                <td></td>
                 <td class="text-right">@entry.SalePrice</td>
                 <td class="text-right">
                     @entry.ClaimedProductKey.Key

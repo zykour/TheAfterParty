@@ -43,6 +43,7 @@ namespace TheAfterParty.Domain.Concrete
                 targetAuction.MinimumBid = auction.MinimumBid;
                 targetAuction.WinnerID = auction.WinnerID;
                 targetAuction.ListingID = auction.ListingID;
+                targetAuction.CreatorID = auction.CreatorID;
             }
 
             foreach (AuctionBid bid in auction.AuctionBids)

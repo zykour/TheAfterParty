@@ -10,7 +10,7 @@ namespace TheAfterParty.Domain.Entities
 
     // This table is a superset of the CurrentSaleItem table
 
-    public class Product
+    public class Product //: Commentable
     {
         public Product() { }
         public Product(int appId)

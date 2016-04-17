@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System;
 
 namespace TheAfterParty.Domain.Entities
 {
@@ -12,6 +13,8 @@ namespace TheAfterParty.Domain.Entities
 
         public int PrizeID { get; set; }
         
+        public DateTime TimeWon { get; set; }
+
         [Required]
         public virtual Prize Prize { get; set; }
 

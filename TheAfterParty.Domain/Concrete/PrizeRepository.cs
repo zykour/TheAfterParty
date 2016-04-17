@@ -86,6 +86,7 @@ namespace TheAfterParty.Domain.Concrete
             if (targetWonPrize != null)
             {
                 targetWonPrize.WinningAction = wonPrize.WinningAction;
+                targetWonPrize.TimeWon = wonPrize.TimeWon;
             }
         }
         public void DeleteWonPrize(int wonPrizeId)

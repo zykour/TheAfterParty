@@ -268,9 +268,12 @@ namespace TheAfterParty.Domain.Concrete
         {
             context.Orders.Add(order);
 
-            foreach (ProductOrderEntry entry in order.ProductOrderEntries)
+            if (order.ProductOrderEntries != null)
             {
-                InsertProductOrderEntry(entry);
+                foreach (ProductOrderEntry entry in order.ProductOrderEntries)
+                {
+                    InsertProductOrderEntry(entry);
+                }
             }
         }
         public void UpdateOrder(Order order)
@@ -283,12 +286,15 @@ namespace TheAfterParty.Domain.Concrete
                 targetOrder.UserID = order.UserID;
             }
 
-            foreach (ProductOrderEntry entry in order.ProductOrderEntries)
+            if (order.ProductOrderEntries != null)
             {
-                if (entry.OrderID == 0)
-                    InsertProductOrderEntry(entry);
-                else
-                    UpdateProductOrderEntry(entry);
+                foreach (ProductOrderEntry entry in order.ProductOrderEntries)
+                {
+                    if (entry.OrderID == 0)
+                        InsertProductOrderEntry(entry);
+                    else
+                        UpdateProductOrderEntry(entry);
+                }
             }
         }
         public void DeleteOrder(int orderId)

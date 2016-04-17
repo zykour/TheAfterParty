@@ -38,5 +38,9 @@ namespace TheAfterParty.Domain.Entities
 
         // minimum bid amount (or starting bid) if any
         public int? MinimumBid { get; set; }
+
+        public string CreatorID { get; set; }
+
+        public AppUser Creator { get; set; }
     }
 }

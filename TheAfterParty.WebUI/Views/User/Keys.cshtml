@@ -1,0 +1,38 @@
+﻿@using TheAfterParty.WebUI.Models.User
+@using TheAfterParty.Domain.Entities
+@model UserKeysModel
+
+
+@{
+    ViewBag.Title = "Keys";
+}
+
+<h2>My Keys</h2>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-2">
+            todo
+        </div>
+        <div class="col-lg-5">
+            Game Name
+        </div>
+        <div class="col-lg-5">
+            Product Key
+        </div>
+    </div>
+    @foreach (ClaimedProductKey key in Model.Keys)
+    {
+        <div class="row">
+            <div class="col-lg-2">
+                acq method/reveal
+            </div>
+            <div class="col-lg-5">
+                @key.Listing.ListingName
+            </div>
+            <div class="col-lg-5">
+                @key.Key
+            </div>
+        </div>
+    }
+</div>

@@ -6,7 +6,7 @@ using System;
 
 namespace TheAfterParty.Domain.Entities
 {
-    public class Listing
+    public class Listing //: Commentable
     {
         public Listing()
         {

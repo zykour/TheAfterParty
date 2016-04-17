@@ -18,6 +18,11 @@ namespace TheAfterParty.Domain.Services
         ICollection<AppUser> GetAllUsers();
         Task<AppUser> GetUserByID(string id);
 
+        Task<List<Order>> GetOrders();
+        Task<List<ClaimedProductKey>> GetKeys();
+
+        Task<List<ActivityFeedContainer>> GetActivityFeedItems();
+
         void BuildUser(AppUser user, string apiKey);
         bool AddBalances(string input);
     }

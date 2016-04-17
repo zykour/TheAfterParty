@@ -15,6 +15,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using Newtonsoft.Json.Linq;
+using TheAfterParty.Domain.Services;
 
 namespace TheAfterParty.Domain.Services
 {
@@ -22,14 +23,20 @@ namespace TheAfterParty.Domain.Services
     {
         private IListingRepository listingRepository;
         private IUserRepository userRepository;
+        private IPrizeRepository prizeRepository;
+        private IGiveawayRepository giveawayRepository;
+        private IAuctionRepository auctionRepository;
         private IUnitOfWork unitOfWork;
         public AppUserManager UserManager { get; private set; }
         public string userName { get; set; }
 
-        public UserService(IListingRepository listingRepository, IUserRepository userRepository, IUnitOfWork unitOfWork) : this(new AppUserManager(new UserStore<AppUser>(unitOfWork.DbContext)))
+        public UserService(IListingRepository listingRepository, IUserRepository userRepository, IPrizeRepository prizeRepository, IGiveawayRepository giveawayRepository, IAuctionRepository auctionRepository, IUnitOfWork unitOfWork) : this(new AppUserManager(new UserStore<AppUser>(unitOfWork.DbContext)))
         {
             this.listingRepository = listingRepository;
             this.userRepository = userRepository;
+            this.prizeRepository = prizeRepository;
+            this.giveawayRepository = giveawayRepository;
+            this.auctionRepository = auctionRepository;
             this.unitOfWork = unitOfWork;
         }
         protected UserService(AppUserManager userManager)
@@ -64,6 +71,81 @@ namespace TheAfterParty.Domain.Services
                 UserManager.Update(recipient);
                 unitOfWork.Save();
             }
+        }
+
+        public async Task<List<ActivityFeedContainer>> GetActivityFeedItems()
+        {
+            AppUser user = await GetCurrentUser();
+
+            List<ActivityFeedContainer> activityFeed = new List<ActivityFeedContainer>();
+            
+            List<Order> orders = await GetOrders();
+
+            if (orders != null)
+            {
+                foreach (Order order in orders)
+                {
+                    activityFeed.Add(new ActivityFeedContainer(order));
+                }
+            }
+
+            if (user.GiveawayEntries != null)
+            {
+                foreach (GiveawayEntry entry in user.GiveawayEntries)
+                {
+                    activityFeed.Add(new ActivityFeedContainer(entry));
+                }
+            }
+
+            if (user.CreatedGiveaways != null)
+            {
+                foreach (Giveaway entry in user.CreatedGiveaways)
+                {
+                    activityFeed.Add(new ActivityFeedContainer(entry));
+                }
+            }
+
+            if (user.AuctionBids != null)
+            {
+                foreach (AuctionBid entry in user.AuctionBids)
+                {
+                    activityFeed.Add(new ActivityFeedContainer(entry));
+                }
+            }
+
+            if (user.Auctions != null)
+            {
+                foreach (Auction entry in user.Auctions)
+                {
+                    activityFeed.Add(new ActivityFeedContainer(entry));
+                }
+            }
+
+            if (user.BalanceEntries != null)
+            {
+                foreach (BalanceEntry entry in user.BalanceEntries)
+                {
+                    activityFeed.Add(new ActivityFeedContainer(entry));
+                }
+            }
+
+            if (user.WonPrizes != null)
+            {
+                foreach (WonPrize entry in user.WonPrizes)
+                {
+                    activityFeed.Add(new ActivityFeedContainer(entry));
+                }
+            }
+
+            if (user.ProductReviews != null)
+            {
+                foreach (ProductReview entry in user.ProductReviews)
+                {
+                    activityFeed.Add(new ActivityFeedContainer(entry));
+                }
+            }
+
+            return activityFeed.OrderBy(a => a.ItemDate).ToList();
         }
 
         public AppUser GetRequestedUser(string profileName, bool nickname = false)
@@ -196,6 +278,54 @@ namespace TheAfterParty.Domain.Services
             return fullSuccess;
         }
 
+        public async Task<List<Order>> GetOrders()
+        {
+            AppUser user = await GetCurrentUser();
+
+            return userRepository.GetOrders().Where(o => object.Equals(o.UserID, user.Id)).ToList();
+        }
+
+        public async Task<List<ClaimedProductKey>> GetKeys()
+        {
+            AppUser user = await GetCurrentUser();
+
+            return userRepository.GetClaimedProductKeys().Where(o => object.Equals(o.UserID, user.Id)).ToList();
+        }
+
+        public async Task<List<WonPrize>> GetWonPrizes()
+        {
+            AppUser user = await GetCurrentUser();
+
+            return prizeRepository.GetWonPrizes().Where(p => object.Equals(p.UserID, user.Id)).ToList();
+        }
+
+        public async Task<List<AuctionBid>> GetAuctionBids()
+        {
+            AppUser user = await GetCurrentUser();
+
+            return auctionRepository.GetAuctionBids().Where(b => object.Equals(b.UserID, user.Id)).ToList();
+        }
+
+        public async Task<List<Auction>> GetCreatedAuctions()
+        {
+            AppUser user = await GetCurrentUser();
+
+            return auctionRepository.GetAuctions().Where(a => object.Equals(a.CreatorID, user.Id)).ToList();
+        }
+
+        public async Task<List<GiveawayEntry>> GetGiveawayEntries()
+        {
+            AppUser user = await GetCurrentUser();
+
+            return giveawayRepository.GetGiveawayEntries().Where(ge => object.Equals(ge.UserID, user.Id)).ToList();
+        }
+
+        public async Task<List<Giveaway>> GetCreatedGiveaways()
+        {
+            AppUser user = await GetCurrentUser();
+
+            return giveawayRepository.GetGiveaways().Where(g => object.Equals(g.UserID, user.Id)).ToList();
+        }
 
         // --- GC and User logic
 
