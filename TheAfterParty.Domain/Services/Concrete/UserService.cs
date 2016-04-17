@@ -148,6 +148,16 @@ namespace TheAfterParty.Domain.Services
             return activityFeed.OrderBy(a => a.ItemDate).ToList();
         }
 
+        public List<Auction> GetAuctions()
+        {
+            return auctionRepository.GetAuctions().ToList();
+        }
+
+        public List<Giveaway> GetGiveaways()
+        {
+            return giveawayRepository.GetGiveaways().ToList();
+        }
+        
         public AppUser GetRequestedUser(string profileName, bool nickname = false)
         {
             if (nickname)

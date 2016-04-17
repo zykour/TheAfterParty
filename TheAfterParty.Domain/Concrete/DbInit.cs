@@ -83,6 +83,17 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         listingRepository.InsertListing(l);
         unitOfWork.Save();
 
+        Auction auction = new Auction();
+        auction.AlternativePrize = "N/A";
+        auction.Creator = monu;
+        auction.EndTime = DateTime.Now.Add(new TimeSpan(5, 0, 0));
+        auction.IsSilent = false;
+        auction.Listing = l;
+        auction.MinimumBid = 5;
+
+        auctionRepository.InsertAuction(auction);
+        unitOfWork.Save();
+
         l = new Listing("Zero Gear", 3, dateAdded);
         p = new Product(18820, "Zero Gear");
         pd = new ProductDetail() {};
