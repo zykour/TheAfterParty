@@ -42,6 +42,30 @@ namespace TheAfterParty.WebUI.Controllers
             return View(view);
         }
 
+        public ActionResult Auction(int id)
+        {
+            AuctionModel view = new AuctionModel();
+
+            view.Auction = userService.GetAuctions().Where(a => a.AuctionID == id).FirstOrDefault();
+
+            if (view.Auction.AuctionBids != null)
+            {
+                AuctionBid currentWinner = view.Auction.AuctionBids.First();
+
+                foreach (AuctionBid bid in view.Auction.AuctionBids)
+                {
+                    if (bid.BidAmount > currentWinner.BidAmount)
+                    {
+                        currentWinner = bid;
+                    }
+                }
+
+                view.AuctionWinner = currentWinner.AppUser;
+            }
+
+            return View(view);
+        }
+
         public ActionResult Closed()
         {
             AuctionsModel view = new AuctionsModel();

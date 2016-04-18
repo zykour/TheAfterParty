@@ -44,6 +44,8 @@ namespace TheAfterParty.Domain.Concrete
                 targetAuction.WinnerID = auction.WinnerID;
                 targetAuction.ListingID = auction.ListingID;
                 targetAuction.CreatorID = auction.CreatorID;
+                targetAuction.Copies = auction.Copies;
+                targetAuction.Increment = auction.Increment;
             }
 
             foreach (AuctionBid bid in auction.AuctionBids)

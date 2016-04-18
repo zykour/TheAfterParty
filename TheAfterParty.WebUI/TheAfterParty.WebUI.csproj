@@ -254,6 +254,7 @@
     <Compile Include="Controllers\PurchaseController.cs" />
     <Compile Include="Controllers\StoreController.cs" />
     <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Models\Auctions\AuctionModel.cs" />
     <Compile Include="Models\Auctions\AuctionsModel.cs" />
     <Compile Include="Models\Auctions\ClosedAuctionsModel.cs" />
     <Compile Include="Models\Auctions\CreatedAuctionsModel.cs" />
@@ -309,6 +310,7 @@
     <Content Include="Views\User\Keys.cshtml" />
     <Content Include="Views\Home\ActivityFeed.cshtml" />
     <Content Include="Views\Auction\Index.cshtml" />
+    <Content Include="Views\Auction\Auction.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

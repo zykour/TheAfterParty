@@ -26,6 +26,22 @@ namespace TheAfterParty.Domain.Entities
 
         // a list of bids on the item
         public virtual ICollection<AuctionBid> AuctionBids { get; set; }
+        public void AddAuctionBid(AuctionBid auctionBid)
+        {
+            if (AuctionBids == null)
+            {
+                AuctionBids = new HashSet<AuctionBid>();
+            }
+
+            AuctionBids.Add(auctionBid);
+
+            if (!IsSilent)
+            {
+                MinimumBid = (int)Math.Max(MinimumBid, auctionBid.BidAmount + Increment);
+            }
+        }
+
+        public int Increment { get; set; }
 
         // the winner of the auction (if it's over)
         public int WinnerID { get; set; }
@@ -37,10 +53,12 @@ namespace TheAfterParty.Domain.Entities
         public bool IsSilent { get; set; }
 
         // minimum bid amount (or starting bid) if any
-        public int? MinimumBid { get; set; }
+        public int MinimumBid { get; set; }
 
         public string CreatorID { get; set; }
 
         public AppUser Creator { get; set; }
+
+        public int Copies { get; set; }
     }
 }
