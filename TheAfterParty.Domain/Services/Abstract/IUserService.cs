@@ -23,6 +23,9 @@ namespace TheAfterParty.Domain.Services
 
         Task<List<ActivityFeedContainer>> GetActivityFeedItems();
 
+        List<Auction> GetAuctions();
+        List<Giveaway> GetGiveaways();
+
         void BuildUser(AppUser user, string apiKey);
         bool AddBalances(string input);
     }

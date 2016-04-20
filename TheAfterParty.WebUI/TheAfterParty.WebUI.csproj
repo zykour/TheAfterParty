@@ -245,13 +245,19 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AboutController.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\AuctionController.cs" />
     <Compile Include="Controllers\BalancesController.cs" />
     <Compile Include="Controllers\CartController.cs" />
+    <Compile Include="Controllers\GiveawayController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ObjectivesController.cs" />
     <Compile Include="Controllers\PurchaseController.cs" />
     <Compile Include="Controllers\StoreController.cs" />
     <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Models\Auctions\AuctionModel.cs" />
+    <Compile Include="Models\Auctions\AuctionsModel.cs" />
+    <Compile Include="Models\Auctions\ClosedAuctionsModel.cs" />
+    <Compile Include="Models\Auctions\CreatedAuctionsModel.cs" />
     <Compile Include="Models\Balances\BalancesIndexViewModel.cs" />
     <Compile Include="Models\Cart\CartIndexViewModel.cs" />
     <Compile Include="Models\Cart\CartLayoutViewModel.cs" />
@@ -259,6 +265,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Infrastructure\NinjectDependencyResolver.cs" />
+    <Compile Include="Models\Giveaways\ClosedGiveawaysModel.cs" />
+    <Compile Include="Models\Giveaways\CreatedGiveawaysModel.cs" />
+    <Compile Include="Models\Giveaways\GiveawaysModel.cs" />
     <Compile Include="Models\Home\HomeActivityFeedModel.cs" />
     <Compile Include="Models\Home\HomeTestModel.cs" />
     <Compile Include="Models\Store\AddedListingsViewModel.cs" />
@@ -300,6 +309,8 @@
     <Content Include="Views\User\Orders.cshtml" />
     <Content Include="Views\User\Keys.cshtml" />
     <Content Include="Views\Home\ActivityFeed.cshtml" />
+    <Content Include="Views\Auction\Index.cshtml" />
+    <Content Include="Views\Auction\Auction.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -310,6 +321,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Models\Account\" />
+    <Folder Include="Views\Giveaway\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TheAfterParty.Domain\TheAfterParty.Domain.csproj">
