@@ -6,7 +6,7 @@ namespace TheAfterParty.Domain.Entities
 {
     public class ClaimedProductKey
     {
-        public ClaimedProductKey(ProductKey productKey, AppUser user, DateTime? dateAdded, string note)
+        public ClaimedProductKey(ProductKey productKey, AppUser user, DateTime? dateAdded, string note, Platform platform)
         {
             ListingID = productKey.ListingID;
             Key = productKey.ItemKey;
@@ -31,6 +31,8 @@ namespace TheAfterParty.Domain.Entities
         public string UserID { get; set; }
 
         public bool IsGift { get; set; }
+
+        public virtual Platform Platform { get; set; }
 
         public virtual AppUser AppUser { get; set; }
 

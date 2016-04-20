@@ -29,5 +29,28 @@ namespace TheAfterParty.Domain.Entities
         public byte[] PlatformIcon { get; set; }
 
         public string PlatformIconMimeType { get; set; }
+
+        public virtual ICollection<ProductKey> ProductKeys { get; set; }
+        public void AddProductKey(ProductKey key)
+        {
+            if (ProductKeys == null)
+            {
+                ProductKeys = new HashSet<ProductKey>();
+            }
+
+            ProductKeys.Add(key);
+            key.Platform = this;
+        }
+        public virtual ICollection<ClaimedProductKey> ClaimedProductKeys { get; set; }
+        public void AddClaimedProductKey(ClaimedProductKey key)
+        {
+            if (ClaimedProductKeys == null)
+            {
+                ClaimedProductKeys = new HashSet<ClaimedProductKey>();
+            }
+
+            ClaimedProductKeys.Add(key);
+            key.Platform = this;
+        }
     }
 }
