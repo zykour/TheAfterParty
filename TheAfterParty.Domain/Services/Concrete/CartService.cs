@@ -106,6 +106,7 @@ namespace TheAfterParty.Domain.Services
 
             Order order = new Order(user, orderDate);
             userRepository.InsertOrder(order);
+            this.unitOfWork.Save();
 
             ICollection<ShoppingCartEntry> cartEntries = user.ShoppingCartEntries;
             
@@ -124,6 +125,8 @@ namespace TheAfterParty.Domain.Services
                     ClaimedProductKey claimedKey = new ClaimedProductKey(productKey, user, orderDate, "Purchase - Order #" + order.OrderID);
                     user.AddClaimedProductKey(claimedKey);
 
+                    unitOfWork.Save();
+
                     ProductOrderEntry orderEntry = new ProductOrderEntry(order, entry, claimedKey);
                     order.AddProductOrderEntry(orderEntry);
                 }
@@ -136,7 +139,7 @@ namespace TheAfterParty.Domain.Services
             //userRepository.InsertBalanceEntry(balanceEntry);
 
             user.Balance -= order.TotalSalePrice();
-            user.Orders.Add(order);
+            user.AddOrder(order);
             await userRepository.UpdateAppUser(user);
 
             this.unitOfWork.Save();

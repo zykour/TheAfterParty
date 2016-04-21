@@ -17,10 +17,12 @@ namespace TheAfterParty.Domain.Entities
 
             OrderID = order.OrderID;
             this.Order = order;
+
+            ProductOrderEntryID = claimedKey.ClaimedProductKeyID;
         }
         protected ProductOrderEntry(){}
         
-        [Key]
+        [Key]//, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ProductOrderEntryID { get; set; }
 
         public int ListingID { get; set; }

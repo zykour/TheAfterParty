@@ -16,61 +16,69 @@
         <div class="col-lg-3">
             Purchase Date
         </div>
-        <div class="col-lg-3">
+        <div class="col-lg-3 text-right">
             Total Cost
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <span>&nbsp;</span>
         </div>
     </div>
     @foreach (Order order in Model.Orders)
     {
         <div class="row">
             <div class="col-lg-6">
-                Order ID
-            </div>
-            <div class="col-lg-3">
-                Purchase Date
-            </div>
-            <div class="col-lg-3">
-                Total Cost
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-6">
-                @order.OrderID
+                #@order.OrderID
             </div>
             <div class="col-lg-3">
                 @order.SaleDate
             </div>
-            <div class="col-lg-3">
+            <div class="col-lg-3 text-right">
                 @order.TotalSalePrice()
             </div>
         </div>
         <div class="row">
+            <div class="col-lg-12">
+                <span>&nbsp;</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-1">
+            </div>
             <div class="col-lg-1">
                 todo
             </div>
-            <div class="col-lg-5">
+            <div class="col-lg-4">
                 Game Name
             </div>
             <div class="col-lg-4">
                 Product Key
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-2 text-right">
                 Cost
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <span>&nbsp;</span>
             </div>
         </div>
         foreach (ProductOrderEntry entry in order.ProductOrderEntries)
         {
             <div class="row">
                 <div class="col-lg-1">
+                </div>
+                <div class="col-lg-1">
                     rev/used
                 </div>
-                <div class="col-lg-5">
+                <div class="col-lg-4">
                     @entry.Listing.ListingName
                 </div>
                 <div class="col-lg-4">
                     @entry.ClaimedProductKey.Key
                 </div>
-                <div class="col-lg-2">
+                <div class="col-lg-2 text-right">
                     @entry.SalePrice
                 </div>
             </div>

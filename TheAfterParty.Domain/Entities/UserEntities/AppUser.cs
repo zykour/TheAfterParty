@@ -85,6 +85,15 @@ namespace TheAfterParty.Domain.Entities
 
         // the list of orders the user has successfully made (cancel orders are temporary only, and appear in the shopping cart)
         public virtual ICollection<Order> Orders { get; set; }
+        public void AddOrder(Order order)
+        {
+            if (Orders == null)
+            {
+                Orders = new HashSet<Order>();
+            }
+
+            Orders.Add(order);
+        }
         public bool AssertValidOrder()
         {
             if (AssertBalanceExceedsCost() && AssertQuantityOfCart())

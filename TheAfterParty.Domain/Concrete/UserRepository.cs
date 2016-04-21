@@ -272,7 +272,7 @@ namespace TheAfterParty.Domain.Concrete
             {
                 foreach (ProductOrderEntry entry in order.ProductOrderEntries)
                 {
-                    InsertProductOrderEntry(entry);
+                    UpdateProductOrderEntry(entry);
                 }
             }
         }
@@ -290,10 +290,7 @@ namespace TheAfterParty.Domain.Concrete
             {
                 foreach (ProductOrderEntry entry in order.ProductOrderEntries)
                 {
-                    if (entry.ProductOrderEntryID == 0)
-                        InsertProductOrderEntry(entry);
-                    else
-                        UpdateProductOrderEntry(entry);
+                    UpdateProductOrderEntry(entry);
                 }
             }
         }
@@ -320,12 +317,16 @@ namespace TheAfterParty.Domain.Concrete
         }
         public void UpdateProductOrderEntry(ProductOrderEntry productOrderEntry)
         {
-            ProductOrderEntry targetOrderProduct = context.ProductOrderEntries.Find(productOrderEntry.OrderID);
+            ProductOrderEntry targetOrderProduct = context.ProductOrderEntries.Find(productOrderEntry.ProductOrderEntryID);
 
             if (targetOrderProduct != null)
             {
                 targetOrderProduct.SalePrice = productOrderEntry.SalePrice;
                 targetOrderProduct.ListingID = productOrderEntry.ListingID;
+            }
+            else
+            {
+                InsertProductOrderEntry(productOrderEntry);
             }
         }
         public void DeleteProductOrderEntry(int productOrderEntryId)

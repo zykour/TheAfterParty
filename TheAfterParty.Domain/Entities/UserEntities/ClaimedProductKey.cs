@@ -9,6 +9,8 @@ namespace TheAfterParty.Domain.Entities
         public ClaimedProductKey(ProductKey productKey, AppUser user, DateTime? dateAdded, string note)
         {
             ListingID = productKey.ListingID;
+            Listing = productKey.Listing;
+
             Key = productKey.ItemKey;
             Date = dateAdded ?? DateTime.Now;
             IsGift = false;
