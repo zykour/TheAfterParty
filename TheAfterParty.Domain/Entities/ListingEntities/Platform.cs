@@ -30,7 +30,7 @@ namespace TheAfterParty.Domain.Entities
 
         public string PlatformIconMimeType { get; set; }
 
-        public virtual ICollection<ProductKey> ProductKeys { get; set; }
+        /*public virtual ICollection<ProductKey> ProductKeys { get; set; }
         public void AddProductKey(ProductKey key)
         {
             if (ProductKeys == null)
@@ -51,6 +51,6 @@ namespace TheAfterParty.Domain.Entities
 
             ClaimedProductKeys.Add(key);
             key.Platform = this;
-        }
+        }*/
     }
 }

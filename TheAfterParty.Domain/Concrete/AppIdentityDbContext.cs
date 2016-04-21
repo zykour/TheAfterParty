@@ -92,7 +92,7 @@ namespace TheAfterParty.Domain.Concrete
             // ClaimedProductKey ---
             modelBuilder.Entity<Gift>().HasRequired<ClaimedProductKey>(g => g.ClaimedProductKey).WithOptional(cpk => cpk.Gift).WillCascadeOnDelete(false);
             modelBuilder.Entity<ProductOrderEntry>().HasRequired<ClaimedProductKey>(poe => poe.ClaimedProductKey).WithOptional(cpk => cpk.ProductOrderEntry).WillCascadeOnDelete(false);
-            modelBuilder.Entity<Platform>().HasMany<ClaimedProductKey>(p => p.ClaimedProductKeys).WithRequired(cpk => cpk.Platform);
+            //modelBuilder.Entity<Platform>().HasMany<ClaimedProductKey>(p => p.ClaimedProductKeys).WithRequired(cpk => cpk.Platform);
 
             // Giveaway ---
             modelBuilder.Entity<GiveawayEntry>().HasRequired<Giveaway>(ge => ge.Giveaway).WithMany(g => g.GiveawayEntries).HasForeignKey(ge => ge.GiveawayID).WillCascadeOnDelete(true);
@@ -136,7 +136,7 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<AppScreenshot>().HasRequired<ProductDetail>(a => a.ProductDetail).WithMany(pd => pd.AppScreenshots).HasForeignKey(a => a.ProductDetailID).WillCascadeOnDelete(true);
 
             // ProductKey ---
-            modelBuilder.Entity<Platform>().HasMany<ProductKey>(p => p.ProductKeys).WithRequired(pk => pk.Platform);
+            //modelBuilder.Entity<Platform>().HasMany<ProductKey>(p => p.ProductKeys).WithRequired(pk => pk.Platform);
 
             // Coupon ---
             modelBuilder.Entity<UserCoupon>().HasRequired<Coupon>(c => c.Coupon).WithMany(uc => uc.UserCoupons).HasForeignKey(uc => uc.CouponID).WillCascadeOnDelete(false);

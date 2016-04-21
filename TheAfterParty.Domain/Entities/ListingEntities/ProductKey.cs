@@ -10,32 +10,29 @@ namespace TheAfterParty.Domain.Entities
     {
         public ProductKey() { }
 
-        public ProductKey(int listingId, string itemKey, Platform platform)
+        public ProductKey(int listingId, string itemKey)
         {
             this.ListingID = listingId;
             this.ItemKey = itemKey;
         }
-        public ProductKey(int listingId, bool isGift, Platform platform)
+        public ProductKey(int listingId, bool isGift)
         {
             this.ListingID = listingId;
             this.IsGift = isGift;
         }
-        public ProductKey(bool isGift, string itemKey, Platform platform)
+        public ProductKey(bool isGift, string itemKey)
         {
             this.IsGift = isGift;
             this.ItemKey = itemKey;
         }
-        public ProductKey(string itemKey, Platform platform)
+        public ProductKey(string itemKey)
         {
             this.ItemKey = itemKey;
         }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity), Key]
         public int ProductKeyID { get; set; }
-
-        //public int PlatformID { get; set; }
-        public virtual Platform Platform { get; set; }
-
+        
         // the id of the product this key redeems
         public int ListingID { get; set; }
 
