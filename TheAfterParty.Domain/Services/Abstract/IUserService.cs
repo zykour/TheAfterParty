@@ -26,6 +26,9 @@ namespace TheAfterParty.Domain.Services
         List<Auction> GetAuctions();
         List<Giveaway> GetGiveaways();
 
+        void MarkKeyUsed(int keyId);
+        void RevealKey(int keyId);
+
         void BuildUser(AppUser user, string apiKey);
         bool AddBalances(string input);
     }

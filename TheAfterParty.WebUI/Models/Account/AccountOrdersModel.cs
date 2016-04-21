@@ -4,9 +4,9 @@ using System.Linq;
 using System.Web;
 using TheAfterParty.Domain.Entities;
 
-namespace TheAfterParty.WebUI.Models.User
+namespace TheAfterParty.WebUI.Models.Account
 {
-    public class UserOrdersModel
+    public class AccountOrdersModel
     {
         public List<Order> Orders { get; set; }
     }

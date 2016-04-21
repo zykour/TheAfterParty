@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using Microsoft.AspNet.Identity.EntityFramework;
 using TheAfterParty.Domain.Services;
 using System.Web.Routing;
+using TheAfterParty.WebUI.Models.Account;
 
 namespace TheAfterParty.WebUI.Controllers
 {
@@ -43,10 +44,44 @@ namespace TheAfterParty.WebUI.Controllers
             return View();
         }
 
+        public async Task<ActionResult> Orders()
+        {
+            AccountOrdersModel view = new AccountOrdersModel();
+
+            view.Orders = await userService.GetOrders();
+
+            view.Orders.OrderBy(o => o.SaleDate);
+
+            return View(view);
+        }
         
+        public async Task<ActionResult> Keys()
+        {
+            AccountKeysModel view = new AccountKeysModel();
+
+            view.Keys = await userService.GetKeys();
+
+            view.Keys.OrderBy(k => k.Listing.ListingName);
+
+            return View(view);
+        }
 
         // -----------------------
         // Login/logout and related methods
+
+        public async Task<ActionResult> AjaxRevealKey(int productKeyId)
+        {
+
+
+            return new PartialViewResult();
+        }
+
+        public async Task<ActionResult> AjaxMarkKeyUsed(int productKeyId)
+        {
+
+
+            return new PartialViewResult();
+        }
 
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)

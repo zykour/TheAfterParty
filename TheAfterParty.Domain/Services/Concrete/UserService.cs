@@ -148,6 +148,24 @@ namespace TheAfterParty.Domain.Services
             return activityFeed.OrderBy(a => a.ItemDate).ToList();
         }
 
+        public void RevealKey(int keyId)
+        {
+            ClaimedProductKey key = userRepository.GetClaimedProductKeyByID(keyId);
+
+            key.IsRevealed = true;
+
+            userRepository.UpdateClaimedProductKey(key);
+        }
+
+        public void MarkKeyUsed(int keyId)
+        {
+            ClaimedProductKey key = userRepository.GetClaimedProductKeyByID(keyId);
+
+            key.IsUsed = true;
+
+            userRepository.UpdateClaimedProductKey(key);
+        }
+
         public List<Auction> GetAuctions()
         {
             return auctionRepository.GetAuctions().ToList();

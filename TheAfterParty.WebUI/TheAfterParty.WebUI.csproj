@@ -254,6 +254,9 @@
     <Compile Include="Controllers\PurchaseController.cs" />
     <Compile Include="Controllers\StoreController.cs" />
     <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Models\Account\AccountIndexModel.cs" />
+    <Compile Include="Models\Account\AccountKeysModel.cs" />
+    <Compile Include="Models\Account\AccountOrdersModel.cs" />
     <Compile Include="Models\Auctions\AuctionModel.cs" />
     <Compile Include="Models\Auctions\AuctionsModel.cs" />
     <Compile Include="Models\Auctions\ClosedAuctionsModel.cs" />
@@ -281,8 +284,6 @@
     <Compile Include="Models\User\UserActivityFeedModel.cs" />
     <Compile Include="Models\User\UserAddBalancesViewModel.cs" />
     <Compile Include="Models\User\UserIndexModel.cs" />
-    <Compile Include="Models\User\UserKeysModel.cs" />
-    <Compile Include="Models\User\UserOrdersModel.cs" />
     <Compile Include="Models\User\UserProfileModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -306,8 +307,8 @@
     <Content Include="Views\User\UserProfile.cshtml" />
     <Content Include="Views\User\AjaxTransferPoints.cshtml" />
     <Content Include="Views\User\AddBalances.cshtml" />
-    <Content Include="Views\User\Orders.cshtml" />
-    <Content Include="Views\User\Keys.cshtml" />
+    <Content Include="Views\Account\Orders.cshtml" />
+    <Content Include="Views\Account\Keys.cshtml" />
     <Content Include="Views\Home\ActivityFeed.cshtml" />
     <Content Include="Views\Auction\Index.cshtml" />
     <Content Include="Views\Auction\Auction.cshtml" />
@@ -320,7 +321,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\Account\" />
     <Folder Include="Views\Giveaway\" />
   </ItemGroup>
   <ItemGroup>
