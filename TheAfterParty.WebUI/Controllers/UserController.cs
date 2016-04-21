@@ -7,6 +7,7 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using TheAfterParty.Domain.Services;
 using TheAfterParty.WebUI.Models.User;
+using TheAfterParty.WebUI.Models._Nav;
 
 namespace TheAfterParty.WebUI.Controllers
 {
@@ -36,8 +37,43 @@ namespace TheAfterParty.WebUI.Controllers
 
             model.LoggedInUser = await userService.GetCurrentUser();
             model.Users = userService.GetAllUsers().OrderBy(u => u.UserName).ToList();
+            model.Title = "All Users";
+            model.FullNavList = CreateUserControllerNavList();
 
             return View(model);
+        }
+
+        public async Task<ActionResult> Admins()
+        {
+            UserIndexModel model = new UserIndexModel();
+
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.Title = "Admins";
+            model.FullNavList = CreateUserControllerNavList();
+            model.Users = userService.GetAdmins();
+
+            return View("Index", model);
+        }
+
+        public NavList CreateUserControllerNavList()
+        {
+            NavList navList = new NavList();
+
+            NavGrouping navGrouping = new NavGrouping();
+            navGrouping.GroupingHeader = "View Users";
+
+            NavItem admin = new NavItem();
+            admin.Destination = "/User/Admins/";
+            admin.DestinationName = "Admins";
+
+            NavItem users = new NavItem();
+            users.Destination = "/User/";
+            users.DestinationName = "All Users";
+
+            navGrouping.NavItems = new List<NavItem>() { admin, users };
+            navList.FullNavList = new List<NavGrouping>() { navGrouping };
+
+            return navList;
         }
         
         // GET: User/Profile/name

@@ -16,6 +16,7 @@ namespace TheAfterParty.Domain.Services
 
         AppUser GetRequestedUser(string profileName, bool nickname = false);
         ICollection<AppUser> GetAllUsers();
+        List<AppUser> GetAdmins();
         Task<AppUser> GetUserByID(string id);
 
         Task<List<Order>> GetOrders();

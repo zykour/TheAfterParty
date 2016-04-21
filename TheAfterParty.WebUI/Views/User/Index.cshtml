@@ -1,100 +1,120 @@
 ﻿@using TheAfterParty.WebUI.Models.User
+@using TheAfterParty.WebUI.Models._Nav
 @model UserIndexModel
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Users";
 }
 
 <div class="container">
     <div class="row">
-        <div class="col-lg-12 text-center">
-            <h2>Index</h2>
-        </div>
-    </div>
-    <div class="row">
         <div class="col-lg-2">
-            Nav here
-        </div>
-        <div class="col-lg-10">
-            <br />
-            @if (Model.LoggedInUser != null)
-            {
-                <div>
-                    <span>Welcome, @Model.LoggedInUser.UserName</span>
-                </div>
-                <br />
-                <br />
-            }
-            @{
-                int myRow = -1;
-                for (int i = 0; i < Model.Users.Count; i++)
-                {
-                    if (Model.Users[i].UserName.CompareTo(Model.LoggedInUser.UserName) == 0)
-                    {
-                        myRow = i;
-                    }
-                }
-            }
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-2"></div>
-                    <div class="col-lg-3 text-center">Balance</div>
-                    <div class="col-log-7">User</div>
+                    @foreach (NavGrouping grouping in Model.FullNavList.FullNavList)
+                    {
+                        <div class="col-lg-12 text-left text-primary">
+                            @grouping.GroupingHeader
+                        </div>
+                        foreach (NavItem item in grouping.NavItems)
+                        {
+                            <div class="col-lg-12 text-left">
+                                <a href="@item.Destination">@item.DestinationName</a>
+                            </div>
+                        }
+                    }
                 </div>
-                @if (Model.Users.Count == 0)
-                {
-                    <div class="row">
-                        <div class="col-lg-12">
-                            No User Accounts!
+            </div>
+        </div>
+        <div class="col-lg-10">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2>@Model.Title</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <br />
+                    @if (Model.LoggedInUser != null)
+            {
+                        <div>
+                            <span>Welcome, @Model.LoggedInUser.UserName</span>
                         </div>
-                    </div>
-                }
-                else if (Model.LoggedInUser != null)
-                {
-                    <div class="row">
-                        <div class="col-lg-2">
-                            <i class="fa fa-gift" style="color: dimgrey"></i>
+                        <br />
+                        <br />
+                    }
+                    @{
+                        int myRow = -1;
+                        for (int i = 0; i < Model.Users.Count; i++)
+                        {
+                            if (Model.Users[i].UserName.CompareTo(Model.LoggedInUser.UserName) == 0)
+                            {
+                                myRow = i;
+                            }
+                        }
+                    }
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-2"></div>
+                            <div class="col-lg-3 text-center">Balance</div>
+                            <div class="col-log-7">User</div>
                         </div>
-                        <div class="col-lg-3 text-center">
-                            <div class="container">
-                                <div class="row">
-                                    <div class="col-lg-4" id="cartBalance">
-                                        @(Model.LoggedInUser.Balance - Model.LoggedInUser.ReservedBalance() - Model.LoggedInUser.GetCartTotal())
-                                    </div>
-                                    <div class="col-lg-4" id="currentUserBalance">
-                                        @Model.LoggedInUser.Balance
-                                    </div>
-                                    <div class="col-lg-4" id="reservedBalance">
-                                        @(Model.LoggedInUser.Balance - Model.LoggedInUser.ReservedBalance())
-                                    </div>
+                        @if (Model.Users.Count == 0)
+                        {
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    No User Accounts!
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-log-7">@Model.LoggedInUser.UserName</div>
-                    </div>
-                    <hr />
-                }
-                @for (int i = 0; i < Model.Users.Count; i++)
+                        }
+                        else if (Model.LoggedInUser != null)
+                        {
+                            <div class="row">
+                                <div class="col-lg-2">
+                                    <i class="fa fa-gift" style="color: dimgrey"></i>
+                                </div>
+                                <div class="col-lg-3 text-center">
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col-lg-4" id="cartBalance">
+                                                @(Model.LoggedInUser.Balance - Model.LoggedInUser.ReservedBalance() - Model.LoggedInUser.GetCartTotal())
+                                            </div>
+                                            <div class="col-lg-4" id="currentUserBalance">
+                                                @Model.LoggedInUser.Balance
+                                            </div>
+                                            <div class="col-lg-4" id="reservedBalance">
+                                                @(Model.LoggedInUser.Balance - Model.LoggedInUser.ReservedBalance())
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-log-7">@Model.LoggedInUser.UserName</div>
+                            </div>
+                            <hr />
+                        }
+                        @for (int i = 0; i < Model.Users.Count; i++)
+                        {
+                            <div class="row">
+                                <div class="col-lg-2">
+                                    @if (Model.LoggedInUser == null)
                 {
-                    <div class="row">
-                        <div class="col-lg-2">
-                            @if (Model.LoggedInUser == null)
-                {
-                                <i class="fa fa-gift" style="color: dimgrey"></i>
-                            }
-                            else if (Model.Users[i].UserName.CompareTo(Model.LoggedInUser.UserName) == 0)
-                            {
-                                <i class="fa fa-gift" style="color: dimgrey"></i>
-                            }
-                            else
-                            {
-                                <div style="cursor: pointer;" onclick="TransferPoints(@("\"" + Model.Users[i].Id + "\""),@i,@myRow);"><i class="fa fa-gift"></i></div>
-                            }
-                        </div>
-                        <div class="col-lg-3 text-center" id="@("userBalance" + i)">@Model.Users[i].Balance</div>
-                        <div class="col-log-7" id="@("userName" + i)">@Model.Users[i].UserName</div>
+                                        <i class="fa fa-gift" style="color: dimgrey"></i>
+                                    }
+                                    else if (Model.Users[i].UserName.CompareTo(Model.LoggedInUser.UserName) == 0)
+                                    {
+                                        <i class="fa fa-gift" style="color: dimgrey"></i>
+                                    }
+                                    else
+                                    {
+                                        <div style="cursor: pointer;" onclick="TransferPoints(@("\"" + Model.Users[i].Id + "\""),@i,@myRow);"><i class="fa fa-gift"></i></div>
+                                    }
+                                </div>
+                                <div class="col-lg-3 text-center" id="@("userBalance" + i)">@Model.Users[i].Balance</div>
+                                <div class="col-log-7" id="@("userName" + i)">@Model.Users[i].UserName</div>
+                            </div>
+                        }
                     </div>
-                }
+                </div>
             </div>
         </div>
     </div>

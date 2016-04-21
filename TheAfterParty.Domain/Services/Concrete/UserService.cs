@@ -247,6 +247,11 @@ namespace TheAfterParty.Domain.Services
             return await userRepository.GetAppUserByID(id);
         }
 
+        public List<AppUser> GetAdmins()
+        {
+            return userRepository.GetAppUsers().Where(au => UserManager.IsInRole(au.Id, "Admin")).ToList();
+        }
+
         public bool AddBalances(string input)
         {
             /*
