@@ -290,7 +290,7 @@ namespace TheAfterParty.Domain.Concrete
             {
                 foreach (ProductOrderEntry entry in order.ProductOrderEntries)
                 {
-                    if (entry.OrderID == 0)
+                    if (entry.ProductOrderEntryID == 0)
                         InsertProductOrderEntry(entry);
                     else
                         UpdateProductOrderEntry(entry);

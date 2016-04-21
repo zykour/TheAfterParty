@@ -31,7 +31,7 @@ namespace TheAfterParty.Domain.Entities
         public string UserID { get; set; }
 
         public bool IsGift { get; set; }
-
+        
         public virtual AppUser AppUser { get; set; }
 
         // associate a Listing entry with the key to correctly label the key (the game name) and get platform information

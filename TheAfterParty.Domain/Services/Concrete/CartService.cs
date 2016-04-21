@@ -107,17 +107,15 @@ namespace TheAfterParty.Domain.Services
             Order order = new Order(user, orderDate);
             userRepository.InsertOrder(order);
 
-            ICollection<ShoppingCartEntry> cartEntries = user.ShoppingCartEntries;//.Where(entry => Object.Equals(entry.UserID, user.Id)).ToList();
+            ICollection<ShoppingCartEntry> cartEntries = user.ShoppingCartEntries;
             
             foreach (ShoppingCartEntry entry in cartEntries)
             {
                 List<ProductKey> keys = listingRepository.GetProductKeys().Where(k => k.ListingID == entry.ListingID).Take(entry.Quantity).ToList();
 
-                for (int i = 0; i < entry.Quantity; i++)
+                foreach (ProductKey productKey in keys)
                 {
-                    ProductKey productKey = keys.First();
                     listingRepository.DeleteProductKey(productKey.ProductKeyID);
-                    keys.Remove(productKey);
 
                     Listing listing = listingRepository.GetListingByID(entry.ListingID);
                     listing.Quantity--;
@@ -125,11 +123,9 @@ namespace TheAfterParty.Domain.Services
                     
                     ClaimedProductKey claimedKey = new ClaimedProductKey(productKey, user, orderDate, "Purchase - Order #" + order.OrderID);
                     user.AddClaimedProductKey(claimedKey);
-                    //userRepository.InsertClaimedProductKey(claimedKey);
 
                     ProductOrderEntry orderEntry = new ProductOrderEntry(order, entry, claimedKey);
                     order.AddProductOrderEntry(orderEntry);
-                    //userRepository.InsertProductOrderEntry(orderEntry);
                 }
             }
 

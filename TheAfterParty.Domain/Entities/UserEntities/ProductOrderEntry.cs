@@ -9,10 +9,10 @@ namespace TheAfterParty.Domain.Entities
         public ProductOrderEntry(Order order, ShoppingCartEntry cartEntry, ClaimedProductKey claimedKey)
         {
             ListingID = cartEntry.ListingID;
+            Listing = cartEntry.Listing;
             SalePrice = cartEntry.Listing.SaleOrDefaultPrice();
 
             ClaimedProductKey = claimedKey;
-            OrderID = claimedKey.ClaimedProductKeyID;
             claimedKey.ProductOrderEntry = this;
 
             OrderID = order.OrderID;

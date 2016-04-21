@@ -32,7 +32,7 @@ namespace TheAfterParty.Domain.Entities
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity), Key]
         public int ProductKeyID { get; set; }
-
+        
         // the id of the product this key redeems
         public int ListingID { get; set; }
 

@@ -10,6 +10,7 @@ using TheAfterParty.WebUI.Models.User;
 
 namespace TheAfterParty.WebUI.Controllers
 {
+    [Authorize]
     public class UserController : Controller
     {
         private IUserService userService;
