@@ -1,8 +1,9 @@
 ﻿using TheAfterParty.Domain.Entities;
+using TheAfterParty.WebUI.Models._Nav;
 
 namespace TheAfterParty.WebUI.Models.Store
 {
-    public class SelectedProductCategoryMapping
+    public class SelectedProductCategoryMapping : NavModel
     {
         public SelectedProductCategoryMapping() { }
         public SelectedProductCategoryMapping(ProductCategory category, bool selected)

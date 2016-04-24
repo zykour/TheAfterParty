@@ -40,6 +40,10 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         monu.AddOwnedGame(new OwnedGame(620));
         monu.Nickname = "MONU";
 
+        AppUser dan = new AppUser { UserSteamID = 76561198055195922, UserName = "DemoDan", Email = "dan@theafterparty.com", Balance = 123, IsPrivateWishlist = false };
+        dan.Nickname = "DAN";
+
+        userMgr.Create(dan);
         userMgr.Create(monu);
         userMgr.Create(new AppUser { UserSteamID = 76561198019064906, UserName = "Lucky", Email = "luckyboy@example.com", Balance = 75, IsPrivateWishlist = false, Nickname = "LUCKY" });
         userMgr.Create(new AppUser { UserSteamID = 76561197962202166, UserName = "Don_Vino", Balance = 50, IsPrivateWishlist = false, Nickname = "VINO" });
@@ -48,6 +52,7 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
 
         unitOfWork.Save();
 
+        userMgr.AddToRole(dan.Id, "Admin");
         userMgr.AddToRole(monu.Id, "Admin");
 
         DateTime dateAdded = DateTime.Now;

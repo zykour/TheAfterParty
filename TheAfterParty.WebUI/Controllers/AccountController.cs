@@ -69,14 +69,14 @@ namespace TheAfterParty.WebUI.Controllers
         // -----------------------
         // Login/logout and related methods
 
-        public async Task<ActionResult> AjaxRevealKey(int productKeyId)
+        public ActionResult AjaxRevealKey(int productKeyId)
         {
 
 
             return new PartialViewResult();
         }
 
-        public async Task<ActionResult> AjaxMarkKeyUsed(int productKeyId)
+        public ActionResult AjaxMarkKeyUsed(int productKeyId)
         {
 
 

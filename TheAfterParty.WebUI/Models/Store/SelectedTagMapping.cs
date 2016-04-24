@@ -1,8 +1,9 @@
 ﻿using TheAfterParty.Domain.Entities;
+using TheAfterParty.WebUI.Models._Nav;
 
 namespace TheAfterParty.WebUI.Models.Store
 {
-    public class SelectedTagMapping
+    public class SelectedTagMapping : NavModel
     {
         public SelectedTagMapping() { }
         public SelectedTagMapping(Tag tag, bool selected)

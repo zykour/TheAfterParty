@@ -287,7 +287,6 @@
     <Compile Include="Models\User\UserProfileModel.cs" />
     <Compile Include="Models\_Nav\NavGrouping.cs" />
     <Compile Include="Models\_Nav\NavItem.cs" />
-    <Compile Include="Models\_Nav\NavList.cs" />
     <Compile Include="Models\_Nav\NavModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

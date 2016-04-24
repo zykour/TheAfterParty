@@ -1,8 +1,9 @@
 ﻿using TheAfterParty.Domain.Entities;
+using TheAfterParty.WebUI.Models._Nav;
 
 namespace TheAfterParty.WebUI.Models.User
 {
-    public class UserProfileModel
+    public class UserProfileModel : NavModel
     {
         public UserProfileModel() { }
 

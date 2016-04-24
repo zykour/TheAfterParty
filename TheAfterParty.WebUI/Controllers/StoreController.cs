@@ -9,6 +9,7 @@ using TheAfterParty.WebUI.Models.Store;
 using System.Threading.Tasks;
 using TheAfterParty.Domain.Entities;
 using System.Text.RegularExpressions;
+using TheAfterParty.WebUI.Models._Nav;
 
 namespace TheAfterParty.WebUI.Controllers
 {
@@ -32,6 +33,15 @@ namespace TheAfterParty.WebUI.Controllers
             {
                 storeService.SetUserName(User.Identity.Name);
             }
+        }
+
+        private List<NavGrouping> CreateStoreControllerNavList()
+        {
+            List<NavGrouping> navList = new List<NavGrouping>();
+
+
+
+            return navList;
         }
 
         // GET: CoopShop/Store

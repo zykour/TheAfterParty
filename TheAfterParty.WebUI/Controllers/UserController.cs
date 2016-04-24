@@ -55,9 +55,9 @@ namespace TheAfterParty.WebUI.Controllers
             return View("Index", model);
         }
 
-        public NavList CreateUserControllerNavList()
+        private List<NavGrouping> CreateUserControllerNavList()
         {
-            NavList navList = new NavList();
+            List<NavGrouping> navList;
 
             NavGrouping navGrouping = new NavGrouping();
             navGrouping.GroupingHeader = "View Users";
@@ -71,11 +71,29 @@ namespace TheAfterParty.WebUI.Controllers
             users.DestinationName = "All Users";
 
             navGrouping.NavItems = new List<NavItem>() { admin, users };
-            navList.FullNavList = new List<NavGrouping>() { navGrouping };
+            navList = new List<NavGrouping>() { navGrouping };
 
             return navList;
         }
-        
+
+        private List<NavGrouping> CreateUserControllerAdminNavList()
+        {
+            List<NavGrouping> navList = CreateUserControllerNavList();
+
+            NavGrouping navGrouping = new NavGrouping();
+            navGrouping.GroupingHeader = "Admin Actions";
+
+            NavItem balances = new NavItem();
+            balances.Destination = "/User/AddBalances/";
+            balances.DestinationName = "Add Balances";
+
+            navGrouping.NavItems = new List<NavItem>() { balances };
+
+            navList.Add(navGrouping);
+
+            return navList;
+        }
+
         // GET: User/Profile/name
         // base class Controller has a "Profile" method, thus need to rename this action and give it a custom route
         public async Task<ActionResult> UserProfile(string id = "")
@@ -92,6 +110,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             model.LoggedInUser = await userService.GetCurrentUser();
             model.RequestedUser = userService.GetRequestedUser(id);
+            model.FullNavList = CreateUserControllerNavList();
 
             // handle this later with a generic error view
             if (model.RequestedUser == null)
@@ -112,6 +131,7 @@ namespace TheAfterParty.WebUI.Controllers
         {
             UserAddBalancesViewModel model = new UserAddBalancesViewModel();
             model.Users = userService.GetAllUsers().OrderBy(u => u.UserName).ToList();
+            model.FullNavList = CreateUserControllerNavList();
 
             return View(model);
         }
