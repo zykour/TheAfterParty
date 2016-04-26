@@ -26,6 +26,10 @@ namespace TheAfterParty.Domain.Services
 
         List<Auction> GetAuctions();
         List<Giveaway> GetGiveaways();
+        Task<int> GetTotalReservedBalance();
+        Task<int> GetSilentAuctionReservedBalance();
+        Task<int> GetPublicAuctionReservedBalance();
+        Task<int> GetCartTotal();
 
         void MarkKeyUsed(int keyId);
         void RevealKey(int keyId);

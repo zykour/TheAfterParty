@@ -77,6 +77,38 @@ namespace TheAfterParty.Domain.Entities
 
             return null;
         }
+        public int GetSilentAuctionReservedBalance()
+        {
+            if (AuctionBids == null)
+            {
+                return 0;
+            }
+
+            ICollection<AuctionBid> openBids = AuctionBids.Where(a => a.Auction.IsSilent == true && a.Auction.IsOpen()).ToList();
+
+            if (openBids.Count == 0)
+            {
+                return 0;
+            }
+
+            return openBids.Sum(a => a.BidAmount);
+        }
+        public int GetPublicAuctionReservedBalance()
+        {
+            if (AuctionBids == null)
+            {
+                return 0;
+            }
+
+            ICollection<AuctionBid> openBids = AuctionBids.Where(a => a.Auction.IsSilent == false && a.Auction.IsOpen() && a.BidAmount == a.Auction.WinningBid()).ToList();
+
+            if (openBids.Count == 0)
+            {
+                return 0;
+            }
+
+            return openBids.Sum(a => a.BidAmount);
+        }
 
         // the list of giveaways the user has entered
         public virtual ICollection<GiveawayEntry> GiveawayEntries { get; set; }

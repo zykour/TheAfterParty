@@ -38,6 +38,20 @@ namespace TheAfterParty.WebUI.Controllers
             return View(cartViewModel);
         }
 
+        public async Task<int> ShoppingCartQuantity()
+        {
+            AppUser user = await cartService.GetCurrentUser();
+
+            return user.GetCartQuantity();
+        }
+
+        public async Task<int> ShoppingCartTotal()
+        {
+            AppUser user = await cartService.GetCurrentUser();
+
+            return user.GetCartTotal();
+        }
+
         // Navbar cart info
         public PartialViewResult ShoppingCart()
         {

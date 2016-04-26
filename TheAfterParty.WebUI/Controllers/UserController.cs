@@ -8,6 +8,7 @@ using System.Web.Routing;
 using TheAfterParty.Domain.Services;
 using TheAfterParty.WebUI.Models.User;
 using TheAfterParty.WebUI.Models._Nav;
+using TheAfterParty.Domain.Entities;
 
 namespace TheAfterParty.WebUI.Controllers
 {
@@ -60,7 +61,7 @@ namespace TheAfterParty.WebUI.Controllers
             List<NavGrouping> navList;
 
             NavGrouping navGrouping = new NavGrouping();
-            navGrouping.GroupingHeader = "View Users";
+            navGrouping.GroupingHeader = "Users";
 
             NavItem admin = new NavItem();
             admin.Destination = "/User/Admins/";
@@ -125,6 +126,27 @@ namespace TheAfterParty.WebUI.Controllers
 
             return View(model);
         }
+
+        public async Task<int> TotalReservedBalance()
+        {
+            return await userService.GetTotalReservedBalance();
+        }
+
+        public async Task<int> PublicAuctionReservedBalance()
+        {
+            return await userService.GetPublicAuctionReservedBalance();
+        }
+
+        public async Task<int> SilentAuctionReservedBalance()
+        {
+            return await userService.GetSilentAuctionReservedBalance();
+        }
+
+        public async Task<int> GetCartTotal()
+        {
+            return await userService.GetCartTotal();
+        }
+
 
         [Authorize(Roles = "Admin")]
         public ActionResult AddBalances()

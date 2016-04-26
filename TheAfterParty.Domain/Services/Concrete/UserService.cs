@@ -48,7 +48,40 @@ namespace TheAfterParty.Domain.Services
         {
             this.userName = userName;
         }
-        
+
+
+        public async Task<int> GetTotalReservedBalance()
+        {
+            int total = 0;
+
+            total += await GetSilentAuctionReservedBalance();
+            total += await GetPublicAuctionReservedBalance();
+            total += await GetCartTotal();
+
+            return total;
+        }
+
+        public async Task<int> GetSilentAuctionReservedBalance()
+        {
+            AppUser user = await GetCurrentUser();
+
+            return user.GetSilentAuctionReservedBalance();
+        }
+
+        public async Task<int> GetPublicAuctionReservedBalance()
+        {
+            AppUser user = await GetCurrentUser();
+
+            return user.GetPublicAuctionReservedBalance();
+        }
+
+        public async Task<int> GetCartTotal()
+        {
+            AppUser user = await GetCurrentUser();
+
+            return user.GetCartTotal();
+        }
+
         public async Task AddBlacklistEntry(int listingId)
         {
             AppUser user = await GetCurrentUser();

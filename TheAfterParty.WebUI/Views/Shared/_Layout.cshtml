@@ -20,24 +20,31 @@
             <div class="navbar navbar-inverse navbar-fixed-top">
                 <div class="container">
                     <div class="navbar-header">
-                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        <ul class="topnav">
+                        <ul class="topnav topnav-left">
                             <li>
-                                @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "" } )
+                                @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "topnav-inner topnav-inner-solo" } )
                             </li>
                             <li>
-                                @Html.ActionLink("Store", "Index", "Store", new { area = "" }, new { @class = "" } )
+                                @Html.ActionLink("Store", "Index", "Store", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" } )
                                 <ul class="subnav">
                                     <li>@Html.ActionLink("Daily Deals", "Deals", "Store", new { area = "", id = "daily" }, new { @class = "" } )</li>
                                     <li>@Html.ActionLink("Weekly Deals", "Deals", "Store", new { area = "", id = "weekly" }, new { @class = "" } )</li>
+                                    <li>@Html.ActionLink("Balances", "Index", "User", new { area = "" }, new { @class = "" } )</li>
                                 </ul>
                             </li>
+                            <li>
+                                <a class="topnav-inner topnav-inner-solo">Objectives</a>
+                            </li>
+                            <li>
+                                <a class="topnav-inner topnav-inner-solo">Auctions</a>
+                            </li>
+                            <li>
+                                <a class="topnav-inner topnav-inner-solo">Giveaways</a>
+                            </li>
+                            <li>
+                                <a class="topnav-inner topnav-inner-solo">About</a>
+                            </li>
                         </ul>
-                        @Html.ActionLink("The After Party", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
                     </div>
                     @if (Context.User.Identity.IsAuthenticated)
                     {
@@ -59,23 +66,18 @@
         {
         <div class="container">
             <div class="row">
-                <div class="col-lg-2" style="height:100%">
-                    <div class="container">
-                        <div class="row">
-                            @foreach (NavGrouping grouping in Model.FullNavList)
-                            {
-                            <div class="col-lg-12 text-left text-primary">
-                                @grouping.GroupingHeader
-                            </div>
-                            foreach (NavItem item in grouping.NavItems)
-                            {
-                            <div class="col-lg-12 text-left">
-                                <a href="@item.Destination">@item.DestinationName</a>
-                            </div>
-                            }
-                            }
-                        </div>
-                    </div>
+                <div class="col-lg-2 nav-first-row" style="height:100%">
+                    @foreach (NavGrouping grouping in Model.FullNavList)
+                    {
+                        <h3 class="nav-tag nav-grouping-header">@grouping.GroupingHeader</h3>
+                        foreach (NavItem item in grouping.NavItems)
+                        {
+                        <a href="@item.Destination" class="nav-item-link">
+                            <div class="nav-tag nav-item-text">@item.DestinationName</div>
+                            <div class="nav-tag nav-underline"></div>
+                        </a>
+                        }
+                    }
                 </div>
                 <div class="col-lg-10">
                     @RenderBody()

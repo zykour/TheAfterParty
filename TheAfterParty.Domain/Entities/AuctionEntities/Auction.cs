@@ -23,6 +23,10 @@ namespace TheAfterParty.Domain.Entities
 
         // when the auction ends
         public DateTime EndTime { get; set; }
+        public bool IsOpen()
+        {
+            return EndTime > DateTime.Now;
+        }
 
         // a list of bids on the item
         public virtual ICollection<AuctionBid> AuctionBids { get; set; }
@@ -39,6 +43,22 @@ namespace TheAfterParty.Domain.Entities
             {
                 MinimumBid = (int)Math.Max(MinimumBid, auctionBid.BidAmount + Increment);
             }
+        }
+        public int WinningBid()
+        {
+            if (AuctionBids == null)
+            {
+                return 0;
+            }
+
+            int max = 0;
+
+            foreach (AuctionBid bid in AuctionBids)
+            {
+                max = (max < bid.BidAmount) ? bid.BidAmount : max;
+            }
+
+            return max;
         }
 
         public int Increment { get; set; }
