@@ -14,15 +14,6 @@
     </div>
     <div class="row">
         <div class="col-lg-12">
-            <br />
-            @if (Model.LoggedInUser != null)
-            {
-            <div>
-                <span>Welcome, @Model.LoggedInUser.UserName</span>
-            </div>
-            <br />
-            <br />
-            }
             @{
                 int myRow = -1;
                 for (int i = 0; i < Model.Users.Count; i++)
@@ -34,8 +25,8 @@
                 }
             }
             <div class="container">
-                <div class="row">
-                    <div class="col-lg-2"></div>
+                <div class="row custom-row">
+                    <div class="col-lg-2">Action</div>
                     <div class="col-lg-3 text-center">Balance</div>
                     <div class="col-log-7">User</div>
                 </div>
@@ -47,32 +38,9 @@
                     </div>
                 </div>
                 }
-                else if (Model.LoggedInUser != null)
+                else
                 {
-                <div class="row">
-                    <div class="col-lg-2">
-                        <i class="fa fa-gift" style="color: dimgrey"></i>
-                    </div>
-                    <div class="col-lg-3 text-center">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-lg-4" id="cartBalance">
-                                    @(Model.LoggedInUser.Balance - Model.LoggedInUser.ReservedBalance() - Model.LoggedInUser.GetCartTotal())
-                                </div>
-                                <div class="col-lg-4" id="currentUserBalance">
-                                    @Model.LoggedInUser.Balance
-                                </div>
-                                <div class="col-lg-4" id="reservedBalance">
-                                    @(Model.LoggedInUser.Balance - Model.LoggedInUser.ReservedBalance())
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-log-7">@Model.LoggedInUser.UserName</div>
-                </div>
-                <hr />
-                }
-                @for (int i = 0; i < Model.Users.Count; i++)
+                for (int i = 0; i < Model.Users.Count; i++)
                 {
                 <div class="row">
                     <div class="col-lg-2">
@@ -92,6 +60,7 @@
                     <div class="col-lg-3 text-center" id="@("userBalance" + i)">@Model.Users[i].Balance</div>
                     <div class="col-log-7" id="@("userName" + i)">@Model.Users[i].UserName</div>
                 </div>
+                }
                 }
             </div>
         </div>

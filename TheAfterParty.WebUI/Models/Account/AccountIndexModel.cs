@@ -10,7 +10,6 @@ namespace TheAfterParty.WebUI.Models.Account
 {
     public class AccountIndexModel : NavModel
     {
-        public AppUser LoggedInUser { get; set; }
         public List<ActivityFeedContainer> ActivityFeedList { get; set; }
     }
 }

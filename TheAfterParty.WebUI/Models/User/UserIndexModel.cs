@@ -9,8 +9,6 @@ namespace TheAfterParty.WebUI.Models.User
         public UserIndexModel() { }
 
         public string Title { get; set; }
-        // the user who is making the request/logged in
-        public AppUser LoggedInUser { get; set; }
         // all users on the site
         public List<AppUser> Users { get; set; }
     }

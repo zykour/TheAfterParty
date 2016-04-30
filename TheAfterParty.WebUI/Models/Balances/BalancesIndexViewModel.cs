@@ -6,7 +6,6 @@ namespace TheAfterParty.WebUI.Models.Balances
 {
     public class BalancesIndexViewModel : NavModel
     {
-        public AppUser LoggedInUser { get; set; }
         public IEnumerable<AppUser> SiteUsers { get; set; }
     }
 }

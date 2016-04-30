@@ -28,6 +28,9 @@ namespace TheAfterParty.Domain.Entities
             return new SteamKit2.SteamID((ulong)UserSteamID);
         }
 
+        public DateTime MemberSince { get; set; }
+        public DateTime LastLogon { get; set; }
+
         // for my use as admin, the goal of nicknames is to make it easier for me to write up parseable input for admin commands rather than writing out full usernames or IDs
         public string Nickname { get; set; }
 
@@ -35,20 +38,7 @@ namespace TheAfterParty.Domain.Entities
         public int Balance { get; set; }
         public int ReservedBalance()
         {
-            int reservedPoints = 0;
-
-            if (AuctionBids != null)
-            {
-                foreach (AuctionBid bid in AuctionBids)
-                {
-                    if (bid.Auction.EndTime.CompareTo(DateTime.Now) > 0)
-                    {
-                        reservedPoints += bid.BidAmount;
-                    }
-                }
-            }
-
-            return reservedPoints;
+            return GetCartTotal() + GetPublicAuctionReservedBalance() + GetSilentAuctionReservedBalance();
         }
 
         // is there wishlist private?

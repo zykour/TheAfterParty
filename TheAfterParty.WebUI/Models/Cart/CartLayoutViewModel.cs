@@ -9,6 +9,5 @@ namespace TheAfterParty.WebUI.Models.Cart
 {
     public class CartLayoutViewModel : NavModel
     {
-        public AppUser LoggedInUser { get; set; }
     }
 }

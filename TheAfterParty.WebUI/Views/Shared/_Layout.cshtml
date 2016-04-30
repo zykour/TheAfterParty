@@ -22,43 +22,98 @@
                     <div class="navbar-header">
                         <ul class="topnav topnav-left">
                             <li>
-                                @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "topnav-inner topnav-inner-solo" } )
+                                @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "topnav-inner topnav-inner-solo" })
                             </li>
                             <li>
-                                @Html.ActionLink("Store", "Index", "Store", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" } )
+                                @Html.ActionLink("Store", "Index", "Store", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
                                 <ul class="subnav">
-                                    <li>@Html.ActionLink("Daily Deals", "Deals", "Store", new { area = "", id = "daily" }, new { @class = "" } )</li>
-                                    <li>@Html.ActionLink("Weekly Deals", "Deals", "Store", new { area = "", id = "weekly" }, new { @class = "" } )</li>
-                                    <li>@Html.ActionLink("Balances", "Index", "User", new { area = "" }, new { @class = "" } )</li>
+                                    <li>@Html.ActionLink("Daily Deals", "Deals", "Store", new { area = "", id = "daily" }, new { @class = "" })</li>
+                                    <li>@Html.ActionLink("Weekly Deals", "Deals", "Store", new { area = "", id = "weekly" }, new { @class = "" })</li>
+                                    <li>@Html.ActionLink("Balances", "Index", "User", new { area = "" }, new { @class = "" })</li>
                                 </ul>
                             </li>
                             <li>
-                                <a class="topnav-inner topnav-inner-solo">Objectives</a>
+                                @Html.ActionLink("Objectives", "Index", "Objectives", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
                             </li>
                             <li>
-                                <a class="topnav-inner topnav-inner-solo">Auctions</a>
+                                @Html.ActionLink("Auctions", "Index", "Auction", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
                             </li>
                             <li>
-                                <a class="topnav-inner topnav-inner-solo">Giveaways</a>
+                                @Html.ActionLink("Giveaways", "Index", "Giveaway", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
                             </li>
                             <li>
-                                <a class="topnav-inner topnav-inner-solo">About</a>
+                                @Html.ActionLink("About", "Index", "About", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
                             </li>
                         </ul>
                     </div>
-                    @if (Context.User.Identity.IsAuthenticated)
+                    @if (Model != null && Model.LoggedInUser != null)
                     {
-                        <a href='@(Url.Action("Index","Cart"))'>
-                            <div class="pull-right navbar-brand" id="cartInfo">
-                                @Html.Action("ShoppingCart", "Cart")
+                        <div class="pull-right">
+                            <div class="pull-left navbar-brand">
+                                <i class="fa fa-opencart" style="color: dimgrey">
+                                    <span id="cartQuantity">@Model.LoggedInUser.GetCartQuantity()</span>
+                                </i>
+                                <span id="cartTotal">@Model.LoggedInUser.GetCartTotal()</span>
                             </div>
-                        </a>
+                            @if (Model.LoggedInUser.ReservedBalance() > 0)
+                            {
+                            <div class="pull-left navbar-brand reserve-tooltip">
+                                <i class="fa fa-exclamation-triangle reserve-div-left" style="color: #ffd800"></i>
+                                <span class="reserve-div-right" id="reservedTotal">@Model.LoggedInUser.ReservedBalance()</span>
+                                <div class="reserve-tooltip-body">
+                                    @if (Model.LoggedInUser.GetCartTotal() > 0)
+                                    {
+                                        <span class="reserve-tooltip-danger-text" id="cartTotal">@Model.LoggedInUser.GetCartTotal()</span><span class="reserve-tooltip-text"> points reserved in shopping cart.</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="reserve-tooltip-success-text" id="cartTotal">0</span><span class="reserve-tooltip-text"> points reserved in shopping cart.</span><br />
+                                    }
+                                    <br />
+                                    @if (Model.LoggedInUser.GetSilentAuctionReservedBalance() > 0)
+                                    {
+                                        <span class="reserve-tooltip-danger-text reserve-tooltip-bottom-spans" id="silentAuctionTotal">@Model.LoggedInUser.GetSilentAuctionReservedBalance()</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for silent auctions.</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="reserve-tooltip-success-text reserve-tooltip-bottom-spans" id="silentAuctionTotal">0</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for silent auctions.</span>
+                                    }
+                                    <br />
+                                    @if (Model.LoggedInUser.GetPublicAuctionReservedBalance() > 0)
+                                    {
+                                        <span class="reserve-tooltip-danger-text reserve-tooltip-bottom-spans" id="publicAuctionTotal">@Model.LoggedInUser.GetPublicAuctionReservedBalance()</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for winning public auction bids.</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="reserve-tooltip-success-text reserve-tooltip-bottom-spans" id="publicAuctionTotal">0</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for winning public auction bids.</span>
+                                    }
+                                </div>
+                            </div>
+                            }
+                            <div class="pull-left navbar-brand">
+                                @if (Model.LoggedInUser.SmallAvatar != null)
+                                {
+                                    <i class="pull-left" style="border: thin;" src="@Model.LoggedInUser.SmallAvatar"></i>
+                                }
+                                else
+                                {
+                                    <i class="pull-left" style="border: thin;" src="~/Content/small_avatar.jpg"></i>
+                                }
+                                <span class="pull-left">@Model.LoggedInUser.UserName</span>
+                                <span class="pull-right">@(Model.LoggedInUser.Balance - Model.LoggedInUser.ReservedBalance())</span>
+                            </div>
+                        </div>
                     }
                     <div class="navbar-collapse collapse">
                         <ul class="nav navbar-nav"></ul>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="banner-container">
+        <div class="banner-div">
+            <img class="banner-img" src="~/Content/banner.png" />
         </div>
     </div>
     <div class="container body-content">

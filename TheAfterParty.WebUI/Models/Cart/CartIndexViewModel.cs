@@ -9,7 +9,6 @@ namespace TheAfterParty.WebUI.Models.Cart
 {
     public class CartIndexViewModel : NavModel
     {
-        public AppUser LoggedInUser { get; set; }
         public IEnumerable<ShoppingCartEntry> CartEntries { get; set; }
         public string ReturnUrl { get; set; }
     }

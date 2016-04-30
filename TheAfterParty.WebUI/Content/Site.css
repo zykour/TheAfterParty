@@ -21,7 +21,7 @@ h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6 {
 }
 
 .text-success {
-    color: darkseagreen !important;
+    color: #08db2c !important;
 }
 
 .body {
@@ -41,6 +41,110 @@ textarea {
     max-width: 280px;
 }
 
+.custom-row {
+    border: 2px solid #501762;
+    background-color: #541d65;
+    color: #808080;
+    border-radius: 5px 5px;
+    font-size: 12px;
+}
+
+.reserve-tooltip-success-text, .reserve-tooltip-danger-text, ..reserve-tooltip-text {
+    visibility: hidden;
+}
+
+.reserve-tooltip-bottom-spans {
+    position: relative;
+    line-height: 10px;
+    height: 10px;
+}
+
+.reserve-tooltip-success-text {
+    color: #08db2c;
+    font-size: 10px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.reserve-tooltip-text {
+    color: #808080;
+    font-size: 10px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.reserve-tooltip-danger-text {
+    color: #c09853;
+    font-size: 10px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.reserve-tooltip-body {
+    font-size: 0;
+    visibility: hidden;
+    width: 260px;
+    background-color: #242424;
+    text-align: left;
+    border: 2px solid #111;
+    border-radius: 5px;
+    padding: 1px 10px;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+}
+
+.reserve-tooltip {
+    position: relative;
+    display: block;
+}
+
+.reserve-div-left {
+    border: 2px solid #1E1E1E;
+    -moz-border-radius: 5px 0px 0px 5px;
+    border-radius: 5px 0px 0px 5px;
+    padding: 3px 3px 3px 3px;
+}
+
+.reserve-div-right {
+    position: relative;
+    border: 2px solid #1E1E1E;
+    -moz-border-radius: 0px 5px 5px 0px;
+    border-radius: 0px 5px 5px 0px;
+    padding: 1px 3px 1px 0px;
+    left: -5px;
+    color: #808080 !important;
+}
+
+.reserve-tooltip:hover .reserve-tooltip-body, .reserve-tooltip:hover .reserve-tooltip-danger-text, .reserve-tooltip:hover .reserve-tooltip-success-text, .reserve-tooltip:hover  .reserve-tooltip-text {
+    visibility: visible;
+}
+
+.banner-container { 
+    border: 0;
+    margin: 0;
+    padding: 0;
+    background-color: #383838;
+}
+
+.banner-div {
+    position: relative;
+    border: 0;
+    padding: 0;
+    margin: auto;
+    width: 90%;
+}
+
+.banner-img {
+    height: 200px;
+    width: auto;
+    margin: auto;
+}
+
 .nav-tag {
     margin: 0;
     padding: 0;
@@ -51,37 +155,46 @@ textarea {
     outline: none;
 }
 .nav-grouping-header {
-    border-bottom: 1px solid #808080;
+    border-bottom: 2px solid #404040;
     margin-bottom: 3px;
     font: bold 11px/15px Arial, sans-serif;
     color: #8e49a3 !important;
 }
-.nav-item-link {
-    padding: 6px 10px;
+.nav-item-link {   
+    padding: 4px 8px;
     border: 1px solid transparent;
     -webkit-box-align: center;
     -webkit-flex-align: center;
     -ms-flex-align: center;
     align-items: center;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+
 }
-.nav-item-link:not(:link) .nav-underline {
+.nav-item-link:not(:hover) .nav-underline {
     border-bottom: 1px dotted #808080;
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+    box-shadow: 0 1px 0 #000000;
 }
 .nav-item-link:hover {
-    background-image: linear-gradient(#fff 0%, rgba(255, 255, 255, 0.2) 100%);
-    background-image: -moz-linear-gradient(#fff 0%, rgba(255, 255, 255, 0.2) 100%);
-    background-image: -webkit-linear-gradient(#fff 0%, rgba(255, 255, 255, 0.2) 100%);
-    border: 1px solid #d2d6e0;
+    background-image: linear-gradient(#1E1E1E 0%, #171717 100%);
+    background-image: -moz-linear-gradient(#1E1E1E 0%, #171717 100%);
+    background-image: -webkit-linear-gradient(#1E1E1E 0%, #171717 100%);
+    border: 1px solid #000000;
     border-radius: 4px;
 }
 .nav-item-text {
-    font: bold 11px/15px Arial, sans-serif;
+    font: bold 9px/11px Arial, sans-serif;
     font-weight: bold;
-    color: darkseagreen !important;
+    color: #08db2c !important;
 }
 .nav-underline {
-    margin: 0 5px;
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    -webkit-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
     min-width: 10px;
     align-self: flex-end;
 }
@@ -108,13 +221,11 @@ textarea {
 }
 
 .topnav-inner-solo {
-    border: 2px solid #1E1E1E;
     -moz-border-radius: 5px 5px 5px 5px;
     border-radius: 5px 5px 5px 5px;
 }
 
 .topnav-inner-multi {
-    border: 2px solid #1E1E1E;
     -moz-border-radius: 5px 0px 0px 5px;
     border-radius: 5px 0px 0px 5px;
 }
@@ -125,6 +236,10 @@ textarea {
     line-height: 1px;
     padding: 0;
     margin-top: 8px;
+    background: #000000;
+    -moz-box-shadow: inset 2px 2px 2px #383838, inset -2px -2px 2px #000000;
+    -webkit-box-shadow: inset 2px 2px 2px #383838, inset -2px -2px 2px #000000;
+    box-shadow: inset 2px 2px 2px #383838, inset -2px -2px 2px #000000;
 }
 
 ul.topnav-left {
@@ -142,7 +257,7 @@ ul.topnav {
 ul.topnav li {
 	float: left;
 	margin: 0;	
-	padding: 0 15px 0 0;
+	padding: 0 8px 0 0;
 	position: relative; /*--Declare X and Y axis base for sub navigation--*/
 }
 ul.topnav li a{
@@ -157,25 +272,35 @@ ul.topnav li a{
 	background: url(topnav_hover.gif) no-repeat center top;
 }*/
 ul.topnav li span { /*--Drop down trigger styles--*/
-	width: 17px;
-	height: 35px;
-	float: left;
-    position:relative;
-    padding: 1px 1px 1px 1px;
+    position: relative;
+    border-left: 2px solid #1E1E1E;
+    top: 8px;
+    -moz-box-shadow: inset -2px 2px 2px #383838, inset -2px 2px 2px #000000;
+    -webkit-box-shadow: inset -2px 2px 2px #383838, inset -2px 2px 2px #000000;
+    box-shadow: inset -2px 2px 2px #383838, inset -2px 2px 2px #000000;
+    padding: 2px 4px 4px 2px;
+    border-radius: 0px 5px 5px 0px;
+    -moz-border-radius: 0px 5px 5px 0px;
+    cursor: pointer;
 }
 ul.topnav li span:before {
     content: "\f078";
     font-family: FontAwesome;
     font-size: 11px;
-    position:absolute;
-    margin-top: -6px;
-    margin-left: -3px;
-    padding: 2px 2px 3.5px 2px;
-    top: 40%;
-    border: 2px solid #1E1E1E;
-    border-radius: 0px 5px 5px 0px;
-    -moz-border-radius: 0px 5px 5px 0px;
 }
+ul.topnav li span:hover {
+    background-color: #383838;
+    -moz-box-shadow: inset -2px 2px 2px #383838, inset -2px 2px 2px #000000;
+    -webkit-box-shadow: inset -2px 2px 2px #383838, inset -2px 2px 2px #000000;
+    box-shadow: inset -2px 2px 2px #383838, inset -2px 2px 2px #000000;
+}
+.clicked {
+    background-color: #280038;
+    -moz-box-shadow: inset -2px 2px 2px #280038, inset -2px 2px 2px #000000;
+    -webkit-box-shadow: inset -2px 2px 2px #280038, inset -2px 2px 2px #000000;
+    box-shadow: inset -2px 2px 2px #280038, inset -2px 2px 2px #000000;
+}
+
 ul.topnav li span.subhover {background-position: center 82%; cursor: pointer;} /*--Hover effect for trigger--*/
 ul.topnav li ul.subnav {
 	list-style: none;
@@ -193,7 +318,8 @@ ul.topnav li ul.subnav {
     font-size: .8em;
 }
 ul.topnav li ul.subnav li{
-	margin: 0; padding: 0;
+	margin: 0;
+    padding: 0;
 	border-top: 1px solid #252525; /*--Create bevel effect--*/
 	border-bottom: 1px solid #444; /*--Create bevel effect--*/
 	clear: both;
@@ -220,7 +346,7 @@ html ul.topnav li ul.subnav li a:before {
 }*/
 
 
-.navbar-primary .navbar { background:#111; border-bottom:none; }
+.navbar-primary .navbar { background:#111; border-bottom:none; margin: 0; padding: 0;}
 .navbar-primary .navbar .nav > li > a {color: #501762;}
 .navbar-primary .navbar .nav > li > a:hover {color: #333; background-color: #8e49a3;}
 .navbar-primary .navbar .nav .active > a,.navbar .nav .active > a:hover {color: #fff; background-color: #501762;}
