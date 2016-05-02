@@ -38,7 +38,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             model.LoggedInUser = await userService.GetCurrentUser();
             model.Users = userService.GetAllUsers().OrderBy(u => u.UserName).ToList();
-            model.Title = "All Users";
+            model.Title = "Users";
             model.FullNavList = CreateUserControllerNavList();
 
             return View(model);
@@ -49,7 +49,7 @@ namespace TheAfterParty.WebUI.Controllers
             UserIndexModel model = new UserIndexModel();
 
             model.LoggedInUser = await userService.GetCurrentUser();
-            model.Title = "Admins";
+            model.Title = "Users > Admins";
             model.FullNavList = CreateUserControllerNavList();
             model.Users = userService.GetAdmins();
 

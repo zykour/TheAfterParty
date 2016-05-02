@@ -41,12 +41,52 @@ textarea {
     max-width: 280px;
 }
 
+.footer-hr {
+    border-color: #541d65;
+}
+
+.inner-avatar-container {
+    float: left; 
+    background-size: 20px 20px;
+    width: 20px;
+    height: 20px;
+    background-image: url(../Content/small_avatar.jpg);
+}
+
+.outer-avatar-container {
+    position: relative;
+    float: left;
+    border-radius: 3px 3px 3px 3px;
+    padding: 4px 4px 4px 4px;
+    border: 2px solid #501762;
+}
+
+.user-row {    
+    display: flex;
+    align-items: center;
+    padding: 5px 0 5px 0;
+    border-bottom: 1px solid #541d65;
+}
+
 .custom-row {
     border: 2px solid #501762;
     background-color: #541d65;
     color: #808080;
     border-radius: 5px 5px;
     font-size: 12px;
+}
+
+.image-container {
+    padding: 0 10px;
+}
+
+.username-text {
+    padding: 0 0 0 7px;
+}
+
+.vertical-align {
+    display: flex;
+    align-items: center;
 }
 
 .reserve-tooltip-success-text, .reserve-tooltip-danger-text, ..reserve-tooltip-text {
@@ -275,10 +315,11 @@ ul.topnav li span { /*--Drop down trigger styles--*/
     position: relative;
     border-left: 2px solid #1E1E1E;
     top: 8px;
+    background-color: #000000;
     -moz-box-shadow: inset -2px 2px 2px #383838, inset -2px 2px 2px #000000;
     -webkit-box-shadow: inset -2px 2px 2px #383838, inset -2px 2px 2px #000000;
     box-shadow: inset -2px 2px 2px #383838, inset -2px 2px 2px #000000;
-    padding: 2px 4px 4px 2px;
+    padding: 1.5px 4px 4px 2px;
     border-radius: 0px 5px 5px 0px;
     -moz-border-radius: 0px 5px 5px 0px;
     cursor: pointer;
@@ -295,7 +336,7 @@ ul.topnav li span:hover {
     box-shadow: inset -2px 2px 2px #383838, inset -2px 2px 2px #000000;
 }
 .clicked {
-    background-color: #280038;
+    background-color: #280038 !important;
     -moz-box-shadow: inset -2px 2px 2px #280038, inset -2px 2px 2px #000000;
     -webkit-box-shadow: inset -2px 2px 2px #280038, inset -2px 2px 2px #000000;
     box-shadow: inset -2px 2px 2px #280038, inset -2px 2px 2px #000000;

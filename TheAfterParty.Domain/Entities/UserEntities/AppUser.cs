@@ -17,6 +17,8 @@ namespace TheAfterParty.Domain.Entities
             UserName = name;
             Balance = balance;
             IsPrivateWishlist = privateWishlist;
+            MemberSince = DateTime.Now;
+            LastLogon = DateTime.Now;
         }
         public AppUser() {  }
 

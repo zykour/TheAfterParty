@@ -53,19 +53,21 @@ function AddToBlacklist(id, rowId)
 
 function TransferPoints(id, row, myrow)
 {
+    //TODO: fix it for navbar points (update those correctly) and get and check the reserved balance in the else if clause
+
     var points = prompt("How many points would you like to transfer to " + $('#userName' + row).html() + "?", "0");
     points = parseInt(points, 10);
 
-    var reservedBalance = parseInt($('#reservedBalance').text(), 10);
-    var cartBalance = parseInt($('#cartBalance').text(), 10);
-    var currentUserBalance = parseInt($('#currentUserBalance').text(), 10);
+    //var reservedBalance = parseInt($('#reservedBalance').text(), 10);
+    var currentUserBalance = parseInt($('#userBalance' + myrow).text(), 10);
     var senderBalance = parseInt($('#userBalance' + row).text(), 10);
 
     if (isNaN(points))
     {
         alert("Please enter a valid number!");
     }
-    else if (points > reservedBalance || points <= 0) {
+    //else if (points > reservedBalance || points <= 0) {
+    else if (points <= 0) {
         alert("Please enter a positive balance less than or equal to your own balance!");
     }
     else {
@@ -76,11 +78,9 @@ function TransferPoints(id, row, myrow)
             datatype: "html",
             success: function (data) {
                 alert(data);
-                $('#reservedBalance').html(reservedBalance - points);
+                //$('#reservedBalance').html(reservedBalance - points);
                 $('#userBalance' + row).html(senderBalance + points);
                 $('#userBalance' + myrow).html(currentUserBalance - points);
-                $('#currentUserBalance').html(currentUserBalance - points);
-                $('#cartBalance').html(cartBalance - points);
                 // add javascript code to modify navbar balance, when added
             }
         });

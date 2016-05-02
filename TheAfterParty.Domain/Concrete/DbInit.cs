@@ -40,15 +40,20 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         monu.AddOwnedGame(new OwnedGame(620));
         monu.Nickname = "MONU";
 
+        monu.MemberSince = DateTime.Now;
+        monu.LastLogon = DateTime.Now;
+
         AppUser dan = new AppUser { UserSteamID = 76561198055195922, UserName = "DemoDan", Email = "dan@theafterparty.com", Balance = 123, IsPrivateWishlist = false };
         dan.Nickname = "DAN";
+        dan.MemberSince = DateTime.Now;
+        dan.LastLogon = DateTime.Now;
 
         userMgr.Create(dan);
         userMgr.Create(monu);
-        userMgr.Create(new AppUser { UserSteamID = 76561198019064906, UserName = "Lucky", Email = "luckyboy@example.com", Balance = 75, IsPrivateWishlist = false, Nickname = "LUCKY" });
-        userMgr.Create(new AppUser { UserSteamID = 76561197962202166, UserName = "Don_Vino", Balance = 50, IsPrivateWishlist = false, Nickname = "VINO" });
-        userMgr.Create(new AppUser("Lina", 420, false, 76561198040771781) { Nickname = "LINA" });
-        userMgr.Create(new AppUser { UserSteamID = 76561198038935514, UserName = "Wesley", Email = "wbarton@example.com", Balance = 100, IsPrivateWishlist = false, Nickname = "WES" });
+        userMgr.Create(new AppUser { MemberSince = DateTime.Now, LastLogon = DateTime.Now, UserSteamID = 76561198019064906, UserName = "Lucky", Email = "luckyboy@example.com", Balance = 75, IsPrivateWishlist = false, Nickname = "LUCKY" });
+        userMgr.Create(new AppUser { MemberSince = DateTime.Now, LastLogon = DateTime.Now, UserSteamID = 76561197962202166, UserName = "Don_Vino", Balance = 50, IsPrivateWishlist = false, Nickname = "VINO" });
+        userMgr.Create(new AppUser("Lina", 420, false, 76561198040771781) { MemberSince = DateTime.Now, LastLogon = DateTime.Now, Nickname = "LINA" });
+        userMgr.Create(new AppUser { MemberSince = DateTime.Now, LastLogon = DateTime.Now, UserSteamID = 76561198038935514, UserName = "Wesley", Email = "wbarton@example.com", Balance = 100, IsPrivateWishlist = false, Nickname = "WES" });
 
         unitOfWork.Save();
 

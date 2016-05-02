@@ -34,15 +34,35 @@
                             </li>
                             <li>
                                 @Html.ActionLink("Objectives", "Index", "Objectives", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
+                                <ul class="subnav">
+                                    <li>@Html.ActionLink("Daily Deals", "Deals", "Store", new { area = "", id = "daily" }, new { @class = "" })</li>
+                                    <li>@Html.ActionLink("Weekly Deals", "Deals", "Store", new { area = "", id = "weekly" }, new { @class = "" })</li>
+                                    <li>@Html.ActionLink("Balances", "Index", "User", new { area = "" }, new { @class = "" })</li>
+                                </ul>
                             </li>
                             <li>
                                 @Html.ActionLink("Auctions", "Index", "Auction", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
+                                <ul class="subnav">
+                                    <li>@Html.ActionLink("Daily Deals", "Deals", "Store", new { area = "", id = "daily" }, new { @class = "" })</li>
+                                    <li>@Html.ActionLink("Weekly Deals", "Deals", "Store", new { area = "", id = "weekly" }, new { @class = "" })</li>
+                                    <li>@Html.ActionLink("Balances", "Index", "User", new { area = "" }, new { @class = "" })</li>
+                                </ul>
                             </li>
                             <li>
                                 @Html.ActionLink("Giveaways", "Index", "Giveaway", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
+                                <ul class="subnav">
+                                    <li>@Html.ActionLink("Daily Deals", "Deals", "Store", new { area = "", id = "daily" }, new { @class = "" })</li>
+                                    <li>@Html.ActionLink("Weekly Deals", "Deals", "Store", new { area = "", id = "weekly" }, new { @class = "" })</li>
+                                    <li>@Html.ActionLink("Balances", "Index", "User", new { area = "" }, new { @class = "" })</li>
+                                </ul>
                             </li>
                             <li>
                                 @Html.ActionLink("About", "Index", "About", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
+                                <ul class="subnav">
+                                    <li>@Html.ActionLink("Daily Deals", "Deals", "Store", new { area = "", id = "daily" }, new { @class = "" })</li>
+                                    <li>@Html.ActionLink("Weekly Deals", "Deals", "Store", new { area = "", id = "weekly" }, new { @class = "" })</li>
+                                    <li>@Html.ActionLink("Balances", "Index", "User", new { area = "" }, new { @class = "" })</li>
+                                </ul>
                             </li>
                         </ul>
                     </div>
@@ -93,11 +113,15 @@
                             <div class="pull-left navbar-brand">
                                 @if (Model.LoggedInUser.SmallAvatar != null)
                                 {
-                                    <i class="pull-left" style="border: thin;" src="@Model.LoggedInUser.SmallAvatar"></i>
+                                    <div class="outer-avatar-container">
+                                        <div class="inner-avatar-container" style="background-image: url(@Model.LoggedInUser.SmallAvatar)"></div>
+                                    </div>
                                 }
                                 else
                                 {
-                                    <i class="pull-left" style="border: thin;" src="~/Content/small_avatar.jpg"></i>
+                                    <div class="outer-avatar-container">
+                                        <div class="inner-avatar-container"></div>
+                                    </div>
                                 }
                                 <span class="pull-left">@Model.LoggedInUser.UserName</span>
                                 <span class="pull-right">@(Model.LoggedInUser.Balance - Model.LoggedInUser.ReservedBalance())</span>
@@ -144,7 +168,7 @@
         {
             @RenderBody()
         }
-        <hr />
+        <hr class="footer-hr" />
         <footer>
             <p>&copy; @DateTime.Now.Year - The After Party</p>
         </footer>
