@@ -41,9 +41,78 @@ textarea {
     max-width: 280px;
 }
 
+.vertical-align {
+    display: flex;
+    align-items: center;
+}
+
+.account-button { /*--Drop down trigger styles--*/
+    position: relative;
+    background-color: #541d65;
+    cursor: pointer;
+    margin-left: 20px;
+    line-height: 12px;
+    height: 24px;
+    width: 24px;
+    border: 1px solid #000000;
+    border-radius: 0px 5px 5px 0px;
+    padding: 0;
+    justify-content: center;
+}
+.account-button:before {
+    content: "\f078";
+    font-family: FontAwesome;
+    padding: 0;
+    color: #808080;
+    font-size: 11px;
+}
+.account-button:hover {
+    background-color: #8e49a3;
+    padding: 0;
+}
+
+.navbar-user-info {
+    border: 1px solid #000000;
+    border-radius: 5px 5px 5px 5px; 
+    background-color: #541d65;
+    padding: 0 0 0 10px;
+    margin: 0 2px;
+    height: 24px;
+}
+
+.navbar-user-info-inner {
+    padding: 0;
+    margin: 0;
+    color: #808080;
+    font-weight: bold;
+    font-size: 9px;
+    line-height: 11px;
+}
+
 .footer-hr {
     border-color: #541d65;
 }
+
+.flex-right {
+    margin-left: auto;
+}
+
+.flex-left {
+    margin-right: auto;
+}
+
+.inner-avatar-nav-container {   
+    background-size: 20px 20px;
+    width: 20px;
+    height: 20px;
+    background-image: url(../Content/small_avatar.jpg);
+}
+
+.outer-avatar-nav-container {
+    border-radius: 3px 3px 3px 3px;
+    border: 3px solid #501762;
+}
+
 
 .inner-avatar-container {
     float: left; 
@@ -84,11 +153,6 @@ textarea {
     padding: 0 0 0 7px;
 }
 
-.vertical-align {
-    display: flex;
-    align-items: center;
-}
-
 .reserve-tooltip-success-text, .reserve-tooltip-danger-text, ..reserve-tooltip-text {
     visibility: hidden;
 }
@@ -99,31 +163,27 @@ textarea {
     height: 10px;
 }
 
+.reserve-tooltip-text, .reserve-tooltip-success-text, .reserve-tooltip-danger-text {
+    font-size: 10px;
+    line-height: 10px;
+    height: 10px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
 .reserve-tooltip-success-text {
     color: #08db2c;
-    font-size: 10px;
-    padding: 0;
-    margin: 0;
-    border: 0;
 }
-
 .reserve-tooltip-text {
     color: #808080;
-    font-size: 10px;
-    padding: 0;
-    margin: 0;
-    border: 0;
 }
-
 .reserve-tooltip-danger-text {
     color: #c09853;
-    font-size: 10px;
-    padding: 0;
-    margin: 0;
-    border: 0;
 }
 
 .reserve-tooltip-body {
+    line-height: 16px;
     font-size: 0;
     visibility: hidden;
     width: 260px;
@@ -131,7 +191,9 @@ textarea {
     text-align: left;
     border: 2px solid #111;
     border-radius: 5px;
-    padding: 1px 10px;
+    padding: 0 10px;
+    padding-top: 5px;
+    margin-top: 1px;
 
     /* Position the tooltip */
     position: absolute;
@@ -148,24 +210,39 @@ textarea {
     -moz-border-radius: 5px 0px 0px 5px;
     border-radius: 5px 0px 0px 5px;
     padding: 3px 3px 3px 3px;
+    color: #ffd800;
+    background-color: #541d65;
+    margin-right: 0;
 }
 
 .reserve-div-right {
-    position: relative;
     border: 2px solid #1E1E1E;
     -moz-border-radius: 0px 5px 5px 0px;
     border-radius: 0px 5px 5px 0px;
-    padding: 1px 3px 1px 0px;
-    left: -5px;
-    color: #808080 !important;
+    padding: 1.5px 3px 1.5px 1px;
+    margin-left: -6px;
+    color: #ffd800 !important;
+    background-color: #541d65;
 }
 
 .reserve-tooltip:hover .reserve-tooltip-body, .reserve-tooltip:hover .reserve-tooltip-danger-text, .reserve-tooltip:hover .reserve-tooltip-success-text, .reserve-tooltip:hover  .reserve-tooltip-text {
     visibility: visible;
 }
 
-.banner-container { 
-    border: 0;
+.cart-container {
+}
+
+.cart-image {
+}
+
+.cart-quantity {
+    font-size: 10px;
+    color: #808080;
+    font-weight: bold;
+}
+
+
+.banner-container {
     margin: 0;
     padding: 0;
     background-color: #383838;
@@ -173,8 +250,6 @@ textarea {
 
 .banner-div {
     position: relative;
-    border: 0;
-    padding: 0;
     margin: auto;
     width: 90%;
 }
@@ -275,7 +350,7 @@ textarea {
     vertical-align: central;
     line-height: 1px;
     padding: 0;
-    margin-top: 8px;
+    margin: 0;
     background: #000000;
     -moz-box-shadow: inset 2px 2px 2px #383838, inset -2px -2px 2px #000000;
     -webkit-box-shadow: inset 2px 2px 2px #383838, inset -2px -2px 2px #000000;
@@ -314,12 +389,11 @@ ul.topnav li a{
 ul.topnav li span { /*--Drop down trigger styles--*/
     position: relative;
     border-left: 2px solid #1E1E1E;
-    top: 8px;
     background-color: #000000;
     -moz-box-shadow: inset -2px 2px 2px #383838, inset -2px 2px 2px #000000;
     -webkit-box-shadow: inset -2px 2px 2px #383838, inset -2px 2px 2px #000000;
     box-shadow: inset -2px 2px 2px #383838, inset -2px 2px 2px #000000;
-    padding: 1.5px 4px 4px 2px;
+    padding: 1.5px 4px 3px 2px;
     border-radius: 0px 5px 5px 0px;
     -moz-border-radius: 0px 5px 5px 0px;
     cursor: pointer;
@@ -346,10 +420,12 @@ ul.topnav li span.subhover {background-position: center 82%; cursor: pointer;} /
 ul.topnav li ul.subnav {
 	list-style: none;
 	position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
-	left: 0; top: 35px;
+	left: 0;
+    top: 22px;
 	background: #111;
     line-height: 80%;
-	margin: 0; padding: 0;
+	margin: 0; 
+    padding: 0;
 	display: none;
 	float: left;
 	width: 120px;
@@ -386,7 +462,6 @@ html ul.topnav li ul.subnav li a:before {
 	/*background: #222 url(dropdown_linkbg.gif) no-repeat 10px center; 
 }*/
 
-
 .navbar-primary .navbar { background:#111; border-bottom:none; margin: 0; padding: 0;}
 .navbar-primary .navbar .nav > li > a {color: #501762;}
 .navbar-primary .navbar .nav > li > a:hover {color: #333; background-color: #8e49a3;}
@@ -397,9 +472,11 @@ html ul.topnav li ul.subnav li a:before {
 .navbar-primary .navbar .nav > li.dropdown.open.active > a:hover .caret, .tnav .navbar .nav > li.dropdown.open > a .caret {border-top-color: #fff;}
 .navbar-primary .navbar .navbar-brand {color:#fff;}
 .navbar-primary .navbar .nav.pull-right {margin-left: 10px; margin-right: 0;}
-.navbar-xs .navbar-primary .navbar { min-height:28px; height: 28px; }
-.navbar-xs .navbar-primary .navbar .navbar-brand{ padding: 0px 12px;font-size: 16px;line-height: 28px; }
-.navbar-xs .navbar-primary .navbar .navbar-nav > li > a {  padding-top: 0px; padding-bottom: 0px; line-height: 28px; }
+.navbar-xs .navbar-primary .navbar { min-height:32px; height: 32px; }
+.navbar-xs .navbar-primary .navbar .navbar-brand{ padding: 0px 12px; font-size: 16px; line-height: 32px; }
+.navbar-xs .navbar-primary .navbar .navbar-nav > li > a {  padding-top: 0px; padding-bottom: 0px; line-height: 32px; }
 .navbar-sm .navbar-primary .navbar { min-height:40px; height: 40px; }
 .navbar-sm .navbar-primary .navbar .navbar-brand{ padding: 0px 12px;font-size: 16px;line-height: 40px; }
 .navbar-sm .navbar-primary .navbar .navbar-nav > li > a {  padding-top: 0px; padding-bottom: 0px; line-height: 40px; }
+body { margin-top: 32px; padding-top: 32px;}
+.navbar-header { min-height: 32px;}

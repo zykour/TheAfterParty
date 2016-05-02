@@ -15,11 +15,11 @@
     <script src="@Url.Content("~/Scripts/TheAfterPartyScripts.js")" type="text/javascript"></script>
 </head>
 <body>
-    <div class="navbar-sm">
+    <div class="navbar-xs">
         <div class="navbar-primary">
             <div class="navbar navbar-inverse navbar-fixed-top">
-                <div class="container">
-                    <div class="navbar-header">
+                <div class="container vertical-align">
+                    <div class="navbar-header vertical-align">
                         <ul class="topnav topnav-left">
                             <li>
                                 @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "topnav-inner topnav-inner-solo" })
@@ -68,69 +68,70 @@
                     </div>
                     @if (Model != null && Model.LoggedInUser != null)
                     {
-                        <div class="pull-right">
-                            <div class="pull-left navbar-brand">
-                                <i class="fa fa-opencart" style="color: dimgrey">
-                                    <span id="cartQuantity">@Model.LoggedInUser.GetCartQuantity()</span>
-                                </i>
-                                <span id="cartTotal">@Model.LoggedInUser.GetCartTotal()</span>
+                        <div class="flex-right vertical-align">
+                            <div class="navbar-brand cart-container">
+                                <i class="fa fa-opencart cart-image" style="color: dimgrey"></i>
+                                <span class="cart-quantity" id="cartQuantity">@Model.LoggedInUser.GetCartQuantity() @@ </span><span class="cart-quantity" id="cartTotal">@Model.LoggedInUser.GetCartTotal()</span>
                             </div>
                             @if (Model.LoggedInUser.ReservedBalance() > 0)
                             {
-                            <div class="pull-left navbar-brand reserve-tooltip">
-                                <i class="fa fa-exclamation-triangle reserve-div-left" style="color: #ffd800"></i>
-                                <span class="reserve-div-right" id="reservedTotal">@Model.LoggedInUser.ReservedBalance()</span>
-                                <div class="reserve-tooltip-body">
-                                    @if (Model.LoggedInUser.GetCartTotal() > 0)
-                                    {
-                                        <span class="reserve-tooltip-danger-text" id="cartTotal">@Model.LoggedInUser.GetCartTotal()</span><span class="reserve-tooltip-text"> points reserved in shopping cart.</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="reserve-tooltip-success-text" id="cartTotal">0</span><span class="reserve-tooltip-text"> points reserved in shopping cart.</span><br />
-                                    }
-                                    <br />
-                                    @if (Model.LoggedInUser.GetSilentAuctionReservedBalance() > 0)
-                                    {
-                                        <span class="reserve-tooltip-danger-text reserve-tooltip-bottom-spans" id="silentAuctionTotal">@Model.LoggedInUser.GetSilentAuctionReservedBalance()</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for silent auctions.</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="reserve-tooltip-success-text reserve-tooltip-bottom-spans" id="silentAuctionTotal">0</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for silent auctions.</span>
-                                    }
-                                    <br />
-                                    @if (Model.LoggedInUser.GetPublicAuctionReservedBalance() > 0)
-                                    {
-                                        <span class="reserve-tooltip-danger-text reserve-tooltip-bottom-spans" id="publicAuctionTotal">@Model.LoggedInUser.GetPublicAuctionReservedBalance()</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for winning public auction bids.</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="reserve-tooltip-success-text reserve-tooltip-bottom-spans" id="publicAuctionTotal">0</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for winning public auction bids.</span>
-                                    }
+                                <div class="flex-right navbar-brand reserve-tooltip">
+                                    <i class="fa fa-exclamation-triangle reserve-div-left"></i>
+                                    <span class="reserve-div-right" id="reservedTotal">@Model.LoggedInUser.ReservedBalance()</span>
+                                    <div class="reserve-tooltip-body">
+                                        @if (Model.LoggedInUser.GetCartTotal() > 0)
+                                        {
+                                            <span class="reserve-tooltip-danger-text" id="cartTotal">@Model.LoggedInUser.GetCartTotal()</span><span class="reserve-tooltip-text"> points reserved in shopping cart.</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="reserve-tooltip-success-text" id="cartTotal">0</span><span class="reserve-tooltip-text"> points reserved in shopping cart.</span><br />
+                                        }
+                                        <br />
+                                        @if (Model.LoggedInUser.GetSilentAuctionReservedBalance() > 0)
+                                        {
+                                            <span class="reserve-tooltip-danger-text reserve-tooltip-bottom-spans" id="silentAuctionTotal">@Model.LoggedInUser.GetSilentAuctionReservedBalance()</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for silent auctions.</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="reserve-tooltip-success-text reserve-tooltip-bottom-spans" id="silentAuctionTotal">0</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for silent auctions.</span>
+                                        }
+                                        <br />
+                                        @if (Model.LoggedInUser.GetPublicAuctionReservedBalance() > 0)
+                                        {
+                                            <span class="reserve-tooltip-danger-text reserve-tooltip-bottom-spans" id="publicAuctionTotal">@Model.LoggedInUser.GetPublicAuctionReservedBalance()</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for winning public auction bids.</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="reserve-tooltip-success-text reserve-tooltip-bottom-spans" id="publicAuctionTotal">0</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for winning public auction bids.</span>
+                                        }
+                                    </div>
                                 </div>
-                            </div>
                             }
-                            <div class="pull-left navbar-brand">
+                            <div class="navbar-brand vertical-align">
+                                <div class="navbar-user-info vertical-align">
+                                    <div class="navbar-user-info-inner">Account (@(Model.LoggedInUser.Balance - Model.LoggedInUser.ReservedBalance()) Points)</div>
+                                    <div class="account-button vertical-align"></div>
+                                </div>
                                 @if (Model.LoggedInUser.SmallAvatar != null)
                                 {
-                                    <div class="outer-avatar-container">
-                                        <div class="inner-avatar-container" style="background-image: url(@Model.LoggedInUser.SmallAvatar)"></div>
+                                    <div class="outer-avatar-nav-container vertical-align">
+                                        <div class="inner-avatar-nav-container vertical-align" style="background-image: url(@Model.LoggedInUser.SmallAvatar)"></div>
                                     </div>
                                 }
                                 else
                                 {
-                                    <div class="outer-avatar-container">
-                                        <div class="inner-avatar-container"></div>
+                                    <div class="outer-avatar-nav-container vertical-align">
+                                        <div class="inner-avatar-container vertical-align"></div>
                                     </div>
                                 }
-                                <span class="pull-left">@Model.LoggedInUser.UserName</span>
-                                <span class="pull-right">@(Model.LoggedInUser.Balance - Model.LoggedInUser.ReservedBalance())</span>
                             </div>
                         </div>
                     }
-                    <div class="navbar-collapse collapse">
-                        <ul class="nav navbar-nav"></ul>
-                    </div>
+                    else
+                    {
+                        <div class="flex-right vertical-align"><span>Login goes here!</span></div>
+                    }
                 </div>
             </div>
         </div>
