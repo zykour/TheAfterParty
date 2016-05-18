@@ -35,6 +35,11 @@ namespace TheAfterParty.Domain.Services
             this.userName = userName;
         }
         
+        public Order GetOrderByID(int id)
+        {
+            return userRepository.GetOrderByID(id);
+        }
+
         public async Task AddItemToCart(int listingId)
         {
             Listing listing = listingRepository.GetListingByID(listingId);

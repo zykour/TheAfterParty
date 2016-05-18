@@ -25,5 +25,7 @@ namespace TheAfterParty.Domain.Services
         Task IncrementCartQuantity(int entryId);
         Task DecrementCartQuantity(int entryId);
         Task<bool> ListingQuantityExceedsCartQuantity(int entryId, int listingId);
+
+        Order GetOrderByID(int id);
     }
 }

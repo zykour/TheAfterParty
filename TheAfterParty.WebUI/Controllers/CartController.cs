@@ -4,6 +4,8 @@ using System.Web.Mvc;
 using TheAfterParty.WebUI.Models.Cart;
 using TheAfterParty.Domain.Services;
 using TheAfterParty.Domain.Entities;
+using TheAfterParty.WebUI.Models._Nav;
+using System.Collections.Generic;
 
 namespace TheAfterParty.WebUI.Controllers
 {
@@ -35,6 +37,8 @@ namespace TheAfterParty.WebUI.Controllers
                 ReturnUrl = returnUrl
             };
 
+            cartViewModel.FullNavList = CreateCartControllerNavList();
+
             return View(cartViewModel);
         }
 
@@ -50,6 +54,35 @@ namespace TheAfterParty.WebUI.Controllers
             AppUser user = await cartService.GetCurrentUser();
 
             return user.GetCartTotal();
+        }
+
+        public List<NavGrouping> CreateCartControllerNavList()
+        {
+            List<NavGrouping> grouping = new List<NavGrouping>();
+
+            NavGrouping actions = new NavGrouping();
+            actions.GroupingHeader = "Actions";
+            actions.NavItems = new List<NavItem>();
+
+            NavItem continueShopping = new NavItem();
+            continueShopping.Destination = "/Store";
+            continueShopping.DestinationName = "Continue Shopping";
+
+            NavItem clearCart = new NavItem();
+            clearCart.Destination = "/Cart/EmptyCart";
+            clearCart.DestinationName = "Empty Cart";
+
+            NavItem purchase = new NavItem();
+            purchase.Destination = "/Cart/Purchase";
+            purchase.DestinationName = "Purcase";
+
+            actions.NavItems.Add(continueShopping);
+            actions.NavItems.Add(clearCart);
+            actions.NavItems.Add(purchase);
+
+            grouping.Add(actions);
+
+            return grouping;
         }
 
         // Navbar cart info
@@ -114,11 +147,47 @@ namespace TheAfterParty.WebUI.Controllers
             return RedirectToAction("Index", new { returnUrl });
         }
         
-        public async Task<ViewResult> Purchase(string returnUrl)
+        public async Task<ActionResult> Purchase(string returnUrl)
         {
             Order order = await cartService.CreateOrder();
 
-            return View(order);
+            return RedirectToAction("Success", new { id = order.OrderID });
+        }
+
+        public async Task<ActionResult> Success(string id)
+        {
+            PurchaseViewModel model = new PurchaseViewModel();
+
+            int orderId = System.Int32.Parse(id);
+
+            model.Order = cartService.GetOrderByID(orderId);
+            model.LoggedInUser = await cartService.GetCurrentUser();
+            model.FullNavList = CreatePurchaseViewModelNavList();
+
+            return View(model);
+        }
+
+        public List<NavGrouping> CreatePurchaseViewModelNavList()
+        {
+            List<NavGrouping> grouping = new List<NavGrouping>();
+
+            NavGrouping actions = new NavGrouping();
+            actions.GroupingHeader = "Actions";
+
+            NavItem store = new NavItem();
+            store.Destination = "/Store";
+            store.DestinationName = "Return To Store";
+
+            NavItem account = new NavItem();
+            account.DestinationName = "My Account";
+            account.Destination = "/Account";
+
+            actions.NavItems.Add(account);
+            actions.NavItems.Add(store);
+
+            grouping.Add(actions);
+
+            return grouping;
         }
     }
 }

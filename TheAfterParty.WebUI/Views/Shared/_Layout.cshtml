@@ -130,7 +130,13 @@
                     }
                     else
                     {
-                        <div class="flex-right vertical-align"><span>Login goes here!</span></div>
+                        <div class="flex-right vertical-align">
+                            @using (Html.BeginForm("SteamLogin", "Account"))
+                            {
+                                <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
+                                <input type="submit" value="" class="login-button" style="background: url(https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_small.png) no-repeat;"/>
+                            }
+                        </div>
                     }
                 </div>
             </div>
@@ -152,10 +158,20 @@
                         <h3 class="nav-tag nav-grouping-header">@grouping.GroupingHeader</h3>
                         foreach (NavItem item in grouping.NavItems)
                         {
-                        <a href="@item.Destination" class="nav-item-link">
-                            <div class="nav-tag nav-item-text">@item.DestinationName</div>
-                            <div class="nav-tag nav-underline"></div>
-                        </a>
+                            if (item.IsFormSubmit)
+                            {
+                            <button type="submit" value="@item.FormValue" name="@item.FormName" class="btn-link nav-item-link">
+                                <div class="nav-tag nav-item-text">@item.DestinationName</div>
+                                <div class="nav-tag nav-underline"></div>
+                            </button>
+                            }
+                            else
+                            {
+                            <a href="@item.Destination" class="nav-item-link">
+                                <div class="nav-tag nav-item-text">@item.DestinationName</div>
+                                <div class="nav-tag nav-underline"></div>
+                            </a>
+                            }
                         }
                     }
                 </div>

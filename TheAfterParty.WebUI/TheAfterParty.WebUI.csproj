@@ -198,7 +198,7 @@
     <Content Include="AppSettingsSecret.config" />
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Cart\Index.cshtml" />
-    <Content Include="Views\Cart\Purchase.cshtml" />
+    <Content Include="Views\Cart\Success.cshtml" />
     <Content Include="Views\Store\StoreEntry.cshtml" />
     <Content Include="Views\Shared\_ShoppingCart.cshtml" />
     <Content Include="Content\font-awesome\fonts\fontawesome-webfont.eot" />
@@ -275,6 +275,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Infrastructure\NinjectDependencyResolver.cs" />
+    <Compile Include="Models\Cart\PurchaseViewModel.cs" />
     <Compile Include="Models\Giveaways\ClosedGiveawaysModel.cs" />
     <Compile Include="Models\Giveaways\CreatedGiveawaysModel.cs" />
     <Compile Include="Models\Giveaways\GiveawaysModel.cs" />

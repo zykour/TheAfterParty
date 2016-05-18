@@ -79,6 +79,7 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         Listing l = new Listing("Sol Survivor", 5, dateAdded);
         Product p = new Product(45000, "Sol Survivor");
         ProductDetail pd = new ProductDetail() { };
+        pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/45000/capsule_184x69.jpg";
         p.AddProductDetail(pd);
         l.AddProduct(p);
         l.AddPlatform(steam);
@@ -107,6 +108,7 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         l = new Listing("Zero Gear", 3, dateAdded);
         p = new Product(18820, "Zero Gear");
         pd = new ProductDetail() {};
+        pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/18820/capsule_184x69.jpg";
         p.AddProductDetail(pd);
         l.AddPlatform(steam);
         l.AddProduct(p);
@@ -123,6 +125,7 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         l = new Listing("Rocket League", 40, dateAdded);
         p = new Product(252950, "Rocket League");
         pd = new ProductDetail() { };
+        pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/252950/capsule_184x69.jpg";
         p.AddProductDetail(pd);
         l.AddPlatform(steam);
         l.AddProduct(p);
@@ -147,6 +150,7 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         l = new Listing("Tabletop Simulator", 25, dateAdded);
         p = new Product(286160, "Tabletop Simulator");
         pd = new ProductDetail() { };
+        pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/286160/capsule_184x69.jpg";
         p.AddProductDetail(pd);
         l.AddPlatform(steam);
         l.AddProduct(p);
@@ -167,6 +171,7 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         l = new Listing("Warhammer: The End Times - Vermintide", 60, dateAdded);
         p = new Product(235540, "Warhammer: The End Times - Vermintide");
         pd = new ProductDetail() { };
+        pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/235540/capsule_184x69.jpg";
         p.AddProductDetail(pd);
         l.AddPlatform(steam);
         l.AddProduct(p);
@@ -188,6 +193,7 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         l = new Listing("Portal 2", 15, dateAdded);
         p = new Product(620, "Portal 2");
         pd = new ProductDetail() {  };
+        pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/620/capsule_184x69.jpg";
         p.AddProductDetail(pd);
         l.AddPlatform(steam);
         l.AddProduct(p);

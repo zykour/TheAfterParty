@@ -1,0 +1,45 @@
+﻿@using TheAfterParty.WebUI.Models.Cart
+@using TheAfterParty.Domain.Entities
+@model PurchaseViewModel
+
+@{
+    ViewBag.Title = "Purchase";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3>Order #@Model.Order.OrderID</h3>
+<br/>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6 text-primary text-center">Game</div>
+        <div class="col-lg-2 text-primary text-left">Platform</div>
+        <div class="col-lg-3 text-primary text-left">Product Key</div>
+        <div class="col-lg-1 text-primary text-right">Price</div>
+    </div>
+    @foreach (ProductOrderEntry entry in Model.Order.ProductOrderEntries)
+    {
+        <div class="row store-entry-sm">
+            <div class="col-lg-6">
+                <div class="outer-banner-container">
+                    <div class="inner-store-banner-container" style="background-image: url(@entry.Listing.Product.ProductDetail.HeaderImageURL)"></div>
+                </div>
+                <div class="store-entry-name">
+                    @entry.Listing.ListingName
+                </div>
+            </div>
+            <div class="col-lg-2 text-left">@entry.Listing.Platforms.FirstOrDefault().PlatformName</div>
+            <div class="col-lg-3 text-left">@entry.ClaimedProductKey.Key</div>
+            <div class="col-lg-1 text-right">@entry.SalePrice</div>
+        </div>
+    }
+    <div class="row">
+        <div class="col-lg-8"></div>
+        <div class="col-lg-1 text-primary">Total:</div>
+        <div class="col-lg-3">@Model.Order.TotalSalePrice()</div>
+    </div>
+    <div class="row">
+        <div class="col-lg-8"></div>
+        <div class="col-lg-1 text-primary">Date:</div>
+        <div class="col-lg-3">@Model.Order.SaleDate</div>
+    </div>
+</div>

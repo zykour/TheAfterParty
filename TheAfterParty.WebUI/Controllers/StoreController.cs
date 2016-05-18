@@ -45,7 +45,7 @@ namespace TheAfterParty.WebUI.Controllers
         }
 
         // GET: CoopShop/Store
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
             StoreIndexViewModel model = new StoreIndexViewModel();
             
@@ -68,6 +68,10 @@ namespace TheAfterParty.WebUI.Controllers
             model.SelectedProductCategoryMappings = categoryMappings.OrderBy(c => c.ProductCategory.CategoryString).ToList();
             model.StorePlatforms = storeService.GetPlatforms().OrderByDescending(p => p.Listings.Count).ToList();
 
+            model.FullNavList = CreateStoreControllerStoreNavList(model);
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+
             return View(model);
         }
 
@@ -75,6 +79,8 @@ namespace TheAfterParty.WebUI.Controllers
         public async Task<ActionResult> Index(StoreIndexViewModel model)
         {
             model.StoreListings = storeService.GetStockedStoreListings().ToList();//.Where(l => l.ListingName.ToLower().Contains(model.SearchText.Trim().ToLower())).ToList();
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
 
             if (model.SearchTextBool == true && !String.IsNullOrEmpty(model.SearchText))
             {
@@ -324,12 +330,142 @@ namespace TheAfterParty.WebUI.Controllers
             }
 
             model.StorePlatforms = storeService.GetPlatforms().ToList();
+            model.FullNavList = CreateStoreControllerStoreNavList(model);
 
             // Clear the ModelState so changes in the model are reflected when using HtmlHelpers (their default behavior is to not use changes made to the model when re-rendering a view, not what we want here)
             ModelState.Clear();
 
             return View(model);
         }
+
+        public ActionResult Newest()
+        {
+            StoreIndexViewModel model = new StoreIndexViewModel();
+
+            List<SelectedTagMapping> tagMappings = new List<SelectedTagMapping>();
+
+            DateTime maxDate = storeService.GetStockedStoreListings().Select(l => l.DateEdited).Max().Date;
+
+            model.StoreListings = storeService.GetStockedStoreListings().Where(l => l.DateEdited.Date.CompareTo(maxDate) == 0).OrderBy(l => l.ListingName).ToList();
+
+            foreach (Tag tag in storeService.GetTags())
+            {
+                tagMappings.Add(new SelectedTagMapping(tag, false));
+            }
+
+            List<SelectedProductCategoryMapping> categoryMappings = new List<SelectedProductCategoryMapping>();
+
+            foreach (ProductCategory category in storeService.GetProductCategories())
+            {
+                categoryMappings.Add(new SelectedProductCategoryMapping(category, false));
+            }
+
+            model.SelectedTagMappings = tagMappings.OrderBy(t => t.StoreTag.TagName).ToList();
+            model.SelectedProductCategoryMappings = categoryMappings.OrderBy(c => c.ProductCategory.CategoryString).ToList();
+
+            List<Platform> platforms = storeService.GetPlatforms().ToList();
+
+            foreach (Platform platform in platforms)
+            {
+                if (model.StoreListings.Where(l => l.ContainsPlatform(platform)).Count() > 0)
+                {
+                    model.StorePlatforms.Add(platform);
+                }
+            }
+
+
+
+            model.FullNavList = CreateStoreControllerStoreNavList(model);
+            
+            return View("Index", model);
+        }
+
+        public List<NavGrouping> CreateStoreControllerStoreNavList(StoreIndexViewModel model)
+        {
+            List<NavGrouping> navList = new List<NavGrouping>();
+
+            NavGrouping actions = new NavGrouping();
+            actions.GroupingHeader = "Actions";
+            actions.NavItems = new List<NavItem>();
+            NavItem clearSearch = new NavItem();
+            clearSearch.DestinationName = "Clear Search";
+            clearSearch.Destination = "/Store/";
+            actions.NavItems.Add(clearSearch);
+
+            navList.Add(actions);
+
+            NavGrouping platforms = new NavGrouping();
+            platforms.GroupingHeader = "Platforms";
+            platforms.NavItems = new List<NavItem>();
+
+            NavGrouping platformDeals = new NavGrouping();
+            platformDeals.GroupingHeader = "Deals By Platform";
+            platformDeals.NavItems = new List<NavItem>();
+
+            for (int i = 0; i < model.StorePlatforms.Count; i++)
+            {
+                int count = model.StoreListings.Where(l => l.ContainsPlatform(model.StorePlatforms[i])).Count();
+                string countText = "";
+                if (count > 0)
+                {
+                    countText = " (" + count + ")";
+                }
+
+                NavItem navItem = new NavItem();
+                navItem.IsFormSubmit = true;
+                navItem.DestinationName = model.StorePlatforms[i].PlatformName + countText;
+                navItem.FormName = "SelectedPlatformID";
+                navItem.FormValue = model.StorePlatforms[i].PlatformID.ToString();
+
+                platforms.NavItems.Add(navItem);
+
+                if (model.StorePlatforms[i].Listings.Any(x => x.HasSale()))
+                {
+                    int dealsCount = model.StoreListings.Where(l => l.ContainsPlatform(model.StorePlatforms[i]) && l.HasSale()).Count();
+
+                    countText = "";
+                    if (count > 0)
+                    {
+                        countText = " (" + count + ")";
+                    }
+
+                    NavItem dealNavItem = new NavItem();
+                    dealNavItem.IsFormSubmit = true;
+                    dealNavItem.DestinationName = model.StorePlatforms[i].PlatformName + countText;
+                    dealNavItem.FormName = "SelectedPlatformID";
+                    dealNavItem.FormValue = model.StorePlatforms[i].PlatformID.ToString();
+                    platformDeals.NavItems.Add(dealNavItem);
+                }
+            }
+
+            navList.Add(platforms);
+            navList.Add(platformDeals);
+
+            NavGrouping deals = new NavGrouping();
+            deals.GroupingHeader = "Deals";
+            deals.NavItems = new List<NavItem>();
+
+            NavItem weeklyDeals = new NavItem();
+            weeklyDeals.Destination = "/Store/Deals/weekly";
+            weeklyDeals.DestinationName = "Weekly Deals";
+
+            NavItem dailyDeals = new NavItem();
+            dailyDeals.DestinationName = "Daily Deals";
+            dailyDeals.Destination = "/Store/Deals/daily";
+
+            NavItem newestListings = new NavItem();
+            newestListings.DestinationName = "New Additions";
+            newestListings.Destination = "/Store/Newest/";
+
+            deals.NavItems.Add(weeklyDeals);
+            deals.NavItems.Add(dailyDeals);
+            deals.NavItems.Add(newestListings);
+
+            navList.Add(deals);
+
+            return navList;
+        }
+
         
         public async Task<ActionResult> UserBalances()
         {

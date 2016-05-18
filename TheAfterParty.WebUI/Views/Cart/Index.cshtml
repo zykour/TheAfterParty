@@ -7,16 +7,16 @@
 
 @helper QuantitySelect(int num, int current)
 {
-    string disabledText = "";
+string disabledText = "";
 
-    if (num == 1)
-    {
-        disabledText = "disabled";
-    }
-    
-    <select @disabledText>  
+if (num == 1)
+{
+    disabledText = "disabled";
+}
 
-    @for (int i = 1; i <= num; i++)
+    <select @disabledText>
+
+        @for (int i = 1; i <= num; i++)
     {
         string selectedText = "";
 
@@ -26,101 +26,88 @@
         }
 
         <option value="@i" @selectedText>@i</option>
-    }
+        }
 
-    </select>    
+    </select>
 }
 
-<h2>@Model.LoggedInUser.UserName's Co-op Shop Cart</h2>
-<br/>
-<br/>
 @if (Model.LoggedInUser.GetCartQuantity() == 0)
 {
-    <div class="text-left">There are no items in your cart!</div>
-    <br/>
-    <br/>
+    <br />
+    <br />
+    <div class="text-left text-primary">There are no items in your cart!</div>
+    <br />
+    <br />
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th class="text-left"></th>
-                <th>Quantity</th>
-                <th>Item</th>
-                <th class="text-right">Price</th>
-                <th class="text-right">Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < Model.CartEntries.ToList().Count; i++) //(ShoppingCartEntry entry in Model.CartEntries)
-            {
-                <tr>
-                    <td class="text-left">
-                        @using (Html.BeginForm("RemoveItem", "Cart"))
-                        {
-                        <div>
-                            @Html.HiddenFor(m => m.CartEntries.ElementAt(i).ShoppingCartEntryID)
-                            @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
-                            <button type="submit" class="btn-transparent">
-                                <i class="glyphicon glyphicon-remove"></i>
-                            </button>
-                        </div>
-                        }
-                    </td>
-                    <td >
-                        @using (Html.BeginForm("DecrementCartQuantity", "Cart", FormMethod.Post, new { @class = "tag-inline" }))
-                        {
-                        <div class="tag-inline">
-                            @Html.HiddenFor(m => m.CartEntries.ElementAt(i).ShoppingCartEntryID)
-                            @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
-                            <button type="submit" class="btn-transparent tag-inline">
-                                <i class="glyphicon glyphicon-minus tag-inline"></i>
-                            </button>
-                        </div>
-                        }
-                        <div class="tag-inline">
-                            @QuantitySelect(Model.CartEntries.ElementAt(i).Listing.Quantity, @Model.CartEntries.ElementAt(i).Quantity)
-                        </div>
-                        @using (Html.BeginForm("IncrementCartQuantity", "Cart", FormMethod.Post, new { @class = "tag-inline" }))
-                        {
-                        <div class="tag-inline">
-                            @Html.HiddenFor(m => m.CartEntries.ElementAt(i).ShoppingCartEntryID)
-                            @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
-                            <button type="submit" class="btn-transparent">
-                                <i class="glyphicon glyphicon-plus tag-inline"></i>
-                            </button>
-                        </div>
-                        }
-                    </td>
-                    <td class="text-left">@Model.CartEntries.ElementAt(i).Listing.ListingName</td>
-                    <td class="text-right">@Model.CartEntries.ElementAt(i).Listing.SaleOrDefaultPrice()</td>
-                    <td class="text-right">@(Model.CartEntries.ElementAt(i).Listing.SaleOrDefaultPrice() * Model.CartEntries.ElementAt(i).Quantity)</td>
-                </tr>
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="4" class="text-right">Total:</td>
-                <td class="text-right">@Model.LoggedInUser.GetCartTotal()</td>
-            </tr>
-        </tfoot>
-    </table>
-    using (Html.BeginForm("EmptyCart", "Cart"))
-    {
-        <div>
-            @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
-            <input type="submit" class="btn btn-primary" value="Empty Cart" />
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-2 text-primary"></div>
+            <div class="col-lg-1 text-primary">Quantity</div>
+            <div class="col-lg-7 text-primary">Game</div>
+            <div class="col-lg-1 text-primary">Price</div>
+            <div class="col-lg-1 text-primary">Subtotal</div>
         </div>
-    }
-    using (Html.BeginForm("Purchase", "Cart"))
-    {
-        <div>
-            @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
-            <input type="submit" class="btn btn-primary" value="Purchase" />
+        @for (int i = 0; i < Model.CartEntries.Count(); i++)
+        {
+            <div class="row store-entry-sm">
+                <div class="col-lg-2">
+                    @using (Html.BeginForm("RemoveItem", "Cart", FormMethod.Post, new { @class = "tag-inline" }))
+                    {
+                    <div class="tag-inline">
+                        @Html.HiddenFor(m => m.CartEntries.ElementAt(i).ShoppingCartEntryID)
+                        @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
+                        <button type="submit" class="btn-transparent">
+                            <i class="glyphicon glyphicon-remove store-blacklist"></i>
+                        </button>
+                    </div>
+                    }
+                    @using (Html.BeginForm("DecrementCartQuantity", "Cart", FormMethod.Post, new { @class = "tag-inline" }))
+                    {
+                    <div class="tag-inline">
+                        @Html.HiddenFor(m => m.CartEntries.ElementAt(i).ShoppingCartEntryID)
+                        @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
+                        <button type="submit" class="btn-transparent tag-inline">
+                            <i class="glyphicon glyphicon-minus store-blacklist tag-inline"></i>
+                        </button>
+                    </div>
+                    }
+                    <div class="tag-inline">
+                        @QuantitySelect(Model.CartEntries.ElementAt(i).Listing.Quantity, @Model.CartEntries.ElementAt(i).Quantity)
+                    </div>
+                    @using (Html.BeginForm("IncrementCartQuantity", "Cart", FormMethod.Post, new { @class = "tag-inline" }))
+                    {
+                    <div class="tag-inline">
+                        @Html.HiddenFor(m => m.CartEntries.ElementAt(i).ShoppingCartEntryID)
+                        @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
+                        <button type="submit" class="btn-transparent">
+                            <i class="glyphicon glyphicon-plus tag-inline text-success"></i>
+                        </button>
+                    </div>
+                    }
+                </div>
+                <div class="col-lg-1">@Model.CartEntries.ElementAt(i).Quantity</div>
+                <div class="col-lg-7">
+                    <div class="outer-banner-container">
+                        <div class="inner-store-banner-container" style="background-image: url(@Model.CartEntries.ElementAt(i).Listing.Product.ProductDetail.HeaderImageURL)"></div>
+                    </div>
+                    <div class="store-entry-name">
+                        @Model.CartEntries.ElementAt(i).Listing.ListingName
+                    </div>
+                </div>
+                <div class="col-lg-1">@Model.CartEntries.ElementAt(i).Listing.SaleOrDefaultPrice()</div>
+                <div class="col-lg-1">@(Model.CartEntries.ElementAt(i).Listing.SaleOrDefaultPrice() * Model.CartEntries.ElementAt(i).Quantity)</div>
+            </div>
+        }
+        <div class="row">
+            <div class="col-lg-10"></div>
+            <div class="col-lg-1 text-primary">
+                Total:
+            </div>
+            <div class="col-lg-1">
+                @Model.LoggedInUser.GetCartTotal()
+            </div>
         </div>
-    }
+    </div>
 }
-<div class="text-center">
-    <a class="btn btn-primary" href="@Model.ReturnUrl">Continue shopping</a>
-</div>

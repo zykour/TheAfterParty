@@ -12,6 +12,10 @@
     background-color: #1E1E1E !important;
 }
 
+.text-highlighted-primary {
+    color: #a7279c !important;
+}
+
 .text-primary {
     color: #8e49a3 !important;
 }
@@ -101,6 +105,21 @@ textarea {
     margin-right: auto;
 }
 
+.store-cart {
+    color: #08db2c !important;
+    cursor: pointer;
+}
+
+.store-blacklist {
+    color: #dd1111 !important;
+}
+
+.inner-store-banner-container {
+    background-size: 61px 23px;
+    width: 61px;
+    height: 23px;
+}
+
 .inner-avatar-nav-container {   
     background-size: 20px 20px;
     width: 20px;
@@ -113,6 +132,60 @@ textarea {
     border: 3px solid #501762;
 }
 
+.store-game-info {    
+    -webkit-box-align: center;
+    -webkit-flex-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.store-entry-sm {
+    -webkit-box-align: center;
+    -webkit-flex-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    margin-bottom: 2px;
+    padding-bottom: 1px;
+    border-bottom: 1px solid #501762;
+}
+.store-blacklist {
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.store-entry-name {
+    margin: 5px 5px 5px 5px;
+    text-align: left;
+    width: 65%;
+}
+
+.store-entry-price {
+    margin: 5px 5px 5px 5px;
+    text-align: left;
+    width: 5%;
+}
+
+.store-entry-quantity {
+    margin: 5px 5px 5px 5px;
+    text-align: left;
+    width: 5%;
+}
+
+.outer-banner-container {
+    margin: 5px 5px 5px 5px;
+    position: relative;
+    float: left;
+    border-radius: 3px 3px 3px 3px;
+    border: 3px solid #501762;
+}
 
 .inner-avatar-container {
     float: left; 
@@ -120,6 +193,13 @@ textarea {
     width: 20px;
     height: 20px;
     background-image: url(../Content/small_avatar.jpg);
+}
+
+.login-button {
+    background-size: 154px 23px;
+    width: 154px;
+    height: 23px;
+    border: 0;
 }
 
 .outer-avatar-container {
@@ -259,6 +339,12 @@ textarea {
     width: auto;
     margin: auto;
 }
+.btn-link {
+    display: inline;
+    background: none !important;
+    font: inherit;
+    cursor: pointer;
+}
 
 .nav-tag {
     margin: 0;
@@ -271,12 +357,13 @@ textarea {
 }
 .nav-grouping-header {
     border-bottom: 2px solid #404040;
+    margin-top: 15px;
     margin-bottom: 3px;
     font: bold 11px/15px Arial, sans-serif;
     color: #8e49a3 !important;
 }
-.nav-item-link {   
-    padding: 4px 8px;
+.nav-item-link {
+    padding: 4px 8px !important;
     border: 1px solid transparent;
     -webkit-box-align: center;
     -webkit-flex-align: center;
@@ -298,6 +385,18 @@ textarea {
     background-image: -webkit-linear-gradient(#1E1E1E 0%, #171717 100%);
     border: 1px solid #000000;
     border-radius: 4px;
+}
+.header-text {
+    font-size: 11px;
+    font-weight: bold;
+}
+.store-filter {
+    font: bold 9px/11px Arial, sans-serif;
+    font-weight: bold;
+    color: #08db2c !important;
+}
+.store-search {
+    padding-top: 35px;
 }
 .nav-item-text {
     font: bold 9px/11px Arial, sans-serif;
@@ -480,3 +579,26 @@ html ul.topnav li ul.subnav li a:before {
 .navbar-sm .navbar-primary .navbar .navbar-nav > li > a {  padding-top: 0px; padding-bottom: 0px; line-height: 40px; }
 body { margin-top: 32px; padding-top: 32px;}
 .navbar-header { min-height: 32px;}
+
+.input-group-xs > .form-control,
+.input-group-xs > .input-group-addon,
+.input-group-xs > .input-group-btn > .btn {
+  height: 25px;
+  padding: 5px 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  border-radius: 3px;
+}
+
+select.input-group-xs > .form-control,
+select.input-group-xs > .input-group-addon,
+select.input-group-xs > .input-group-btn > .btn {
+  height: 25px;
+  line-height: 25px;
+}
+
+textarea.input-group-xs > .form-control,
+textarea.input-group-xs > .input-group-addon,
+textarea.input-group-xs > .input-group-btn > .btn {
+  height: auto;
+}

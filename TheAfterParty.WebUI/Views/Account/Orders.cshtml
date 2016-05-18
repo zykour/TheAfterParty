@@ -44,18 +44,13 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-1">
-            </div>
-            <div class="col-lg-1">
-                todo
-            </div>
-            <div class="col-lg-4">
+            <div class="col-lg-6">
                 Game Name
             </div>
-            <div class="col-lg-4">
-                Product Key
+            <div class="col-lg-5">
+                Activation Method / Product Key
             </div>
-            <div class="col-lg-2 text-right">
+            <div class="col-lg-1 text-center">
                 Cost
             </div>
         </div>
@@ -66,19 +61,19 @@
         </div>
         foreach (ProductOrderEntry entry in order.ProductOrderEntries)
         {
-            <div class="row">
-                <div class="col-lg-1">
+            <div class="store-entry-sm row">
+                <div class="col-lg-6 store-game-info">
+                    <div class="outer-banner-container">
+                        <div class="inner-store-banner-container" style="background-image: url(@entry.Listing.Product.ProductDetail.HeaderImageURL)"></div>
+                    </div>
+                    <div class="store-entry-name">
+                        @entry.Listing.ListingName
+                    </div>
                 </div>
-                <div class="col-lg-1">
-                    rev/used
-                </div>
-                <div class="col-lg-4">
-                    @entry.Listing.ListingName
-                </div>
-                <div class="col-lg-4">
+                <div class="col-lg-5 text-center">
                     @entry.ClaimedProductKey.Key
                 </div>
-                <div class="col-lg-2 text-right">
+                <div class="col-lg-1 text-center">
                     @entry.SalePrice
                 </div>
             </div>
