@@ -98,15 +98,33 @@
                     var rowId = "listingRow" + i;
                     <div class="store-entry-sm row">
                         <div class="col-lg-9 store-game-info">
-                            <div class="store-entry-blacklist" id="blacklistButton" onclick="AddToBlacklist(@Model.StoreListings.ElementAt(i).ListingID, @i);">
-                                <i class="fa fa-ban store-blacklist"></i>
-                            </div>
-                            <div class="outer-banner-container">
-                                <div class="inner-store-banner-container" style="background-image: url(@Model.StoreListings.ElementAt(i).Product.ProductDetail.HeaderImageURL)"></div>
-                            </div>
-                            <div class="store-entry-name">
-                                @Model.StoreListings.ElementAt(i).ListingName
-                            </div>
+                            @if (Model.StoreListings.ElementAt(i).Product.AppID != 0 && Model.StoreListings.ElementAt(i).ContainsPlatform("Steam"))
+                            {
+                                var url = "http://store.steampowered.com/app/" + Model.StoreListings.ElementAt(i).Product.AppID;
+                                <div class="store-entry-blacklist" id="blacklistButton" onclick="AddToBlacklist(@Model.StoreListings.ElementAt(i).ListingID, @i);">
+                                    <i class="fa fa-ban store-blacklist"></i>
+                                </div>
+                                <a href="@url">
+                                    <div class="outer-banner-container">
+                                        <div class="inner-store-banner-container" style="background-image: url(@Model.StoreListings.ElementAt(i).Product.ProductDetail.HeaderImageURL)"></div>
+                                    </div>
+                                    <div class="store-entry-name">
+                                        @Model.StoreListings.ElementAt(i).ListingName
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="store-entry-blacklist" id="blacklistButton" onclick="AddToBlacklist(@Model.StoreListings.ElementAt(i).ListingID, @i);">
+                                    <i class="fa fa-ban store-blacklist"></i>
+                                </div>
+                                <div class="outer-banner-container">
+                                    <div class="inner-store-banner-container" style="background-image: url(@Model.StoreListings.ElementAt(i).Product.ProductDetail.HeaderImageURL)"></div>
+                                </div>
+                                <div class="store-entry-name">
+                                    @Model.StoreListings.ElementAt(i).ListingName
+                                </div>
+                            }
                         </div>  
                         <div class="col-lg-1 text-center">
                             @Model.StoreListings.ElementAt(i).Quantity
@@ -118,6 +136,47 @@
                             <i class="fa fa-shopping-cart store-cart"></i>
                         </div>
                     </div>
+                    if (Model.StoreListings.ElementAt(i).ChildListings.Count > 0)
+                    {
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-1"></div>
+                                <div class="col-lg-11">
+                                    <div class="store-entry-sm row">
+                                        <div class="col-lg-10 store-game-info">
+                                            @if (Model.StoreListings.ElementAt(i).Product.AppID != 0 && Model.StoreListings.ElementAt(i).ContainsPlatform("Steam"))
+                                            {
+                                                var url = "http://store.steampowered.com/app/" + Model.StoreListings.ElementAt(i).Product.AppID;
+                                                <a href="@url">
+                                                    <div class="outer-banner-container">
+                                                        <div class="inner-store-banner-container" style="background-image: url(@Model.StoreListings.ElementAt(i).Product.ProductDetail.HeaderImageURL)"></div>
+                                                    </div>
+                                                    <div class="store-entry-name">
+                                                        @Model.StoreListings.ElementAt(i).ListingName
+                                                    </div>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <div class="outer-banner-container">
+                                                    <div class="inner-store-banner-container" style="background-image: url(@Model.StoreListings.ElementAt(i).Product.ProductDetail.HeaderImageURL)"></div>
+                                                </div>
+                                                <div class="store-entry-name">
+                                                    @Model.StoreListings.ElementAt(i).ListingName
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="col-lg-1 text-center">
+                                            @Model.StoreListings.ElementAt(i).Quantity
+                                        </div>
+                                        <div class="col-lg-1 text-center">
+                                            @Model.StoreListings.ElementAt(i).ListingPrice
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 }
             </div>
         </div>
