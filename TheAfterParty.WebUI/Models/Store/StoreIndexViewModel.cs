@@ -42,6 +42,8 @@ namespace TheAfterParty.WebUI.Models.Store
             PreviousFilterBlacklist = false;
             PreviousFilterLibrary = false;
 
+            StorePlatforms = new List<Platform>();
+
         }
 
         public List<Listing> StoreListings { get; set; }

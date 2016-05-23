@@ -50,6 +50,8 @@ namespace TheAfterParty.Domain.Entities
 
             ChildListings.Add(listing);
             listing.ParentListings.Add(this);
+
+            UpdateQuantity();
         }
 
         public virtual ICollection<Listing> ParentListings { get; set; }

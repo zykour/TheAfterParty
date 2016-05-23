@@ -69,9 +69,9 @@
                     @if (Model != null && Model.LoggedInUser != null)
                     {
                         <div class="flex-right vertical-align">
-                            <div class="navbar-brand cart-container">
-                                <i class="fa fa-opencart cart-image" style="color: dimgrey"></i>
-                                <span class="cart-quantity" id="cartQuantity">@Model.LoggedInUser.GetCartQuantity() @@ </span><span class="cart-quantity" id="cartTotal">@Model.LoggedInUser.GetCartTotal()</span>
+                            <div class="navbar-brand cart-container cart-adjustment">
+                                <a href="/Cart"><i class="fa fa-opencart cart-image reserve-div-left"></i></a>
+                                <a href="/Cart"><span class="reserve-div-right" id="cartTotal">@Model.LoggedInUser.GetCartTotal()</span></a>
                             </div>
                             @if (Model.LoggedInUser.ReservedBalance() > 0)
                             {

@@ -210,7 +210,7 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         unitOfWork.Save();
         
         Platform gog = new Platform("GOG Galaxy", "http://www.gog.com/");
-
+        
         l = new Listing("The Witcher 3", 75, dateAdded);
         p = new Product("The Witcher 3");
         pd = new ProductDetail();
@@ -230,13 +230,15 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         listingRepository.InsertListing(l);
         unitOfWork.Save();
 
+        DateTime yesterdayDate = dateAdded.AddDays(-1);
+
         //http://store.steampowered.com/app/281990/
-        Listing stellarisSteam = new Listing("Stellaris", 40, dateAdded);
+        Listing stellarisSteam = new Listing("Stellaris", 40, yesterdayDate);
         p = new Product(281990, "Stellaris");
         pd = new ProductDetail();
         pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/281990/capsule_184x69.jpg";
         p.AddProductDetail(pd);
-        stellarisSteam.AddPlatform(steam);
+        stellarisSteam.AddPlatform(gog);
         stellarisSteam.AddProduct(p);
         pk = new ProductKey(true, "");
         stellarisSteam.AddProductKey(pk);
@@ -247,7 +249,7 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         unitOfWork.Save();
 
         //http://store.steampowered.com/app/228880/
-        Listing ashes = new Listing("Ashes of Singularity", 30, dateAdded);
+        Listing ashes = new Listing("Ashes of Singularity", 30, yesterdayDate);
         p = new Product(228880, "Ashes of Singularity");
         pd = new ProductDetail();
         pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/228880/capsule_184x69.jpg";
@@ -262,13 +264,14 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         listingRepository.InsertListing(ashes);
         unitOfWork.Save();
 
-        l = new Listing("Strategy Duo Pack", 60, dateAdded);
+        l = new Listing("Strategy Duo Pack", 60, yesterdayDate);
         l.AddChildListing(stellarisSteam);
         l.AddChildListing(ashes);
         p = new Product("Strategy Duo Pack");
         pd = new ProductDetail();
         p.AddProductDetail(pd);
         l.AddPlatform(steam);
+        l.AddPlatform(gog);
         l.AddProduct(p);
         l.Product.AddTag(rpg);
         l.Product.AddProductCategory(sp);

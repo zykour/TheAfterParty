@@ -34,43 +34,17 @@ namespace TheAfterParty.WebUI.Controllers
                 storeService.SetUserName(User.Identity.Name);
             }
         }
-
-        private List<NavGrouping> CreateStoreControllerNavList()
-        {
-            List<NavGrouping> navList = new List<NavGrouping>();
-
-
-
-            return navList;
-        }
+        
 
         // GET: CoopShop/Store
+        [HttpGet]
         public async Task<ActionResult> Index()
         {
             StoreIndexViewModel model = new StoreIndexViewModel();
-            
-            List<SelectedTagMapping> tagMappings = new List<SelectedTagMapping>();
 
-            foreach (Tag tag in storeService.GetTags())
-            {
-                tagMappings.Add(new SelectedTagMapping(tag, false));
-            }
+            model.StoreListings = storeService.GetStockedStoreListings().ToList();
 
-            List<SelectedProductCategoryMapping> categoryMappings = new List<SelectedProductCategoryMapping>();
-
-            foreach (ProductCategory category in storeService.GetProductCategories())
-            {
-                categoryMappings.Add(new SelectedProductCategoryMapping(category, false));
-            }
-
-            model.StoreListings = storeService.GetStockedStoreListings().OrderBy(l => l.ListingName).ToList();
-            model.SelectedTagMappings = tagMappings.OrderBy(t => t.StoreTag.TagName).ToList();
-            model.SelectedProductCategoryMappings = categoryMappings.OrderBy(c => c.ProductCategory.CategoryString).ToList();
-            model.StorePlatforms = storeService.GetPlatforms().OrderByDescending(p => p.Listings.Count).ToList();
-
-            model.FullNavList = CreateStoreControllerStoreNavList(model);
-
-            model.LoggedInUser = await storeService.GetCurrentUser();
+            await PopulateStoreIndexViewModelFromGet(model);
 
             return View(model);
         }
@@ -78,8 +52,240 @@ namespace TheAfterParty.WebUI.Controllers
         [HttpPost]
         public async Task<ActionResult> Index(StoreIndexViewModel model)
         {
-            model.StoreListings = storeService.GetStockedStoreListings().ToList();//.Where(l => l.ListingName.ToLower().Contains(model.SearchText.Trim().ToLower())).ToList();
+            model.StoreListings = storeService.GetStockedStoreListings().ToList();
 
+            await PopulateStoreIndexViewModelFromPostback(model);
+
+            // Clear the ModelState so changes in the model are reflected when using HtmlHelpers (their default behavior is to not use changes made to the model when re-rendering a view, not what we want here)
+            ModelState.Clear();
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> Newest()
+        {
+            StoreIndexViewModel model = new StoreIndexViewModel();
+
+            DateTime maxDate = storeService.GetStockedStoreListings().Select(l => l.DateEdited).Max().Date;
+
+            model.StoreListings = storeService.GetStockedStoreListings().Where(l => l.DateEdited.Date.CompareTo(maxDate) == 0).OrderBy(l => l.ListingName).ToList();
+
+            await PopulateStoreIndexViewModelFromGet(model);
+            
+            return View("Index", model);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Newest(StoreIndexViewModel model)
+        {
+            DateTime maxDate = storeService.GetStockedStoreListings().Select(l => l.DateEdited).Max().Date;
+
+            model.StoreListings = storeService.GetStockedStoreListings().Where(l => l.DateEdited.Date.CompareTo(maxDate) == 0).OrderBy(l => l.ListingName).ToList();
+
+            await PopulateStoreIndexViewModelFromPostback(model);
+
+            return View("Index", model);
+        }
+
+        public async Task<ActionResult> UserBalances()
+        {
+            StoreBalancesViewModel model = new StoreBalancesViewModel();
+
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                model.LoggedInUser = await storeService.GetCurrentUser();
+                model.Users = storeService.GetAppUsers();
+            }
+            
+            return View();
+        }
+        
+        [HttpGet]
+        public async Task<ActionResult> Deals(string id = "all")
+        {
+            // conform to route convention by accepting "id" parameter, but assign it to a new variable to make it clear what purpose it serves
+            string subsection = id;
+
+            StoreIndexViewModel model = new StoreIndexViewModel();
+
+            if (String.Compare(subsection.ToLower(), "all") == 0)
+            {
+                model.StoreListings = storeService.GetListingsWithDeals().ToList();
+                ViewBag.Title = "All Deals";
+            }
+            else if (String.Compare(subsection.ToLower(), "daily") == 0)
+            {
+                model.StoreListings = storeService.GetListingsWithDeals().Where(l => l.HasDailyDeal()).ToList();
+                ViewBag.Title = "Daily Deals";
+            }
+            else if (String.Compare(subsection.ToLower(), "weekly") == 0)
+            {
+                model.StoreListings = storeService.GetListingsWithDeals().Where(l => l.HasWeeklyDeal()).ToList();
+                ViewBag.Title = "Weekly Deals";
+            }
+            else if (String.Compare(subsection.ToLower(), "other") == 0)
+            {
+                model.StoreListings = storeService.GetListingsWithDeals().Where(d => d.HasDailyDeal() == false && d.HasWeeklyDeal() == false).ToList();
+                ViewBag.Title = "Other Deals";
+            }
+            else
+            {
+                return RedirectToAction("Deals", new { id = "all" });
+            }
+
+            await PopulateStoreIndexViewModelFromGet(model);
+
+            return View("Index", model);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Deals(string id, StoreIndexViewModel model)
+        {
+            // conform to route convention by accepting "id" parameter, but assign it to a new variable to make it clear what purpose it serves
+            string subsection = id;
+
+            if (String.Compare(subsection.ToLower(), "all") == 0)
+            {
+                model.StoreListings = storeService.GetListingsWithDeals().ToList();
+                ViewBag.Title = "All Deals";
+            }
+            else if (String.Compare(subsection.ToLower(), "daily") == 0)
+            {
+                model.StoreListings = storeService.GetListingsWithDeals().Where(l => l.HasDailyDeal()).ToList();
+                ViewBag.Title = "Daily Deals";
+            }
+            else if (String.Compare(subsection.ToLower(), "weekly") == 0)
+            {
+                model.StoreListings = storeService.GetListingsWithDeals().Where(l => l.HasWeeklyDeal()).ToList();
+                ViewBag.Title = "Weekly Deals";
+            }
+            else if (String.Compare(subsection.ToLower(), "other") == 0)
+            {
+                model.StoreListings = storeService.GetListingsWithDeals().Where(d => d.HasDailyDeal() == false && d.HasWeeklyDeal() == false).ToList();
+                ViewBag.Title = "Other Deals";
+            }
+            else
+            {
+                return RedirectToAction("Deals", new { id = "all" });
+            }
+
+            await PopulateStoreIndexViewModelFromPostback(model);
+
+            return View("Index", model);
+        }
+
+        // Role = admin
+        public ActionResult AddGames(string id = "Steam")
+        {
+            // use the id convention, but place the id into a new variable to make it clear what it represents
+            string platformName = id;
+
+            AddGamesViewModel model = new AddGamesViewModel();
+            
+            foreach (Platform platform in storeService.GetPlatforms())
+            {
+                if (platform.PlatformName.ToLower().CompareTo(platformName.ToLower()) == 0)
+                {
+                    model.Platform = platform;
+                    return View(model);
+                }
+            }
+
+            return RedirectToAction("EditPlatform", new { id = platformName });
+        }
+
+        // Role = admin
+        [HttpPost]
+        public ActionResult AddGames(AddGamesViewModel model)
+        {
+            AddedListingsViewModel outputModel = new AddedListingsViewModel();
+
+            Platform platform = storeService.GetPlatformByID(model.Platform.PlatformID);
+
+            outputModel.NewListings = storeService.AddProductKeys(platform, model.Input);//.ToList();
+
+            return View("AddGamesSuccess", outputModel);
+        }
+
+        // role admin
+        public ActionResult EditPlatform(string id)
+        {
+            string platformName = id;
+            Platform existingPlatform = storeService.GetPlatforms().Where(p => object.Equals(platformName, p.PlatformName)).SingleOrDefault();
+
+            AddEditPlatformViewModel model = new AddEditPlatformViewModel();
+
+            if (existingPlatform != null)
+            {
+                model.Platform = existingPlatform;
+            }
+            else
+            {
+                model.Platform = new Platform();
+                model.Platform.PlatformName = platformName;
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult EditPlatform(AddEditPlatformViewModel model)
+        {
+            storeService.EditPlatform(model.Platform);
+
+            model.Success = true;
+
+            return View(model);
+        }
+
+        private async Task PopulateStoreIndexViewModelFromGet(StoreIndexViewModel model)
+        {
+            model.StoreListings = model.StoreListings.OrderBy(l => l.ListingName).ToList();
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerStoreNavList(model);
+
+            List<Platform> platforms = storeService.GetPlatforms().ToList();
+
+            foreach (Platform platform in platforms)
+            {
+                if (model.StoreListings.Any(l => l.ContainsPlatform(platform)))
+                {
+                    model.StorePlatforms.Add(platform);
+                }
+            }
+
+            model.StorePlatforms.OrderBy(p => p.PlatformName).ToList();
+
+            List<SelectedTagMapping> tagMappings = new List<SelectedTagMapping>();
+
+            foreach (Tag tag in storeService.GetTags())
+            {
+                if (model.StoreListings.Any(l => l.ContainsTag(tag)))
+                {
+                    tagMappings.Add(new SelectedTagMapping(tag, false));
+                }
+            }
+
+            model.SelectedTagMappings = tagMappings.OrderBy(t => t.StoreTag.TagName).ToList();
+
+            List<SelectedProductCategoryMapping> categoryMappings = new List<SelectedProductCategoryMapping>();
+
+            foreach (ProductCategory category in storeService.GetProductCategories())
+            {
+                if (model.StoreListings.Any(l => l.ContainsProductCategory(category)))
+                {
+                    categoryMappings.Add(new SelectedProductCategoryMapping(category, false));
+                }
+            }
+
+            model.SelectedProductCategoryMappings = categoryMappings.OrderBy(c => c.ProductCategory.CategoryString).ToList();
+        }
+
+        // Populate StoreIndexViewModel for various actions
+        private async Task PopulateStoreIndexViewModelFromPostback(StoreIndexViewModel model)
+        {
             model.LoggedInUser = await storeService.GetCurrentUser();
 
             if (model.SearchTextBool == true && !String.IsNullOrEmpty(model.SearchText))
@@ -98,7 +304,7 @@ namespace TheAfterParty.WebUI.Controllers
                 }
 
                 mapping.ProductCategory = storeService.GetProductCategoryByID(mapping.ProductCategory.ProductCategoryID);
-                
+
                 if (mapping.IsSelected)
                 {
                     model.StoreListings = model.StoreListings.Where(l => l.ContainsProductCategory(mapping.ProductCategory)).ToList();
@@ -328,56 +534,8 @@ namespace TheAfterParty.WebUI.Controllers
                     model.StoreListings = model.StoreListings.OrderByDescending(l => l.ListingPrice).ToList();
                 }
             }
-
-            model.StorePlatforms = storeService.GetPlatforms().ToList();
-            model.FullNavList = CreateStoreControllerStoreNavList(model);
-
-            // Clear the ModelState so changes in the model are reflected when using HtmlHelpers (their default behavior is to not use changes made to the model when re-rendering a view, not what we want here)
-            ModelState.Clear();
-
-            return View(model);
-        }
-
-        public ActionResult Newest()
-        {
-            StoreIndexViewModel model = new StoreIndexViewModel();
-
-            List<SelectedTagMapping> tagMappings = new List<SelectedTagMapping>();
-
-            DateTime maxDate = storeService.GetStockedStoreListings().Select(l => l.DateEdited).Max().Date;
-
-            model.StoreListings = storeService.GetStockedStoreListings().Where(l => l.DateEdited.Date.CompareTo(maxDate) == 0).OrderBy(l => l.ListingName).ToList();
-
-            foreach (Tag tag in storeService.GetTags())
-            {
-                tagMappings.Add(new SelectedTagMapping(tag, false));
-            }
-
-            List<SelectedProductCategoryMapping> categoryMappings = new List<SelectedProductCategoryMapping>();
-
-            foreach (ProductCategory category in storeService.GetProductCategories())
-            {
-                categoryMappings.Add(new SelectedProductCategoryMapping(category, false));
-            }
-
-            model.SelectedTagMappings = tagMappings.OrderBy(t => t.StoreTag.TagName).ToList();
-            model.SelectedProductCategoryMappings = categoryMappings.OrderBy(c => c.ProductCategory.CategoryString).ToList();
-
-            List<Platform> platforms = storeService.GetPlatforms().ToList();
-
-            foreach (Platform platform in platforms)
-            {
-                if (model.StoreListings.Where(l => l.ContainsPlatform(platform)).Count() > 0)
-                {
-                    model.StorePlatforms.Add(platform);
-                }
-            }
-
-
-
-            model.FullNavList = CreateStoreControllerStoreNavList(model);
             
-            return View("Index", model);
+            model.FullNavList = CreateStoreControllerStoreNavList(model);
         }
 
         public List<NavGrouping> CreateStoreControllerStoreNavList(StoreIndexViewModel model)
@@ -464,123 +622,6 @@ namespace TheAfterParty.WebUI.Controllers
             navList.Add(deals);
 
             return navList;
-        }
-
-        
-        public async Task<ActionResult> UserBalances()
-        {
-            StoreBalancesViewModel model = new StoreBalancesViewModel();
-
-            if (HttpContext.User.Identity.IsAuthenticated)
-            {
-                model.LoggedInUser = await storeService.GetCurrentUser();
-                model.Users = storeService.GetAppUsers();
-            }
-            
-            return View();
-        }
-        
-        public ActionResult Deals(string id = "all")
-        {
-            // conform to route convention by accepting "id" parameter, but assign it to a new variable to make it clear what purpose it serves
-            string subsection = id;
-
-            StoreDealsViewModel model = new StoreDealsViewModel();
-
-            if (String.Compare(subsection.ToLower(), "all") == 0)
-            {
-                model.ListingsWithDeals = storeService.GetListingsWithDeals();
-                model.DealType = "All Deals";
-            }
-            else if (String.Compare(subsection.ToLower(), "daily") == 0)
-            {
-                model.ListingsWithDeals = storeService.GetListingsWithDeals().Where(l => l.HasDailyDeal());
-                model.IsDaily = true;
-                model.DealType = "Daily Deals";
-            }
-            else if (String.Compare(subsection.ToLower(), "weekly") == 0)
-            {
-                model.ListingsWithDeals = storeService.GetListingsWithDeals().Where(l => l.HasWeeklyDeal());
-                model.IsWeekly = true;
-                model.DealType = "Weekly Deals";
-            }
-            else if (String.Compare(subsection.ToLower(), "other") == 0)
-            {
-                model.ListingsWithDeals = storeService.GetListingsWithDeals().Where(d => d.HasDailyDeal() == false && d.HasWeeklyDeal() == false);
-                model.DealType = "Other Deals";
-            }
-            else
-            {
-                return RedirectToAction("Deals", new { id = "all" });
-            }
-
-            return View(model);
-        }
-
-
-
-        // Role = admin
-        public ActionResult AddGames(string id = "Steam")
-        {
-            // use the id convention, but place the id into a new variable to make it clear what it represents
-            string platformName = id;
-
-            AddGamesViewModel model = new AddGamesViewModel();
-            
-            foreach (Platform platform in storeService.GetPlatforms())
-            {
-                if (platform.PlatformName.ToLower().CompareTo(platformName.ToLower()) == 0)
-                {
-                    model.Platform = platform;
-                    return View(model);
-                }
-            }
-
-            return RedirectToAction("EditPlatform", new { id = platformName });
-        }
-
-        // Role = admin
-        [HttpPost]
-        public ActionResult AddGames(AddGamesViewModel model)
-        {
-            AddedListingsViewModel outputModel = new AddedListingsViewModel();
-
-            Platform platform = storeService.GetPlatformByID(model.Platform.PlatformID);
-
-            outputModel.NewListings = storeService.AddProductKeys(platform, model.Input);//.ToList();
-
-            return View("AddGamesSuccess", outputModel);
-        }
-
-        // role admin
-        public ActionResult EditPlatform(string id)
-        {
-            string platformName = id;
-            Platform existingPlatform = storeService.GetPlatforms().Where(p => object.Equals(platformName, p.PlatformName)).SingleOrDefault();
-
-            AddEditPlatformViewModel model = new AddEditPlatformViewModel();
-
-            if (existingPlatform != null)
-            {
-                model.Platform = existingPlatform;
-            }
-            else
-            {
-                model.Platform = new Platform();
-                model.Platform.PlatformName = platformName;
-            }
-
-            return View(model);
-        }
-
-        [HttpPost]
-        public ActionResult EditPlatform(AddEditPlatformViewModel model)
-        {
-            storeService.EditPlatform(model.Platform);
-
-            model.Success = true;
-
-            return View(model);
         }
     }
 }

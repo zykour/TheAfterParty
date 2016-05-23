@@ -25,7 +25,8 @@ h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6 {
 }
 
 .text-success {
-    color: #08db2c !important;
+    color: #5e9a34 !important;
+    font-weight: bold;
 }
 
 .body {
@@ -45,9 +46,17 @@ textarea {
     max-width: 280px;
 }
 
+.store-link {
+  color: #428bca;
+}
+
 .vertical-align {
     display: flex;
     align-items: center;
+}
+
+.sub-entry-border {
+    border-bottom: 1px solid #541d65;
 }
 
 .account-button { /*--Drop down trigger styles--*/
@@ -56,7 +65,7 @@ textarea {
     cursor: pointer;
     margin-left: 20px;
     line-height: 12px;
-    height: 24px;
+    height: 22px;
     width: 24px;
     border: 1px solid #000000;
     border-radius: 0px 5px 5px 0px;
@@ -81,7 +90,7 @@ textarea {
     background-color: #541d65;
     padding: 0 0 0 10px;
     margin: 0 2px;
-    height: 24px;
+    height: 22px;
 }
 
 .navbar-user-info-inner {
@@ -106,18 +115,33 @@ textarea {
 }
 
 .store-cart {
-    color: #08db2c !important;
+    color: #5e9a34 !important;
     cursor: pointer;
 }
 
 .store-blacklist {
     color: #dd1111 !important;
+    font-weight: bold;
+}
+
+.icon-image {
+    background-size: 18px 18px;
+    width: 20px;
+    height: 20px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.icon-image-container {
+    display: inline-block;
+    width: 18px;
+    margin-right: 3px;
 }
 
 .inner-store-banner-container {
-    background-size: 61px 23px;
-    width: 61px;
-    height: 23px;
+    background-size: 49px 18px;
+    width: 49px;
+    height: 18px;
 }
 
 .inner-avatar-nav-container {   
@@ -165,6 +189,7 @@ textarea {
     margin: 5px 5px 5px 5px;
     text-align: left;
     width: 65%;
+    color: #428bca !important;
 }
 
 .store-entry-price {
@@ -233,7 +258,7 @@ textarea {
     padding: 0 0 0 7px;
 }
 
-.reserve-tooltip-success-text, .reserve-tooltip-danger-text, ..reserve-tooltip-text {
+.reserve-tooltip-success-text, .reserve-tooltip-danger-text, .reserve-tooltip-text {
     visibility: hidden;
 }
 
@@ -253,7 +278,7 @@ textarea {
 }
 
 .reserve-tooltip-success-text {
-    color: #08db2c;
+    color: #5e9a34;
 }
 .reserve-tooltip-text {
     color: #808080;
@@ -283,23 +308,27 @@ textarea {
 .reserve-tooltip {
     position: relative;
     display: block;
+    margin-right: -8px;
+}
+
+.cart-adjustment {
+    margin-right: -5px;
 }
 
 .reserve-div-left {
-    border: 2px solid #1E1E1E;
     -moz-border-radius: 5px 0px 0px 5px;
     border-radius: 5px 0px 0px 5px;
-    padding: 3px 3px 3px 3px;
+    padding: 2.5px 5px 1px 3px;
     color: #ffd800;
     background-color: #541d65;
-    margin-right: 0;
+    margin-right: -1px;
 }
 
 .reserve-div-right {
-    border: 2px solid #1E1E1E;
+    border-left: 2px solid #1E1E1E;
     -moz-border-radius: 0px 5px 5px 0px;
     border-radius: 0px 5px 5px 0px;
-    padding: 1.5px 3px 1.5px 1px;
+    padding: 1px 3px 0px 2px;
     margin-left: -6px;
     color: #ffd800 !important;
     background-color: #541d65;
@@ -393,7 +422,7 @@ textarea {
 .store-filter {
     font: bold 9px/11px Arial, sans-serif;
     font-weight: bold;
-    color: #08db2c !important;
+    color: #5e9a34 !important;
 }
 .store-search {
     padding-top: 35px;
@@ -401,7 +430,7 @@ textarea {
 .nav-item-text {
     font: bold 9px/11px Arial, sans-serif;
     font-weight: bold;
-    color: #08db2c !important;
+    color: #5e9a34 !important;
 }
 .nav-underline {
     -webkit-box-flex: 1;
@@ -578,6 +607,7 @@ html ul.topnav li ul.subnav li a:before {
 .navbar-sm .navbar-primary .navbar .navbar-brand{ padding: 0px 12px;font-size: 16px;line-height: 40px; }
 .navbar-sm .navbar-primary .navbar .navbar-nav > li > a {  padding-top: 0px; padding-bottom: 0px; line-height: 40px; }
 body { margin-top: 32px; padding-top: 32px;}
+a:hover, a:visited, a:link, a:active { text-decoration: none !important; }
 .navbar-header { min-height: 32px;}
 
 .input-group-xs > .form-control,
