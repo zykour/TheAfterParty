@@ -63,7 +63,7 @@
                             <button name="GameSort" value="1" type="submit" class="btn-transparent text-primary header-text">Game</button>
                         }
                     </div>
-                    <div class="col-lg-1 text-center"><button class="btn-transparent text-primary header-text" style="cursor: default;">Platforms</button></div>
+                    <div class="platform-header col-lg-1"><span class="text-primary text-left header-text">Platforms</span></div>
                     <div class="col-lg-1">
                         @if (Model.PreviousQuantitySort == 1)
                         {
@@ -221,11 +221,11 @@
             <br />
             @if (Context.User.Identity.IsAuthenticated)
             {
-            <span class="text-primary">User Filters</span>
+            <h3 class="text-primary nav-grouping-header" style="width: 100%;">User Filters</h3>
             if (Model.PreviousFilterLibrary)
             {
                 <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
-                    <i class="glyphicon glyphicon-check text-success"></i> @Html.Label("Unowned", new { @class = "text-success store-filter" })
+                    <i class="glyphicon glyphicon-check"></i> @Html.Label("Unowned", new { @class = "text-success store-filter" })
                 </button>
             }
             else
@@ -261,10 +261,8 @@
                 </button>
             }
             <br />
-            <br />
             }
-            <span class="text-primary">Categories</span>
-            <br />
+            <h3 class="text-primary nav-grouping-header">Categories</h3>
             @if (Model.SelectedProductCategoryMappings != null)
             {
                 for (int i = 0; i < Model.SelectedProductCategoryMappings.Count(); i++)
@@ -288,9 +286,7 @@
                     <br />
                 }
             }
-            <br />
-            <span class="text-primary">Genres & Tags</span>
-            <br />
+            <h3 class="text-primary nav-grouping-header">Genres & Tags</h3>
             @if (Model.SelectedTagMappings != null)
             {
                 for (int i = 0; i < Model.SelectedTagMappings.Count(); i++)

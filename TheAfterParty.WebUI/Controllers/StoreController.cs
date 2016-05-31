@@ -244,7 +244,6 @@ namespace TheAfterParty.WebUI.Controllers
             model.StoreListings = model.StoreListings.OrderBy(l => l.ListingName).ToList();
 
             model.LoggedInUser = await storeService.GetCurrentUser();
-            model.FullNavList = CreateStoreControllerStoreNavList(model);
 
             List<Platform> platforms = storeService.GetPlatforms().ToList();
 
@@ -257,6 +256,7 @@ namespace TheAfterParty.WebUI.Controllers
             }
 
             model.StorePlatforms.OrderBy(p => p.PlatformName).ToList();
+            model.FullNavList = CreateStoreControllerStoreNavList(model);
 
             List<SelectedTagMapping> tagMappings = new List<SelectedTagMapping>();
 

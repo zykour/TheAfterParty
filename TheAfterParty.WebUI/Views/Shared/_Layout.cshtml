@@ -116,13 +116,17 @@
                                 @if (Model.LoggedInUser.SmallAvatar != null)
                                 {
                                     <div class="outer-avatar-nav-container vertical-align">
-                                        <div class="inner-avatar-nav-container vertical-align" style="background-image: url(@Model.LoggedInUser.SmallAvatar)"></div>
+                                        <a href="@Url.Action("userprofile","user", new { id = Model.LoggedInUser.UserName })">
+                                            <div class="inner-avatar-nav-container vertical-align" style="background-image: url(@Model.LoggedInUser.SmallAvatar)"></div>
+                                        </a>
                                     </div>
                                 }
                                 else
                                 {
                                     <div class="outer-avatar-nav-container vertical-align">
-                                        <div class="inner-avatar-container vertical-align"></div>
+                                        <a href="@Url.Action("userprofile","user", new { id = Model.LoggedInUser.UserName })">
+                                            <div class="inner-avatar-container vertical-align"></div>
+                                        </a>
                                     </div>
                                 }
                             </div>
