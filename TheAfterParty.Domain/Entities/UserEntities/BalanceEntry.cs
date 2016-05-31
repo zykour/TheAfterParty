@@ -32,6 +32,9 @@ namespace TheAfterParty.Domain.Entities
         // how many points were adjusted
         public int PointsAdjusted { get; set; }
 
+       // public int ObjectiveID { get; set; }
+       // public Objective CompletedObjective { get; set; }
+
         // when the balance change was made
         public DateTime Date { get; set; }
     }

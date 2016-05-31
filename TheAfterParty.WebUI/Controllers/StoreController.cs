@@ -7,9 +7,9 @@ using System.Web.Mvc;
 using TheAfterParty.Domain.Services;
 using TheAfterParty.WebUI.Models.Store;
 using System.Threading.Tasks;
+using TheAfterParty.WebUI.Models._Nav;
 using TheAfterParty.Domain.Entities;
 using System.Text.RegularExpressions;
-using TheAfterParty.WebUI.Models._Nav;
 
 namespace TheAfterParty.WebUI.Controllers
 {

@@ -283,6 +283,7 @@
     <Compile Include="Models\Giveaways\GiveawaysModel.cs" />
     <Compile Include="Models\Home\HomeActivityFeedModel.cs" />
     <Compile Include="Models\Home\HomeTestModel.cs" />
+    <Compile Include="Models\Objectives\ObjectivesIndexViewModel.cs" />
     <Compile Include="Models\Store\AddedListingsViewModel.cs" />
     <Compile Include="Models\Store\AddGamesViewModel.cs" />
     <Compile Include="Models\Store\AddEditPlatformViewModel.cs" />
