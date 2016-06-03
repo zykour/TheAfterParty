@@ -95,6 +95,7 @@ namespace TheAfterParty.Domain.Concrete
 
             // Objective ---
             modelBuilder.Entity<BoostedObjective>().HasRequired<Objective>(bo => bo.Objective).WithOptional(o => o.BoostedObjective).WillCascadeOnDelete(true);
+            modelBuilder.Entity<BalanceEntry>().HasOptional<Objective>(be => be.Objective).WithMany(o => o.BalanceEntries).WillCascadeOnDelete(false);
 
             // Order ---
             modelBuilder.Entity<ProductOrderEntry>().HasRequired<Order>(poe => poe.Order).WithMany(o => o.ProductOrderEntries).HasForeignKey(poe => poe.OrderID).WillCascadeOnDelete(true);
@@ -125,7 +126,7 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<ProductCategory>().HasMany<Product>(pc => pc.Products).WithMany(p => p.ProductCategories);
 
             // Product/Objective ---
-            modelBuilder.Entity<Objective>().HasMany<Product>(o => o.Products).WithMany(p => p.Objectives);
+            modelBuilder.Entity<Objective>().HasOptional<Product>(o => o.Product).WithMany(p => p.Objectives);
 
             // ProductDetail ---
             modelBuilder.Entity<AppMovie>().HasRequired<ProductDetail>(am => am.ProductDetail).WithMany(pd => pd.AppMovies).HasForeignKey(am => am.ProductDetailID).WillCascadeOnDelete(true);

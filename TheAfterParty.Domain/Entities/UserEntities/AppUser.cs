@@ -239,6 +239,11 @@ namespace TheAfterParty.Domain.Entities
             if (OwnedGames == null) return false;
             return (OwnedGames.Where(o => o.AppID == listing.Product.AppID).Count() >= 1) ? true : false;
         }
+        public bool OwnsProduct(Product product)
+        {
+            if (OwnedGames == null) return false;
+            return (OwnedGames.Where(o => o.AppID == product.AppID).Count() >= 1) ? true : false;
+        }
         public void AddOwnedGame(OwnedGame ownedGame)
         {
             if (OwnedGames == null)

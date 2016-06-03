@@ -167,6 +167,35 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         listingRepository.InsertListing(l);
         unitOfWork.Save();
 
+        Objective obj = new Objective();
+        obj.AddProduct(p);
+        obj.ObjectiveName = "Grandmaster";
+        obj.Description = "Beat Monu in a game of chess.";
+        obj.IsActive = true;
+        obj.RequiresAdmin = true;
+        obj.Reward = 5;
+
+        objectiveRepository.InsertObjective(obj);
+        unitOfWork.Save();
+
+        obj = new Objective();
+        obj.AddProduct(p);
+        obj.Title = "Tabletop Simulator";
+        obj.ObjectiveName = "Tower Defender";
+        obj.Description = "Win a game of Castle Panic!";
+        obj.IsActive = true;
+        obj.RequiresAdmin = false;
+        obj.Reward = 4;
+
+        BoostedObjective bObj = new BoostedObjective();
+        bObj.BoostAmount = .5;
+        bObj.EndDate = DateTime.Today.AddDays(1);
+        obj.AddBoostedObjective(bObj);
+
+        objectiveRepository.InsertObjective(obj);
+        objectiveRepository.InsertBoostedObjective(bObj);
+        unitOfWork.Save();
+
         DiscountedListing dl2 = new DiscountedListing() { DailyDeal = true, ItemDiscountPercent = 25, ItemSaleExpiry = DateTime.Today, WeeklyDeal = false };
         l = new Listing("Warhammer: The End Times - Vermintide", 60, dateAdded);
         p = new Product(235540, "Warhammer: The End Times - Vermintide");
@@ -188,6 +217,17 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         l.Product.AddProductCategory(cp);
 
         listingRepository.InsertListing(l);
+        unitOfWork.Save();
+
+        obj = new Objective();
+        obj.AddProduct(p);
+        obj.ObjectiveName = "The Pied Piper";
+        obj.Description = "Beat any map with at least one other TAP member";
+        obj.IsActive = true;
+        obj.RequiresAdmin = false;
+        obj.Reward = 2;
+
+        objectiveRepository.InsertObjective(obj);
         unitOfWork.Save();
 
         l = new Listing("Portal 2", 15, dateAdded);

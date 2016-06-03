@@ -1,0 +1,19 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Objectives
+@model AddEditBoostedObjectiveViewModel
+
+@{
+    ViewBag.Title = "Edit Boosted Objective";
+}
+
+<h2>Edit Boosted Objective</h2>
+
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("AddBoostedObjective", "Objectives", FormMethod.Post))
+{
+<span>Objective ID: </span>@Html.LabelFor(x => x.BoostedObjective.BoostedObjectiveID)<br />
+<span>Ends in days: </span>@Html.TextBoxFor(x => x.DaysToAdd)<br />
+<span>Boost amount: </span>@Html.TextBoxFor(x => x.BoostedObjective.BoostAmount)<br />
+<input type="submit" name="Submit"/>
+}

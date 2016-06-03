@@ -283,6 +283,9 @@
     <Compile Include="Models\Giveaways\GiveawaysModel.cs" />
     <Compile Include="Models\Home\HomeActivityFeedModel.cs" />
     <Compile Include="Models\Home\HomeTestModel.cs" />
+    <Compile Include="Models\Objectives\AddEditBoostedObjectiveViewModel.cs" />
+    <Compile Include="Models\Objectives\AddEditObjectivesViewModel.cs" />
+    <Compile Include="Models\Objectives\AdminObjectivesViewModel.cs" />
     <Compile Include="Models\Objectives\ObjectivesIndexViewModel.cs" />
     <Compile Include="Models\Store\AddedListingsViewModel.cs" />
     <Compile Include="Models\Store\AddGamesViewModel.cs" />
@@ -326,6 +329,11 @@
     <Content Include="Views\Home\ActivityFeed.cshtml" />
     <Content Include="Views\Auction\Index.cshtml" />
     <Content Include="Views\Auction\Auction.cshtml" />
+    <Content Include="Views\Objectives\AdminObjectives.cshtml" />
+    <Content Include="Views\Objectives\AddObjective.cshtml" />
+    <Content Include="Views\Objectives\EditObjective.cshtml" />
+    <Content Include="Views\Objectives\EditBoostedObjective.cshtml" />
+    <Content Include="Views\Objectives\AddBoostedObjective.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

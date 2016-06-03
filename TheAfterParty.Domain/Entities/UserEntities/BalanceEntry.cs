@@ -37,5 +37,7 @@ namespace TheAfterParty.Domain.Entities
 
         // when the balance change was made
         public DateTime Date { get; set; }
+        
+        public virtual Objective Objective { get; set; }
     }
 }

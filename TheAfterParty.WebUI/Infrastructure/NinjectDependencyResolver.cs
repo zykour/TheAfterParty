@@ -47,6 +47,7 @@ namespace TheAfterParty.WebUI.Infrastructure
             kernel.Bind<IPurchaseService>().To<PurchaseService>().InRequestScope();
             kernel.Bind<IStoreService>().To<StoreService>().InRequestScope();
             kernel.Bind<IUserService>().To<UserService>().InRequestScope();
+            kernel.Bind<IObjectivesService>().To<ObjectivesService>().InRequestScope();
         }
     }
 }

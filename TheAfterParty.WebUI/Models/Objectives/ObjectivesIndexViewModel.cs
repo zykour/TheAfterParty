@@ -10,6 +10,16 @@ namespace TheAfterParty.WebUI.Models.Objectives
 {
     public class ObjectivesIndexViewModel : NavModel
     {
+        public ObjectivesIndexViewModel()
+        {
+            Objectives = new List<Objective>();
+            SelectedTagMappings = new List<SelectedTagMapping>();
+
+            TagToChange = 0;
+            PreviousFilterLibrary = false;
+            FilterLibrary = false;
+        }
+
         public List<Objective> Objectives { get; set; }
 
         public List<SelectedTagMapping> SelectedTagMappings { get; set; }

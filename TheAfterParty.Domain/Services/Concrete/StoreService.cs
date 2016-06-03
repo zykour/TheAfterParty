@@ -101,7 +101,7 @@ namespace TheAfterParty.Domain.Services
         {
             return listingRepository.GetProductCategoryByID(id);
         }
-        
+
         public List<String> AddProductKeys(Platform platform, string input)
         {
             if (platform.PlatformName.ToLower().CompareTo("steam") == 0)

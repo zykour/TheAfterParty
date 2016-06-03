@@ -1,0 +1,61 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Objectives
+@model AdminObjectivesViewModel
+
+@{
+    ViewBag.Title = "Objectives";
+}
+
+<h2>Admin Objectives</h2>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-1">ObjectiveID</div>
+        <div class="col-lg-1">Category</div>
+        <div class="col-lg-1">Title</div>
+        <div class="col-lg-1">ObjectiveName</div>
+        <div class="col-lg-3">Description</div>
+        <div class="col-lg-1">Reward</div>
+        <div class="col-lg-1">Boosted</div>
+        <div class="col-lg-1">IsActive</div>
+        <div class="col-lg-1">RequiresAdmin</div>
+        <div class="col-lg-1">ProductID</div>
+    </div>
+    @foreach(Objective obj in Model.Objectives)
+    {
+        <div class="row">
+            <div class="col-lg-1"><a href="/Objectives/EditObjective/@obj.ObjectiveID">@obj.ObjectiveID</a></div>
+            <div class="col-lg-1">@obj.Category</div>
+            <div class="col-lg-1">@obj.Title</div>
+            <div class="col-lg-1">@obj.ObjectiveName</div>
+            <div class="col-lg-3">@obj.Description</div>
+            <div class="col-lg-1">@obj.Reward (@obj.FixedReward())</div>
+            <div class="col-lg-1">
+                @if (obj.BoostedObjective == null)
+                {
+                    <a href="/Objectives/AddBoostedObjectiveWithObjectiveID/@obj.ObjectiveID">N</a>
+                }
+                else
+                {
+                    <a href="/Objectives/EditBoostedObjective/@obj.ObjectiveID">Y</a>
+                }
+            </div>
+            <div class="col-lg-1">@obj.IsActive</div>
+            <div class="col-lg-1">@obj.RequiresAdmin</div>
+            <div class="col-lg-1">@((obj.Product == null) ? "N" : obj.Product.ProductID.ToString())</div>
+        </div>
+    }
+    @foreach (BoostedObjective bObj in Model.BoostedObjectives)
+    {
+        <div class="row">
+            <div class="col-lg-1"><a href="/Objectives/EditBoostedObjective/@bObj.BoostedObjectiveID">Y</a></div>
+            <div class="col-lg-1">@bObj.BoostAmount</div>
+            <div class="col-lg-2">@bObj.EndDate</div>
+            <div class="col-lg-2">@bObj.Objective.Title</div>
+            <div class="col-lg-2">@bObj.Objective.ObjectiveName</div>
+            <div class="col-lg-4">@bObj.Objective.Description</div>
+        </div>
+    }
+</div>
+<a href="/Objectives/AddObjective/">Add Objective</a>
+<a href="/Objectives/AddBoostedObjective/">Add Boosted Objective</a>

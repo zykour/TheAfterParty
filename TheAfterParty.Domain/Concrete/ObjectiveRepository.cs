@@ -51,6 +51,9 @@ namespace TheAfterParty.Domain.Concrete
                 targetObjective.Category = objective.Category;
                 targetObjective.RequiresAdmin = objective.RequiresAdmin;
                 targetObjective.Reward = objective.Reward;
+                targetObjective.IsActive = objective.IsActive;
+                targetObjective.Title = objective.Title;
+                targetObjective.ObjectiveName = objective.ObjectiveName;
             }
 
             if (objective.BoostedObjective != null)
