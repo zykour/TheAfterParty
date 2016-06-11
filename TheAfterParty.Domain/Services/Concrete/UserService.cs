@@ -106,6 +106,59 @@ namespace TheAfterParty.Domain.Services
             }
         }
 
+        void CreateBalanceEntry(BalanceEntry entry)
+        {
+            userRepository.InsertBalanceEntry(entry);
+            unitOfWork.Save();
+        }
+
+        void EditBalanceEntry(BalanceEntry entry)
+        {
+            userRepository.UpdateBalanceEntry(entry);
+            unitOfWork.Save();
+        }
+
+        public BalanceEntry GetBalanceEntryByID(int id)
+        {
+            return userRepository.GetBalanceEntryByID(id);
+        }
+
+        public void DeleteBalanceEntry(int id)
+        {
+            BalanceEntry entry = userRepository.GetBalanceEntryByID(id);
+
+            entry.AppUser.Balance -= entry.PointsAdjusted;
+
+            UserManager.UpdateAsync(entry.AppUser);
+
+            userRepository.DeleteBalanceEntry(id);
+
+            unitOfWork.Save();
+        }
+
+        public void CreateClaimedProductKey(ClaimedProductKey key)
+        {
+            userRepository.InsertClaimedProductKey(key);
+            unitOfWork.Save();
+        }
+
+        public void EditClaimedProductKey(ClaimedProductKey key)
+        {
+            userRepository.UpdateClaimedProductKey(key);
+            unitOfWork.Save();
+        }
+
+        public ClaimedProductKey GetClaimedProductKeyByID(int id)
+        {
+            return userRepository.GetClaimedProductKeyByID(id);
+        }
+
+        public void DeleteClaimedProductKey(int id)
+        {
+            userRepository.DeleteClaimedProductKey(id);
+            unitOfWork.Save();
+        }
+
         public async Task<List<ActivityFeedContainer>> GetActivityFeedItems()
         {
             AppUser user = await GetCurrentUser();

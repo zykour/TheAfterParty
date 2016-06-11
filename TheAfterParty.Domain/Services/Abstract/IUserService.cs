@@ -31,6 +31,16 @@ namespace TheAfterParty.Domain.Services
         Task<int> GetPublicAuctionReservedBalance();
         Task<int> GetCartTotal();
 
+        void CreateBalanceEntry(BalanceEntry entry);
+        void EditBalanceEntry(BalanceEntry entry);
+        BalanceEntry GetBalanceEntryByID(int id);
+        void DeleteBalanceEntry(int id);
+
+        void CreateClaimedProductKey(ClaimedProductKey key);
+        void EditClaimedProductKey(ClaimedProductKey key);
+        ClaimedProductKey GetClaimedProductKeyByID(int id);
+        void DeleteClaimedProductKey(int id);
+
         void MarkKeyUsed(int keyId);
         void RevealKey(int keyId);
 

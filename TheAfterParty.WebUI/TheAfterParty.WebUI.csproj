@@ -295,6 +295,15 @@
     <Compile Include="Models\Store\StoreBalancesViewModel.cs" />
     <Compile Include="Models\Store\StoreDealsViewModel.cs" />
     <Compile Include="Models\Store\StoreIndexViewModel.cs" />
+    <Compile Include="Models\User\AddEditAppUserViewModel.cs" />
+    <Compile Include="Models\User\AddEditBalanceEntryViewModel.cs" />
+    <Compile Include="Models\User\AddEditClaimedProductKeyViewModel.cs" />
+    <Compile Include="Models\User\AddEditOrderViewModel.cs" />
+    <Compile Include="Models\User\AddEditProductOrderEntryViewModel.cs" />
+    <Compile Include="Models\User\AdminAppUserViewModel.cs" />
+    <Compile Include="Models\User\AdminBalanceEntryViewModel.cs" />
+    <Compile Include="Models\User\AdminClaimedProductKeyViewModel.cs" />
+    <Compile Include="Models\User\AdminOrderViewModel.cs" />
     <Compile Include="Models\User\UserActivityFeedModel.cs" />
     <Compile Include="Models\User\UserAddBalancesViewModel.cs" />
     <Compile Include="Models\User\UserIndexModel.cs" />
@@ -334,6 +343,20 @@
     <Content Include="Views\Objectives\EditObjective.cshtml" />
     <Content Include="Views\Objectives\EditBoostedObjective.cshtml" />
     <Content Include="Views\Objectives\AddBoostedObjective.cshtml" />
+    <Content Include="Views\User\AddBalanceEntry.cshtml" />
+    <Content Include="Views\User\AddAppUser.cshtml" />
+    <Content Include="Views\User\AddClaimedProductKey.cshtml" />
+    <Content Include="Views\User\AddOrder.cshtml" />
+    <Content Include="Views\User\AddProductOrderEntry.cshtml" />
+    <Content Include="Views\User\EditAppUser.cshtml" />
+    <Content Include="Views\User\EditBalanceEntry.cshtml" />
+    <Content Include="Views\User\EditClaimedProductKey.cshtml" />
+    <Content Include="Views\User\EditOrder.cshtml" />
+    <Content Include="Views\User\EditProductOrderEntry.cshtml" />
+    <Content Include="Views\User\AdminAppUsers.cshtml" />
+    <Content Include="Views\User\AdminBalanceEntries.cshtml" />
+    <Content Include="Views\User\AdminClaimedProductKeys.cshtml" />
+    <Content Include="Views\User\AdminOrders.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
