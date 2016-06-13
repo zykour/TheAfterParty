@@ -19,7 +19,7 @@ namespace TheAfterParty.Domain.Services
         List<AppUser> GetAdmins();
         Task<AppUser> GetUserByID(string id);
 
-        Task<List<Order>> GetOrders();
+        Task<List<Order>> GetUserOrders();
         Task<List<ClaimedProductKey>> GetKeys();
 
         Task<List<ActivityFeedContainer>> GetActivityFeedItems();
@@ -31,15 +31,29 @@ namespace TheAfterParty.Domain.Services
         Task<int> GetPublicAuctionReservedBalance();
         Task<int> GetCartTotal();
 
-        void CreateBalanceEntry(BalanceEntry entry);
+        Task CreateAppUser(AppUser appUser, string roleToAdd, string apiKey);
+        Task EditAppUser(AppUser appUser, string roleToAdd, string roleToRemove);
+
+        ICollection<BalanceEntry> GetBalanceEntries();
+        void CreateBalanceEntry(BalanceEntry entry, int objectiveId, string nickname);
         void EditBalanceEntry(BalanceEntry entry);
         BalanceEntry GetBalanceEntryByID(int id);
         void DeleteBalanceEntry(int id);
 
-        void CreateClaimedProductKey(ClaimedProductKey key);
+        void CreateClaimedProductKey(ClaimedProductKey key, string nickname);
         void EditClaimedProductKey(ClaimedProductKey key);
         ClaimedProductKey GetClaimedProductKeyByID(int id);
         void DeleteClaimedProductKey(int id);
+        ICollection<ClaimedProductKey> GetClaimedProductKeys();
+
+        void CreateOrder(Order order, string nickname, ProductOrderEntry entry, bool alreadyCharged);
+        void EditOrder(Order order);
+        Order GetOrderByID(int id);
+        void DeleteOrder(int id);
+        ICollection<Order> GetOrders();
+        ProductOrderEntry GetProductOrderEntryByID(int id);
+        void EditProductOrderEntry(ProductOrderEntry orderEntry);
+        void DeleteProductOrderEntry(int id);
 
         void MarkKeyUsed(int keyId);
         void RevealKey(int keyId);

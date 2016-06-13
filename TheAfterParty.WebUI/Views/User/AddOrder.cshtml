@@ -1,7 +1,20 @@
-﻿
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.User
+@model AddEditOrderViewModel
+
 @{
-    ViewBag.Title = "AddOrder";
+    ViewBag.Title = "Add Order";
 }
 
-<h2>AddOrder</h2>
+<h2>Add User Key</h2>
 
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("AddOrder", "User", FormMethod.Post))
+{
+    <span>User nickname: </span>@Html.TextBoxFor(x => x.UserNickName)<br />
+    <span>Listing id: </span>@Html.TextBoxFor(x => x.ProductOrderEntry.ListingID)<br />
+    <span>Charged price: </span>@Html.TextBoxFor(x => x.ProductOrderEntry.SalePrice, new { @Value = "0" })<br />
+    <span>User already charged: </span>@Html.CheckBoxFor(x => x.AlreadyCharged)<br />
+    <input type="submit" name="Submit" />
+}

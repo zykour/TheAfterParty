@@ -48,7 +48,7 @@ namespace TheAfterParty.WebUI.Controllers
         {
             AccountOrdersModel view = new AccountOrdersModel();
 
-            view.Orders = await userService.GetOrders();
+            view.Orders = await userService.GetUserOrders();
 
             view.Orders.OrderBy(o => o.SaleDate);
 

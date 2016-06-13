@@ -14,6 +14,6 @@
 {
 <span>Objective ID: </span>@Html.LabelFor(x => x.BoostedObjective.BoostedObjectiveID)<br />
 <span>Ends in days: </span>@Html.TextBoxFor(x => x.DaysToAdd)<br />
-<span>Boost amount: </span>@Html.TextBoxFor(x => x.BoostedObjective.BoostAmount)<br />
+<span>Boost amount: </span>@Html.TextBoxFor(x => x.BoostedObjective.BoostAmount, new { @Value = Model.BoostedObjective.BoostAmount })<br />
 <input type="submit" name="Submit"/>
 }

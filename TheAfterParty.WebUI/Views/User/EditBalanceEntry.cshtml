@@ -1,7 +1,20 @@
-﻿
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.User
+@model AddEditBalanceEntryViewModel
+
 @{
-    ViewBag.Title = "EditBalanceEntry";
+    ViewBag.Title = "Edit Balance Entry";
 }
 
-<h2>EditBalanceEntry</h2>
+<h2>Edit Balance Entry</h2>
 
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("EditBalanceEntry", "User", FormMethod.Post))
+{
+<span>Points adjusted (can leave blank if supplying objective ID): </span>@Html.TextBoxFor(x => x.BalanceEntry.PointsAdjusted, new { @Value = Model.BalanceEntry.PointsAdjusted })<<br />
+<span>Note: </span>@Html.TextBoxFor(x => x.BalanceEntry.Notes, new { @Value = Model.BalanceEntry.Notes })<br />
+<span>User nickname: </span>@Html.TextBoxFor(x => x.UserNickName, new { @Value = Model.UserNickName })<br />
+<span>Objective ID (optional): </span>@Html.TextBoxFor(x => x.ObjectiveID, new { @Value = Model.ObjectiveID })<br />
+<input type="submit" name="Submit" />
+}

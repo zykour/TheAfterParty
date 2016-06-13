@@ -1,7 +1,32 @@
-﻿
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.User
+@model AdminBalanceEntryViewModel
+
 @{
-    ViewBag.Title = "AdminBalanceEntries";
+    ViewBag.Title = "Balances";
 }
 
-<h2>AdminBalanceEntries</h2>
+<h2>Admin Balances</h2>
 
+<div class="container">
+    <div class="row">
+        <div class="col-lg-2">Action</div>
+        <div class="col-lg-2">Nickname</div>
+        <div class="col-lg-2">Date</div>
+        <div class="col-lg-2">Points Adjusted</div>
+        <div class="col-lg-2">Notes</div>
+        <div class="col-lg-2">Objective Name</div>
+    </div>
+    @foreach (BalanceEntry entry in Model.BalanceEntries)
+    {
+        <div class="row">
+            <div class="col-lg-2">@Html.ActionLink("Edit", "EditBalanceEntry", "User", new { id = entry.BalanceEntryID })</div>
+            <div class="col-lg-2">@entry.AppUser.Nickname</div>
+            <div class="col-lg-2">@entry.Date</div>
+            <div class="col-lg-2">@entry.PointsAdjusted</div>
+            <div class="col-lg-2">@entry.Notes</div>
+            <div class="col-lg-2">@((entry.Objective == null) ? "" : entry.Objective.ObjectiveName)</div>
+        </div>
+    }
+</div>
+<a href="/User/AddBalanceEntry/">Add Balance</a>

@@ -10,5 +10,6 @@ namespace TheAfterParty.WebUI.Models.User
     public class AddEditClaimedProductKeyViewModel : NavModel
     {
         public ClaimedProductKey ClaimedProductKey { get; set; }
+        public string UserNickName { get; set; }
     }
 }

@@ -26,17 +26,19 @@ namespace TheAfterParty.Domain.Services
         private IPrizeRepository prizeRepository;
         private IGiveawayRepository giveawayRepository;
         private IAuctionRepository auctionRepository;
+        private IObjectiveRepository objectiveRepository;
         private IUnitOfWork unitOfWork;
         public AppUserManager UserManager { get; private set; }
         public string userName { get; set; }
 
-        public UserService(IListingRepository listingRepository, IUserRepository userRepository, IPrizeRepository prizeRepository, IGiveawayRepository giveawayRepository, IAuctionRepository auctionRepository, IUnitOfWork unitOfWork) : this(new AppUserManager(new UserStore<AppUser>(unitOfWork.DbContext)))
+        public UserService(IListingRepository listingRepository, IUserRepository userRepository, IPrizeRepository prizeRepository, IGiveawayRepository giveawayRepository, IAuctionRepository auctionRepository, IObjectiveRepository objectiveRepository, IUnitOfWork unitOfWork) : this(new AppUserManager(new UserStore<AppUser>(unitOfWork.DbContext)))
         {
             this.listingRepository = listingRepository;
             this.userRepository = userRepository;
             this.prizeRepository = prizeRepository;
             this.giveawayRepository = giveawayRepository;
             this.auctionRepository = auctionRepository;
+            this.objectiveRepository = objectiveRepository;
             this.unitOfWork = unitOfWork;
         }
         protected UserService(AppUserManager userManager)
@@ -106,13 +108,98 @@ namespace TheAfterParty.Domain.Services
             }
         }
 
-        void CreateBalanceEntry(BalanceEntry entry)
+        public async Task CreateAppUser(AppUser appUser, string roleToAdd, string apiKey)
         {
+            BuildUser(appUser, apiKey);
+            appUser.MemberSince = DateTime.Now;
+
+            await UserManager.CreateAsync(appUser);
+
+            if (String.IsNullOrEmpty(roleToAdd) == false)
+            {
+                if (roleToAdd.Contains(","))
+                {
+                    string[] rolesToAdd = roleToAdd.Split(new char[] { ',' });
+
+                    foreach (string role in rolesToAdd)
+                    {
+                        await UserManager.AddToRoleAsync(appUser.Id, roleToAdd);
+                    }
+                }
+                else
+                {
+                    await UserManager.AddToRoleAsync(appUser.Id, roleToAdd);
+                }
+            }
+        }
+
+        public async Task EditAppUser(AppUser appUser, string roleToAdd, string roleToRemove)
+        {
+            await UserManager.UpdateAsync(appUser);
+
+            if (String.IsNullOrEmpty(roleToAdd) == false)
+            {
+                if (roleToAdd.Contains(","))
+                {
+                    string[] rolesToAdd = roleToAdd.Split(new char[] { ',' });
+
+                    foreach (string role in rolesToAdd)
+                    {
+                        await UserManager.AddToRoleAsync(appUser.Id, role);
+                    }
+                }
+                else
+                {
+                    await UserManager.AddToRoleAsync(appUser.Id, roleToAdd);
+                }
+            }
+
+            if (String.IsNullOrEmpty(roleToRemove) == false)
+            {
+                if (roleToRemove.Contains(","))
+                {
+                    string[] rolesToRemove = roleToRemove.Split(new char[] { ',' });
+
+                    foreach (string role in rolesToRemove)
+                    {
+                        await UserManager.RemoveFromRoleAsync(appUser.Id, role);
+                    }
+                }
+                else
+                {
+                    await UserManager.RemoveFromRoleAsync(appUser.Id, roleToRemove);
+                }
+            }
+        }
+
+        public void CreateBalanceEntry(BalanceEntry entry, int objectiveId, string nickname)
+        {
+            if (objectiveId != 0)
+            {
+                entry.Objective = objectiveRepository.GetObjectiveByID(objectiveId);
+                if (entry.PointsAdjusted == 0)
+                {
+                    entry.PointsAdjusted = entry.Objective.FixedReward();
+                }
+            }
+
+            if (String.IsNullOrEmpty(nickname) == false)
+            {
+                entry.AppUser = userRepository.GetAppUsers().Where(a => object.Equals(nickname.ToUpper(), a.UserName.ToUpper())).SingleOrDefault();
+            }
+
+            if (entry.AppUser == null)
+            {
+                return;
+            }
+
+            entry.Date = DateTime.Now;
+
             userRepository.InsertBalanceEntry(entry);
             unitOfWork.Save();
         }
 
-        void EditBalanceEntry(BalanceEntry entry)
+        public void EditBalanceEntry(BalanceEntry entry)
         {
             userRepository.UpdateBalanceEntry(entry);
             unitOfWork.Save();
@@ -136,8 +223,30 @@ namespace TheAfterParty.Domain.Services
             unitOfWork.Save();
         }
 
-        public void CreateClaimedProductKey(ClaimedProductKey key)
+        public ICollection<BalanceEntry> GetBalanceEntries()
         {
+            return userRepository.GetBalanceEntries().ToList();
+        }
+
+        public void CreateClaimedProductKey(ClaimedProductKey key, string nickname)
+        {
+            if (key.ListingID != 0)
+            {
+                key.Listing = listingRepository.GetListingByID(key.ListingID);
+            }
+
+            if (String.IsNullOrEmpty(nickname) == false)
+            {
+                key.AppUser = userRepository.GetAppUsers().Where(a => object.Equals(nickname.ToUpper(), a.UserName.ToUpper())).SingleOrDefault();
+            }
+
+            if (key.AppUser == null)
+            {
+                return;
+            }
+
+            key.Date = DateTime.Now;
+
             userRepository.InsertClaimedProductKey(key);
             unitOfWork.Save();
         }
@@ -159,13 +268,111 @@ namespace TheAfterParty.Domain.Services
             unitOfWork.Save();
         }
 
+        public ICollection<ClaimedProductKey> GetClaimedProductKeys()
+        {
+            return userRepository.GetClaimedProductKeys().ToList();
+        }
+
+        public void CreateOrder(Order order, string nickname, ProductOrderEntry entry, bool alreadyCharged)
+        {
+            if (String.IsNullOrEmpty(nickname) == false)
+            {
+                order.AppUser = userRepository.GetAppUsers().Where(a => object.Equals(nickname.ToUpper(), a.Nickname.ToUpper())).SingleOrDefault();
+            }
+
+            if (entry.ListingID != 0)
+            {
+                entry.Listing = listingRepository.GetListingByID(entry.ListingID);
+            }
+
+            order.ProductOrderEntries = new List<ProductOrderEntry>() { entry };
+            order.SaleDate = DateTime.Now;
+
+            if (alreadyCharged == false)
+            {
+                BalanceEntry balanceEntry = new BalanceEntry();
+                balanceEntry.Date = DateTime.Now;
+                balanceEntry.AppUser = order.AppUser;
+                balanceEntry.Notes = "Admin-created order";
+                balanceEntry.PointsAdjusted = order.TotalSalePrice();
+
+                userRepository.InsertBalanceEntry(balanceEntry);
+            }
+
+            userRepository.InsertOrder(order);
+            unitOfWork.Save();
+        }
+
+        public void EditOrder(Order order)
+        {
+            userRepository.UpdateOrder(order);
+            unitOfWork.Save();
+        }
+
+        public Order GetOrderByID(int id)
+        {
+            return userRepository.GetOrderByID(id);
+        }
+
+        public void DeleteOrder(int id)
+        {
+            Order order = userRepository.GetOrderByID(id);
+
+            // order has cascade delete on product order entries
+
+            if (order.BalanceEntryID != 0)
+            {
+                DeleteBalanceEntry(order.BalanceEntryID);
+            }
+            else
+            {
+                order.AppUser.CreateBalanceEntry("Refunded/Deleted order", order.TotalSalePrice(), DateTime.Now);
+                UserManager.UpdateAsync(order.AppUser);
+            }
+
+            userRepository.DeleteOrder(id);
+            unitOfWork.Save();
+        }
+
+        public ICollection<Order> GetOrders()
+        {
+            return userRepository.GetOrders().ToList();
+        }
+
+        public void EditProductOrderEntry(ProductOrderEntry orderEntry)
+        {
+            userRepository.UpdateProductOrderEntry(orderEntry);
+            unitOfWork.Save();
+        }
+
+        public void DeleteProductOrderEntry(int id)
+        {
+            ProductOrderEntry entry = userRepository.GetProductOrderEntryByID(id);
+
+            userRepository.DeleteClaimedProductKey(entry.ClaimedProductKey.ClaimedProductKeyID);
+
+            if (entry.SalePrice != 0)
+            {
+                entry.Order.AppUser.CreateBalanceEntry("Refunded/Deleted a partial order", entry.SalePrice, DateTime.Now);
+                UserManager.UpdateAsync(entry.Order.AppUser);
+            }
+
+            userRepository.DeleteProductOrderEntry(id);
+            unitOfWork.Save();
+        }
+
+        public ProductOrderEntry GetProductOrderEntryByID(int id)
+        {
+            return userRepository.GetProductOrderEntryByID(id);
+        }
+
         public async Task<List<ActivityFeedContainer>> GetActivityFeedItems()
         {
             AppUser user = await GetCurrentUser();
 
             List<ActivityFeedContainer> activityFeed = new List<ActivityFeedContainer>();
             
-            List<Order> orders = await GetOrders();
+            List<Order> orders = await GetUserOrders();
 
             if (orders != null)
             {
@@ -397,7 +604,7 @@ namespace TheAfterParty.Domain.Services
             return fullSuccess;
         }
 
-        public async Task<List<Order>> GetOrders()
+        public async Task<List<Order>> GetUserOrders()
         {
             AppUser user = await GetCurrentUser();
 

@@ -10,5 +10,8 @@ namespace TheAfterParty.WebUI.Models.User
     public class AddEditOrderViewModel : NavModel
     {
         public Order Order { get; set; }
+        public ProductOrderEntry ProductOrderEntry { get; set; }
+        public string UserNickName { get; set; }
+        public bool AlreadyCharged { get; set; }
     }
 }

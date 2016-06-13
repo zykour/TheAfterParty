@@ -347,7 +347,6 @@
     <Content Include="Views\User\AddAppUser.cshtml" />
     <Content Include="Views\User\AddClaimedProductKey.cshtml" />
     <Content Include="Views\User\AddOrder.cshtml" />
-    <Content Include="Views\User\AddProductOrderEntry.cshtml" />
     <Content Include="Views\User\EditAppUser.cshtml" />
     <Content Include="Views\User\EditBalanceEntry.cshtml" />
     <Content Include="Views\User\EditClaimedProductKey.cshtml" />

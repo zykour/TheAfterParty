@@ -1,7 +1,18 @@
-﻿
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.User
+@model AddEditProductOrderEntryViewModel
+
 @{
-    ViewBag.Title = "EditProductOrderEntry";
+    ViewBag.Title = "Edit ProductOrderEntry";
 }
 
-<h2>EditProductOrderEntry</h2>
+<h2>Edit ProductOrderEntry</h2>
 
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("EditProductOrderEntry", "User", FormMethod.Post))
+{
+<span>Listing id: </span>@Html.TextBoxFor(x => x.ProductOrderEntry.ListingID, new { @Value = Model.ProductOrderEntry.ListingID })<br />
+<span>Charged price: </span>@Html.TextBoxFor(x => x.ProductOrderEntry.SalePrice, new { @Value = Model.ProductOrderEntry.SalePrice })<br />
+<input type="submit" name="Submit" />
+}

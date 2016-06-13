@@ -1,7 +1,21 @@
-﻿
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.User
+@model AddEditClaimedProductKeyViewModel
+
 @{
-    ViewBag.Title = "EditClaimedProductKey";
+    ViewBag.Title = "Edit User Key";
 }
 
-<h2>EditClaimedProductKey</h2>
+<h2>Edit User Key</h2>
 
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("EditClaimedProductKey", "User", FormMethod.Post))
+{
+<span>Acquisition Title (i.e. "Order" "Giveaway win"): </span>@Html.TextBoxFor(x => x.ClaimedProductKey.AcquisitionTitle, new { @Value = Model.ClaimedProductKey.AcquisitionTitle })<br />
+<span>Is a steam gift?: </span>@Html.CheckBoxFor(x => x.ClaimedProductKey.IsGift)<br />
+<span>Key (if above is false): </span>@Html.TextBoxFor(x => x.ClaimedProductKey.Key, new { @Value = Model.ClaimedProductKey.Key })<br />
+<span>Listing id: </span>@Html.TextBoxFor(x => x.ClaimedProductKey.ListingID, new { @Value = Model.ClaimedProductKey.ListingID })<br />
+<span>User nickname: </span>@Html.TextBoxFor(x => x.UserNickName, new { @Value = Model.UserNickName })<br />
+<input type="submit" name="Submit" />
+}
