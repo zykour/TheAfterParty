@@ -12,9 +12,13 @@
 
 @using (Html.BeginForm("AddBalanceEntry", "User", FormMethod.Post))
 {
-    <span>Points adjusted (can leave blank if supplying objective ID): </span>@Html.TextBoxFor(x => x.BalanceEntry.PointsAdjusted)<br />
+    @Html.HiddenFor(x => x.UserID)
+    <span>Points adjusted (can leave blank if supplying objective ID): </span>@Html.TextBoxFor(x => x.BalanceEntry.PointsAdjusted) <br/>
     <span>Note: </span>@Html.TextBoxFor(x => x.BalanceEntry.Notes)<br />
+    if (String.IsNullOrEmpty(Model.UserID))
+    {
     <span>User nickname: </span>@Html.TextBoxFor(x => x.UserNickName)<br />
+    }
     <span>Objective ID (optional): </span>@Html.TextBoxFor(x => x.ObjectiveID )<br />
     <input type="submit" name="Submit" />
 }

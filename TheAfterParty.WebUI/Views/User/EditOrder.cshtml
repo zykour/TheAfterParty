@@ -12,8 +12,9 @@
 
 @using (Html.BeginForm("EditOrder", "User", FormMethod.Post))
 {
-<span>User nickname: </span>@Html.TextBoxFor(x => x.UserNickName, new { @Value = Model.UserNickName })<<br />
+@Html.HiddenFor(x => x.UserID)
+@Html.HiddenFor(x => x.Order.OrderID)
+@Html.HiddenFor(x => x.Order.UserID)
 <span>Sale date: </span>@Html.TextBoxFor(x => x.Order.SaleDate, new { @Value = Model.Order.SaleDate })<<br />
-<span>User already charged: </span>@Html.CheckBoxFor(x => x.AlreadyCharged)<br />
 <input type="submit" name="Submit" />
 }

@@ -7,10 +7,8 @@ using TheAfterParty.WebUI.Models._Nav;
 
 namespace TheAfterParty.WebUI.Models.User
 {
-    public class AddEditClaimedProductKeyViewModel : NavModel
+    public class AdminSingleOrderViewModel : NavModel
     {
-        public ClaimedProductKey ClaimedProductKey { get; set; }
-        public string UserID { get; set; }
-        public string UserNickName { get; set; }
+        public Order Order { get; set; }
     }
 }

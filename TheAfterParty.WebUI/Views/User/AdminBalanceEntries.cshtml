@@ -20,7 +20,7 @@
     @foreach (BalanceEntry entry in Model.BalanceEntries)
     {
         <div class="row">
-            <div class="col-lg-2">@Html.ActionLink("Edit", "EditBalanceEntry", "User", new { id = entry.BalanceEntryID })</div>
+            <div class="col-lg-2">@Html.ActionLink("Edit", "EditBalanceEntry", "User", new { id = entry.BalanceEntryID }, null) @Html.ActionLink("Delete", "DeleteBalanceEntry", "User", new { id = entry.BalanceEntryID }, null)</div>
             <div class="col-lg-2">@entry.AppUser.Nickname</div>
             <div class="col-lg-2">@entry.Date</div>
             <div class="col-lg-2">@entry.PointsAdjusted</div>

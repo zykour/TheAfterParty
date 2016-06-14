@@ -12,6 +12,7 @@
 
 @using (Html.BeginForm("AddBoostedObjective", "Objectives", FormMethod.Post))
 {
+    @Html.HiddenFor(x => x.BoostedObjective.BoostedObjectiveID)
 <span>Objective ID: </span>@Html.LabelFor(x => x.BoostedObjective.BoostedObjectiveID)<br />
 <span>Ends in days: </span>@Html.TextBoxFor(x => x.DaysToAdd)<br />
 <span>Boost amount: </span>@Html.TextBoxFor(x => x.BoostedObjective.BoostAmount, new { @Value = Model.BoostedObjective.BoostAmount })<br />

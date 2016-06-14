@@ -11,6 +11,7 @@ namespace TheAfterParty.WebUI.Models.User
     {
         public BalanceEntry BalanceEntry { get; set; }
         public int ObjectiveID { get; set; }
+        public string UserID { get; set; }
         public string UserNickName { get; set; }
     }
 }

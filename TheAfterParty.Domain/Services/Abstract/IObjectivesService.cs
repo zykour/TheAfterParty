@@ -17,11 +17,11 @@ namespace TheAfterParty.Domain.Services
         IEnumerable<Objective> GetObjectives();
         Objective GetObjectiveByID(int id);
         void AddObjective(Objective objective);
-        void EditObjective(Objective objective);
+        void EditObjective(Objective objective, int productId);
         IEnumerable<BoostedObjective> GetBoostedObjectives();
         BoostedObjective GetBoostedObjectiveByID(int id);
         void AddBoostedObjective(BoostedObjective boostedObjective);
-        void EditBoostedObjective(BoostedObjective boostedObjective);
+        void EditBoostedObjective(BoostedObjective boostedObjective, int days);
         Product GetProductByID(int id);
         IEnumerable<Tag> GetTags();
     }

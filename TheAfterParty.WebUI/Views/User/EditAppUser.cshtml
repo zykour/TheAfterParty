@@ -12,6 +12,7 @@
 
 @using (Html.BeginForm("EditAppUser", "User", FormMethod.Post))
 {
+    @Html.HiddenFor(x => x.AppUser.Id)
     <span>Role to add user to (separate with commas, no spaces, if multiple): </span>@Html.TextBoxFor(x => x.RoleToAdd)<br />
     <span>Role to remove user from (separate with commas, no spaces, if multiple): </span>@Html.TextBoxFor(x => x.RoleToRemove)<<br />
     <span>Balance: </span>@Html.TextBoxFor(x => x.AppUser.Balance, new { @Value = Model.AppUser.Balance })<br />

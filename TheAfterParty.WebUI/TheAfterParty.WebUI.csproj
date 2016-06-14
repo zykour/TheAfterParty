@@ -304,6 +304,7 @@
     <Compile Include="Models\User\AdminBalanceEntryViewModel.cs" />
     <Compile Include="Models\User\AdminClaimedProductKeyViewModel.cs" />
     <Compile Include="Models\User\AdminOrderViewModel.cs" />
+    <Compile Include="Models\User\AdminSingleOrderViewModel.cs" />
     <Compile Include="Models\User\UserActivityFeedModel.cs" />
     <Compile Include="Models\User\UserAddBalancesViewModel.cs" />
     <Compile Include="Models\User\UserIndexModel.cs" />
@@ -356,6 +357,7 @@
     <Content Include="Views\User\AdminBalanceEntries.cshtml" />
     <Content Include="Views\User\AdminClaimedProductKeys.cshtml" />
     <Content Include="Views\User\AdminOrders.cshtml" />
+    <Content Include="Views\User\AdminOrder.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

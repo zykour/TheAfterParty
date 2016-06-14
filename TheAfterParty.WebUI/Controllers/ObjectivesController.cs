@@ -214,7 +214,7 @@ namespace TheAfterParty.WebUI.Controllers
         {
             if (ModelState.IsValid)
             {
-                objectiveService.EditBoostedObjective(model.BoostedObjective);
+                objectiveService.EditBoostedObjective(model.BoostedObjective, model.DaysToAdd);
             }
 
             model.LoggedInUser = await objectiveService.GetCurrentUser();

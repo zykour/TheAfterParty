@@ -12,9 +12,21 @@
 
 @using (Html.BeginForm("AddOrder", "User", FormMethod.Post))
 {
-    <span>User nickname: </span>@Html.TextBoxFor(x => x.UserNickName)<br />
+    if (String.IsNullOrEmpty(Model.UserID))
+    {
+        <span>User nickname: </span>@Html.TextBoxFor(x => x.UserNickName)<<br />
+    }
+    else
+    {
+        @Html.HiddenFor(x => x.UserID)
+    }
     <span>Listing id: </span>@Html.TextBoxFor(x => x.ProductOrderEntry.ListingID)<br />
     <span>Charged price: </span>@Html.TextBoxFor(x => x.ProductOrderEntry.SalePrice, new { @Value = "0" })<br />
     <span>User already charged: </span>@Html.CheckBoxFor(x => x.AlreadyCharged)<br />
+    <span>Use DB Key?: </span>@Html.CheckBoxFor(x => x.UseDBKey)<<br />
+    <span>Acquisition Title (i.e. "Order" "Giveaway win"): </span>@Html.TextBoxFor(x => x.ClaimedProductKey.AcquisitionTitle)<br />
+    <span>Is a steam gift?: </span>@Html.CheckBoxFor(x => x.ClaimedProductKey.IsGift)<<br />
+    <span>Key (if above is false): </span>@Html.TextBoxFor(x => x.ClaimedProductKey.Key)<br />
+    <span>Listing id: </span>@Html.TextBoxFor(x => x.ClaimedProductKey.ListingID)<br />
     <input type="submit" name="Submit" />
 }

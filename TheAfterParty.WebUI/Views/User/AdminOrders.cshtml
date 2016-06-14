@@ -1,7 +1,28 @@
-﻿
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.User
+@model AdminOrderViewModel
+
 @{
-    ViewBag.Title = "AdminOrders";
+    ViewBag.Title = "Orders";
 }
 
-<h2>AdminOrders</h2>
+<h2>Admin Orders</h2>
 
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6">Action</div>
+        <div class="col-lg-2">User</div>
+        <div class="col-lg-2">Date</div>
+        <div class="col-lg-2">Total price</div>
+    </div>
+    @foreach (Order order in Model.Orders)
+    {
+        <div class="row">
+            <div class="col-lg-6">@Html.ActionLink("Edit", "EditOrder", "User", new { id = order.OrderID }, null) @Html.ActionLink("View", "AdminOrder", "User", new { id = order.OrderID }, null) @Html.ActionLink("Delete", "DeleteOrder", "User", new { id = order.OrderID }, null)</div>
+            <div class="col-lg-2">@order.AppUser.UserName</div>
+            <div class="col-lg-2">@order.SaleDate</div>
+            <div class="col-lg-2">@order.TotalSalePrice()</div>
+        </div>
+    }
+</div>
+<a href="/User/AddOrder/">Add Order</a>

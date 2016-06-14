@@ -18,6 +18,7 @@ namespace TheAfterParty.Domain.Services
         ICollection<AppUser> GetAllUsers();
         List<AppUser> GetAdmins();
         Task<AppUser> GetUserByID(string id);
+        AppUser GetUserByNickname(string nickname);
 
         Task<List<Order>> GetUserOrders();
         Task<List<ClaimedProductKey>> GetKeys();
@@ -35,25 +36,29 @@ namespace TheAfterParty.Domain.Services
         Task EditAppUser(AppUser appUser, string roleToAdd, string roleToRemove);
 
         ICollection<BalanceEntry> GetBalanceEntries();
-        void CreateBalanceEntry(BalanceEntry entry, int objectiveId, string nickname);
-        void EditBalanceEntry(BalanceEntry entry);
+        Task CreateBalanceEntry(BalanceEntry entry, int objectiveId, string nickname);
+        Task CreateBalanceEntry(BalanceEntry entry, int objectiveId);
+        Task EditBalanceEntry(BalanceEntry entry, int objectiveId);
         BalanceEntry GetBalanceEntryByID(int id);
-        void DeleteBalanceEntry(int id);
+        Task DeleteBalanceEntry(int id);
 
         void CreateClaimedProductKey(ClaimedProductKey key, string nickname);
+        void CreateClaimedProductKey(ClaimedProductKey key);
         void EditClaimedProductKey(ClaimedProductKey key);
         ClaimedProductKey GetClaimedProductKeyByID(int id);
         void DeleteClaimedProductKey(int id);
         ICollection<ClaimedProductKey> GetClaimedProductKeys();
 
-        void CreateOrder(Order order, string nickname, ProductOrderEntry entry, bool alreadyCharged);
+        void CreateOrder(Order order, bool alreadyCharged);
         void EditOrder(Order order);
         Order GetOrderByID(int id);
-        void DeleteOrder(int id);
+        Task DeleteOrder(int id);
         ICollection<Order> GetOrders();
         ProductOrderEntry GetProductOrderEntryByID(int id);
         void EditProductOrderEntry(ProductOrderEntry orderEntry);
-        void DeleteProductOrderEntry(int id);
+        Task DeleteProductOrderEntry(int id);
+
+        ProductKey GetProductKey(int listingId);
 
         void MarkKeyUsed(int keyId);
         void RevealKey(int keyId);
