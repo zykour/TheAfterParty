@@ -150,7 +150,7 @@ namespace TheAfterParty.WebUI.Controllers
         {
             if (ModelState.IsValid)
             {
-                objectiveService.EditObjective(model.Objective);
+                objectiveService.EditObjective(model.Objective, model.ProductID);
             }
 
             model.LoggedInUser = await objectiveService.GetCurrentUser();

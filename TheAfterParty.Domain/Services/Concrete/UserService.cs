@@ -247,7 +247,25 @@ namespace TheAfterParty.Domain.Services
         {
             BalanceEntry updatedEntry = userRepository.GetBalanceEntryByID(entry.BalanceEntryID);
 
-            int pointsChange = entry.PointsAdjusted - updatedEntry.PointsAdjusted;
+            int pointsChange = 0;
+
+            if (objectiveId == 0)
+            {
+                pointsChange = entry.PointsAdjusted - updatedEntry.PointsAdjusted;
+            }
+            else
+            {
+                if (updatedEntry.Objective == null)
+                {
+                    updatedEntry.AddObjective(objectiveRepository.GetObjectiveByID(objectiveId));
+                }
+                else if (updatedEntry.Objective.ObjectiveID != objectiveId)
+                {
+                    updatedEntry.AddObjective(objectiveRepository.GetObjectiveByID(objectiveId));
+                }
+
+                pointsChange = updatedEntry.Objective.FixedReward() - updatedEntry.PointsAdjusted;
+            }
 
             updatedEntry.AppUser.Balance += pointsChange;
 
@@ -255,12 +273,7 @@ namespace TheAfterParty.Domain.Services
 
             updatedEntry.PointsAdjusted = entry.PointsAdjusted;
             updatedEntry.Notes = entry.Notes;
-
-            if (updatedEntry.Objective != null || updatedEntry.Objective.ObjectiveID != objectiveId)
-            {
-                updatedEntry.AddObjective(objectiveRepository.GetObjectiveByID(objectiveId));
-            }
-
+            
             userRepository.UpdateBalanceEntry(updatedEntry);
             unitOfWork.Save();
         }

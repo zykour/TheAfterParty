@@ -309,7 +309,7 @@ namespace TheAfterParty.WebUI.Controllers
         {
             userService.DeleteClaimedProductKey(id);
 
-            return RedirectToAction("AdminOrders");
+            return RedirectToAction("AdminClaimedProductKeys");
         }
 
         [Authorize(Roles = "Admin")]
@@ -345,6 +345,8 @@ namespace TheAfterParty.WebUI.Controllers
 
             model.LoggedInUser = await userService.GetCurrentUser();
             model.FullNavList = CreateUserControllerAdminNavList();
+
+            model.Order = new Order();
 
             model.UserID = id;
 
