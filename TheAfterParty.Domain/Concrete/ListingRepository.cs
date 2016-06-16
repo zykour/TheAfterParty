@@ -249,6 +249,7 @@ namespace TheAfterParty.Domain.Concrete
             {
                 targetProduct.AppID = product.AppID;
                 targetProduct.ProductName = product.ProductName;
+                targetProduct.StringID = product.StringID;
             }
 
             if (product.Tags != null)
@@ -630,11 +631,11 @@ namespace TheAfterParty.Domain.Concrete
 
             if (targetPlatform != null)
             {
-                targetPlatform.PlatformIcon = platform.PlatformIcon;
-                targetPlatform.PlatformIconMimeType = platform.PlatformIconMimeType;
+                targetPlatform.PlatformIconURL = platform.PlatformIconURL;
                 targetPlatform.PlatformName = platform.PlatformName;
                 targetPlatform.PlatformURL = platform.PlatformURL;
                 targetPlatform.HasAppID = platform.HasAppID;
+                targetPlatform.StorePageURL = platform.StorePageURL;
             }
         }
         public void DeletePlatform(int platformId)
@@ -669,8 +670,7 @@ namespace TheAfterParty.Domain.Concrete
             if (targetProductCategory != null)
             {
                 targetProductCategory.CategoryString = productCategory.CategoryString;
-                targetProductCategory.ProductCategoryIcon = productCategory.ProductCategoryIcon;
-                targetProductCategory.ProductCategoryMimeType = productCategory.ProductCategoryMimeType;
+                targetProductCategory.CategoryIconURL = productCategory.CategoryIconURL;
             }
         }
         public void DeleteProductCategory(int productCategoryId)

@@ -1,31 +1,22 @@
-﻿@using TheAfterParty.WebUI.Models.Store
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Store
 @model AddEditPlatformViewModel
 
 @{
-    ViewBag.Title = "EditPlatform";
+    ViewBag.Title = "Edit Platform";
 }
 
-@if (Model.Success)
-{
-    <span>Successfully added the following platform:</span>
-}
+<h2>Edit Platform</h2>
 
-<h2>Add/Edit Platform</h2>
+@Html.ValidationSummary()
 
-@Html.BeginForm("EditPlatform","Store", FormMethod.Post)
+@using (Html.BeginForm("EditPlatform", "Store", FormMethod.Post))
 {
-    @Html.HiddenFor(m => m.Platform.PlatformID)
-<div>
-    @Html.LabelFor(m => m.Platform.HasAppID)
-    @Html.CheckBoxFor(m => m.Platform.HasAppID)
-</div>
-<div>
-    @Html.LabelFor(m => m.Platform.PlatformURL)
-    @Html.TextBoxFor(m => m.Platform.PlatformURL)
-</div>
-<div>
-    @Html.LabelFor(m => m.Platform.PlatformName)
-    @Html.TextBoxFor(m => m.Platform.PlatformName)
-</div>
-<input type="submit" value="Save" class="btn btn-primary" />
+    @Html.HiddenFor(x => x.Platform.PlatformID)
+    <span>Icon URL: </span> @Html.TextBoxFor(x => x.Platform.PlatformIconURL, new { @Value = Model.Platform.PlatformIconURL })
+    <span>Platform name: </span> @Html.TextBoxFor(x => x.Platform.PlatformName, new { @Value = Model.Platform.PlatformIconURL })
+    <span>Redemption URL: </span> @Html.TextBoxFor(x => x.Platform.PlatformURL, new { @Value = Model.Platform.PlatformURL })
+    <span>Store page URL: </span> @Html.TextBoxFor(x => x.Platform.StorePageURL, new { @Value = Model.Platform.StorePageURL })
+    <span>Has app ID (exposed ID): </span> @Html.CheckBoxFor(x => x.Platform.HasAppID, new { @Value = Model.Platform.HasAppID })
+    <input type="submit" name="Submit" />
 }

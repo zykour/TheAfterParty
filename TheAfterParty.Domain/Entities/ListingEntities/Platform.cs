@@ -26,9 +26,9 @@ namespace TheAfterParty.Domain.Entities
         //redemption URL
         public string PlatformURL { get; set; }
 
-        public byte[] PlatformIcon { get; set; }
+        public string PlatformIconURL { get; set; }
 
-        public string PlatformIconMimeType { get; set; }
+        public string StorePageURL { get; set; }
 
         /*public virtual ICollection<ProductKey> ProductKeys { get; set; }
         public void AddProductKey(ProductKey key)

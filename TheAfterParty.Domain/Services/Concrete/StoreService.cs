@@ -42,64 +42,114 @@ namespace TheAfterParty.Domain.Services
         }
 
 
-        public IEnumerable<Listing> GetStockedStoreListings()
+        #region Admin (CRUD) & Auxiliary methods
+
+        public void AddDiscountedListing(DiscountedListing discountedListing, int daysDealLast)
         {
-            return listingRepository.GetListings().Where(l => l.Quantity > 0).ToList();
+            discountedListing.ItemSaleExpiry = DateTime.Now.AddDays(daysDealLast);
+
+            Listing saleListing = listingRepository.GetListingByID(discountedListing.ListingID);
+
+            saleListing.AddDiscountedListing(discountedListing);
+
+            listingRepository.InsertDiscountedListing(discountedListing);
+            unitOfWork.Save();
         }
-        public IEnumerable<Listing> GetListingsWithDeals()
+        public void EditDiscountedListing(DiscountedListing discountedListing, int daysToAdd)
         {
-            return listingRepository.GetListings().Where(l => l.HasSale()).ToList();
+            DiscountedListing updatedDiscountedListing = listingRepository.GetDiscountedListingByID(discountedListing.DiscountedListingID);
+
+            updatedDiscountedListing.ItemDiscountPercent = discountedListing.ItemDiscountPercent;
+            updatedDiscountedListing.WeeklyDeal = discountedListing.WeeklyDeal;
+            updatedDiscountedListing.DailyDeal = discountedListing.DailyDeal;
+            updatedDiscountedListing.ItemSaleExpiry = updatedDiscountedListing.ItemSaleExpiry.AddDays(daysToAdd);
+
+            listingRepository.UpdateDiscountedListing(updatedDiscountedListing);
+            unitOfWork.Save();
         }
-        public Listing GetListingByAppID(int id, string platformName)
+        public void DeleteDiscountedListing(int id)
         {
-            return listingRepository.GetListings().Where(l => l.Product.AppID == id && l.ContainsPlatform(platformName)).SingleOrDefault();
+            listingRepository.DeleteDiscountedListing(id);
+            unitOfWork.Save();
         }
+
         public void AddListing(Listing listing)
         {
             listingRepository.InsertListing(listing);
             unitOfWork.Save();
         }
-
-        public IEnumerable<AppUser> GetAppUsers()
+        public void EditListing(Listing listing)
         {
-            return  UserManager.Users;
+            Listing updatedListing = listingRepository.GetListingByID(listing.ListingID);
+
+            updatedListing.ListingName = listing.ListingName;
+            updatedListing.ListingPrice = listing.ListingPrice;
+            updatedListing.DateEdited = DateTime.Now;
+
+            listingRepository.UpdateListing(updatedListing);
+            unitOfWork.Save();
+        }
+        public void DeleteListing(int listingId)
+        {
+            listingRepository.DeleteListing(listingId);
+            unitOfWork.Save();
         }
 
-        public IEnumerable<Platform> GetPlatforms()
+        public void AddPlatform(Platform platform)
         {
-            return listingRepository.GetPlatforms();
-        }
-        public Platform GetPlatformByID(int id)
-        {
-            return listingRepository.GetPlatformByID(id);
+            listingRepository.InsertPlatform(platform);
+            unitOfWork.Save();
         }
         public void EditPlatform(Platform platform)
         {
-            if (platform.PlatformID == 0)
+            listingRepository.UpdatePlatform(platform);
+            unitOfWork.Save();
+        }
+        public void DeletePlatform(int platformId)
+        {
+            Platform platform = listingRepository.GetPlatformByID(platformId);
+
+            // safeguard, can only delete platforms without any active listings
+            if (platform?.Listings.Where(l => l.Quantity > 0).Count() > 0)
             {
-                listingRepository.InsertPlatform(platform);
+                return;
             }
-            else
-            {
-                listingRepository.UpdatePlatform(platform);
-            }
+
+            listingRepository.DeletePlatform(platformId);
+            unitOfWork.Save();
         }
 
-        public IEnumerable<Tag> GetTags()
+        public void EditProduct(Product product)
         {
-            return listingRepository.GetTags();
+            listingRepository.UpdateProduct(product);
+            unitOfWork.Save();
         }
-        public Tag GetTagByID(int id)
+        public void DeleteProduct(int productId)
         {
-            return listingRepository.GetTagByID(id);
+            listingRepository.DeleteProduct(productId);
+            unitOfWork.Save();
         }
-        public IEnumerable<ProductCategory> GetProductCategories()
+
+        public void EditProductCategory(ProductCategory category)
         {
-            return listingRepository.GetProductCategories();
+            listingRepository.UpdateProductCategory(category);
+            unitOfWork.Save();
         }
-        public ProductCategory GetProductCategoryByID(int id)
+        public void DeleteProductCategory(int productCategoryId)
         {
-            return listingRepository.GetProductCategoryByID(id);
+            listingRepository.DeleteProductCategory(productCategoryId);
+            unitOfWork.Save();
+        }
+
+        public void EditProductKey(ProductKey productKey)
+        {
+            listingRepository.UpdateProductKey(productKey);
+            unitOfWork.Save();
+        }
+        public void DeleteProductKey(int productKeyId)
+        {
+            listingRepository.DeleteProductKey(productKeyId);
+            unitOfWork.Save();
         }
 
         public List<String> AddProductKeys(Platform platform, string input)
@@ -121,7 +171,7 @@ namespace TheAfterParty.Domain.Services
             DateTime dateAdded = DateTime.Now;
 
             Match match;
-            
+
             bool isGift = false;
             string key = "";
             string gameName = "";
@@ -154,7 +204,7 @@ namespace TheAfterParty.Domain.Services
                 Listing listing;
 
                 listing = listingRepository.GetListings().Where(l => l.ContainsPlatform(platform) && object.Equals(l.Product.ProductName, gameName)).SingleOrDefault();
-                
+
                 if (listing != null)
                 {
                     listing.ListingPrice = price;
@@ -183,15 +233,13 @@ namespace TheAfterParty.Domain.Services
 
             return addedKeys;
         }
-        
-        public ProductCategory GetProductCategoryByName(string categoryName)
-        {
-            return listingRepository.GetProductCategories().Where(c => object.Equals(c.CategoryString, categoryName)).SingleOrDefault();
-        }
+
+        // Does not save context, context should be saved from calling method
         public void AddProductCategory(ProductCategory category)
         {
             listingRepository.InsertProductCategory(category);
         }
+
         public void UpdateListing(Listing listing)
         {
             if (listing.ListingID != 0)
@@ -206,15 +254,7 @@ namespace TheAfterParty.Domain.Services
             unitOfWork.Save();
         }
 
-        public Tag GetTagByName(string tagName)
-        {
-            return listingRepository.GetTags().Where(t => object.Equals(t.TagName, tagName)).SingleOrDefault();
-        }
-
-
-
         // --- Listing building logic
-
         public List<String> AddSteamProductKeys(Platform platform, string input)
         {
             List<String> addedKeys = new List<String>();
@@ -277,7 +317,7 @@ namespace TheAfterParty.Domain.Services
                     {
                         appIds.Add(Int32.Parse(splitId));
                     }
-                    
+
                     if (String.IsNullOrEmpty(match.Groups[5].Value))
                     {
                         isGift = true;
@@ -372,7 +412,7 @@ namespace TheAfterParty.Domain.Services
                     BuildListingWithAppID(subListing, id);
 
                     UpdateListing(subListing);
-                    
+
                     listing.AddChildListing(subListing);
                 }
                 else
@@ -526,7 +566,7 @@ namespace TheAfterParty.Domain.Services
             {
                 JArray jGenres = (JArray)appData["genres"];
                 List<string> genresList = new List<string>();
-                
+
                 for (int i = 0; i < jGenres.Count; i++)
                 {
                     genresList.Add((string)jGenres[i]["description"]);
@@ -549,7 +589,7 @@ namespace TheAfterParty.Domain.Services
                         }
                     }
                 }
-                
+
                 productDetail.Genres = genresList.ToArray();
             }
 
@@ -708,25 +748,112 @@ namespace TheAfterParty.Domain.Services
                 listing.ListingName = productDetail.ProductName;
             }
         }
-                
-        
+
+        #endregion
+
+        #region Getters
+        #region Collections
+
+        public IEnumerable<Listing> GetListings()
+        {
+            return listingRepository.GetListings().ToList();
+        }
+        public IEnumerable<Listing> GetStockedStoreListings()
+        {
+            return listingRepository.GetListings().Where(l => l.Quantity > 0).ToList();
+        }
+        public IEnumerable<Listing> GetListingsWithDeals()
+        {
+            return listingRepository.GetListings().Where(l => l.HasSale()).ToList();
+        }
+        public IEnumerable<AppUser> GetAppUsers()
+        {
+            return UserManager.Users;
+        }
+        public IEnumerable<Platform> GetPlatforms()
+        {
+            return listingRepository.GetPlatforms();
+        }
+        public IEnumerable<Product> GetProducts()
+        {
+            return listingRepository.GetProducts().ToList();
+        }
+        public IEnumerable<Tag> GetTags()
+        {
+            return listingRepository.GetTags();
+        }
+        public IEnumerable<ProductCategory> GetProductCategories()
+        {
+            return listingRepository.GetProductCategories();
+        }
+        public IEnumerable<ProductKey> GetProductKeys()
+        {
+            return listingRepository.GetProductKeys();
+        }
+        #endregion
+        #region Object
+
+        public Listing GetListingByAppID(int id, string platformName)
+        {
+            return listingRepository.GetListings().Where(l => l.Product.AppID == id && l.ContainsPlatform(platformName)).SingleOrDefault();
+        }
+
+        public DiscountedListing GetDiscountedListingByID(int id)
+        {
+            return listingRepository.GetDiscountedListingByID(id);
+        }
+        public Product GetProductByID(int id)
+        {
+            return listingRepository.GetProductByID(id);
+        }
+
+        public Listing GetListingByID(int id)
+        {
+            return listingRepository.GetListingByID(id);
+        }
+
+        public Platform GetPlatformByID(int id)
+        {
+            return listingRepository.GetPlatformByID(id);
+        }
+        public Tag GetTagByID(int id)
+        {
+            return listingRepository.GetTagByID(id);
+        }
+        public ProductCategory GetProductCategoryByID(int id)
+        {
+            return listingRepository.GetProductCategoryByID(id);
+        }
+        public ProductCategory GetProductCategoryByName(string categoryName)
+        {
+            return listingRepository.GetProductCategories().Where(c => object.Equals(c.CategoryString, categoryName)).SingleOrDefault();
+        }
+        public ProductKey GetProductKeyByID(int id)
+        {
+            return listingRepository.GetProductKeyByID(id);
+        }
+        public Tag GetTagByName(string tagName)
+        {
+            return listingRepository.GetTags().Where(t => object.Equals(t.TagName, tagName)).SingleOrDefault();
+        }
+        #endregion
+        #endregion
 
         // --- GC and User logic
-
+        #region Standard Methods
         public void Dispose()
         {
             this.unitOfWork.Dispose();
         }
-
         public AppUser GetCurrentUserSynch()
         {
             return UserManager.FindByName(userName);
         }
-
         public async Task<AppUser> GetCurrentUser()
         {
             return await UserManager.FindByNameAsync(userName);
         }
+        #endregion
     }
 
     public static class JsonExtensions

@@ -33,6 +33,8 @@ namespace TheAfterParty.Domain.Entities
         
         // if the corresponding platform has a publicly displayed application/game ID, this is stored here
         public int AppID { get; set; }
+        // For platforms like Origin with no exposed API and string based data-driven webpages i.e. origin.com/buy/mass-effect-3 StringID would be "mass-effect-3"
+        public string StringID { get; set; }
 
         public string ProductName { get; set; }
         

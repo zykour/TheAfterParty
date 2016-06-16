@@ -1,0 +1,21 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Store
+@model AddEditPlatformViewModel
+
+@{
+    ViewBag.Title = "Add Platform";
+}
+
+<h2>Add Platform</h2>
+
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("AddPlatform", "Store", FormMethod.Post))
+{
+    <span>Icon URL: </span> @Html.TextBoxFor(x => x.Platform.PlatformIconURL)
+    <span>Platform name: </span> @Html.TextBoxFor(x => x.Platform.PlatformName)
+    <span>Redemption URL: </span> @Html.TextBoxFor(x => x.Platform.PlatformURL)
+    <span>Store page URL: </span> @Html.TextBoxFor(x => x.Platform.StorePageURL)
+    <span>Has app ID (exposed ID): </span> @Html.CheckBoxFor(x => x.Platform.HasAppID)
+    <input type="submit" name="Submit" />
+}

@@ -92,6 +92,29 @@ namespace TheAfterParty.Domain.Entities
             return Product.HasProductCategory(category);
         }
 
+        public string GetQualifiedStorePageURL()
+        {
+            // if this is not a complex listing, try to build a qualified URL to the store page for this product 
+            if (Platforms.Count == 1)
+            {
+                return Platforms.First().StorePageURL + ((Product.AppID == 0) ? Product.StringID : Product.AppID.ToString());
+            }
+            else
+            {
+                //as a fall back try to find Steam
+                foreach (Platform platform in Platforms)
+                {
+                    if (platform.PlatformName.CompareTo("Steam") == 0)
+                    {
+                        return platform.StorePageURL + Product.AppID.ToString();
+                    }
+                }
+            }
+
+            // if we can't build a qualified URL return a blank string
+            return "";
+        }
+
         // a child listing will have a single platform, compositite listings will have a null here
         public virtual ICollection<Platform> Platforms { get; set; }
         public void AddPlatform(Platform platform)

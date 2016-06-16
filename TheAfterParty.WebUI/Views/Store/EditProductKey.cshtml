@@ -1,0 +1,18 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Store
+@model AddEditProductKeyViewModel
+
+@{
+    ViewBag.Title = "Edit Product Key";
+}
+
+<h2>Edit Product Key</h2>
+
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("EditProductKey", "Store", FormMethod.Post))
+{
+    @Html.HiddenFor(x => x.ProductKey.ProductKeyID)
+    <span>Key: </span> @Html.TextBoxFor(x => x.ProductKey.ItemKey, new { @Value = Model.ProductKey.ItemKey })
+    <input type="submit" name="Submit" />
+}

@@ -1,0 +1,21 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Store
+@model AddEditDiscountedListingViewModel
+
+@{
+    ViewBag.Title = "Add Discounted Listing";
+}
+
+<h2>Add Discounted Listing</h2>
+
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("AddDiscountedListing", "Store", FormMethod.Post))
+{
+    @Html.HiddenFor(x => x.DiscountedListing.ListingID)
+    <span>Discount percent(1-100): </span> @Html.TextBoxFor(x => x.DiscountedListing.ItemDiscountPercent)
+    <span>Days to last: </span> @Html.TextBoxFor(x => x.DaysDealLast)
+    <span>Weekly Deal? </span> @Html.CheckBoxFor(x => x.DiscountedListing.WeeklyDeal)
+    <span>or Daily Deal? </span> @Html.CheckBoxFor(x => x.DiscountedListing.DailyDeal)
+    <input type="submit" name="Submit" />
+}
