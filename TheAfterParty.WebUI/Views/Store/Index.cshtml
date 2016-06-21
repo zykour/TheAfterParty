@@ -147,7 +147,14 @@
                             @Model.StoreListings.ElementAt(i).Quantity
                         </div>
                         <div class="col-lg-1 text-center">
-                            @Model.StoreListings.ElementAt(i).ListingPrice
+                            @if (Model.StoreListings.ElementAt(i).HasSale())
+                            {
+                                <del>@Model.StoreListings.ElementAt(i).ListingPrice</del>   <span class="text-success tag-inline">@Model.StoreListings.ElementAt(i).SaleOrDefaultPrice()</span>
+                            }
+                            else
+                            {
+                                @Model.StoreListings.ElementAt(i).ListingPrice
+                            }
                         </div>
                         <div class="col-lg-1 store-entry-cart" id="cartButton" onclick="AddToCart(@Model.StoreListings.ElementAt(i).ListingID);">
                             <i class="fa fa-shopping-cart store-cart"></i>

@@ -24,7 +24,8 @@ function AddToCart(id)
         data: { listingId: id },
         datatype: "html",
         success: function(data) {
-            $('#cartInfo').html(data);
+            var cartTotal = $('#cartTotal').html();
+            $('#cartTotal').html(+cartTotal + +data);
             alert('Added');
         }
     });

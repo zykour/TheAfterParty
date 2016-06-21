@@ -95,7 +95,7 @@ namespace TheAfterParty.WebUI.Controllers
         {
             model.LoggedInUser = await storeService.GetCurrentUser();
             model.FullNavList = CreateStoreControllerAdminNavList();
-
+            
             if (ModelState.IsValid == false)
             {
                 return View(model);
@@ -215,7 +215,7 @@ namespace TheAfterParty.WebUI.Controllers
         }
 
         [HttpGet, Authorize(Roles = "Admin")]
-        public async Task<ActionResult> AddPlatform(int id)
+        public async Task<ActionResult> AddPlatform()
         {
             AddEditPlatformViewModel model = new AddEditPlatformViewModel();
 
@@ -1043,10 +1043,6 @@ namespace TheAfterParty.WebUI.Controllers
             item = new NavItem();
             item.DestinationName = "Add Listings";
             item.Destination = "/Store/AddGames";
-            grouping.NavItems.Add(item);
-            item = new NavItem();
-            item.DestinationName = "Add Discount";
-            item.Destination = "/Store/AddDiscountedListing";
             grouping.NavItems.Add(item);
             item = new NavItem();
             item.DestinationName = "Add Platform";

@@ -52,6 +52,18 @@ namespace TheAfterParty.Domain.Services
 
             saleListing.AddDiscountedListing(discountedListing);
 
+            if (daysDealLast == 0)
+            {
+                if (discountedListing.WeeklyDeal)
+                {
+                    discountedListing.ItemSaleExpiry = DateTime.Now.AddDays(7);
+                }
+                else if (discountedListing.DailyDeal)
+                {
+                    discountedListing.ItemSaleExpiry = DateTime.Now.AddDays(1);
+                }
+            }
+
             listingRepository.InsertDiscountedListing(discountedListing);
             unitOfWork.Save();
         }
@@ -148,7 +160,12 @@ namespace TheAfterParty.Domain.Services
         }
         public void DeleteProductKey(int productKeyId)
         {
+            ProductKey key = listingRepository.GetProductKeyByID(productKeyId);
+            Listing listing = key.Listing;
             listingRepository.DeleteProductKey(productKeyId);
+            listing.UpdateQuantity();
+            listing.UpdateParentQuantities();
+            listingRepository.UpdateListing(listing);
             unitOfWork.Save();
         }
 

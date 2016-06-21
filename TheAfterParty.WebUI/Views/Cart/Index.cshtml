@@ -41,6 +41,17 @@ if (num == 1)
 }
 else
 {
+    <h3>@(Model.LoggedInUser.UserName)'s cart</h3>
+    <br/>
+    if (Model.LoggedInUser.AssertQuantityOfCart() == false)
+    {
+        <span class="text-warning">The quantity of some items in your cart exceeds the available quantity.</span><br/>
+    }
+    if (Model.LoggedInUser.AssertBalanceExceedsCost() == false)
+    {
+        <span class="text-warning">The cost of the items in the cart exceeds your unreserved balance.</span><br />
+    }
+    <br />
     <div class="container">
         <div class="row">
             <div class="col-lg-2 text-primary"></div>
@@ -53,10 +64,9 @@ else
         {
             <div class="row store-entry-sm">
                 <div class="col-lg-2">
-                    @using (Html.BeginForm("RemoveItem", "Cart", FormMethod.Post, new { @class = "tag-inline" }))
+                    @using (Html.BeginForm("RemoveItem", "Cart", new { shoppingId = Model.CartEntries.ElementAt(i).ShoppingCartEntryID }, FormMethod.Post, new { @class = "tag-inline" }))
                     {
                     <div class="tag-inline">
-                        @Html.HiddenFor(m => m.CartEntries.ElementAt(i).ShoppingCartEntryID)
                         @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
                         <button type="submit" class="btn-transparent">
                             <i class="glyphicon glyphicon-remove store-blacklist"></i>

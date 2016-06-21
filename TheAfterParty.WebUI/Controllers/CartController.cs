@@ -95,14 +95,13 @@ namespace TheAfterParty.WebUI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AjaxAddToCart(int listingId)
+        public async Task<string> AjaxAddToCart(int listingId)
         {
-            CartLayoutViewModel model = new CartLayoutViewModel();
             await cartService.AddItemToCart(listingId);
 
-            model.LoggedInUser = await cartService.GetCurrentUser();
-
-            return PartialView("~/Views/Shared/_ShoppingCart.cshtml", model);
+            Listing listing = cartService.GetListingByID(listingId);
+            
+            return listing.SaleOrDefaultPrice().ToString();
         }
 
         public async Task<ActionResult> AddToCart(int listingId, string returnUrl)
@@ -151,7 +150,8 @@ namespace TheAfterParty.WebUI.Controllers
         {
             Order order = await cartService.CreateOrder();
 
-            return RedirectToAction("Success", new { id = order.OrderID });
+            if (order == null)  return RedirectToAction("Index");
+            else                return RedirectToAction("Success", new { id = order.OrderID });
         }
 
         public async Task<ActionResult> Success(string id)

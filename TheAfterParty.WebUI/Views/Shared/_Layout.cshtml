@@ -73,21 +73,12 @@
                                 <a href="/Cart"><i class="fa fa-opencart cart-image reserve-div-left"></i></a>
                                 <a href="/Cart"><span class="reserve-div-right" id="cartTotal">@Model.LoggedInUser.GetCartTotal()</span></a>
                             </div>
-                            @if (Model.LoggedInUser.ReservedBalance() > 0)
+                            @if (Model.LoggedInUser.GetSilentAuctionReservedBalance() > 0 || Model.LoggedInUser.GetPublicAuctionReservedBalance() > 0)
                             {
                                 <div class="flex-right navbar-brand reserve-tooltip">
                                     <i class="fa fa-exclamation-triangle reserve-div-left"></i>
                                     <span class="reserve-div-right" id="reservedTotal">@Model.LoggedInUser.ReservedBalance()</span>
                                     <div class="reserve-tooltip-body">
-                                        @if (Model.LoggedInUser.GetCartTotal() > 0)
-                                        {
-                                            <span class="reserve-tooltip-danger-text" id="cartTotal">@Model.LoggedInUser.GetCartTotal()</span><span class="reserve-tooltip-text"> points reserved in shopping cart.</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="reserve-tooltip-success-text" id="cartTotal">0</span><span class="reserve-tooltip-text"> points reserved in shopping cart.</span><br />
-                                        }
-                                        <br />
                                         @if (Model.LoggedInUser.GetSilentAuctionReservedBalance() > 0)
                                         {
                                             <span class="reserve-tooltip-danger-text reserve-tooltip-bottom-spans" id="silentAuctionTotal">@Model.LoggedInUser.GetSilentAuctionReservedBalance()</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for silent auctions.</span>
@@ -110,7 +101,7 @@
                             }
                             <div class="navbar-brand vertical-align">
                                 <div class="navbar-user-info vertical-align">
-                                    <div class="navbar-user-info-inner">Account (@(Model.LoggedInUser.Balance - Model.LoggedInUser.ReservedBalance()) Points)</div>
+                                    <div class="navbar-user-info-inner">Account (@(Model.LoggedInUser.Balance) Points)</div>
                                     <div class="account-button vertical-align"></div>
                                 </div>
                                 @if (Model.LoggedInUser.SmallAvatar != null)

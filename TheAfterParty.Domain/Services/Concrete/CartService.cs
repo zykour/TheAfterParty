@@ -219,6 +219,11 @@ namespace TheAfterParty.Domain.Services
                 return false;
         }
 
+        public Listing GetListingByID(int listingId)
+        {
+            return listingRepository.GetListingByID(listingId);
+        }
+
         public void Dispose()
         {
             this.unitOfWork.Dispose();

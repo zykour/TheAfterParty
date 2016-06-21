@@ -28,18 +28,20 @@
                 </div>
             </div>
             <div class="col-lg-2 text-left">@entry.Listing.Platforms.FirstOrDefault().PlatformName</div>
-            <div class="col-lg-3 text-left">@entry.ClaimedProductKey.Key</div>
+            <div class="col-lg-3 text-left">@((entry.ClaimedProductKey.IsGift) ? "Gift" : entry.ClaimedProductKey.Key)</div>
             <div class="col-lg-1 text-right">@entry.SalePrice</div>
         </div>
     }
+    <br/>
     <div class="row">
         <div class="col-lg-8"></div>
         <div class="col-lg-1 text-primary">Total:</div>
-        <div class="col-lg-3">@Model.Order.TotalSalePrice()</div>
+        <div class="col-lg-3 text-right">@Model.Order.TotalSalePrice()</div>
     </div>
+    <br />
     <div class="row">
         <div class="col-lg-8"></div>
         <div class="col-lg-1 text-primary">Date:</div>
-        <div class="col-lg-3">@Model.Order.SaleDate</div>
+        <div class="col-lg-3 text-right">@Model.Order.SaleDate</div>
     </div>
 </div>

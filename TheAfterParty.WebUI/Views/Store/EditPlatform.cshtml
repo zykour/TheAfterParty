@@ -14,7 +14,7 @@
 {
     @Html.HiddenFor(x => x.Platform.PlatformID)
     <span>Icon URL: </span> @Html.TextBoxFor(x => x.Platform.PlatformIconURL, new { @Value = Model.Platform.PlatformIconURL })
-    <span>Platform name: </span> @Html.TextBoxFor(x => x.Platform.PlatformName, new { @Value = Model.Platform.PlatformIconURL })
+    <span>Platform name: </span> @Html.TextBoxFor(x => x.Platform.PlatformName, new { @Value = Model.Platform.PlatformName })
     <span>Redemption URL: </span> @Html.TextBoxFor(x => x.Platform.PlatformURL, new { @Value = Model.Platform.PlatformURL })
     <span>Store page URL: </span> @Html.TextBoxFor(x => x.Platform.StorePageURL, new { @Value = Model.Platform.StorePageURL })
     <span>Has app ID (exposed ID): </span> @Html.CheckBoxFor(x => x.Platform.HasAppID, new { @Value = Model.Platform.HasAppID })
