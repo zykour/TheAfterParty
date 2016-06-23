@@ -27,43 +27,23 @@
                             <li>
                                 @Html.ActionLink("Store", "Index", "Store", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
                                 <ul class="subnav">
-                                    <li>@Html.ActionLink("Daily Deals", "Deals", "Store", new { area = "", id = "daily" }, new { @class = "" })</li>
-                                    <li>@Html.ActionLink("Weekly Deals", "Deals", "Store", new { area = "", id = "weekly" }, new { @class = "" })</li>
-                                    <li>@Html.ActionLink("Balances", "Index", "User", new { area = "" }, new { @class = "" })</li>
+                                    <li>@Html.ActionLink("Daily Deals", "Deals", "Store", new { id = "daily" }, new { @class = "" })</li>
+                                    <li>@Html.ActionLink("Weekly Deals", "Deals", "Store", new { id = "weekly" }, new { @class = "" })</li>
+                                    <li>@Html.ActionLink("Balances", "Index", "User")</li>
                                 </ul>
                             </li>
                             <li>
-                                @Html.ActionLink("Objectives", "Index", "Objectives", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
-                                <ul class="subnav">
-                                    <li>@Html.ActionLink("Daily Deals", "Deals", "Store", new { area = "", id = "daily" }, new { @class = "" })</li>
-                                    <li>@Html.ActionLink("Weekly Deals", "Deals", "Store", new { area = "", id = "weekly" }, new { @class = "" })</li>
-                                    <li>@Html.ActionLink("Balances", "Index", "User", new { area = "" }, new { @class = "" })</li>
-                                </ul>
+                                @Html.ActionLink("Objectives", "Index", "Objectives", new { area = "" }, new { @class = "topnav-inner topnav-inner-solo" })
                             </li>
                             <li>
-                                @Html.ActionLink("Auctions", "Index", "Auction", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
-                                <ul class="subnav">
-                                    <li>@Html.ActionLink("Daily Deals", "Deals", "Store", new { area = "", id = "daily" }, new { @class = "" })</li>
-                                    <li>@Html.ActionLink("Weekly Deals", "Deals", "Store", new { area = "", id = "weekly" }, new { @class = "" })</li>
-                                    <li>@Html.ActionLink("Balances", "Index", "User", new { area = "" }, new { @class = "" })</li>
-                                </ul>
+                                @Html.ActionLink("Auctions", "Index", "Auction", new { area = "" }, new { @class = "topnav-inner topnav-inner-solo" })
                             </li>
                             <li>
-                                @Html.ActionLink("Giveaways", "Index", "Giveaway", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
-                                <ul class="subnav">
-                                    <li>@Html.ActionLink("Daily Deals", "Deals", "Store", new { area = "", id = "daily" }, new { @class = "" })</li>
-                                    <li>@Html.ActionLink("Weekly Deals", "Deals", "Store", new { area = "", id = "weekly" }, new { @class = "" })</li>
-                                    <li>@Html.ActionLink("Balances", "Index", "User", new { area = "" }, new { @class = "" })</li>
-                                </ul>
+                                @Html.ActionLink("Giveaways", "Index", "Giveaway", new { area = "" }, new { @class = "topnav-inner topnav-inner-solo" })
                             </li>
-                            <li>
-                                @Html.ActionLink("About", "Index", "About", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
-                                <ul class="subnav">
-                                    <li>@Html.ActionLink("Daily Deals", "Deals", "Store", new { area = "", id = "daily" }, new { @class = "" })</li>
-                                    <li>@Html.ActionLink("Weekly Deals", "Deals", "Store", new { area = "", id = "weekly" }, new { @class = "" })</li>
-                                    <li>@Html.ActionLink("Balances", "Index", "User", new { area = "" }, new { @class = "" })</li>
-                                </ul>
-                            </li>
+                            @*<li>
+                                @Html.ActionLink("About", "Index", "About", new { area = "" }, new { @class = "topnav-inner topnav-inner-solo" })
+                            </li>*@
                         </ul>
                     </div>
                     @if (Model != null && Model.LoggedInUser != null)
@@ -76,8 +56,8 @@
                             @if (Model.LoggedInUser.GetSilentAuctionReservedBalance() > 0 || Model.LoggedInUser.GetPublicAuctionReservedBalance() > 0)
                             {
                                 <div class="flex-right navbar-brand reserve-tooltip">
-                                    <i class="fa fa-exclamation-triangle reserve-div-left"></i>
-                                    <span class="reserve-div-right" id="reservedTotal">@Model.LoggedInUser.ReservedBalance()</span>
+                                    <a href="/Auction"><i class="fa fa-exclamation-triangle reserve-div-left"></i></a>
+                                    <a href="/Auction"><span class="reserve-div-right" id="reservedTotal">@Model.LoggedInUser.ReservedBalance()</span></a>
                                     <div class="reserve-tooltip-body">
                                         @if (Model.LoggedInUser.GetSilentAuctionReservedBalance() > 0)
                                         {
@@ -99,28 +79,39 @@
                                     </div>
                                 </div>
                             }
-                            <div class="navbar-brand vertical-align">
-                                <div class="navbar-user-info vertical-align">
-                                    <div class="navbar-user-info-inner">Account (@(Model.LoggedInUser.Balance) Points)</div>
-                                    <div class="account-button vertical-align"></div>
-                                </div>
-                                @if (Model.LoggedInUser.SmallAvatar != null)
-                                {
-                                    <div class="outer-avatar-nav-container vertical-align">
-                                        <a href="@Url.Action("userprofile","user", new { id = Model.LoggedInUser.UserName })">
-                                            <div class="inner-avatar-nav-container vertical-align" style="background-image: url(@Model.LoggedInUser.SmallAvatar)"></div>
-                                        </a>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="outer-avatar-nav-container vertical-align">
-                                        <a href="@Url.Action("userprofile","user", new { id = Model.LoggedInUser.UserName })">
-                                            <div class="inner-avatar-container vertical-align"></div>
-                                        </a>
-                                    </div>
-                                }
-                            </div>
+                            <div class="navbar-header vertical-align">
+                                <ul class="topnav topnav-left">
+                                    <li>
+                                        @Html.ActionLink("Account (" + @Model.LoggedInUser.Balance.ToString() + " Points)", "Index", "Store", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
+                                        <ul class="subnav">
+                                            <li>@Html.ActionLink("Account Overview", "Index", "Account")</li>
+                                            <li>@Html.ActionLink("My Orders", "Orders", "Account")</li>
+                                            <li>@Html.ActionLink("My Keys", "Keys", "Account")</li>
+                                            <li>@Html.ActionLink("Logout", "Logout", "Account")</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                                    @*<div class="navbar-user-info vertical-align">
+                                        <div class="navbar-user-info-inner">Account (@(Model.LoggedInUser.Balance) Points)</div>
+                                        <div class="account-button vertical-align"></div>
+                                    </div>*@
+                                    @if (Model.LoggedInUser.SmallAvatar != null)
+                                    {
+                                        <div class="outer-avatar-nav-container vertical-align">
+                                            <a href="@Url.Action("userprofile","user", new { id = Model.LoggedInUser.UserName })">
+                                                <div class="inner-avatar-nav-container vertical-align" style="background-image: url(@Model.LoggedInUser.SmallAvatar)"></div>
+                                            </a>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="outer-avatar-nav-container vertical-align">
+                                            <a href="@Url.Action("userprofile","user", new { id = Model.LoggedInUser.UserName })">
+                                                <div class="inner-avatar-container vertical-align"></div>
+                                            </a>
+                                        </div>
+                                    }
+</div>
                         </div>
                     }
                     else
@@ -155,21 +146,23 @@
                         {
                             if (item.IsFormSubmit)
                             {
-                            <button type="submit" value="@item.FormValue" name="@item.FormName" class="btn-link nav-item-link">
-                                <div class="nav-tag nav-item-text">@item.DestinationName</div>
-                                <div class="nav-tag nav-underline"></div>
-                            </button>
+                                <button type="submit" value="@item.FormValue" name="@item.FormName" form="@ViewBag.StoreFormID" class="btn-link">
+                                    <div class="nav-item-link">
+                                        <div class="nav-tag nav-item-text">@item.DestinationName</div>
+                                        <div class="nav-tag nav-underline"></div>
+                                     </div>
+                                </button>
                             }
                             else
                             {
-                            <a href="@item.Destination" class="nav-item-link">
-                                <div class="nav-tag nav-item-text">@item.DestinationName</div>
-                                <div class="nav-tag nav-underline"></div>
-                            </a>
+                                <a href="@item.Destination" class="nav-item-link">
+                                    <div class="nav-tag nav-item-text">@item.DestinationName</div>
+                                    <div class="nav-tag nav-underline"></div>
+                                </a>
                             }
                         }
                     }
-                </div>
+</div>
                 <div class="col-lg-10">
                     @RenderBody()
                 </div>

@@ -18,11 +18,13 @@ namespace TheAfterParty.WebUI.Controllers
         // razor doesn't handle default char value '\0' very well, use noSelectionSentinel instead
         // this should be a non alpha-numeric character as it's being used to represent a sentinel for "Begins With" filter for game names
         private const char noSelectionSentinel = '.';
+        private const string storeFormID = "storeForm";
         private IStoreService storeService;
 
         public StoreController(IStoreService storeService)
         {
             this.storeService = storeService;
+            ViewBag.StoreFormID = storeFormID;
         }
 
         protected override void Initialize(RequestContext requestContext)
@@ -870,11 +872,11 @@ namespace TheAfterParty.WebUI.Controllers
             {
                 if (model.PriceSort == 1)
                 {
-                    model.StoreListings = model.StoreListings.OrderBy(l => l.ListingPrice).ToList();
+                    model.StoreListings = model.StoreListings.OrderBy(l => l.SaleOrDefaultPrice()).ToList();
                 }
                 else
                 {
-                    model.StoreListings = model.StoreListings.OrderByDescending(l => l.ListingPrice).ToList();
+                    model.StoreListings = model.StoreListings.OrderByDescending(l => l.SaleOrDefaultPrice()).ToList();
                 }
                 model.PreviousPriceSort = model.PriceSort;
                 model.PreviousGameSort = 0;
@@ -913,14 +915,23 @@ namespace TheAfterParty.WebUI.Controllers
                     model.StoreListings = model.StoreListings.OrderByDescending(l => l.ListingPrice).ToList();
                 }
             }
-            
+
+            foreach (Platform platform in storeService.GetPlatforms().ToList())
+            {
+                if (model.StoreListings.Any(l => l.ContainsPlatform(platform)))
+                {
+                    model.StorePlatforms.Add(platform);
+                }
+            }
+
+            model.StorePlatforms.OrderBy(p => p.PlatformName).ToList();
             model.FullNavList = CreateStoreControllerStoreNavList(model);
         }
 
         public List<NavGrouping> CreateStoreControllerStoreNavList(StoreIndexViewModel model)
         {
             List<NavGrouping> navList = new List<NavGrouping>();
-
+            
             NavGrouping actions = new NavGrouping();
             actions.GroupingHeader = "Actions";
             actions.NavItems = new List<NavItem>();
@@ -953,6 +964,7 @@ namespace TheAfterParty.WebUI.Controllers
                 navItem.DestinationName = model.StorePlatforms[i].PlatformName + countText;
                 navItem.FormName = "SelectedPlatformID";
                 navItem.FormValue = model.StorePlatforms[i].PlatformID.ToString();
+                navItem.FormID = storeFormID;
 
                 platforms.NavItems.Add(navItem);
 
@@ -971,6 +983,7 @@ namespace TheAfterParty.WebUI.Controllers
                     dealNavItem.DestinationName = model.StorePlatforms[i].PlatformName + countText;
                     dealNavItem.FormName = "SelectedPlatformID";
                     dealNavItem.FormValue = model.StorePlatforms[i].PlatformID.ToString();
+                    dealNavItem.FormID = storeFormID;
                     platformDeals.NavItems.Add(dealNavItem);
                 }
             }

@@ -125,6 +125,7 @@ namespace TheAfterParty.Domain.Services
 
                     Listing listing = listingRepository.GetListingByID(entry.ListingID);
                     listing.Quantity--;
+                    listing.UpdateParentQuantities();
                     listingRepository.UpdateListing(listing);
                     
                     ClaimedProductKey claimedKey = new ClaimedProductKey(productKey, user, orderDate, "Purchase - Order #" + order.OrderID);

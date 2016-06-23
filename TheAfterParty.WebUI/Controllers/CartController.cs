@@ -37,7 +37,7 @@ namespace TheAfterParty.WebUI.Controllers
                 ReturnUrl = returnUrl
             };
 
-            cartViewModel.FullNavList = CreateCartControllerNavList();
+            cartViewModel.FullNavList = CreateCartControllerNavList(cartViewModel.LoggedInUser);
 
             return View(cartViewModel);
         }
@@ -56,7 +56,7 @@ namespace TheAfterParty.WebUI.Controllers
             return user.GetCartTotal();
         }
 
-        public List<NavGrouping> CreateCartControllerNavList()
+        public List<NavGrouping> CreateCartControllerNavList(AppUser user)
         {
             List<NavGrouping> grouping = new List<NavGrouping>();
 
@@ -72,13 +72,17 @@ namespace TheAfterParty.WebUI.Controllers
             clearCart.Destination = "/Cart/EmptyCart";
             clearCart.DestinationName = "Empty Cart";
 
-            NavItem purchase = new NavItem();
-            purchase.Destination = "/Cart/Purchase";
-            purchase.DestinationName = "Purcase";
-
             actions.NavItems.Add(continueShopping);
             actions.NavItems.Add(clearCart);
-            actions.NavItems.Add(purchase);
+
+            if (user.AssertValidOrder())
+            {
+                NavItem purchase = new NavItem();
+                purchase.Destination = "/Cart/Purchase";
+                purchase.DestinationName = "Purcase";
+
+                actions.NavItems.Add(purchase);
+            }
 
             grouping.Add(actions);
 

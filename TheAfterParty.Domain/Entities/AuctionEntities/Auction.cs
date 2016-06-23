@@ -68,6 +68,10 @@ namespace TheAfterParty.Domain.Entities
 
         // the appuser object of the winner
         public virtual AppUser Winner { get; set; }
+        public bool IsWinner(AppUser user)
+        {
+            return (Winner == null) ? false : Object.Equals(user.Id, Winner.Id);
+        }
 
         // is the auction a silent auction
         public bool IsSilent { get; set; }
@@ -78,6 +82,10 @@ namespace TheAfterParty.Domain.Entities
         public string CreatorID { get; set; }
 
         public AppUser Creator { get; set; }
+        public bool IsCreator(AppUser user)
+        {
+            return (Creator == null) ? false : Object.Equals(user.Id, Creator.Id);
+        }
 
         public int Copies { get; set; }
     }

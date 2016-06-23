@@ -16,6 +16,42 @@
 
 });
 
+function MarkKeyUsed(id, caller)
+{
+    var span = document.getElementById('#key' + id);
+    var keyText = span.firstChild.innerHTML;
+
+    $.ajax({
+        type: "POST",
+        url: '/Account/AjaxMarkKeyUsed',
+        data: { productKeyId: id },
+        datatype: "html",
+        success: function (data) {
+            if (data) {
+                var key = $('#key' + id).html();
+                $('#key' + id).html("<del>" + key + "</del>");
+            }
+            else {
+                var span = $('#key' + id);
+                span.html(keyText);
+            }
+        }
+    });
+}
+
+function MarkKeyRevealed(id, caller)
+{
+    $.ajax({
+        type: "POST",
+        url: '/Account/AjaxRevealKey',
+        data: { productKeyId: id },
+        datatype: "html",
+        success: function (data) {
+            $(caller).parent.html("<span class=\"text-success\" id=\"key" + id + "\">" + data + "</span><br/><span>Used</span> <input type=\"checkbox\" onclick=\"MarkKeyUsed(" + id + ",this)\" name=\"isUsed\">");
+        }
+    });
+}
+
 function AddToCart(id)
 {
     $.ajax({

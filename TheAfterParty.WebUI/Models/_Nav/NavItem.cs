@@ -12,5 +12,6 @@ namespace TheAfterParty.WebUI.Models._Nav
         public bool IsFormSubmit { get; set; }
         public string FormName { get; set; }
         public string FormValue { get; set; }
+        public string FormID { get; set; }
     }
 }

@@ -781,7 +781,7 @@ namespace TheAfterParty.Domain.Services
         }
         public IEnumerable<Listing> GetListingsWithDeals()
         {
-            return listingRepository.GetListings().Where(l => l.HasSale()).ToList();
+            return listingRepository.GetListings().Where(l => l.HasSale() && l.Quantity > 0).ToList();
         }
         public IEnumerable<AppUser> GetAppUsers()
         {

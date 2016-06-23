@@ -106,6 +106,7 @@ namespace TheAfterParty.Domain.Entities
         public virtual ICollection<GiveawayEntry> GiveawayEntries { get; set; }
 
         public virtual ICollection<Giveaway> CreatedGiveaways { get; set; }
+        public virtual ICollection<Giveaway> WonGiveaways { get; set; }
 
         // the list of orders the user has successfully made (cancel orders are temporary only, and appear in the shopping cart)
         public virtual ICollection<Order> Orders { get; set; }

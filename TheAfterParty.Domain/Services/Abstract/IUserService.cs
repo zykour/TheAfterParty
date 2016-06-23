@@ -60,8 +60,8 @@ namespace TheAfterParty.Domain.Services
 
         ProductKey GetProductKey(int listingId);
 
-        void MarkKeyUsed(int keyId);
-        void RevealKey(int keyId);
+        bool MarkKeyUsed(int keyId);
+        string RevealKey(int keyId);
 
         void BuildUser(AppUser user, string apiKey);
         bool AddBalances(string input);
