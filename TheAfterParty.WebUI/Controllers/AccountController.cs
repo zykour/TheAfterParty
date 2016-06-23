@@ -15,6 +15,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using TheAfterParty.Domain.Services;
 using System.Web.Routing;
 using TheAfterParty.WebUI.Models.Account;
+using TheAfterParty.WebUI.Models._Nav;
 
 namespace TheAfterParty.WebUI.Controllers
 {
@@ -38,51 +39,59 @@ namespace TheAfterParty.WebUI.Controllers
             }
         }
 
-        // GET: CoopShop/Account
-        public ActionResult Index()
+        #region Actions
+        // GET: /Account
+        public async Task<ActionResult> Index(int id = 0)
         {
-            return View();
-        }
+            AccountIndexModel model = new AccountIndexModel();
 
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateAccountControllerNavList();
+
+            model.ActivityFeedList = await userService.GetActivityFeedItems();
+
+            return View(model);
+        }
         public async Task<ActionResult> Orders()
         {
-            AccountOrdersModel view = new AccountOrdersModel();
+            AccountOrdersModel model = new AccountOrdersModel();
 
-            view.Orders = await userService.GetOrders();
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateAccountControllerNavList();
 
-            view.Orders.OrderBy(o => o.SaleDate);
+            model.Orders = await userService.GetUserOrders();
 
-            return View(view);
-        }
-        
+            model.Orders.OrderBy(o => o.SaleDate);
+
+            return View(model);
+        }        
         public async Task<ActionResult> Keys()
         {
-            AccountKeysModel view = new AccountKeysModel();
+            AccountKeysModel model = new AccountKeysModel();
 
-            view.Keys = await userService.GetKeys();
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateAccountControllerNavList();
 
-            view.Keys.OrderBy(k => k.Listing.ListingName);
+            model.Keys = await userService.GetKeys();
 
-            return View(view);
+            model.Keys.OrderBy(k => k.Listing.ListingName);
+
+            return View(model);
         }
+        #endregion
 
-        // -----------------------
-        // Login/logout and related methods
-
-        public ActionResult AjaxRevealKey(int productKeyId)
+        #region Ajax Methods
+        public string AjaxRevealKey(int productKeyId)
+        {            
+            return userService.RevealKey(productKeyId);
+        }
+        public bool AjaxMarkKeyUsed(int productKeyId)
         {
-
-
-            return new PartialViewResult();
+            return userService.MarkKeyUsed(productKeyId);
         }
+        #endregion
 
-        public ActionResult AjaxMarkKeyUsed(int productKeyId)
-        {
-
-
-            return new PartialViewResult();
-        }
-
+        #region Login/out methods
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
@@ -176,15 +185,9 @@ namespace TheAfterParty.WebUI.Controllers
 
             return Redirect(returnUrl ?? "/");
         }
+        #endregion
 
-
-
-
-
-
-        // -------------------------
-        // Getter methods
-
+        #region Getters
         private IAuthenticationManager AuthManager
         {   
             get
@@ -192,13 +195,44 @@ namespace TheAfterParty.WebUI.Controllers
                 return HttpContext.GetOwinContext().Authentication;
             }
         }
-
         private AppUserManager UserManager
         {
             get
             {
                 return HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
             }
+        }
+        #endregion
+
+        public List<NavGrouping> CreateAccountControllerNavList()
+        {
+            List<NavGrouping> navList = new List<NavGrouping>();
+
+            NavGrouping navGrouping = new NavGrouping();
+            navGrouping.GroupingHeader = "My Account";
+
+            navGrouping.NavItems = new List<NavItem>();
+
+            NavItem navItem = new NavItem();
+            navItem.Destination = "/Account/";
+            navItem.DestinationName = "Account Home";
+            navGrouping.NavItems.Add(navItem);
+            navItem = new NavItem();
+            navItem.Destination = "/Account/Orders/";
+            navItem.DestinationName = "My Orders";
+            navGrouping.NavItems.Add(navItem);
+            navItem = new NavItem();
+            navItem.Destination = "/Account/Keys/";
+            navItem.DestinationName = "My Keys";
+            navGrouping.NavItems.Add(navItem);
+            navItem = new NavItem();
+            navItem.Destination = "/Account/Logout/";
+            navItem.DestinationName = "Logout";
+            navGrouping.NavItems.Add(navItem);
+
+            navList.Add(navGrouping);
+
+            return navList;
         }
     }
 }

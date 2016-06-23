@@ -8,7 +8,7 @@
     //AjaxOptions ajaxOptions = new AjaxOptions { UpdateTargetId = "cartInfo", Url = Url.Action("AjaxAddToCart", "Cart") };
 }
 
-@using (Html.BeginForm("Index", "Store", FormMethod.Post))
+@using (Html.BeginForm("Index", "Store", FormMethod.Post, new { id = ViewBag.StoreFormID }))
 {
 @Html.HiddenFor(x => x.PreviousBeginsWithFilter)
 @Html.HiddenFor(x => x.PreviousSelectedPlatformID)
@@ -64,7 +64,7 @@
                         }
                     </div>
                     <div class="platform-header col-lg-1"><span class="text-primary text-left header-text">Platforms</span></div>
-                    <div class="col-lg-1">
+                    <div class="col-lg-1  text-nowrap">
                         @if (Model.PreviousQuantitySort == 1)
                         {
                             <button name="QuantitySort" value="2" type="submit" class="btn-transparent text-highlighted-primary text-center header-text">Quantity <i class="glyphicon glyphicon-chevron-down"></i></button>
@@ -78,7 +78,7 @@
                             <button name="QuantitySort" value="1" type="submit" class="btn-transparent text-primary text-center header-text">Quantity</button>
                         }
                     </div>
-                    <div class="col-lg-1 text-center">
+                    <div class="col-lg-1 text-center text-nowrap">
                         @if (Model.PreviousPriceSort == 1)
                         {
                             <button name="PriceSort" value="2" type="submit" class="btn-transparent text-highlighted-primary header-text">Price <i class="glyphicon glyphicon-chevron-down"></i></button>
@@ -146,8 +146,15 @@
                         <div class="col-lg-1 text-center">
                             @Model.StoreListings.ElementAt(i).Quantity
                         </div>
-                        <div class="col-lg-1 text-center">
-                            @Model.StoreListings.ElementAt(i).ListingPrice
+                        <div class="col-lg-1 text-center text-nowrap">
+                            @if (Model.StoreListings.ElementAt(i).HasSale())
+                            {
+                                <del>@Model.StoreListings.ElementAt(i).ListingPrice</del>   <span class="text-success tag-inline">@Model.StoreListings.ElementAt(i).SaleOrDefaultPrice()</span>
+                            }
+                            else
+                            {
+                                @Model.StoreListings.ElementAt(i).ListingPrice
+                            }
                         </div>
                         <div class="col-lg-1 store-entry-cart" id="cartButton" onclick="AddToCart(@Model.StoreListings.ElementAt(i).ListingID);">
                             <i class="fa fa-shopping-cart store-cart"></i>
@@ -216,7 +223,7 @@
             <div class="input-group-xs input-group store-search">
                 <input type="text" class="form-control" name="SearchText" value="@Model.SearchText" />
                 <span class="input-group-btn" style="width:0;">
-                    <button class="btn btn-default btn-xs" title="Search" type="submit" name="SearchTextBool" value="true"><i class="fa fa-search"></i></button>
+                    <button class="btn btn-default btn-xs" title="Search" type="submit" name="SearchTextBool" value="true"><i class="fa fa-search search-icon"></i></button>
                 </span>
             </div>
             <br />

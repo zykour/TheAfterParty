@@ -1,0 +1,28 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Store
+@model AdminProductCategoryViewModel
+
+@{
+    ViewBag.Title = "View Product Categories";
+}
+
+<h2>View Product Categories</h2>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-4">Actions</div>
+        <div class="col-lg-3">Name</div>
+        <div class="col-lg-5">Icon URL</div>
+    </div>
+    @foreach (ProductCategory category in Model.ProductCategories)
+    {
+        <div class="row">
+            <div class="col-lg-4">
+                @Html.ActionLink("Edit", "EditProductCategory", "Store", new { id = category.ProductCategoryID }, null)
+                @*@Html.ActionLink("Del", "DeleteProductCategory", "Store", new { id = category.ProductCategoryID }, null)*@
+            </div>
+            <div class="col-lg-3">@category.CategoryString</div>
+            <div class="col-lg-5">@category.CategoryIconURL  </div>
+        </div>
+    }
+</div>

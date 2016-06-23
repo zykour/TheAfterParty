@@ -52,9 +52,24 @@ namespace TheAfterParty.Domain.Services
             unitOfWork.Save();
         }
 
-        public void EditObjective(Objective objective)
+        public void EditObjective(Objective objective, int productId)
         {
-            objectiveRepository.UpdateObjective(objective);
+            Objective updatedObjective = objectiveRepository.GetObjectiveByID(objective.ObjectiveID);
+
+            updatedObjective.Category = objective.Category;
+            updatedObjective.Description = objective.Description;
+            updatedObjective.IsActive = objective.IsActive;
+            updatedObjective.ObjectiveName = objective.ObjectiveName;
+            updatedObjective.RequiresAdmin = objective.RequiresAdmin;
+            updatedObjective.Reward = objective.Reward;
+            updatedObjective.Title = objective.Title;
+
+            if (productId != 0 && updatedObjective.Product != null && updatedObjective.Product.ProductID != productId)
+            {
+                updatedObjective.Product = listingRepository.GetProductByID(productId);
+            }
+
+            objectiveRepository.UpdateObjective(updatedObjective);
             unitOfWork.Save();
         }
         
@@ -74,9 +89,14 @@ namespace TheAfterParty.Domain.Services
             unitOfWork.Save();
         }
 
-        public void EditBoostedObjective(BoostedObjective boostedObjective)
+        public void EditBoostedObjective(BoostedObjective boostedObjective, int days)
         {
-            objectiveRepository.UpdateBoostedObjective(boostedObjective);
+            BoostedObjective updatedBoostedObjective = objectiveRepository.GetBoostedObjectiveByID(boostedObjective.BoostedObjectiveID);
+
+            updatedBoostedObjective.BoostAmount = boostedObjective.BoostAmount;
+            updatedBoostedObjective.EndDate = updatedBoostedObjective.EndDate.AddDays(days);
+
+            objectiveRepository.UpdateBoostedObjective(updatedBoostedObjective);
             unitOfWork.Save();
         }
 

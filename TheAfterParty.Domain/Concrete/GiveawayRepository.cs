@@ -44,7 +44,8 @@ namespace TheAfterParty.Domain.Concrete
                 targetGiveaway.PointsPrize = giveaway.PointsPrize;
                 targetGiveaway.Prize = giveaway.Prize;
                 targetGiveaway.StartDate = giveaway.StartDate;
-                targetGiveaway.UserID = giveaway.UserID;
+                targetGiveaway.CreatorID = giveaway.CreatorID;
+                targetGiveaway.WinnerID = giveaway.WinnerID;
             }
 
             foreach (GiveawayEntry entry in giveaway.GiveawayEntries)

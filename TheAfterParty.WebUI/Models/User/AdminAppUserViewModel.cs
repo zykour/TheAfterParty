@@ -9,6 +9,6 @@ namespace TheAfterParty.WebUI.Models.User
 {
     public class AdminAppUserViewModel : NavModel
     {
-        public IEnumerable<AppUser> AppUser { get; set; }
+        public IEnumerable<AppUser> AppUsers { get; set; }
     }
 }

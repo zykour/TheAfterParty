@@ -40,7 +40,7 @@ namespace TheAfterParty.Domain.Entities
         public int Balance { get; set; }
         public int ReservedBalance()
         {
-            return GetCartTotal() + GetPublicAuctionReservedBalance() + GetSilentAuctionReservedBalance();
+            return GetPublicAuctionReservedBalance() + GetSilentAuctionReservedBalance();
         }
 
         // is there wishlist private?
@@ -106,6 +106,7 @@ namespace TheAfterParty.Domain.Entities
         public virtual ICollection<GiveawayEntry> GiveawayEntries { get; set; }
 
         public virtual ICollection<Giveaway> CreatedGiveaways { get; set; }
+        public virtual ICollection<Giveaway> WonGiveaways { get; set; }
 
         // the list of orders the user has successfully made (cancel orders are temporary only, and appear in the shopping cart)
         public virtual ICollection<Order> Orders { get; set; }
@@ -324,7 +325,38 @@ namespace TheAfterParty.Domain.Entities
                 }
             }
 
-            return true;
+            Dictionary<Listing, int> quantityDict = new Dictionary<Listing, int>();
+
+            foreach (ShoppingCartEntry entry in myEntries.Where(e => e.Listing.IsComplex()).ToList())
+            {
+                if (entry.Quantity > entry.Listing.ListingKeysQuantity())
+                {
+                    foreach (Listing listing in entry.Listing.ChildListings)
+                    {
+                        quantityDict[listing] = (entry.Quantity - entry.Listing.ListingKeysQuantity());
+                    }
+                }
+            }
+            foreach (ShoppingCartEntry entry in myEntries.Where(e => !e.Listing.IsComplex()).ToList())
+            {
+                if (quantityDict.ContainsKey(entry.Listing))
+                {
+                    quantityDict[entry.Listing] += entry.Quantity;
+                }
+                else
+                {
+                    quantityDict[entry.Listing] = entry.Quantity;
+                }
+            }
+            foreach (Listing listing in quantityDict.Keys)
+            {
+                if (listing.Quantity < quantityDict[listing])
+                {
+                    return false;
+                }
+            }
+
+                return true;
         }
         public int GetCartTotal()
         {

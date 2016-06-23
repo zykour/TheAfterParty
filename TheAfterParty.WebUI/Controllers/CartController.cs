@@ -37,7 +37,7 @@ namespace TheAfterParty.WebUI.Controllers
                 ReturnUrl = returnUrl
             };
 
-            cartViewModel.FullNavList = CreateCartControllerNavList();
+            cartViewModel.FullNavList = CreateCartControllerNavList(cartViewModel.LoggedInUser);
 
             return View(cartViewModel);
         }
@@ -56,7 +56,7 @@ namespace TheAfterParty.WebUI.Controllers
             return user.GetCartTotal();
         }
 
-        public List<NavGrouping> CreateCartControllerNavList()
+        public List<NavGrouping> CreateCartControllerNavList(AppUser user)
         {
             List<NavGrouping> grouping = new List<NavGrouping>();
 
@@ -72,13 +72,17 @@ namespace TheAfterParty.WebUI.Controllers
             clearCart.Destination = "/Cart/EmptyCart";
             clearCart.DestinationName = "Empty Cart";
 
-            NavItem purchase = new NavItem();
-            purchase.Destination = "/Cart/Purchase";
-            purchase.DestinationName = "Purcase";
-
             actions.NavItems.Add(continueShopping);
             actions.NavItems.Add(clearCart);
-            actions.NavItems.Add(purchase);
+
+            if (user.AssertValidOrder())
+            {
+                NavItem purchase = new NavItem();
+                purchase.Destination = "/Cart/Purchase";
+                purchase.DestinationName = "Purcase";
+
+                actions.NavItems.Add(purchase);
+            }
 
             grouping.Add(actions);
 
@@ -95,14 +99,13 @@ namespace TheAfterParty.WebUI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AjaxAddToCart(int listingId)
+        public async Task<string> AjaxAddToCart(int listingId)
         {
-            CartLayoutViewModel model = new CartLayoutViewModel();
             await cartService.AddItemToCart(listingId);
 
-            model.LoggedInUser = await cartService.GetCurrentUser();
-
-            return PartialView("~/Views/Shared/_ShoppingCart.cshtml", model);
+            Listing listing = cartService.GetListingByID(listingId);
+            
+            return listing.SaleOrDefaultPrice().ToString();
         }
 
         public async Task<ActionResult> AddToCart(int listingId, string returnUrl)
@@ -151,7 +154,8 @@ namespace TheAfterParty.WebUI.Controllers
         {
             Order order = await cartService.CreateOrder();
 
-            return RedirectToAction("Success", new { id = order.OrderID });
+            if (order == null)  return RedirectToAction("Index");
+            else                return RedirectToAction("Success", new { id = order.OrderID });
         }
 
         public async Task<ActionResult> Success(string id)

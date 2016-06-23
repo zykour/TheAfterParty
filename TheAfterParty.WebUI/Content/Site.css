@@ -12,6 +12,7 @@
     background-color: #1E1E1E !important;
 }
 
+/*#region Color overrides*/
 .text-highlighted-primary {
     color: #a7279c !important;
 }
@@ -39,6 +40,8 @@ h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6 {
 .panel-primary {
     background-color: #1E1E1E !important;
 }
+/*#endregion*/
+
 /* Set width on the form input elements since they're 100% wide by default */
 input,
 select,
@@ -57,6 +60,10 @@ textarea {
 
 .sub-entry-border {
     border-bottom: 1px solid #541d65;
+}
+
+.text-nowrap {
+    white-space: nowrap;
 }
 
 .account-button { /*--Drop down trigger styles--*/
@@ -368,12 +375,6 @@ textarea {
     width: auto;
     margin: auto;
 }
-.btn-link {
-    display: inline;
-    background: none !important;
-    font: inherit;
-    cursor: pointer;
-}
 
 .nav-tag {
     margin: 0;
@@ -391,7 +392,18 @@ textarea {
     font: bold 11px/15px Arial, sans-serif;
     color: #8e49a3 !important;
 }
+.btn-link {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    cursor: pointer;
+    text-decoration: none !important;
+}
 .nav-item-link {
+    display: inline;
     padding: 4px 8px !important;
     border: 1px solid transparent;
     -webkit-box-align: center;
@@ -402,18 +414,40 @@ textarea {
     display: -moz-box;
     display: -ms-flexbox;
     display: flex;
-
 }
-.nav-item-link:not(:hover) .nav-underline {
+.nav-item-link:not(:hover) .nav-underline,
+.btn-link:not(:hover) div .nav-underline {
     border-bottom: 1px dotted #808080;
     box-shadow: 0 1px 0 #000000;
 }
-.nav-item-link:hover {
+.nav-item-link:hover,
+.btn-link:hover .nav-item-link {
     background-image: linear-gradient(#1E1E1E 0%, #171717 100%);
     background-image: -moz-linear-gradient(#1E1E1E 0%, #171717 100%);
     background-image: -webkit-linear-gradient(#1E1E1E 0%, #171717 100%);
-    border: 1px solid #000000;
-    border-radius: 4px;
+    border-bottom: none;
+    border: 1px solid #000000 !important;
+    border-radius: 4px !important;
+}
+.btn-link:hover .nav-item-link .nav-underline {
+    border-bottom: none;
+}
+.nav-item-text {
+    font: bold 9px/11px Arial, sans-serif;
+    font-weight: bold;
+    color: #5e9a34 !important
+}
+.nav-underline {
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    -webkit-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    min-width: 10px;
+    align-self: flex-end;
+}
+.nav-first-row {
+    padding-top: 30px;
 }
 .header-text {
     font-size: 11px;
@@ -429,27 +463,15 @@ textarea {
     font: bold 9px/11px Arial, sans-serif;
     font-weight: bold;
     color: #5e9a34 !important;
-    top: 2px;
+    position: relative;
+    top: -2px;
+}
+.search-icon {
+    position: relative;
+    top: -2px;
 }
 .store-search {
     padding-top: 35px;
-}
-.nav-item-text {
-    font: bold 9px/11px Arial, sans-serif;
-    font-weight: bold;
-    color: #5e9a34 !important;
-}
-.nav-underline {
-    -webkit-box-flex: 1;
-    -moz-box-flex: 1;
-    -webkit-flex: 1;
-    -ms-flex: 1;
-    flex: 1;
-    min-width: 10px;
-    align-self: flex-end;
-}
-.nav-first-row {
-    padding-top: 30px;
 }
 
 .tag-inline {
@@ -470,16 +492,15 @@ textarea {
     
 }
 
+/*#region Top Nav*/
 .topnav-inner-solo {
     -moz-border-radius: 5px 5px 5px 5px;
     border-radius: 5px 5px 5px 5px;
 }
-
 .topnav-inner-multi {
     -moz-border-radius: 5px 0px 0px 5px;
     border-radius: 5px 0px 0px 5px;
 }
-
 .topnav-inner {  
     display: inline-block;
     vertical-align: central;
@@ -491,11 +512,9 @@ textarea {
     -webkit-box-shadow: inset 2px 2px 2px #383838, inset -2px -2px 2px #000000;
     box-shadow: inset 2px 2px 2px #383838, inset -2px -2px 2px #000000;
 }
-
 ul.topnav-left {
 	float: left;
 }
-
 ul.topnav {
 	list-style: none;
 	padding: 0 20px;
@@ -550,7 +569,6 @@ ul.topnav li span:hover {
     -webkit-box-shadow: inset -2px 2px 2px #280038, inset -2px 2px 2px #000000;
     box-shadow: inset -2px 2px 2px #280038, inset -2px 2px 2px #000000;
 }
-
 ul.topnav li span.subhover {background-position: center 82%; cursor: pointer;} /*--Hover effect for trigger--*/
 ul.topnav li ul.subnav {
 	list-style: none;
@@ -596,7 +614,9 @@ html ul.topnav li ul.subnav li a:before {
 /*html ul.topnav li ul.subnav li a:hover { /*--Hover effect for subnav links--*/
 	/*background: #222 url(dropdown_linkbg.gif) no-repeat 10px center; 
 }*/
+/*#endregion*/
 
+/*#region Bootstrap Nav override*/
 .navbar-primary .navbar { background:#111; border-bottom:none; margin: 0; padding: 0;}
 .navbar-primary .navbar .nav > li > a {color: #501762;}
 .navbar-primary .navbar .nav > li > a:hover {color: #333; background-color: #8e49a3;}
@@ -626,16 +646,15 @@ a:hover, a:visited, a:link, a:active { text-decoration: none !important; }
   line-height: 1.5;
   border-radius: 3px;
 }
-
 select.input-group-xs > .form-control,
 select.input-group-xs > .input-group-addon,
 select.input-group-xs > .input-group-btn > .btn {
   height: 25px;
   line-height: 25px;
 }
-
 textarea.input-group-xs > .form-control,
 textarea.input-group-xs > .input-group-addon,
 textarea.input-group-xs > .input-group-btn > .btn {
   height: auto;
 }
+/*#endregion*/

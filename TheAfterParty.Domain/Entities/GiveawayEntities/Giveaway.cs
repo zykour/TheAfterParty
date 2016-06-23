@@ -37,9 +37,21 @@ namespace TheAfterParty.Domain.Entities
         public DateTime? StartDate { get; set; }
 
         // the steam ID of the giveaway creator
-        public string UserID { get; set; }
+        public string CreatorID { get; set; }
 
         // the appuser object associated with the creator
-        public virtual AppUser AppUserCreator { get; set; }
+        public virtual AppUser Creator { get; set; }
+        public bool IsCreator(AppUser user)
+        {
+            return (Creator == null) ? false : Object.Equals(user.Id, Creator.Id);
+        }
+
+        public string WinnerID { get; set; }
+
+        public virtual AppUser Winner { get; set; }
+        public bool IsWinner(AppUser user)
+        {
+            return (Winner == null) ? false : Object.Equals(user.Id, Winner.Id);
+        }
     }
 }

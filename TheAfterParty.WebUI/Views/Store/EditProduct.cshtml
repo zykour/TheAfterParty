@@ -1,0 +1,20 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Store
+@model AddEditProductViewModel
+
+@{
+    ViewBag.Title = "Edit Product";
+}
+
+<h2>Edit Product</h2>
+
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("EditProduct", "Store", FormMethod.Post))
+{
+    @Html.HiddenFor(x => x.Product.ProductID)
+    <span>Product name: </span> @Html.TextBoxFor(x => x.Product.ProductName, new { @Value = Model.Product.ProductName })
+    <span>App ID: </span> @Html.TextBoxFor(x => x.Product.AppID, new { @Value = Model.Product.AppID })
+    <span>(or) String ID: </span> @Html.TextBoxFor(x => x.Product.StringID, new { @Value = Model.Product.StringID })
+    <input type="submit" name="Submit" />
+}

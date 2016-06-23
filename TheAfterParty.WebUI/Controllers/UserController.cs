@@ -58,7 +58,20 @@ namespace TheAfterParty.WebUI.Controllers
             return View("Index", model);
         }
 
-        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AdminAppUsers()
+        {
+            AdminAppUserViewModel model = new AdminAppUserViewModel();
+
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateUserControllerAdminNavList();
+
+            model.AppUsers = userService.GetAllUsers();
+
+            return View(model);
+        }
+
+        [HttpGet, Authorize(Roles = "Admin")]
         public async Task<ActionResult> AddAppUser()
         {
             AddEditAppUserViewModel model = new AddEditAppUserViewModel();
@@ -69,7 +82,7 @@ namespace TheAfterParty.WebUI.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Admin")]
         public async Task<ActionResult> AddAppUser(AddEditAppUserViewModel model)
         {
             model.LoggedInUser = await userService.GetCurrentUser();
@@ -80,19 +93,12 @@ namespace TheAfterParty.WebUI.Controllers
                 return View(model);
             }
 
-            userService.BuildUser(model.AppUser, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
+            await userService.CreateAppUser(model.AppUser, model.RoleToAdd, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
 
-            await HttpContext.GetOwinContext().GetUserManager<AppUserManager>().CreateAsync(model.AppUser);
-
-            if (String.IsNullOrEmpty(model.RoleToAdd) == false)
-            {
-                await HttpContext.GetOwinContext().GetUserManager<AppUserManager>().AddToRoleAsync(model.AppUser.Id, model.RoleToAdd);
-            }
-
-            return View("EditAppUser", model);
+            return RedirectToAction("AdminAppUsers");
         }
 
-        [HttpGet]
+        [HttpGet, Authorize(Roles = "Admin")]
         public async Task<ActionResult> EditAppUser(string id)
         {
             AddEditAppUserViewModel model = new AddEditAppUserViewModel();
@@ -112,7 +118,7 @@ namespace TheAfterParty.WebUI.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Admin")]
         public async Task<ActionResult> EditAppUser(AddEditAppUserViewModel model)
         {
             model.LoggedInUser = await userService.GetCurrentUser();
@@ -123,33 +129,38 @@ namespace TheAfterParty.WebUI.Controllers
                 return View(model);
             }
 
-            await HttpContext.GetOwinContext().GetUserManager<AppUserManager>().UpdateAsync(model.AppUser);
+            await userService.EditAppUser(model.AppUser, model.RoleToAdd, model.RoleToRemove);
 
-            if (String.IsNullOrEmpty(model.RoleToAdd) == false)
-            {
-                await HttpContext.GetOwinContext().GetUserManager<AppUserManager>().AddToRoleAsync(model.AppUser.Id, model.RoleToAdd);
-            }
-
-            if (String.IsNullOrEmpty(model.RoleToRemove) == false)
-            {
-                await HttpContext.GetOwinContext().GetUserManager<AppUserManager>().RemoveFromRoleAsync(model.AppUser.Id, model.RoleToAdd);
-            }
-
-            return View("AdminAppUsers");
+            return RedirectToAction("AdminAppUsers");
         }
 
-        [HttpGet]
-        public async Task<ActionResult> AddBalanceEntry()
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AdminBalanceEntries()
+        {
+            AdminBalanceEntryViewModel model = new AdminBalanceEntryViewModel();
+
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateUserControllerAdminNavList();
+
+            model.BalanceEntries = userService.GetBalanceEntries();
+
+            return View(model);
+        }
+        
+        [HttpGet, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AddBalanceEntry(string id = "")
         {
             AddEditBalanceEntryViewModel model = new AddEditBalanceEntryViewModel();
 
             model.LoggedInUser = await userService.GetCurrentUser();
             model.FullNavList = CreateUserControllerAdminNavList();
 
+            model.UserID = id;
+
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Admin")]
         public async Task<ActionResult> AddBalanceEntry(AddEditBalanceEntryViewModel model)
         {
             model.LoggedInUser = await userService.GetCurrentUser();
@@ -160,17 +171,27 @@ namespace TheAfterParty.WebUI.Controllers
                 return View(model);
             }
 
-            userService.CreateBalanceEntry(model.BalanceEntry);
+            if (String.IsNullOrEmpty(model.UserID))
+            {
+                await userService.CreateBalanceEntry(model.BalanceEntry, model.ObjectiveID, model.UserNickName);
+            }
+            else
+            {
+                model.BalanceEntry.AppUser = await userService.GetUserByID(model.UserID);
+                await userService.CreateBalanceEntry(model.BalanceEntry, model.ObjectiveID);
+            }
 
-            return View("EditBalanceEntry", model);
+            return RedirectToAction("AdminBalanceEntries");
         }
 
-        [HttpGet]
+        [HttpGet, Authorize(Roles = "Admin")]
         public async Task<ActionResult> EditBalanceEntry(int id)
         {
             AddEditBalanceEntryViewModel model = new AddEditBalanceEntryViewModel();
 
             model.BalanceEntry = userService.GetBalanceEntryByID(id);
+
+            model.UserID = model.BalanceEntry.AppUser.Id;
 
             model.LoggedInUser = await userService.GetCurrentUser();
             model.FullNavList = CreateUserControllerAdminNavList();
@@ -178,7 +199,7 @@ namespace TheAfterParty.WebUI.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Admin")]
         public async Task<ActionResult> EditBalanceEntry(AddEditBalanceEntryViewModel model)
         {
             model.LoggedInUser = await userService.GetCurrentUser();
@@ -189,42 +210,77 @@ namespace TheAfterParty.WebUI.Controllers
                 return View(model);
             }
 
-            userService.EditBalanceEntry(model.BalanceEntry);
+            await userService.EditBalanceEntry(model.BalanceEntry, model.ObjectiveID);
 
-            return View("AdminBalanceEntries");
+            return RedirectToAction("AdminBalanceEntries");
         }
 
-        public ActionResult DeleteBalanceEntry(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> DeleteBalanceEntry(int id)
         {
-            userService.DeleteBalanceEntry(id);
+            await userService.DeleteBalanceEntry(id);
 
-            return View("AdminBalanceEntries");
+            return RedirectToAction("AdminBalanceEntries");
         }
 
-        [HttpGet]
-        public async Task<ActionResult> AddClaimedProductKey()
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AdminClaimedProductKeys()
+        {
+            AdminClaimedProductKeyViewModel model = new AdminClaimedProductKeyViewModel();
+
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateUserControllerAdminNavList();
+
+            model.ClaimedProductKeys = userService.GetClaimedProductKeys();
+
+            return View(model);
+        }
+
+        [HttpGet, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AddClaimedProductKey(string id = null)
         {
             AddEditClaimedProductKeyViewModel model = new AddEditClaimedProductKeyViewModel();
 
             model.LoggedInUser = await userService.GetCurrentUser();
             model.FullNavList = CreateUserControllerAdminNavList();
 
+            model.UserID = id;
+
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Admin")]
         public async Task<ActionResult> AddClaimedProductKey(AddEditClaimedProductKeyViewModel model)
         {
             model.LoggedInUser = await userService.GetCurrentUser();
             model.FullNavList = CreateUserControllerAdminNavList();
 
-            return View(model);
+            if (ModelState.IsValid == false)
+            {
+                return View(model);
+            }
+
+            if (String.IsNullOrEmpty(model.UserID))
+            {
+                userService.CreateClaimedProductKey(model.ClaimedProductKey, model.UserNickName);
+            }
+            else
+            {
+                model.ClaimedProductKey.AppUser = await userService.GetUserByID(model.UserID);
+                userService.CreateClaimedProductKey(model.ClaimedProductKey);
+            }
+
+            return RedirectToAction("AdminClaimedProductKeys");
         }
 
-        [HttpGet]
-        public async Task<ActionResult> EditClaimedProductKey()
+        [HttpGet, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditClaimedProductKey(int id)
         {
             AddEditClaimedProductKeyViewModel model = new AddEditClaimedProductKeyViewModel();
+
+            model.ClaimedProductKey = userService.GetClaimedProductKeyByID(id);
+
+            model.UserID = model.ClaimedProductKey.AppUser.Id;
 
             model.LoggedInUser = await userService.GetCurrentUser();
             model.FullNavList = CreateUserControllerAdminNavList();
@@ -232,7 +288,7 @@ namespace TheAfterParty.WebUI.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Admin")]
         public async Task<ActionResult> EditClaimedProductKey(AddEditClaimedProductKeyViewModel model)
         {
             model.LoggedInUser = await userService.GetCurrentUser();
@@ -245,8 +301,158 @@ namespace TheAfterParty.WebUI.Controllers
 
             userService.EditClaimedProductKey(model.ClaimedProductKey);
 
-            return View("AdminClaimedProductKeys");
+            return RedirectToAction("AdminClaimedProductKeys");
         }
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult DeleteClaimedProductKey(int id)
+        {
+            userService.DeleteClaimedProductKey(id);
+
+            return RedirectToAction("AdminClaimedProductKeys");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AdminOrders()
+        {
+            AdminOrderViewModel model = new AdminOrderViewModel();
+
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateUserControllerAdminNavList();
+
+            model.Orders = userService.GetOrders();
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AdminOrder(int id)
+        {
+            AdminSingleOrderViewModel model = new AdminSingleOrderViewModel();
+
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateUserControllerAdminNavList();
+
+            model.Order = userService.GetOrderByID(id);
+
+            return View(model);
+        }
+        
+        [HttpGet, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AddOrder(string id = null)
+        {
+            AddEditOrderViewModel model = new AddEditOrderViewModel();
+
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateUserControllerAdminNavList();
+
+            model.Order = new Order();
+
+            model.UserID = id;
+
+            return View(model);
+        }
+
+        [HttpPost, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AddOrder(AddEditOrderViewModel model)
+        {
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateUserControllerAdminNavList();
+
+            if (ModelState.IsValid == false)
+            {
+                return View(model);
+            }
+            
+            model.Order.AppUser = (String.IsNullOrEmpty(model.UserID)) ? userService.GetUserByNickname(model.UserNickName) : await userService.GetUserByID(model.UserID);
+                       
+            model.ProductOrderEntry.ClaimedProductKey = (model.UseDBKey) ? null : model.ClaimedProductKey;            
+
+            model.Order.ProductOrderEntries = new List<ProductOrderEntry>() { model.ProductOrderEntry };
+
+            userService.CreateOrder(model.Order, model.AlreadyCharged);
+
+            return RedirectToAction("AdminOrders");
+        }
+
+        [HttpGet, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditOrder(int id)
+        {
+            AddEditOrderViewModel model = new AddEditOrderViewModel();
+
+            model.Order = userService.GetOrderByID(id);
+
+            model.UserID = model.Order.AppUser.Id;
+
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateUserControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [HttpPost, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditOrder(AddEditOrderViewModel model)
+        {
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateUserControllerAdminNavList();
+
+            if (ModelState.IsValid == false)
+            {
+                return View(model);
+            }
+
+            userService.EditOrder(model.Order);
+
+            return RedirectToAction("AdminOrders");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> DeleteOrder(int id)
+        {
+            await userService.DeleteOrder(id);
+
+            return RedirectToAction("AdminOrders");
+        }
+
+        [HttpGet, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditProductOrderEntry(int id)
+        {
+            AddEditProductOrderEntryViewModel model = new AddEditProductOrderEntryViewModel();
+
+            model.ProductOrderEntry = userService.GetProductOrderEntryByID(id);
+            
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateUserControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [HttpPost, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditProductOrderEntry(AddEditProductOrderEntryViewModel model)
+        {
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateUserControllerAdminNavList();
+
+            if (ModelState.IsValid == false)
+            {
+                return View(model);
+            }
+
+            userService.EditProductOrderEntry(model.ProductOrderEntry);
+
+            return RedirectToAction("AdminOrders");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> DeleteProductOrderEntry(int id)
+        {
+            ProductOrderEntry entry = userService.GetProductOrderEntryByID(id);
+
+            await userService.DeleteProductOrderEntry(id);
+
+            return RedirectToAction("AdminOrder", new { id = entry.Order.OrderID });
+        }
+
 
         private List<NavGrouping> CreateUserControllerNavList()
         {
@@ -279,12 +485,42 @@ namespace TheAfterParty.WebUI.Controllers
             navGrouping.NavItems = new List<NavItem>();
 
             NavItem navItem = new NavItem();
-            navItem.Destination = "/User/AddBalances/";
-            navItem.DestinationName = "Add Balances";
+            navItem.Destination = "/User/AdminAppUsers/";
+            navItem.DestinationName = "View Users";
             navGrouping.NavItems.Add(navItem);
+            navItem = new NavItem();
             navItem.Destination = "/User/AddAppUser/";
             navItem.DestinationName = "Add User";
             navGrouping.NavItems.Add(navItem);
+            navItem = new NavItem();
+            navItem.Destination = "/User/AdminBalanceEntries/";
+            navItem.DestinationName = "View Balance Entries";
+            navGrouping.NavItems.Add(navItem);
+            navItem = new NavItem();
+            navItem.Destination = "/User/AddBalances/";
+            navItem.DestinationName = "Add Balances";
+            navGrouping.NavItems.Add(navItem);
+            navItem = new NavItem();
+            navItem.Destination = "/User/AddBalance/";
+            navItem.DestinationName = "Add Balance Entry";
+            navGrouping.NavItems.Add(navItem);
+            navItem = new NavItem();
+            navItem.Destination = "/User/AdminClaimedProductKeys/";
+            navItem.DestinationName = "View User Keys";
+            navGrouping.NavItems.Add(navItem);
+            navItem = new NavItem();
+            navItem.Destination = "/User/AddClaimedProductKey/";
+            navItem.DestinationName = "Add Key for User";
+            navGrouping.NavItems.Add(navItem);
+            navItem = new NavItem();
+            navItem.Destination = "/User/AdminOrders/";
+            navItem.DestinationName = "View Orders";
+            navGrouping.NavItems.Add(navItem);
+            navItem = new NavItem();
+            navItem.Destination = "/User/AddOrder/";
+            navItem.DestinationName = "Add Order";
+            navGrouping.NavItems.Add(navItem);
+            navItem = new NavItem();
 
             navList.Add(navGrouping);
 

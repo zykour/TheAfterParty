@@ -1,7 +1,21 @@
-﻿
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.User
+@model AddEditAppUserViewModel
+
 @{
-    ViewBag.Title = "AddAppUser";
+    ViewBag.Title = "Add User";
 }
 
-<h2>AddAppUser</h2>
+<h2>Add User</h2>
 
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("AddAppUser", "User", FormMethod.Post))
+{
+    <span>Role to add user to (separate with commas, no spaces, if multiple): </span>@Html.TextBoxFor(x => x.RoleToAdd)<br />
+    <span>Balance: </span>@Html.TextBoxFor(x => x.AppUser.Balance, new { @Value = "15"})<br />
+    <span>Nickname (3-4 short name such as WES for wesley or KATA for kataztrophik): </span>@Html.TextBoxFor(x => x.AppUser.Nickname)<br />
+    <span>SteamID: </span>@Html.TextBoxFor(x => x.AppUser.UserSteamID)<br />
+    <span>User name: </span>@Html.TextBoxFor(x => x.AppUser.UserName)<br />
+    <input type="submit" name="Submit" />
+}

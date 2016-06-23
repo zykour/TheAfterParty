@@ -71,6 +71,16 @@ namespace TheAfterParty.Domain.Entities
             return null;
         }
         
+        public bool IsComplex()
+        {
+            if (this?.ChildListings.Count > 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         // the product object
         public virtual Product Product { get; set; }
         public void AddProduct(Product product)
@@ -90,6 +100,29 @@ namespace TheAfterParty.Domain.Entities
         public bool ContainsProductCategory(ProductCategory category)
         {
             return Product.HasProductCategory(category);
+        }
+
+        public string GetQualifiedStorePageURL()
+        {
+            // if this is not a complex listing, try to build a qualified URL to the store page for this product 
+            if (Platforms.Count == 1)
+            {
+                return Platforms.First().StorePageURL + ((Product.AppID == 0) ? Product.StringID : Product.AppID.ToString());
+            }
+            else
+            {
+                //as a fall back try to find Steam
+                foreach (Platform platform in Platforms)
+                {
+                    if (platform.PlatformName.CompareTo("Steam") == 0)
+                    {
+                        return platform.StorePageURL + Product.AppID.ToString();
+                    }
+                }
+            }
+
+            // if we can't build a qualified URL return a blank string
+            return "";
         }
 
         // a child listing will have a single platform, compositite listings will have a null here
@@ -393,19 +426,34 @@ namespace TheAfterParty.Domain.Entities
         {
             return RemoveProductKey(ProductKeys.Where(key => key.ListingID == listingId).Single());
         }
+        public int ListingKeysQuantity()
+        {
+            return this?.ProductKeys?.Count ?? 0;
+        }
 
         public int Quantity { get; set; }
         public void UpdateQuantity()
         {
-            int min = System.Int32.MaxValue;
-
-            foreach (Listing listing in ChildListings)
+            if (ChildListings?.Count > 0)
             {
-                if (listing.Quantity < min)
-                    min = listing.Quantity;
-            }
+                int min = System.Int32.MaxValue;
 
-            this.Quantity = min;
+                foreach (Listing listing in ChildListings)
+                {
+                    if (listing.Quantity < min)
+                        min = listing.Quantity;
+                }
+
+                this.Quantity = min + ListingKeysQuantity();
+            }
+            else if (ProductKeys != null)
+            {
+                Quantity = ProductKeys.Count;
+            }
+            else
+            {
+                Quantity = 0;
+            }
         }
         public void UpdateParentQuantities()
         {

@@ -18,11 +18,13 @@ namespace TheAfterParty.WebUI.Controllers
         // razor doesn't handle default char value '\0' very well, use noSelectionSentinel instead
         // this should be a non alpha-numeric character as it's being used to represent a sentinel for "Begins With" filter for game names
         private const char noSelectionSentinel = '.';
+        private const string storeFormID = "storeForm";
         private IStoreService storeService;
 
         public StoreController(IStoreService storeService)
         {
             this.storeService = storeService;
+            ViewBag.StoreFormID = storeFormID;
         }
 
         protected override void Initialize(RequestContext requestContext)
@@ -34,7 +36,442 @@ namespace TheAfterParty.WebUI.Controllers
                 storeService.SetUserName(User.Identity.Name);
             }
         }
-        
+
+
+        #region Admin
+
+        #region Advanced Listing Methods
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult AddGames(string id = "Steam")
+        {
+            // use the id convention, but place the id into a new variable to make it clear what it represents
+            string platformName = id;
+
+            AddGamesViewModel model = new AddGamesViewModel();
+
+            foreach (Platform platform in storeService.GetPlatforms())
+            {
+                if (platform.PlatformName.ToLower().CompareTo(platformName.ToLower()) == 0)
+                {
+                    model.Platform = platform;
+                    return View(model);
+                }
+            }
+
+            return RedirectToAction("EditPlatform", new { id = platformName });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public ActionResult AddGames(AddGamesViewModel model)
+        {
+            AddedListingsViewModel outputModel = new AddedListingsViewModel();
+
+            Platform platform = storeService.GetPlatformByID(model.Platform.PlatformID);
+
+            outputModel.NewListings = storeService.AddProductKeys(platform, model.Input);//.ToList();
+
+            return View("AddGamesSuccess", outputModel);
+        }
+
+        #endregion
+
+        #region DiscountedListings
+
+        [HttpGet, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AddDiscountedListing(int id)
+        {
+            AddEditDiscountedListingViewModel model = new AddEditDiscountedListingViewModel();
+
+            model.DiscountedListing.ListingID = id;
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [HttpPost, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AddDiscountedListing(AddEditDiscountedListingViewModel model)
+        {
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+            
+            if (ModelState.IsValid == false)
+            {
+                return View(model);
+            }
+
+            storeService.AddDiscountedListing(model.DiscountedListing, model.DaysDealLast);
+
+            return RedirectToAction("AdminListings");
+        }
+
+        [HttpGet, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditDiscountedListing(int id)
+        {
+            AddEditDiscountedListingViewModel model = new AddEditDiscountedListingViewModel();
+
+            model.DiscountedListing = storeService.GetDiscountedListingByID(id);
+            
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [HttpPost, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditDiscountedListing(AddEditDiscountedListingViewModel model)
+        {
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            if (ModelState.IsValid == false)
+            {
+                return View(model);
+            }
+
+            storeService.EditDiscountedListing(model.DiscountedListing, model.DaysDealLast);
+
+            return RedirectToAction("AdminListings");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult DeleteDiscountedListing(int id)
+        {
+            storeService.DeleteDiscountedListing(id);
+
+            return RedirectToAction("AdminListings");
+        }
+
+        #endregion
+
+        #region Listings
+
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AdminListings()
+        {
+            AdminListingViewModel model = new AdminListingViewModel();
+
+            model.Listings = storeService.GetListings();
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [HttpGet, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditListing(int id)
+        {
+            AddEditListingViewModel model = new AddEditListingViewModel();
+
+            model.Listing = storeService.GetListingByID(id);
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [HttpPost, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditListing(AddEditListingViewModel model)
+        {
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            if (ModelState.IsValid == false)
+            {
+                return View(model);
+            }
+
+            storeService.EditListing(model.Listing);
+
+            return RedirectToAction("AdminListings");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult DeleteListing(int id)
+        {
+            storeService.DeleteListing(id);
+
+            return RedirectToAction("AdminListings");
+        }
+
+        #endregion
+
+        #region Platforms
+
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AdminPlatforms()
+        {
+            AdminPlatformViewModel model = new AdminPlatformViewModel();
+
+            model.Platforms = storeService.GetPlatforms();
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [HttpGet, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AddPlatform()
+        {
+            AddEditPlatformViewModel model = new AddEditPlatformViewModel();
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [HttpPost, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AddPlatform(AddEditPlatformViewModel model)
+        {
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            if (ModelState.IsValid == false)
+            {
+                return View(model);
+            }
+
+            storeService.AddPlatform(model.Platform);
+
+            return RedirectToAction("AdminPlatforms");
+        }
+
+        [HttpGet, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditPlatform(int id)
+        {
+            AddEditPlatformViewModel model = new AddEditPlatformViewModel();
+
+            model.Platform = storeService.GetPlatformByID(id);
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        /*[Authorize(Roles = "Admin")]
+        public ActionResult EditPlatform(string id)
+        {
+            string platformName = id;
+            Platform existingPlatform = storeService.GetPlatforms().Where(p => object.Equals(platformName, p.PlatformName)).SingleOrDefault();
+
+            AddEditPlatformViewModel model = new AddEditPlatformViewModel();
+
+            if (existingPlatform != null)
+            {
+                model.Platform = existingPlatform;
+            }
+            else
+            {
+                model.Platform = new Platform();
+                model.Platform.PlatformName = platformName;
+            }
+
+            return View(model);
+        }*/
+
+        [HttpPost, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditPlatform(AddEditPlatformViewModel model)
+        {
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            if (ModelState.IsValid == false)
+            {
+                return View(model);
+            }
+
+            storeService.EditPlatform(model.Platform);
+
+            return RedirectToAction("AdminPlatforms");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult DeletePlatform(int id)
+        {
+            storeService.DeletePlatform(id);
+
+            return RedirectToAction("AdminPlatforms");
+        }
+
+        #endregion
+
+        #region Products
+
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AdminProducts()
+        {
+            AdminProductViewModel model = new AdminProductViewModel();
+
+            model.Products = storeService.GetProducts().Where(p => p?.Listings.Count == 0).ToList();
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [HttpGet, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditProduct(int id)
+        {
+            AddEditProductViewModel model = new AddEditProductViewModel();
+
+            model.Product = storeService.GetProductByID(id);
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [HttpPost, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditProduct(AddEditProductViewModel model)
+        {
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            if (ModelState.IsValid == false)
+            {
+                return View(model);
+            }
+
+            storeService.EditProduct(model.Product);
+
+            if (model.Product?.Listings.Count > 0)      { return RedirectToAction("AdminListings"); }
+            else                                        { return RedirectToAction("AdminProducts"); }
+        }
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult DeleteProduct(int id)
+        {
+            Product product = storeService.GetProductByID(id);
+
+            storeService.DeleteProduct(id);
+            
+            if (product?.Listings.Count > 0)    { return RedirectToAction("AdminListings"); }
+            else                                { return RedirectToAction("AdminProducts"); }
+        }
+
+        #endregion
+
+        #region ProductCategories
+
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AdminProductCategories()
+        {
+            AdminProductCategoryViewModel model = new AdminProductCategoryViewModel();
+
+            model.ProductCategories = storeService.GetProductCategories();
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [HttpGet, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditProductCategory(int id)
+        {
+            AddEditProductCategoryViewModel model = new AddEditProductCategoryViewModel();
+
+            model.ProductCategory = storeService.GetProductCategoryByID(id);
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [HttpPost, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditProductCategory(AddEditProductCategoryViewModel model)
+        {
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            if (ModelState.IsValid == false)
+            {
+                return View(model);
+            }
+
+            storeService.EditProductCategory(model.ProductCategory);
+
+            return RedirectToAction("AdminProductCategories");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult DeleteProductCategory(int id)
+        {
+            storeService.DeleteProductCategory(id);
+
+            return RedirectToAction("AdminProductCategories");
+        }
+
+        #endregion
+
+        #region ProductKeys
+
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> AdminProductKeys()
+        {
+            AdminProductKeyViewModel model = new AdminProductKeyViewModel();
+
+            model.ProductKeys = storeService.GetProductKeys();
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [HttpGet, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditProductKey(int id)
+        {
+            AddEditProductKeyViewModel model = new AddEditProductKeyViewModel();
+
+            model.ProductKey = storeService.GetProductKeyByID(id);
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [HttpPost, Authorize(Roles = "Admin")]
+        public async Task<ActionResult> EditProductKey(AddEditProductKeyViewModel model)
+        {
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            if (ModelState.IsValid == false)
+            {
+                return View(model);
+            }
+
+            storeService.EditProductKey(model.ProductKey);
+
+            return RedirectToAction("AdminProductKeys");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult DeleteProductKey(int id)
+        {
+            storeService.DeleteProductKey(id);
+
+            return RedirectToAction("AdminProductKeys");
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Store Action Results
 
         // GET: CoopShop/Store
         [HttpGet]
@@ -133,19 +570,6 @@ namespace TheAfterParty.WebUI.Controllers
             return View("Index", model);
         }
 
-        public async Task<ActionResult> UserBalances()
-        {
-            StoreBalancesViewModel model = new StoreBalancesViewModel();
-
-            if (HttpContext.User.Identity.IsAuthenticated)
-            {
-                model.LoggedInUser = await storeService.GetCurrentUser();
-                model.Users = storeService.GetAppUsers();
-            }
-            
-            return View();
-        }
-        
         [HttpGet]
         public async Task<ActionResult> Deals(string id = "all")
         {
@@ -220,69 +644,26 @@ namespace TheAfterParty.WebUI.Controllers
             return View("Index", model);
         }
 
-        // Role = admin
-        public ActionResult AddGames(string id = "Steam")
-        {
-            // use the id convention, but place the id into a new variable to make it clear what it represents
-            string platformName = id;
+        #endregion
 
-            AddGamesViewModel model = new AddGamesViewModel();
-            
-            foreach (Platform platform in storeService.GetPlatforms())
+        #region Other Action Results
+
+        public async Task<ActionResult> UserBalances()
+        {
+            StoreBalancesViewModel model = new StoreBalancesViewModel();
+
+            if (HttpContext.User.Identity.IsAuthenticated)
             {
-                if (platform.PlatformName.ToLower().CompareTo(platformName.ToLower()) == 0)
-                {
-                    model.Platform = platform;
-                    return View(model);
-                }
+                model.LoggedInUser = await storeService.GetCurrentUser();
+                model.Users = storeService.GetAppUsers();
             }
 
-            return RedirectToAction("EditPlatform", new { id = platformName });
+            return View();
         }
 
-        // Role = admin
-        [HttpPost]
-        public ActionResult AddGames(AddGamesViewModel model)
-        {
-            AddedListingsViewModel outputModel = new AddedListingsViewModel();
+        #endregion
 
-            Platform platform = storeService.GetPlatformByID(model.Platform.PlatformID);
-
-            outputModel.NewListings = storeService.AddProductKeys(platform, model.Input);//.ToList();
-
-            return View("AddGamesSuccess", outputModel);
-        }
-
-        // role admin
-        public ActionResult EditPlatform(string id)
-        {
-            string platformName = id;
-            Platform existingPlatform = storeService.GetPlatforms().Where(p => object.Equals(platformName, p.PlatformName)).SingleOrDefault();
-
-            AddEditPlatformViewModel model = new AddEditPlatformViewModel();
-
-            if (existingPlatform != null)
-            {
-                model.Platform = existingPlatform;
-            }
-            else
-            {
-                model.Platform = new Platform();
-                model.Platform.PlatformName = platformName;
-            }
-
-            return View(model);
-        }
-
-        [HttpPost]
-        public ActionResult EditPlatform(AddEditPlatformViewModel model)
-        {
-            storeService.EditPlatform(model.Platform);
-
-            model.Success = true;
-
-            return View(model);
-        }
+        #region Auxiliary Methods/Functions
 
         private async Task PopulateStoreIndexViewModelFromGet(StoreIndexViewModel model)
         {
@@ -536,11 +917,11 @@ namespace TheAfterParty.WebUI.Controllers
             {
                 if (model.PriceSort == 1)
                 {
-                    model.StoreListings = model.StoreListings.OrderBy(l => l.ListingPrice).ToList();
+                    model.StoreListings = model.StoreListings.OrderBy(l => l.SaleOrDefaultPrice()).ToList();
                 }
                 else
                 {
-                    model.StoreListings = model.StoreListings.OrderByDescending(l => l.ListingPrice).ToList();
+                    model.StoreListings = model.StoreListings.OrderByDescending(l => l.SaleOrDefaultPrice()).ToList();
                 }
                 model.PreviousPriceSort = model.PriceSort;
                 model.PreviousGameSort = 0;
@@ -579,14 +960,23 @@ namespace TheAfterParty.WebUI.Controllers
                     model.StoreListings = model.StoreListings.OrderByDescending(l => l.ListingPrice).ToList();
                 }
             }
-            
+
+            foreach (Platform platform in storeService.GetPlatforms().ToList())
+            {
+                if (model.StoreListings.Any(l => l.ContainsPlatform(platform)))
+                {
+                    model.StorePlatforms.Add(platform);
+                }
+            }
+
+            model.StorePlatforms.OrderBy(p => p.PlatformName).ToList();
             model.FullNavList = CreateStoreControllerStoreNavList(model);
         }
 
         public List<NavGrouping> CreateStoreControllerStoreNavList(StoreIndexViewModel model)
         {
             List<NavGrouping> navList = new List<NavGrouping>();
-
+            
             NavGrouping actions = new NavGrouping();
             actions.GroupingHeader = "Actions";
             actions.NavItems = new List<NavItem>();
@@ -619,6 +1009,7 @@ namespace TheAfterParty.WebUI.Controllers
                 navItem.DestinationName = model.StorePlatforms[i].PlatformName + countText;
                 navItem.FormName = "SelectedPlatformID";
                 navItem.FormValue = model.StorePlatforms[i].PlatformID.ToString();
+                navItem.FormID = storeFormID;
 
                 platforms.NavItems.Add(navItem);
 
@@ -637,6 +1028,7 @@ namespace TheAfterParty.WebUI.Controllers
                     dealNavItem.DestinationName = model.StorePlatforms[i].PlatformName + countText;
                     dealNavItem.FormName = "SelectedPlatformID";
                     dealNavItem.FormValue = model.StorePlatforms[i].PlatformID.ToString();
+                    dealNavItem.FormID = storeFormID;
                     platformDeals.NavItems.Add(dealNavItem);
                 }
             }
@@ -668,5 +1060,58 @@ namespace TheAfterParty.WebUI.Controllers
 
             return navList;
         }
+
+        public List<NavGrouping> CreateStoreControllerAdminNavList()
+        {
+            List<NavGrouping> navList = new List<NavGrouping>();
+
+            NavGrouping grouping = new NavGrouping();
+            grouping.GroupingHeader = "Non-Admin Pages";
+            grouping.NavItems = new List<NavItem>();
+            NavItem item = new NavItem();
+            item.DestinationName = "Store Index";
+            item.Destination = "/Store/";
+            grouping.NavItems.Add(item);
+
+            navList.Add(grouping);
+
+            grouping = new NavGrouping();
+            grouping.GroupingHeader = "Admin Pages";
+            grouping.NavItems = new List<NavItem>();
+            item = new NavItem();
+            item.DestinationName = "View Listings";
+            item.Destination = "/Store/AdminListings";
+            grouping.NavItems.Add(item);
+            item = new NavItem();
+            item.DestinationName = "View Platforms";
+            item.Destination = "/Store/AdminPlatforms";
+            grouping.NavItems.Add(item);
+            item = new NavItem();
+            item.DestinationName = "View Products";
+            item.Destination = "/Store/AdminProducts";
+            grouping.NavItems.Add(item);
+            item = new NavItem();
+            item.DestinationName = "View Categories";
+            item.Destination = "/Store/AdminProductCategories";
+            grouping.NavItems.Add(item);
+            item = new NavItem();
+            item.DestinationName = "View Keys";
+            item.Destination = "/Store/AdminProductKeys";
+            grouping.NavItems.Add(item);
+            item = new NavItem();
+            item.DestinationName = "Add Listings";
+            item.Destination = "/Store/AddGames";
+            grouping.NavItems.Add(item);
+            item = new NavItem();
+            item.DestinationName = "Add Platform";
+            item.Destination = "/Store/AddPlatform";
+            grouping.NavItems.Add(item);
+
+            navList.Add(grouping);
+
+            return navList;
+        }
+
+        #endregion
     }
 }

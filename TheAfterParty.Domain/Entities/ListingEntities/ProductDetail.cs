@@ -56,6 +56,9 @@ namespace TheAfterParty.Domain.Entities
                 DLCs = new HashSet<Product>();
             }
 
+            string bob = "{0}";
+
+            String.Format(bob, "yo");
             DLCs.Add(product);
             product.ProductDetail.BaseProduct = this.Product;
         }

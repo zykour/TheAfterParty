@@ -20,7 +20,7 @@ namespace TheAfterParty.Domain.Entities
 
             ProductOrderEntryID = claimedKey.ClaimedProductKeyID;
         }
-        protected ProductOrderEntry(){}
+        public ProductOrderEntry(){}
         
         [Key]//, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ProductOrderEntryID { get; set; }
@@ -31,7 +31,6 @@ namespace TheAfterParty.Domain.Entities
 
         public int SalePrice { get; set; }
         
-        [Required]
         public virtual ClaimedProductKey ClaimedProductKey { get; set; }
 
         public int OrderID { get; set; }

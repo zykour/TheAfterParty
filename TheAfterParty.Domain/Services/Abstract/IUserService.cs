@@ -18,8 +18,9 @@ namespace TheAfterParty.Domain.Services
         ICollection<AppUser> GetAllUsers();
         List<AppUser> GetAdmins();
         Task<AppUser> GetUserByID(string id);
+        AppUser GetUserByNickname(string nickname);
 
-        Task<List<Order>> GetOrders();
+        Task<List<Order>> GetUserOrders();
         Task<List<ClaimedProductKey>> GetKeys();
 
         Task<List<ActivityFeedContainer>> GetActivityFeedItems();
@@ -31,18 +32,36 @@ namespace TheAfterParty.Domain.Services
         Task<int> GetPublicAuctionReservedBalance();
         Task<int> GetCartTotal();
 
-        void CreateBalanceEntry(BalanceEntry entry);
-        void EditBalanceEntry(BalanceEntry entry);
-        BalanceEntry GetBalanceEntryByID(int id);
-        void DeleteBalanceEntry(int id);
+        Task CreateAppUser(AppUser appUser, string roleToAdd, string apiKey);
+        Task EditAppUser(AppUser appUser, string roleToAdd, string roleToRemove);
 
+        ICollection<BalanceEntry> GetBalanceEntries();
+        Task CreateBalanceEntry(BalanceEntry entry, int objectiveId, string nickname);
+        Task CreateBalanceEntry(BalanceEntry entry, int objectiveId);
+        Task EditBalanceEntry(BalanceEntry entry, int objectiveId);
+        BalanceEntry GetBalanceEntryByID(int id);
+        Task DeleteBalanceEntry(int id);
+
+        void CreateClaimedProductKey(ClaimedProductKey key, string nickname);
         void CreateClaimedProductKey(ClaimedProductKey key);
         void EditClaimedProductKey(ClaimedProductKey key);
         ClaimedProductKey GetClaimedProductKeyByID(int id);
         void DeleteClaimedProductKey(int id);
+        ICollection<ClaimedProductKey> GetClaimedProductKeys();
 
-        void MarkKeyUsed(int keyId);
-        void RevealKey(int keyId);
+        void CreateOrder(Order order, bool alreadyCharged);
+        void EditOrder(Order order);
+        Order GetOrderByID(int id);
+        Task DeleteOrder(int id);
+        ICollection<Order> GetOrders();
+        ProductOrderEntry GetProductOrderEntryByID(int id);
+        void EditProductOrderEntry(ProductOrderEntry orderEntry);
+        Task DeleteProductOrderEntry(int id);
+
+        ProductKey GetProductKey(int listingId);
+
+        bool MarkKeyUsed(int keyId);
+        string RevealKey(int keyId);
 
         void BuildUser(AppUser user, string apiKey);
         bool AddBalances(string input);

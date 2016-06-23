@@ -31,7 +31,18 @@
                 @key.Listing.ListingName
             </div>
             <div class="col-lg-5">
-                @key.Key
+                @if (key.IsRevealed && !key.IsUsed)
+                {
+                    <span>@key.Key</span><br/><span>Used</span> <input type="checkbox" name="isUsed" onclick="MarkKeyUsed(@key.ClaimedProductKeyID,this)">
+                }
+                else if (key.IsRevealed && key.IsUsed)
+                {
+                    <span><del>@key.Key</del></span><br/><span>Used</span><input type="checkbox" name="isUsed" onclick="MarkKeyUsed(@key.ClaimedProductKeyID,this)" checked>
+                }
+                else
+                {
+                    <input type="button" onclick="MarkKeyRevealed(@key.ClaimedProductKeyID,this)" />
+                }
             </div>
         </div>
     }

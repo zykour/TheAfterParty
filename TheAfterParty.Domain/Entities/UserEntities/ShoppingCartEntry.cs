@@ -27,6 +27,10 @@ namespace TheAfterParty.Domain.Entities
         public virtual AppUser AppUser { get; set; }
 
         public int Quantity { get; set; }
+        public bool QuantityExceedsAvailability()
+        {
+            return Listing.Quantity < Quantity;
+        }
 
         public int ListingID { get; set; }
 

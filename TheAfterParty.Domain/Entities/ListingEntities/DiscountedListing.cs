@@ -14,6 +14,7 @@ namespace TheAfterParty.Domain.Entities
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int DiscountedListingID { get; set; }
 
+        [Required]
         public int ListingID { get; set; }
         
         // the discount percentage (i.e. 10% off)
@@ -23,7 +24,6 @@ namespace TheAfterParty.Domain.Entities
         public DateTime ItemSaleExpiry { get; set; }
 
         // the associated product that's on sale
-        [Required]
         public virtual Listing Listing { get; set; }
 
         public bool DailyDeal { get; set; }

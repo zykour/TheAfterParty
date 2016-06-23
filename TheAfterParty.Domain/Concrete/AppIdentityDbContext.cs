@@ -66,7 +66,8 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<Gift>().HasRequired<AppUser>(g => g.AppUserSender).WithMany(au => au.SentGifts).HasForeignKey(g => g.SenderID).WillCascadeOnDelete(false);
             modelBuilder.Entity<Mail>().HasRequired<AppUser>(m => m.AppUserReceiver).WithMany(au => au.ReceivedMail).HasForeignKey(m => m.ReceiverUserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<Mail>().HasRequired<AppUser>(m => m.AppUserSender).WithMany(au => au.SentMail).HasForeignKey(m => m.SenderUserID).WillCascadeOnDelete(false);
-            modelBuilder.Entity<Giveaway>().HasRequired<AppUser>(g => g.AppUserCreator).WithMany(au => au.CreatedGiveaways).HasForeignKey(g => g.UserID).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Giveaway>().HasRequired<AppUser>(g => g.Creator).WithMany(au => au.CreatedGiveaways).HasForeignKey(g => g.CreatorID).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Giveaway>().HasRequired<AppUser>(g => g.Winner).WithMany(au => au.WonGiveaways).HasForeignKey(g => g.WinnerID).WillCascadeOnDelete(false);
             modelBuilder.Entity<AuctionBid>().HasRequired<AppUser>(ab => ab.AppUser).WithMany(au => au.AuctionBids).HasForeignKey(ab => ab.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<Auction>().HasRequired<AppUser>(a => a.Creator).WithMany(au => au.Auctions).HasForeignKey(a => a.CreatorID).WillCascadeOnDelete(false);
             modelBuilder.Entity<GiveawayEntry>().HasRequired<AppUser>(ge => ge.AppUser).WithMany(au => au.GiveawayEntries).HasForeignKey(ge => ge.UserID).WillCascadeOnDelete(false);

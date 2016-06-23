@@ -1,7 +1,24 @@
-﻿
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.User
+@model AddEditAppUserViewModel
+
 @{
-    ViewBag.Title = "EditAppUser";
+    ViewBag.Title = "Edit User";
 }
 
-<h2>EditAppUser</h2>
+<h2>Edit User</h2>
 
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("EditAppUser", "User", FormMethod.Post))
+{
+    @Html.HiddenFor(x => x.AppUser.Id)
+    <span>Role to add user to (separate with commas, no spaces, if multiple): </span>@Html.TextBoxFor(x => x.RoleToAdd)<br />
+    <span>Role to remove user from (separate with commas, no spaces, if multiple): </span>@Html.TextBoxFor(x => x.RoleToRemove)<<br />
+    <span>Balance: </span>@Html.TextBoxFor(x => x.AppUser.Balance, new { @Value = Model.AppUser.Balance })<br />
+    <span>Nickname (3-4 short name such as WES for wesley or KATA for kataztrophik): </span>@Html.TextBoxFor(x => x.AppUser.Nickname, new { @Value = Model.AppUser.Nickname })<br />
+    <span>SteamID (shouldn't need to be changed unless it was wrong to start with): </span>@Html.TextBoxFor(x => x.AppUser.UserSteamID, new { @Value = Model.AppUser.UserSteamID })<br />
+    <span>User name: </span>@Html.TextBoxFor(x => x.AppUser.UserName, new { @Value = Model.AppUser.UserName })<br />
+    <span>Date joined: </span>@Html.TextBoxFor(x => x.AppUser.MemberSince, new { @Value = Model.AppUser.MemberSince })<br />
+    <input type="submit" name="Submit" />
+}

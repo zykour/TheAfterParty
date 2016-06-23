@@ -1,7 +1,20 @@
-﻿
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.User
+@model AddEditOrderViewModel
+
 @{
-    ViewBag.Title = "EditOrder";
+    ViewBag.Title = "Edit Order";
 }
 
-<h2>EditOrder</h2>
+<h2>Edit User Key</h2>
 
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("EditOrder", "User", FormMethod.Post))
+{
+@Html.HiddenFor(x => x.UserID)
+@Html.HiddenFor(x => x.Order.OrderID)
+@Html.HiddenFor(x => x.Order.UserID)
+<span>Sale date: </span>@Html.TextBoxFor(x => x.Order.SaleDate, new { @Value = Model.Order.SaleDate })<<br />
+<input type="submit" name="Submit" />
+}

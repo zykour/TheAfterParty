@@ -47,13 +47,13 @@
                 if (Model.PreviousFilterLibrary)
                 {
                     <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
-                        <i class="glyphicon glyphicon-check"></i> @Html.Label("Unowned", new { @class = "text-success store-filter" })
+                        <i class="glyphicon glyphicon-check text-success"></i> @Html.Label("Owned", new { @class = "text-success store-filter" })
                     </button>
                 }
                 else
                 {
                     <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
-                        <i class="glyphicon glyphicon-unchecked text-success"></i> @Html.Label("Unowned", new { @class = "text-success store-filter" })
+                        <i class="glyphicon glyphicon-unchecked text-success"></i> @Html.Label("Owned", new { @class = "text-success store-filter" })
                     </button>
                 }
                 <br />

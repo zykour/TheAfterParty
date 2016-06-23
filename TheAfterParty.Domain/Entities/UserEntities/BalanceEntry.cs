@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace TheAfterParty.Domain.Entities
 {
@@ -39,5 +40,15 @@ namespace TheAfterParty.Domain.Entities
         public DateTime Date { get; set; }
         
         public virtual Objective Objective { get; set; }
+        public void AddObjective(Objective objective)
+        {
+            Objective = objective;
+            
+            if (objective.BalanceEntries == null)
+            {
+                objective.BalanceEntries = new List<BalanceEntry>();
+                objective.BalanceEntries.Add(this);
+            }
+        }
     }
 }

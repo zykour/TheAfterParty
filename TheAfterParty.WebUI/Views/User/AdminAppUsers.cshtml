@@ -1,7 +1,30 @@
-﻿
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.User
+@model AdminAppUserViewModel
+
 @{
-    ViewBag.Title = "AdminAppUsers";
+    ViewBag.Title = "Users";
 }
 
-<h2>AdminAppUsers</h2>
+<h2>Admin Users</h2>
 
+<div class="container">
+    <div class="row">
+        <div class="col-lg-5">Action</div>
+        <div class="col-lg-2">Steam ID</div>
+        <div class="col-lg-2">Username</div>
+        <div class="col-lg-1">Nickname</div>
+        <div class="col-lg-2">Balance</div>
+    </div>
+    @foreach (AppUser user in Model.AppUsers)
+    {
+        <div class="row">
+            <div class="col-lg-5">@Html.ActionLink("Edit","EditAppUser","User", new { id = user.Id }, null) @Html.ActionLink("Add BE", "AddBalanceEntry", "User", new { id = user.Id }, null) @Html.ActionLink("Add Key", "AddClaimedProductKey", "User", new { id = user.Id }, null) @Html.ActionLink("Add Order", "AddOrder", "User", new { id = user.Id }, null)</div>
+            <div class="col-lg-2">@user.UserSteamID</div>
+            <div class="col-lg-2">@user.UserName</div>
+            <div class="col-lg-1">@user.Nickname</div>
+            <div class="col-lg-2">@user.Balance</div>
+        </div>
+    }
+</div>
+<a href="/User/AddAppUser/">Add User</a>

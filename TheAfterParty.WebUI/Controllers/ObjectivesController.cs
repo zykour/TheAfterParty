@@ -36,7 +36,7 @@ namespace TheAfterParty.WebUI.Controllers
         {
             ObjectivesIndexViewModel model = new ObjectivesIndexViewModel();
 
-            model.Objectives = objectiveService.GetObjectives().Where(o => o.IsActive).ToList();
+            model.Objectives = objectiveService.GetObjectives().Where(o => o.IsActive).OrderBy(o => o.Title).ToList();
 
             await PopulateGetObjectives(model);
 
@@ -46,9 +46,11 @@ namespace TheAfterParty.WebUI.Controllers
         [HttpPost]
         public async Task<ActionResult> Index(ObjectivesIndexViewModel model)
         {
-            model.Objectives = objectiveService.GetObjectives().Where(o => o.IsActive).ToList();
+            model.Objectives = objectiveService.GetObjectives().Where(o => o.IsActive).OrderBy(o => o.Title).ToList();
 
             await PopulatePostObjectives(model);
+
+            ModelState.Clear();
 
             return View(model);
         }
@@ -150,7 +152,7 @@ namespace TheAfterParty.WebUI.Controllers
         {
             if (ModelState.IsValid)
             {
-                objectiveService.EditObjective(model.Objective);
+                objectiveService.EditObjective(model.Objective, model.ProductID);
             }
 
             model.LoggedInUser = await objectiveService.GetCurrentUser();
@@ -214,7 +216,7 @@ namespace TheAfterParty.WebUI.Controllers
         {
             if (ModelState.IsValid)
             {
-                objectiveService.EditBoostedObjective(model.BoostedObjective);
+                objectiveService.EditBoostedObjective(model.BoostedObjective, model.DaysToAdd);
             }
 
             model.LoggedInUser = await objectiveService.GetCurrentUser();
@@ -306,12 +308,13 @@ namespace TheAfterParty.WebUI.Controllers
 
                         if (user.OwnedGames != null)
                         {
-                            model.Objectives = model.Objectives.Where(o => !user.OwnsProduct(o.Product) || o.Product == null).ToList();
+                            model.Objectives = model.Objectives.Where(o => o.Product == null || user.OwnsProduct(o.Product)).ToList();
                         }
                     }
                 }
-            }
 
+                model.FilterLibrary = false;
+            }
             
             foreach (SelectedTagMapping mapping in model.SelectedTagMappings)
             {

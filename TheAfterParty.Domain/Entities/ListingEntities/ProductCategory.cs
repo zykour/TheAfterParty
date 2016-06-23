@@ -18,8 +18,6 @@ namespace TheAfterParty.Domain.Entities
 
         public virtual ICollection<Product> Products { get; set; }
 
-        public byte[] ProductCategoryIcon { get; set; }
-
-        public string ProductCategoryMimeType { get; set; }
+        public string CategoryIconURL { get; set; }
     }
 }

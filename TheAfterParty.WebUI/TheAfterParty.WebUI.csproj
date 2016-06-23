@@ -287,9 +287,19 @@
     <Compile Include="Models\Objectives\AddEditObjectivesViewModel.cs" />
     <Compile Include="Models\Objectives\AdminObjectivesViewModel.cs" />
     <Compile Include="Models\Objectives\ObjectivesIndexViewModel.cs" />
+    <Compile Include="Models\Store\AddEditDiscountedListingViewModel.cs" />
+    <Compile Include="Models\Store\AddEditListingViewModel.cs" />
+    <Compile Include="Models\Store\AddEditProductCategoryViewModel.cs" />
+    <Compile Include="Models\Store\AddEditProductKeyViewModel.cs" />
+    <Compile Include="Models\Store\AddEditProductViewModel.cs" />
     <Compile Include="Models\Store\AddedListingsViewModel.cs" />
     <Compile Include="Models\Store\AddGamesViewModel.cs" />
     <Compile Include="Models\Store\AddEditPlatformViewModel.cs" />
+    <Compile Include="Models\Store\AdminListingViewModel.cs" />
+    <Compile Include="Models\Store\AdminPlatformViewModel.cs" />
+    <Compile Include="Models\Store\AdminProductCategoryViewModel.cs" />
+    <Compile Include="Models\Store\AdminProductKeyViewModel.cs" />
+    <Compile Include="Models\Store\AdminProductViewModel.cs" />
     <Compile Include="Models\Store\SelectedProductCategoryMapping.cs" />
     <Compile Include="Models\Store\SelectedTagMapping.cs" />
     <Compile Include="Models\Store\StoreBalancesViewModel.cs" />
@@ -304,6 +314,7 @@
     <Compile Include="Models\User\AdminBalanceEntryViewModel.cs" />
     <Compile Include="Models\User\AdminClaimedProductKeyViewModel.cs" />
     <Compile Include="Models\User\AdminOrderViewModel.cs" />
+    <Compile Include="Models\User\AdminSingleOrderViewModel.cs" />
     <Compile Include="Models\User\UserActivityFeedModel.cs" />
     <Compile Include="Models\User\UserAddBalancesViewModel.cs" />
     <Compile Include="Models\User\UserIndexModel.cs" />
@@ -347,7 +358,6 @@
     <Content Include="Views\User\AddAppUser.cshtml" />
     <Content Include="Views\User\AddClaimedProductKey.cshtml" />
     <Content Include="Views\User\AddOrder.cshtml" />
-    <Content Include="Views\User\AddProductOrderEntry.cshtml" />
     <Content Include="Views\User\EditAppUser.cshtml" />
     <Content Include="Views\User\EditBalanceEntry.cshtml" />
     <Content Include="Views\User\EditClaimedProductKey.cshtml" />
@@ -357,6 +367,19 @@
     <Content Include="Views\User\AdminBalanceEntries.cshtml" />
     <Content Include="Views\User\AdminClaimedProductKeys.cshtml" />
     <Content Include="Views\User\AdminOrders.cshtml" />
+    <Content Include="Views\User\AdminOrder.cshtml" />
+    <Content Include="Views\Store\EditListing.cshtml" />
+    <Content Include="Views\Store\AddDiscountedListing.cshtml" />
+    <Content Include="Views\Store\EditDiscountedListing.cshtml" />
+    <Content Include="Views\Store\AddPlatform.cshtml" />
+    <Content Include="Views\Store\EditProduct.cshtml" />
+    <Content Include="Views\Store\EditProductCategory.cshtml" />
+    <Content Include="Views\Store\EditProductKey.cshtml" />
+    <Content Include="Views\Store\AdminListings.cshtml" />
+    <Content Include="Views\Store\AdminPlatforms.cshtml" />
+    <Content Include="Views\Store\AdminProducts.cshtml" />
+    <Content Include="Views\Store\AdminProductKeys.cshtml" />
+    <Content Include="Views\Store\AdminProductCategories.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

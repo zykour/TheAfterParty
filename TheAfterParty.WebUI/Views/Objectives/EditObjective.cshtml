@@ -12,13 +12,21 @@
 
 @using (Html.BeginForm("EditObjective", "Objectives", FormMethod.Post))
 {
-<span>Objective title (i.e. Tabletop Simulator, Misc.): </span>@Html.TextBoxFor(x => x.Objective.Title)<br />
-<span>Objective name (i.e. Tabletoppers, Chessmaster): </span>@Html.TextBoxFor(x => x.Objective.ObjectiveName)<br />
-<span>Objective category (optional): </span>@Html.TextBoxFor(x => x.Objective.Category)<br />
-<span>Objective Description: </span>@Html.TextAreaFor(x => x.Objective.Description)<br />
-<span>Objective Reward: </span>@Html.TextBoxFor(x => x.Objective.Reward)<br />
-<span>Product ID (optional): </span>@Html.TextBoxFor(x => x.ProductID)<br />
-<span>Is Active?: </span>@Html.CheckBoxFor(x => x.Objective.IsActive)<br />
-<span>Requires Monu?: </span>@Html.CheckBoxFor(x => x.Objective.RequiresAdmin)<br />
+@Html.HiddenFor(x => x.Objective.ObjectiveID)
+<span>Objective title (i.e. Tabletop Simulator, Misc.): </span>@Html.TextBoxFor(x => x.Objective.Title, new { @Value = Model.Objective.Title })<br />
+<span>Objective name (i.e. Tabletoppers, Chessmaster): </span>@Html.TextBoxFor(x => x.Objective.ObjectiveName, new { @Value = Model.Objective.ObjectiveName })<br />
+<span>Objective category (optional): </span>@Html.TextBoxFor(x => x.Objective.Category, new { @Value = Model.Objective.Category })<br />
+<span>Objective Description: </span>@Html.TextAreaFor(x => x.Objective.Description, new { @Value = Model.Objective.Description })<br />
+<span>Objective Reward: </span>@Html.TextBoxFor(x => x.Objective.Reward, new { @Value = Model.Objective.Reward })<br />
+if (Model.Objective.Product != null)
+{
+<span>Product ID (optional): </span>@Html.TextBoxFor(x => x.ProductID, new { @Value = Model.Objective.Product.ProductID })<br />
+}
+else
+{
+<span>Product ID (optional): </span>@Html.TextBoxFor(x => x.ProductID)<<br />
+}
+<span>Is Active?: </span>@Html.CheckBoxFor(x => x.Objective.IsActive, new { @Value = Model.Objective.IsActive })<br />
+<span>Requires Monu?: </span>@Html.CheckBoxFor(x => x.Objective.RequiresAdmin, new { @Value = Model.Objective.RequiresAdmin })<br />
 <input type="submit" name="Submit" />
 }
