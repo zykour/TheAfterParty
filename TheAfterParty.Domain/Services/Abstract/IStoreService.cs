@@ -30,6 +30,8 @@ namespace TheAfterParty.Domain.Services
         void AddProductCategory(ProductCategory category);
         ProductCategory GetProductCategoryByID(int id);
 
+        List<Listing> FilterListingsByUserSteamID(List<Listing> currentListing, string id, string apiKey);
+
         Tag GetTagByName(string name);
         Tag GetTagByID(int id);
     }

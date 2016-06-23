@@ -106,13 +106,13 @@ namespace TheAfterParty.Domain.Services
             }
         }
 
-        void CreateBalanceEntry(BalanceEntry entry)
+        public void CreateBalanceEntry(BalanceEntry entry)
         {
             userRepository.InsertBalanceEntry(entry);
             unitOfWork.Save();
         }
 
-        void EditBalanceEntry(BalanceEntry entry)
+        public void EditBalanceEntry(BalanceEntry entry)
         {
             userRepository.UpdateBalanceEntry(entry);
             unitOfWork.Save();
@@ -324,7 +324,7 @@ namespace TheAfterParty.Domain.Services
                 }
             }
 
-                UserManager.Update(user);
+            UserManager.Update(user);
             unitOfWork.Save();            
         }
 

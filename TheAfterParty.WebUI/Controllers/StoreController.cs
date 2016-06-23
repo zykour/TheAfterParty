@@ -49,12 +49,57 @@ namespace TheAfterParty.WebUI.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public async Task<ActionResult> Index(string id)
+        {
+            StoreIndexViewModel model = new StoreIndexViewModel();
+
+            model.StoreListings = storeService.GetStockedStoreListings().ToList();
+
+            await PopulateStoreIndexViewModelFromGet(model);
+
+            model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, id, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
+            model.FriendSteamID = id;
+
+            return View(model);
+        }
+
         [HttpPost]
         public async Task<ActionResult> Index(StoreIndexViewModel model)
         {
             model.StoreListings = storeService.GetStockedStoreListings().ToList();
 
+            bool filterOwnLibrary = model.FilterLibrary;
+
             await PopulateStoreIndexViewModelFromPostback(model);
+
+            if (filterOwnLibrary == false && String.IsNullOrEmpty(model.FriendSteamID) == false && model.FriendSteamIDBool)
+            {
+                model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, model.FriendSteamID, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
+            }
+
+            // Clear the ModelState so changes in the model are reflected when using HtmlHelpers (their default behavior is to not use changes made to the model when re-rendering a view, not what we want here)
+            ModelState.Clear();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Index(StoreIndexViewModel model, string id)
+        {
+            model.StoreListings = storeService.GetStockedStoreListings().ToList();
+
+            bool filterOwnLibrary = model.FilterLibrary;
+
+            await PopulateStoreIndexViewModelFromPostback(model);
+
+            // don't want users filtering their own libraries along with their friend's library (this just doesn't make sense)
+            // so if the passed in id is a relic make sure to 
+            if (filterOwnLibrary == false)
+            {
+                model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, id, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
+                model.FriendSteamID = id;
+            }            
 
             // Clear the ModelState so changes in the model are reflected when using HtmlHelpers (their default behavior is to not use changes made to the model when re-rendering a view, not what we want here)
             ModelState.Clear();

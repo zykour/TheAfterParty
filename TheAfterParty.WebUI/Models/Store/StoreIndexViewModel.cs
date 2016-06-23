@@ -55,6 +55,9 @@ namespace TheAfterParty.WebUI.Models.Store
         public int TagToChange { get; set; }
         public int CategoryToChange { get; set; }
 
+        public string FriendSteamID { get; set; }
+        public bool FriendSteamIDBool { get; set; }
+
         // price range filters
         /*public int LowPrice { get; set; }
         public int PreviousLowPrice { get; set; }

@@ -708,8 +708,25 @@ namespace TheAfterParty.Domain.Services
                 listing.ListingName = productDetail.ProductName;
             }
         }
-                
-        
+
+        public List<Listing> FilterListingsByUserSteamID(List<Listing> currentListing, string id, string apiKey)
+        {
+            string gamesURL = String.Format("http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={0}&steamid={1}&format=json", apiKey, id);
+
+            string result = new System.Net.WebClient().DownloadString(gamesURL);
+
+            JObject gameData = JObject.Parse(result);
+
+            if (gameData["response"] != null && gameData["response"]["games"] != null)
+            {
+                JArray jGames = (JArray)gameData["response"]["games"];
+                int[] array = jGames.Select(j => (int)j["appid"]).ToArray<int>();
+
+                return currentListing.Where(l => !array.Contains(l.Product.AppID)).ToList();
+            }
+
+            return currentListing;
+        }
 
         // --- GC and User logic
 
