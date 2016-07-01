@@ -30,6 +30,7 @@ namespace TheAfterParty.Domain.Services
             this.listingRepository = listingRepository;
             this.userRepository = userRepository;
             this.unitOfWork = unitOfWork;
+            userName = "";
         }
         protected StoreService(AppUserManager userManager)
         {
@@ -783,7 +784,18 @@ namespace TheAfterParty.Domain.Services
                 listing.ListingName = productDetail.ProductName;
             }
         }
-
+        
+        public void DownloadIconURL(Platform platform, string localPath, string fileExtension)
+        {
+            if (String.IsNullOrEmpty(platform.PlatformIconURL) == false && String.IsNullOrEmpty(fileExtension) == false && platform.PlatformIconURL.ToLower().Contains("." + fileExtension.ToLower()))
+            {
+                WebClient wc = new WebClient();
+                string localFile = localPath + platform.PlatformName + "." + fileExtension;
+                wc.DownloadFile(platform.PlatformIconURL, localFile);
+                platform.PlatformIconURL = "/Content/PlatformIcons/" + platform.PlatformName + "." + fileExtension;
+            }
+        }
+        
         #endregion
 
         #region Getters

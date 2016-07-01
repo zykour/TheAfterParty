@@ -13,7 +13,7 @@ namespace TheAfterParty.Domain.Entities
 
             Key = productKey.ItemKey;
             Date = dateAdded ?? DateTime.Now;
-            IsGift = false;
+            IsGift = productKey.IsGift;
             IsUsed = false;
             IsRevealed = false;
             AcquisitionTitle = note;
@@ -56,6 +56,7 @@ namespace TheAfterParty.Domain.Entities
 
         public virtual Gift Gift { get; set; }
 
+        public int? ProductOrderEntryID { get; set; }
         public virtual ProductOrderEntry ProductOrderEntry { get; set; }
     }
 }

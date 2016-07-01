@@ -6,23 +6,32 @@
     ViewBag.Title = "Index";
 }
 
+
 @using (Html.BeginForm("Index", "Objectives", FormMethod.Post))
 {
 @Html.HiddenFor(x => x.PreviousFilterLibrary)
 <div class="container">
     <div class="col-lg-10">
+        <div class="row custom-row-header"><h3>Objectives</h3></div>
         @foreach (ICollection<Objective> group in Model.Objectives.GroupBy(o => o.Title))
         {
-            <div class="row">
+            <div class="row custom-row">
                 <div class="col-lg-12">@group.FirstOrDefault().Title</div>
             </div>
-                foreach (Objective obj in group)
+            <div class="row custom-row">
+                <div class="col-lg-4 text-center">Objective Name</div>
+                <div class="col-lg-1 text-center">Boosted</div>
+                <div class="col-lg-1">Reward</div>
+                <div class="col-lg-1">Monuplay</div>
+                <div class="col-lg-5">Description</div>
+            </div>
+            foreach (Objective obj in group)
             {
-            <div class="row">
+            <div class="row store-entry-sm">
                 <div class="col-lg-1">
                     @if (String.IsNullOrEmpty(obj.Product.ProductDetail.HeaderImageURL) == true)
                     {
-                        <span>Various Games</span>
+                        <span></span>
                     }
                     else
                     {
@@ -31,10 +40,28 @@
                         </div>
                     }
                 </div>
-                <div class="col-lg-3">@obj.ObjectiveName</div>
-                <div class="col-lg-1">@((obj.BoostedObjective == null) ? "N" : "Y")</div>
-                <div class="col-lg-1">@obj.FixedReward()</div>
-                <div class="col-lg-1">@obj.RequiresAdmin</div>
+                <div class="col-lg-3 text-primary">@obj.ObjectiveName</div>
+                <div class="col-lg-1 text-center">
+                    @if (obj.BoostedObjective == null)
+                    {
+                        <i class="fa fa-close text-danger"></i>
+                    }
+                    else
+                    {
+                        <i class="fa fa-check text-success"></i>
+                    }
+                </div>
+                <div class="col-lg-1 text-center text-success">@obj.FixedReward()</div>
+                <div class="col-lg-1 text-center">
+                    @if (obj.RequiresAdmin == false)
+                    {
+                        <i class="fa fa-close text-danger"></i>
+                    }
+                    else
+                    {
+                        <i class="fa fa-check text-success"></i>
+                    }
+                </div>
                 <div class="col-lg-5">@obj.Description</div>
             </div>
             }
@@ -43,7 +70,7 @@
         <div class="col-lg-2">
             @if (Context.User.Identity.IsAuthenticated)
             {
-                <h3 class="text-primary nav-grouping-header" style="width: 100%;">User Filters</h3>
+                <h3 class="text-primary nav-grouping-header store-search" style="width: 100%;">User Filters</h3>
                 if (Model.PreviousFilterLibrary)
                 {
                     <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
@@ -57,8 +84,12 @@
                     </button>
                 }
                 <br />
+                <h3 class="text-primary nav-grouping-header">Genres & Tags</h3>
             }
-            <h3 class="text-primary nav-grouping-header">Genres & Tags</h3>
+            else
+            {
+                <h3 class="text-primary nav-grouping-header store-search">Genres & Tags</h3>
+            }
             @if (Model.SelectedTagMappings != null)
             {
                 for (int i = 0; i < Model.SelectedTagMappings.Count(); i++)

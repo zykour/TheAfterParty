@@ -24,6 +24,7 @@ namespace TheAfterParty.Domain.Services
             this.userRepository = userRepository;
             this.listingRepository = listingRepository;
             this.unitOfWork = unitOfWork;
+            userName = "";
         }
         protected CartService(AppUserManager userManager)
         {
@@ -118,24 +119,94 @@ namespace TheAfterParty.Domain.Services
             foreach (ShoppingCartEntry entry in cartEntries)
             {
                 List<ProductKey> keys = listingRepository.GetProductKeys().Where(k => k.ListingID == entry.ListingID).Take(entry.Quantity).ToList();
+                int remainingQuantity = entry.Quantity - keys.Count;
 
-                foreach (ProductKey productKey in keys)
+                if (keys.Count > 0 && keys.Count < entry.Quantity && entry.Listing.ChildListings != null)
                 {
-                    listingRepository.DeleteProductKey(productKey.ProductKeyID);
+                    foreach (ProductKey productKey in keys)
+                    {
+                        listingRepository.DeleteProductKey(productKey.ProductKeyID);
 
-                    Listing listing = listingRepository.GetListingByID(entry.ListingID);
-                    listing.Quantity--;
-                    listing.UpdateParentQuantities();
-                    listingRepository.UpdateListing(listing);
+                        ClaimedProductKey claimedKey = new ClaimedProductKey(productKey, user, orderDate, "Purchase - Order #" + order.OrderID);
+                        user.AddClaimedProductKey(claimedKey);
+                        userRepository.InsertClaimedProductKey(claimedKey);
+                        unitOfWork.Save();
+
+                        //unitOfWork.Save();
+
+                        ProductOrderEntry orderEntry = new ProductOrderEntry(order, entry);
+                        order.AddProductOrderEntry(orderEntry);
+                        userRepository.InsertProductOrderEntry(orderEntry);
+                        unitOfWork.Save();
+                        orderEntry.AddClaimedProductKey(claimedKey);
+                    }
+
+                    keys = new List<ProductKey>();
                     
-                    ClaimedProductKey claimedKey = new ClaimedProductKey(productKey, user, orderDate, "Purchase - Order #" + order.OrderID);
-                    user.AddClaimedProductKey(claimedKey);
-
-                    unitOfWork.Save();
-
-                    ProductOrderEntry orderEntry = new ProductOrderEntry(order, entry, claimedKey);
-                    order.AddProductOrderEntry(orderEntry);
+                    foreach (Listing childListing in entry.Listing.ChildListings)
+                    {
+                        keys.AddRange(listingRepository.GetProductKeys().Where(k => k.ListingID == childListing.ListingID).Take(remainingQuantity));
+                    }
                 }
+                else if (keys.Count < entry.Quantity && entry.Listing.ChildListings != null)
+                {
+                    foreach (Listing childListing in entry.Listing.ChildListings)
+                    {
+                        keys.AddRange(listingRepository.GetProductKeys().Where(k => k.ListingID == childListing.ListingID).Take(entry.Quantity));
+                    }
+                }
+
+                if (entry.Listing.ChildListings == null || entry.Listing.ChildListings.Count == 0)
+                {
+                    foreach (ProductKey productKey in keys)
+                    {
+                        listingRepository.DeleteProductKey(productKey.ProductKeyID);
+
+                        ClaimedProductKey claimedKey = new ClaimedProductKey(productKey, user, orderDate, "Purchase - Order #" + order.OrderID);
+                        user.AddClaimedProductKey(claimedKey);
+                        userRepository.InsertClaimedProductKey(claimedKey);
+                        unitOfWork.Save();
+
+                        ProductOrderEntry orderEntry = new ProductOrderEntry(order, entry);
+                        userRepository.InsertProductOrderEntry(orderEntry);
+                        unitOfWork.Save();
+                        orderEntry.AddClaimedProductKey(claimedKey);
+
+                        order.AddProductOrderEntry(orderEntry);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < remainingQuantity; i++)
+                    {
+                        ProductOrderEntry orderEntry = new ProductOrderEntry(order, entry);
+                        order.AddProductOrderEntry(orderEntry);
+                        userRepository.InsertProductOrderEntry(orderEntry);
+                        unitOfWork.Save();
+
+                        foreach (Listing childListing in entry.Listing.ChildListings)
+                        {
+                            ProductKey productKey = keys.Where(k => k.Listing.ListingID == childListing.ListingID).First();
+                            keys.Remove(productKey);
+                            listingRepository.DeleteProductKey(productKey.ProductKeyID);
+
+                            ClaimedProductKey claimedKey = new ClaimedProductKey(productKey, user, orderDate, "Purchase - Order #" + order.OrderID);
+                            userRepository.InsertClaimedProductKey(claimedKey);
+                            unitOfWork.Save();
+                            orderEntry.AddClaimedProductKey(claimedKey);
+                            user.AddClaimedProductKey(claimedKey);
+                        }
+
+                        order.AddProductOrderEntry(orderEntry);
+                    }
+                }
+
+                Listing listing = listingRepository.GetListingByID(entry.ListingID);
+                listing.Quantity -= entry.Quantity;
+                listing.UpdateParentQuantities();
+                listingRepository.UpdateListing(listing);
+                
+                unitOfWork.Save();
             }
 
             await DeleteShoppingCart();
@@ -150,7 +221,7 @@ namespace TheAfterParty.Domain.Services
 
             this.unitOfWork.Save();
 
-            return order;
+            return userRepository.GetOrderByID(order.OrderID);
         }
 
         public void DeleteShoppingCartEntry(int entryId)
@@ -189,7 +260,7 @@ namespace TheAfterParty.Domain.Services
             AppUser user = await GetCurrentUser();
             ShoppingCartEntry entry = user.ShoppingCartEntries.Where(e => e.ShoppingCartEntryID == entryId).Single(); //userRepository.GetShoppingCartEntryByID(entryId);
             entry.Quantity++;
-            await userRepository.UpdateAppUser(user);
+            userRepository.UpdateShoppingCartEntry(entry);
 
             this.unitOfWork.Save();
         }
@@ -201,7 +272,7 @@ namespace TheAfterParty.Domain.Services
             entry.Quantity--;
 
             if (entry.Quantity > 0)
-                await userRepository.UpdateAppUser(user);
+                userRepository.UpdateShoppingCartEntry(entry);
             else
                 userRepository.DeleteShoppingCartEntry(entryId);
             

@@ -6,7 +6,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity;
 using System;
 
-public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
+public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext> //DropCreateDatabaseIfModelChanges<AppIdentityDbContext>
 {
     protected override void Seed(AppIdentityDbContext context)
     {
@@ -74,6 +74,7 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         ProductCategory cp = new ProductCategory("Co-op");
 
         Platform steam = new Platform("Steam", "http://store.steampowered.com");
+        steam.PlatformIconURL = "/Content/PlatformIcons/steam.png";
         steam.HasAppID = true;
 
         Listing l = new Listing("Sol Survivor", 5, dateAdded);
@@ -101,6 +102,7 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         auction.IsSilent = false;
         auction.Listing = l;
         auction.MinimumBid = 5;
+        auction.CreatedTime = DateTime.Now.AddDays(-1);
 
         auctionRepository.InsertAuction(auction);
         unitOfWork.Save();
@@ -175,7 +177,11 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         obj.RequiresAdmin = true;
         obj.Reward = 5;
 
+        BalanceEntry bEntry = new BalanceEntry(monu, "", 5, DateTime.Now);
+        bEntry.Objective = obj;
+
         objectiveRepository.InsertObjective(obj);
+        userRepository.InsertBalanceEntry(bEntry);
         unitOfWork.Save();
 
         obj = new Objective();
@@ -191,7 +197,7 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         bObj.BoostAmount = .5;
         bObj.EndDate = DateTime.Today.AddDays(1);
         obj.AddBoostedObjective(bObj);
-
+        
         objectiveRepository.InsertObjective(obj);
         objectiveRepository.InsertBoostedObjective(bObj);
         unitOfWork.Save();
@@ -227,7 +233,16 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         obj.RequiresAdmin = false;
         obj.Reward = 2;
 
+        bEntry = new BalanceEntry(monu, "", 2, DateTime.Now.AddDays(-32));
+        bEntry.Objective = obj;
+
         objectiveRepository.InsertObjective(obj);
+        userRepository.InsertBalanceEntry(bEntry);
+
+        bEntry = new BalanceEntry(monu, "", 2, DateTime.Now.AddDays(-2));
+        bEntry.Objective = obj;
+
+        userRepository.InsertBalanceEntry(bEntry);
         unitOfWork.Save();
 
         l = new Listing("Portal 2", 15, dateAdded);
@@ -250,7 +265,8 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         unitOfWork.Save();
         
         Platform gog = new Platform("GOG Galaxy", "http://www.gog.com/");
-        
+        gog.PlatformIconURL = "/Content/PlatformIcons/gog.ico";
+
         l = new Listing("The Witcher 3", 75, dateAdded);
         p = new Product("The Witcher 3");
         pd = new ProductDetail();
@@ -310,6 +326,8 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext>
         p = new Product("Strategy Duo Pack");
         pd = new ProductDetail();
         p.AddProductDetail(pd);
+        pk = new ProductKey(false, "AWES-OMEK-EYYY");
+        l.AddProductKey(pk);
         l.AddPlatform(steam);
         l.AddPlatform(gog);
         l.AddProduct(p);

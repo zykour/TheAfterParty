@@ -7,17 +7,21 @@
     ViewBag.Title = "Keys";
 }
 
-<h2>My Keys</h2>
-
 <div class="container">
-    <div class="row">
+    <div class="row custom-row-header">
+        <h3>My Keys</h3>
+    </div>
+    <div class="row custom-row">
         <div class="col-lg-2">
             todo
         </div>
         <div class="col-lg-5">
             Game Name
         </div>
-        <div class="col-lg-5">
+        <div class="col-lg-1">
+            Platform
+        </div>
+        <div class="col-lg-4">
             Product Key
         </div>
     </div>
@@ -30,7 +34,15 @@
             <div class="col-lg-5">
                 @key.Listing.ListingName
             </div>
-            <div class="col-lg-5">
+            <div class="col-lg-1">
+            @foreach (string platformIconUrl in key.Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
+            {
+                <div class="icon-image-container">
+                    <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
+                </div>
+            }
+            </div>
+            <div class="col-lg-4">
                 @if (key.IsRevealed && !key.IsUsed)
                 {
                     <span>@key.Key</span><br/><span>Used</span> <input type="checkbox" name="isUsed" onclick="MarkKeyUsed(@key.ClaimedProductKeyID,this)">

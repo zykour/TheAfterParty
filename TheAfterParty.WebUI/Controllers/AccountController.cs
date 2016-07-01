@@ -41,7 +41,7 @@ namespace TheAfterParty.WebUI.Controllers
 
         #region Actions
         // GET: /Account
-        public async Task<ActionResult> Index(int id = 0)
+        public async Task<ActionResult> Index()
         {
             AccountIndexModel model = new AccountIndexModel();
 
@@ -65,6 +65,10 @@ namespace TheAfterParty.WebUI.Controllers
 
             return View(model);
         }        
+        /*public async Task<ActionResult> Order(int id)
+        {
+
+        }*/
         public async Task<ActionResult> Keys()
         {
             AccountKeysModel model = new AccountKeysModel();

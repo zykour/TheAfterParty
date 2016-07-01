@@ -23,6 +23,7 @@ namespace TheAfterParty.Domain.Services
             this.userRepository = userRepository;
             this.listingRepository = listingRepository;
             this.unitOfWork = unitOfWork;
+            userName = "";
         }
         protected PurchaseService(AppUserManager userManager)
         {

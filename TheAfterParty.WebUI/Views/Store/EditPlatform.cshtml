@@ -18,5 +18,6 @@
     <span>Redemption URL: </span> @Html.TextBoxFor(x => x.Platform.PlatformURL, new { @Value = Model.Platform.PlatformURL })
     <span>Store page URL: </span> @Html.TextBoxFor(x => x.Platform.StorePageURL, new { @Value = Model.Platform.StorePageURL })
     <span>Has app ID (exposed ID): </span> @Html.CheckBoxFor(x => x.Platform.HasAppID, new { @Value = Model.Platform.HasAppID })
+    <span>Icon URL extension: (only if changing icon, don't include period)</span> @Html.TextBoxFor(x => x.FileExtension)
     <input type="submit" name="Submit" />
 }

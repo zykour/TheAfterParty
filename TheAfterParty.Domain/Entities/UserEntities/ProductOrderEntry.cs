@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
+using System.Linq;
 using System;
 
 namespace TheAfterParty.Domain.Entities
@@ -12,13 +14,24 @@ namespace TheAfterParty.Domain.Entities
             Listing = cartEntry.Listing;
             SalePrice = cartEntry.Listing.SaleOrDefaultPrice();
 
-            ClaimedProductKey = claimedKey;
+            ClaimedProductKeys = new HashSet<ClaimedProductKey>() { claimedKey };
             claimedKey.ProductOrderEntry = this;
 
             OrderID = order.OrderID;
             this.Order = order;
 
-            ProductOrderEntryID = claimedKey.ClaimedProductKeyID;
+            //ProductOrderEntryID = claimedKey.ClaimedProductKeyID;
+        }
+        public ProductOrderEntry(Order order, ShoppingCartEntry cartEntry)
+        {
+            ListingID = cartEntry.ListingID;
+            Listing = cartEntry.Listing;
+            SalePrice = cartEntry.Listing.SaleOrDefaultPrice();
+
+            ClaimedProductKeys = new HashSet<ClaimedProductKey>();
+
+            OrderID = order.OrderID;
+            this.Order = order;
         }
         public ProductOrderEntry(){}
         
@@ -31,7 +44,17 @@ namespace TheAfterParty.Domain.Entities
 
         public int SalePrice { get; set; }
         
-        public virtual ClaimedProductKey ClaimedProductKey { get; set; }
+        public virtual ICollection<ClaimedProductKey> ClaimedProductKeys { get; set; }
+        public void AddClaimedProductKey(ClaimedProductKey key)
+        {
+            if (ClaimedProductKeys == null)
+            {
+                ClaimedProductKeys = new HashSet<ClaimedProductKey>();
+            }
+
+            ClaimedProductKeys.Add(key);
+            key.ProductOrderEntry = this;
+        }
 
         public int OrderID { get; set; }
 

@@ -6,6 +6,7 @@ using TheAfterParty.Domain.Services;
 using TheAfterParty.Domain.Entities;
 using TheAfterParty.WebUI.Models._Nav;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TheAfterParty.WebUI.Controllers
 {
@@ -28,6 +29,7 @@ namespace TheAfterParty.WebUI.Controllers
 
 
         // GET: /Cart
+        [Authorize]
         public async Task<ActionResult> Index(string returnUrl)
         {
             CartIndexViewModel cartViewModel = new CartIndexViewModel
@@ -38,6 +40,8 @@ namespace TheAfterParty.WebUI.Controllers
             };
 
             cartViewModel.FullNavList = CreateCartControllerNavList(cartViewModel.LoggedInUser);
+
+            cartViewModel.CartEntries = cartViewModel.CartEntries.OrderBy(e => e.Listing.ListingName).ToList();
 
             return View(cartViewModel);
         }
@@ -115,16 +119,20 @@ namespace TheAfterParty.WebUI.Controllers
             return RedirectToAction("Index", new { returnUrl } );
         }
 
-        public ActionResult IncrementCartQuantity(int shoppingId, string returnUrl)
+        [HttpPost]
+        public async Task<ActionResult> IncrementCartQuantity(int shoppingId, string returnUrl)
         {
-            cartService.IncrementCartQuantity(shoppingId);
+            await cartService.IncrementCartQuantity(shoppingId);
+            ModelState.Clear();
 
             return RedirectToAction("Index", new { returnUrl });
         }
 
-        public ActionResult DecrementCartQuantity(int shoppingId, string returnUrl)
+        [HttpPost]
+        public async Task<ActionResult> DecrementCartQuantity(int shoppingId, string returnUrl)
         {
-            cartService.DecrementCartQuantity(shoppingId);
+            await cartService.DecrementCartQuantity(shoppingId);
+            ModelState.Clear();
 
             return RedirectToAction("Index", new { returnUrl });
         }

@@ -1,9 +1,150 @@
 ﻿@using TheAfterParty.Domain.Entities
 @using TheAfterParty.WebUI.Models.Account
+@using TheAfterParty.Domain.Entities
+@using TheAfterParty.Domain.Services
 @model AccountIndexModel
 
 @{
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
+<div class="row custom-row-header">
+    <h3>Activity Feed</h3>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+
+        @foreach (IEnumerable<ActivityFeedContainer> feedGroup in Model.ActivityFeedList.GroupBy(f => f.ItemDate.Date).ToList())
+        {
+            <div class="row custom-row">
+                <div class="col-lg-12 custom-row-text">
+                    @feedGroup.First().ItemDate.ToString("dd MMMM")
+                </div>
+            </div>
+            foreach (ActivityFeedContainer feedItem in feedGroup)
+            {
+                if (feedItem.GetActivityFeedItem() is Order)
+                {
+                    Order order = feedItem.GetActivityFeedItem() as Order;
+                    <div class="row">
+                        <div class="col-lg-9 activity-row">
+                            <p>You made a purchase for <span class="text-warning">@order.TotalSalePrice()</span> points.</p>
+                        </div>
+                        <div class="col-lg-3 text-right activity-time">
+                            @feedItem.ItemDate.ToString("hh:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                        </div>
+                    </div>
+                }
+                if (feedItem.GetActivityFeedItem() is GiveawayEntry)
+                {
+                    GiveawayEntry entry = feedItem.GetActivityFeedItem() as GiveawayEntry;
+                    <div class="row">
+                        <div class="col-lg-9">
+                            <p>You entered a giveaway for <span class="text-success">@((entry.Giveaway.Listing == null) ? entry.Giveaway.Listing.ListingName : entry.Giveaway.Prize)</span>.</p>
+                        </div>
+                        <div class="col-lg-3 text-right activity-time">
+                            @feedItem.ItemDate.ToString("hh:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                        </div>
+                    </div>
+                }
+                if (feedItem.GetActivityFeedItem() is ProductReview)
+                {
+                    ProductReview review = feedItem.GetActivityFeedItem() as ProductReview;
+                    <div class="row">
+                        <div class="col-lg-9">
+                            <p>You posted a review for <span class="text-success">@review.Product.ProductName</span>.</p>
+                        </div>
+                        <div class="col-lg-3 text-right activity-time">
+                            @feedItem.ItemDate.ToString("hh:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                        </div>
+                    </div>
+                }
+                if (feedItem.GetActivityFeedItem() is BalanceEntry)
+                {
+                    BalanceEntry entry = feedItem.GetActivityFeedItem() as BalanceEntry;
+                    <div class="row">
+                        <div class="col-lg-9">
+                            <p>You earned <span class="text-success">@entry.PointsAdjusted</span> points @((entry.Objective == null) ? "" : " for completing the objective \"" + entry.Objective.ObjectiveName + "\"").</p>
+                        </div>
+                        <div class="col-lg-3 text-right activity-time">
+                            @feedItem.ItemDate.ToString("hh:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                        </div>
+                    </div>
+                }
+                if (feedItem.GetActivityFeedItem() is WonPrize)
+                {
+                    WonPrize prize = feedItem.GetActivityFeedItem() as WonPrize;
+                    <div class="row">
+                        <div class="col-lg-9">
+                            <p>You won a prize for <span class="text-success">@prize.Prize.Listing.ListingName</span>.</p>
+                        </div>
+                        <div class="col-lg-3 text-right activity-time">
+                            @feedItem.ItemDate.ToString("hh:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                        </div>
+                    </div>
+                }
+                if (feedItem.GetActivityFeedItem() is AuctionBid)
+                {
+                    AuctionBid entry = feedItem.GetActivityFeedItem() as AuctionBid;
+                    <div class="row">
+                        <div class="col-lg-9">
+                            <p>You bid on an auction of <span class="text-success">@entry.Auction.Listing.ListingName</span> for <span class="text-warning">@entry.BidAmount</span> points.</p>
+                        </div>
+                        <div class="col-lg-3 text-right activity-time">
+                            @feedItem.ItemDate.ToString("hh:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                        </div>
+                    </div>
+                }
+                if (feedItem.GetActivityFeedItem() is Giveaway)
+                {
+                    Giveaway giveaway = feedItem.GetActivityFeedItem() as Giveaway;
+                    if (giveaway.IsCreator(Model.LoggedInUser))
+                    {
+                        <div class="row">
+                            <div class="col-lg-9">
+                                <p>You created a giveaway for <span class="text-success">@((giveaway.Listing == null) ? giveaway.Prize : giveaway.Listing.ListingName)</span>.</p>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            <div class="col-lg-9">
+                                <p>You won a giveaway for <span class="text-success">@((giveaway.Listing == null) ? giveaway.Prize : giveaway.Listing.ListingName)</span>.</p>
+                            </div>
+                            <div class="col-lg-3 text-right activity-time">
+                                @feedItem.ItemDate.ToString("hh:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                            </div>
+                        </div>
+                    }
+                }
+                else if (feedItem.GetActivityFeedItem() is Auction)
+                {
+                    Auction auction = feedItem.GetActivityFeedItem() as Auction;
+                    if (auction.IsCreator(Model.LoggedInUser))
+                    {
+                        <div class="row">
+                            <div class="col-lg-9">
+                                <p>You created an auction for <span class="text-success">@auction.Listing.ListingName</span>.</p>
+                            </div>
+                            <div class="col-lg-3 text-right activity-time">
+                                @feedItem.ItemDate.ToString("hh:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            <div class="col-lg-9">
+                                <p>You won an auction of <span class="text-success">@auction.Listing.ListingName</span> for <span class="text-warning">@auction.AuctionBids.Max()</span> points.</p>
+                            </div>
+                            <div class="col-lg-3 text-right activity-time">
+                                @feedItem.ItemDate.ToString("hh:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                            </div>
+                        </div>
+                    }
+                }
+            }
+        }
+    </div>
+</div>

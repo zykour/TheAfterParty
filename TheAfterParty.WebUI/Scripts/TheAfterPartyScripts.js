@@ -52,19 +52,26 @@ function MarkKeyRevealed(id, caller)
     });
 }
 
-function AddToCart(id)
+function AddToCart(id, caller)
 {
-    $.ajax({
-        type: "POST",   
-        url: '/Cart/AjaxAddToCart',
-        data: { listingId: id },
-        datatype: "html",
-        success: function(data) {
-            var cartTotal = $('#cartTotal').html();
-            $('#cartTotal').html(+cartTotal + +data);
-            alert('Added');
-        }
-    });
+    var element = caller;
+    //element.setAttribute('disabled', 'disabled');
+    if ($(element).hasClass('ajax-awaiting') == false) {
+        $(element).toggleClass('ajax-awaiting');
+        $.ajax({
+            type: "POST",
+            url: '/Cart/AjaxAddToCart',
+            data: { listingId: id },
+            datatype: "html",
+            success: function (data) {
+                var cartTotal = $('#cartTotal').html();
+                $('#cartTotal').html(+cartTotal + +data);
+                //element.removeAttribute('disabled');
+                $(element).toggleClass('ajax-awaiting');
+                alert('Added');
+            }
+        });
+    }
 }
 
 function AddToBlacklist(id, rowId)

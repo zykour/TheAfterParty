@@ -16,5 +16,6 @@ namespace TheAfterParty.WebUI.Models.Store
 
         public Platform Platform { get; set; }
         public bool Success { get; set; }
+        public string FileExtension { get; set; }
     }
 }

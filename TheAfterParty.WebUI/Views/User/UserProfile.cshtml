@@ -1,4 +1,6 @@
 ﻿@using TheAfterParty.WebUI.Models.User
+@using TheAfterParty.Domain.Entities
+@using TheAfterParty.Domain.Services
 @model UserProfileModel
 
 @{
@@ -6,21 +8,117 @@
 }
 
 <div class="container">
-    <div class="row">
-        <div class="col-lg-12">
-            <h2>@Model.RequestedUser.UserName</h2>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-2">
-            Nav here
-        </div>
-        <div class="col-lg-10">
+    <div class="row custom-row-header">
+        <div class="col-lg-3">
             <div>
-                <img class="pull-left" style="border: thin;" src="@Model.RequestedUser.LargeAvatar" />
+                <img class="pull-left" style="border: thin; padding: 4px;" src="@Model.RequestedUser.LargeAvatar" />
             </div>
-            <div style="float: left;"><h3>>User</h3></div>
-            <div style="float: left;"><h4>@Model.RequestedUser.UserName</h4></div>
+        </div>
+        <div class="col-lg-9">
+            <h2>@Model.RequestedUser.UserName</h2>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="row">
+                        <div class="col-lg-6 text-left text-primary">
+                            Role:
+                        </div>
+                        <div class="col-lg-6 text-right text-success">
+                            @Model.HighestRole
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-lg-6 text-left text-primary">
+                            Steam ID:
+                        </div>
+                        <div class="col-lg-6 text-right text-success">
+                            @Model.RequestedUser.UserSteamID
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="row">
+                        <div class="col-lg-6 text-left text-primary">
+                            Balance:
+                        </div>
+                        <div class="col-lg-6 text-right text-success">
+                            @Model.RequestedUser.Balance
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-lg-6 text-left text-primary">
+                            Member since:
+                        </div>
+                        <div class="col-lg-6 text-right text-success">
+                            @Model.RequestedUser.MemberSince.ToShortDateString()
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+    <div class="row custom-row-header">
+        <h3>Activity Feed</h3>
+    </div>
+    @foreach (IEnumerable<ActivityFeedContainer> feedGroup in Model.ActivityFeedList.GroupBy(f => f.ItemDate).ToList())
+    {
+        <div class="row custom-row">
+            <div class="col-lg-12 custom-row-text">
+                @feedGroup.First().ItemDate.ToString("dd MMMM")
+            </div>
+        </div>
+        foreach (ActivityFeedContainer feedItem in feedGroup)
+        {
+            if (feedItem.GetActivityFeedItem() is Giveaway)
+            {
+                Giveaway giveaway = feedItem.GetActivityFeedItem() as Giveaway;
+                if (giveaway.IsCreator(Model.RequestedUser))
+                {
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p><span class="text-primary">@Model.RequestedUser.UserName</span> created a giveaway for <span class="text-success">@((giveaway.Listing == null) ? giveaway.Prize : giveaway.Listing.ListingName)</span>.</p>
+                    </div>
+                </div>
+                }
+                else
+                {
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p><span class="text-primary">@Model.RequestedUser.UserName</span> won a giveaway for <span class="text-success">@((giveaway.Listing == null) ? giveaway.Prize : giveaway.Listing.ListingName)</span>.</p>
+                    </div>
+                </div>
+                }
+            }
+            else if (feedItem.GetActivityFeedItem() is Auction)
+            {
+                Auction auction = feedItem.GetActivityFeedItem() as Auction;
+                if (auction.IsCreator(Model.RequestedUser))
+                {
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p><span class="text-primary">@Model.RequestedUser.UserName</span> created an auction for <span class="text-success">@auction.Listing.ListingName</span>.</p>
+                    </div>
+                </div>
+                }
+                else
+                {
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p><span class="text-primary">@Model.RequestedUser.UserName</span> won an auction of <span class="text-success">@auction.Listing.ListingName</span> for <span class="text-warning">@auction.AuctionBids.Max()</span> points.</p>
+                     </div>
+                </div>
+                }
+            }
+            else if (feedItem.GetActivityFeedItem() is ProductReview)
+            {
+                ProductReview review = feedItem.GetActivityFeedItem() as ProductReview;
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p><span class="text-primary">@Model.RequestedUser.UserName</span> posted a review for <span class="text-success">@review.Product.ProductName</span>.</p>
+                    </div>
+                </div>
+            }
+        }
+    }
 </div>

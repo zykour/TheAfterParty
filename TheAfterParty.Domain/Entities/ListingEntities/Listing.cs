@@ -424,7 +424,7 @@ namespace TheAfterParty.Domain.Entities
         }
         public ProductKey RemoveProductKey(int listingId)
         {
-            return RemoveProductKey(ProductKeys.Where(key => key.ListingID == listingId).Single());
+            return RemoveProductKey(ProductKeys.Where(key => key.ListingID == listingId).First());
         }
         public int ListingKeysQuantity()
         {

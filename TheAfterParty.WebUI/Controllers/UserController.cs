@@ -58,6 +58,89 @@ namespace TheAfterParty.WebUI.Controllers
             return View("Index", model);
         }
 
+        // GET: User/Profile/name
+        // base class Controller has a "Profile" method, thus need to rename this action and give it a custom route
+        public async Task<ActionResult> UserProfile(string id = "")
+        {
+            ModelState.Clear();
+
+            if (String.IsNullOrEmpty(id))
+            {
+                return RedirectToAction("Index");
+            }
+
+            UserProfileModel model = new UserProfileModel();
+
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.RequestedUser = userService.GetRequestedUser(id);
+            model.FullNavList = CreateUserControllerNavList();
+            
+            if (model.RequestedUser == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            if (model.RequestedUser.LargeAvatar == null)
+            {
+                userService.BuildUser(model.RequestedUser, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
+            }
+
+            model.ActivityFeedList = userService.GetPublicActivityFeedItems(model.RequestedUser);
+
+            if (userService.IsInRole(model.RequestedUser, "Admin"))
+            {
+                model.HighestRole = "Admin";
+            }
+            else if(userService.IsInRole(model.RequestedUser, "Moderator"))
+            {
+                model.HighestRole = "Mod";
+            }
+            else if (userService.IsInRole(model.RequestedUser, "Member"))
+            {
+                model.HighestRole = "Member";
+            }
+            else 
+            {
+                model.HighestRole = "Guest";
+            }
+
+            return View(model);
+        }
+
+        #region Admin Actions
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult AddBalances()
+        {
+            UserAddBalancesViewModel model = new UserAddBalancesViewModel();
+            model.Users = userService.GetAllUsers().OrderBy(u => u.UserName).ToList();
+            model.FullNavList = CreateUserControllerNavList();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public ActionResult AddBalances(UserAddBalancesViewModel model)
+        {
+            if (String.IsNullOrEmpty(model.Input))
+            {
+                model.Users = userService.GetAllUsers().OrderBy(u => u.UserName).ToList();
+                return View(model);
+            }
+
+            bool success = userService.AddBalances(model.Input);
+
+            if (!success)
+            {
+                model.Users = userService.GetAllUsers().OrderBy(u => u.UserName).ToList();
+                // add validation errors ?
+                return View(model);
+            }
+
+            return RedirectToAction("Index");
+        }
+
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> AdminAppUsers()
         {
@@ -365,8 +448,11 @@ namespace TheAfterParty.WebUI.Controllers
             }
             
             model.Order.AppUser = (String.IsNullOrEmpty(model.UserID)) ? userService.GetUserByNickname(model.UserNickName) : await userService.GetUserByID(model.UserID);
-                       
-            model.ProductOrderEntry.ClaimedProductKey = (model.UseDBKey) ? null : model.ClaimedProductKey;            
+
+            if (!model.UseDBKey)
+            {
+                model.ProductOrderEntry.AddClaimedProductKey(model.ClaimedProductKey);
+            }
 
             model.Order.ProductOrderEntries = new List<ProductOrderEntry>() { model.ProductOrderEntry };
 
@@ -453,7 +539,8 @@ namespace TheAfterParty.WebUI.Controllers
             return RedirectToAction("AdminOrder", new { id = entry.Order.OrderID });
         }
 
-
+        #endregion
+        
         private List<NavGrouping> CreateUserControllerNavList()
         {
             List<NavGrouping> navList;
@@ -527,38 +614,6 @@ namespace TheAfterParty.WebUI.Controllers
             return navList;
         }
 
-        // GET: User/Profile/name
-        // base class Controller has a "Profile" method, thus need to rename this action and give it a custom route
-        public async Task<ActionResult> UserProfile(string id = "")
-        {
-            
-            ModelState.Clear();
-
-            if (String.IsNullOrEmpty(id))
-            {
-                return RedirectToAction("Index");
-            }
-
-            UserProfileModel model = new UserProfileModel();
-
-            model.LoggedInUser = await userService.GetCurrentUser();
-            model.RequestedUser = userService.GetRequestedUser(id);
-            model.FullNavList = CreateUserControllerNavList();
-
-            // handle this later with a generic error view
-            if (model.RequestedUser == null)
-            {
-                return RedirectToAction("Index");
-            }
-
-            if (model.RequestedUser.LargeAvatar == null)
-            {
-                userService.BuildUser(model.RequestedUser, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
-            }
-
-            return View(model);
-        }
-
         public async Task<int> TotalReservedBalance()
         {
             return await userService.GetTotalReservedBalance();
@@ -577,39 +632,6 @@ namespace TheAfterParty.WebUI.Controllers
         public async Task<int> GetCartTotal()
         {
             return await userService.GetCartTotal();
-        }
-
-
-        [Authorize(Roles = "Admin")]
-        public ActionResult AddBalances()
-        {
-            UserAddBalancesViewModel model = new UserAddBalancesViewModel();
-            model.Users = userService.GetAllUsers().OrderBy(u => u.UserName).ToList();
-            model.FullNavList = CreateUserControllerNavList();
-
-            return View(model);
-        }
-
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public ActionResult AddBalances(UserAddBalancesViewModel model)
-        {
-            if (String.IsNullOrEmpty(model.Input))
-            {
-                model.Users = userService.GetAllUsers().OrderBy(u => u.UserName).ToList();
-                return View(model);
-            }
-            
-            bool success = userService.AddBalances(model.Input);
-
-            if (!success)
-            {
-                model.Users = userService.GetAllUsers().OrderBy(u => u.UserName).ToList();
-                // add validation errors ?
-                return View(model);
-            }
-
-            return RedirectToAction("Index");
         }
 
         [Authorize]

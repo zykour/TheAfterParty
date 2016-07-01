@@ -25,6 +25,7 @@ namespace TheAfterParty.Domain.Services
             this.objectiveRepository = objectiveRepository;
             this.listingRepository = listingRepository;
             this.unitOfWork = unitOfWork;
+            userName = "";
         }
         protected ObjectivesService(AppUserManager userManager)
         {
@@ -114,7 +115,7 @@ namespace TheAfterParty.Domain.Services
         {
             return listingRepository.GetTagByID(id);
         }
-
+        
         public void Dispose()
         {
             this.unitOfWork.Dispose();

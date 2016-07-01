@@ -7,7 +7,10 @@ namespace TheAfterParty.Domain.Entities
 {
     public class Auction
     {
-        public Auction() { }
+        public Auction()
+        {
+            CreatedTime = DateTime.Now;
+        }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int AuctionID { get; set; }
@@ -21,6 +24,7 @@ namespace TheAfterParty.Domain.Entities
         // if the prize is not a Product in the db (custom prize)
         public string AlternativePrize { get; set; }
 
+        public DateTime CreatedTime { get; set; }
         // when the auction ends
         public DateTime EndTime { get; set; }
         public bool IsOpen()

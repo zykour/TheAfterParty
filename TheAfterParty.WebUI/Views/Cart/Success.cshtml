@@ -3,40 +3,127 @@
 @model PurchaseViewModel
 
 @{
-    ViewBag.Title = "Purchase";
+    ViewBag.Title = "Order";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h3>Order #@Model.Order.OrderID</h3>
-<br/>
 <div class="container">
-    <div class="row">
-        <div class="col-lg-6 text-primary text-center">Game</div>
-        <div class="col-lg-2 text-primary text-left">Platform</div>
-        <div class="col-lg-3 text-primary text-left">Product Key</div>
-        <div class="col-lg-1 text-primary text-right">Price</div>
+    <div class="row custom-row-header">
+        @if (Model.IsSuccessfulPurchase)
+        {
+            <h3>Success! <span class="activity-time">Order #@Model.Order.OrderID</span></h3>
+        }
+        else
+        {
+            <h3>Order #@Model.Order.OrderID</h3>
+        }
     </div>
-    @foreach (ProductOrderEntry entry in Model.Order.ProductOrderEntries)
+    <div class="row custom-row">
+        <div class="col-lg-6 text-center">Game</div>
+        <div class="col-lg-2 text-left">Platform</div>
+        <div class="col-lg-3 text-left">Product Key</div>
+        <div class="col-lg-1 text-right">Price</div>
+    </div>
+    @foreach (ProductOrderEntry entry in Model.Order.ProductOrderEntries.OrderBy(e => e.Listing.ListingName))
     {
+        if (entry.Listing.ChildListings == null || entry.Listing.ChildListings.Count == 0 || entry.ClaimedProductKeys.Count == 1)
+        {
         <div class="row store-entry-sm">
             <div class="col-lg-6">
                 <div class="outer-banner-container">
-                    <div class="inner-store-banner-container" style="background-image: url(@entry.Listing.Product.ProductDetail.HeaderImageURL)"></div>
+                    @if (String.IsNullOrEmpty(entry.Listing.Product.ProductDetail.HeaderImageURL))
+                    {
+                        <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
+                    }
+                    else
+                    {
+                        <div class="inner-store-banner-container" style="background-image: url(@entry.Listing.Product.ProductDetail.HeaderImageURL)"></div>
+                    }
                 </div>
                 <div class="store-entry-name">
                     @entry.Listing.ListingName
                 </div>
             </div>
-            <div class="col-lg-2 text-left">@entry.Listing.Platforms.FirstOrDefault().PlatformName</div>
-            <div class="col-lg-3 text-left">@((entry.ClaimedProductKey.IsGift) ? "Gift" : entry.ClaimedProductKey.Key)</div>
-            <div class="col-lg-1 text-right">@entry.SalePrice</div>
+            <div class="col-lg-2 text-left">
+                @foreach (string platformIconUrl in entry.Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
+                    {
+                    <div class="icon-image-container">
+                        <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
+                    </div>
+                    }
+            </div>
+            <div class="col-lg-3 text-left">@((entry.ClaimedProductKeys.First().IsGift) ? "Gift" : entry.ClaimedProductKeys.First().Key)</div>
+            <div class="col-lg-1 text-center">@entry.SalePrice</div>
         </div>
+        }
+        else
+        {
+            <div class="row store-entry-sm">
+                <div class="col-lg-6">
+                    <div class="outer-banner-container">
+                        @if (String.IsNullOrEmpty(entry.Listing.Product.ProductDetail.HeaderImageURL))
+                    {
+                            <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
+                        }
+                        else
+                        {
+                            <div class="inner-store-banner-container" style="background-image: url(@entry.Listing.Product.ProductDetail.HeaderImageURL)"></div>
+                        }
+                    </div>
+                    <div class="store-entry-name">
+                        @entry.Listing.ListingName
+                    </div>
+                </div>
+                <div class="col-lg-2 text-left">
+                    @foreach (string platformIconUrl in entry.Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
+                    {
+                        <div class="icon-image-container">
+                            <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
+                        </div>
+                    }
+                </div>
+                <div class="col-lg-3 text-left"></div>
+                <div class="col-lg-1 text-center">@entry.SalePrice</div>
+            </div>
+            foreach (ClaimedProductKey claimedKey in entry.ClaimedProductKeys)
+            {
+                <div class="row store-entry-sm">
+                    <div class="col-lg-1"></div>
+                    <div class="col-lg-5">
+                        <div class="outer-banner-container">
+                            @if (String.IsNullOrEmpty(claimedKey.Listing.Product.ProductDetail.HeaderImageURL))
+                            {
+                                <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
+                            }
+                            else
+                            {
+                                <div class="inner-store-banner-container" style="background-image: url(@claimedKey.Listing.Product.ProductDetail.HeaderImageURL)"></div>
+                            }
+                        </div>
+                        <div class="store-entry-name">
+                            @claimedKey.Listing.ListingName
+                        </div>
+                    </div>
+                    <div class="col-lg-2 text-left">
+                        @foreach (string platformIconUrl in claimedKey.Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
+                        {
+                            <div class="icon-image-container">
+                                <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
+                            </div>
+                        }
+                    </div>
+                    <div class="col-lg-3 text-left">@((claimedKey.IsGift) ? "Gift" : claimedKey.Key)</div>
+                    <div class="col-lg-1 text-center"></div>
+                </div>
+            }
+        }
     }
     <br/>
     <div class="row">
         <div class="col-lg-8"></div>
         <div class="col-lg-1 text-primary">Total:</div>
-        <div class="col-lg-3 text-right">@Model.Order.TotalSalePrice()</div>
+        <div class="col-lg-2"></div>
+        <div class="col-lg-1 text-center">@Model.Order.TotalSalePrice()</div>
     </div>
     <br />
     <div class="row">

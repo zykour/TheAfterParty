@@ -238,6 +238,8 @@ namespace TheAfterParty.WebUI.Controllers
                 return View(model);
             }
 
+            storeService.DownloadIconURL(model.Platform, Server.MapPath(@"~/Content/PlatformIcons/"), model.FileExtension);
+
             storeService.AddPlatform(model.Platform);
 
             return RedirectToAction("AdminPlatforms");
@@ -288,6 +290,8 @@ namespace TheAfterParty.WebUI.Controllers
                 return View(model);
             }
 
+            storeService.DownloadIconURL(model.Platform, Server.MapPath(@"~/Content/PlatformIcons/"), model.FileExtension);
+            
             storeService.EditPlatform(model.Platform);
 
             return RedirectToAction("AdminPlatforms");
@@ -485,22 +489,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             return View(model);
         }
-
-        [HttpGet]
-        public async Task<ActionResult> Index(string id)
-        {
-            StoreIndexViewModel model = new StoreIndexViewModel();
-
-            model.StoreListings = storeService.GetStockedStoreListings().ToList();
-
-            await PopulateStoreIndexViewModelFromGet(model);
-
-            model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, id, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
-            model.FriendSteamID = id;
-
-            return View(model);
-        }
-
+        
         [HttpPost]
         public async Task<ActionResult> Index(StoreIndexViewModel model)
         {
@@ -510,7 +499,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             await PopulateStoreIndexViewModelFromPostback(model);
 
-            if (filterOwnLibrary == false && String.IsNullOrEmpty(model.FriendSteamID) == false && model.FriendSteamIDBool)
+            if (filterOwnLibrary == false && String.IsNullOrEmpty(model.FriendSteamID) == false)// && model.FriendSteamIDBool)
             {
                 model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, model.FriendSteamID, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
             }
@@ -521,8 +510,23 @@ namespace TheAfterParty.WebUI.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public async Task<ActionResult> Id(string id)
+        {
+            StoreIndexViewModel model = new StoreIndexViewModel();
+
+            model.StoreListings = storeService.GetStockedStoreListings().ToList();
+
+            await PopulateStoreIndexViewModelFromGet(model);
+
+            model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, id, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
+            model.FriendSteamID = id;
+
+            return View("Index", model);
+        }
+
         [HttpPost]
-        public async Task<ActionResult> Index(StoreIndexViewModel model, string id)
+        public async Task<ActionResult> Id(StoreIndexViewModel model, string id)
         {
             model.StoreListings = storeService.GetStockedStoreListings().ToList();
 
@@ -541,7 +545,7 @@ namespace TheAfterParty.WebUI.Controllers
             // Clear the ModelState so changes in the model are reflected when using HtmlHelpers (their default behavior is to not use changes made to the model when re-rendering a view, not what we want here)
             ModelState.Clear();
 
-            return View(model);
+            return View("Index", model);
         }
 
         [HttpGet]
@@ -669,17 +673,22 @@ namespace TheAfterParty.WebUI.Controllers
         {
             model.StoreListings = model.StoreListings.OrderBy(l => l.ListingName).ToList();
 
-            model.LoggedInUser = await storeService.GetCurrentUser();
+            //if (User.Identity.IsAuthenticated)
+            //{
+                model.LoggedInUser = await storeService.GetCurrentUser();
+            //}
 
             List<Platform> platforms = storeService.GetPlatforms().ToList();
 
-            foreach (Platform platform in platforms)
+            model.StorePlatforms = storeService.GetPlatforms().ToList();
+
+            /*foreach (Platform platform in platforms)
             {
                 if (model.StoreListings.Any(l => l.ContainsPlatform(platform)))
                 {
                     model.StorePlatforms.Add(platform);
                 }
-            }
+            }*/
 
             model.StorePlatforms.OrderBy(p => p.PlatformName).ToList();
             model.FullNavList = CreateStoreControllerStoreNavList(model);
@@ -712,9 +721,12 @@ namespace TheAfterParty.WebUI.Controllers
         // Populate StoreIndexViewModel for various actions
         private async Task PopulateStoreIndexViewModelFromPostback(StoreIndexViewModel model)
         {
-            model.LoggedInUser = await storeService.GetCurrentUser();
+            //if (User.Identity.IsAuthenticated)
+            //{
+                model.LoggedInUser = await storeService.GetCurrentUser();
+            //}
 
-            if (model.SearchTextBool == true && !String.IsNullOrEmpty(model.SearchText))
+            if (!String.IsNullOrEmpty(model.SearchText))//model.SearchTextBool == true && 
             {
                 if (!String.IsNullOrEmpty(model.SearchText))
                 {
@@ -961,13 +973,15 @@ namespace TheAfterParty.WebUI.Controllers
                 }
             }
 
-            foreach (Platform platform in storeService.GetPlatforms().ToList())
+            model.StorePlatforms = storeService.GetPlatforms().ToList();
+
+            /*foreach (Platform platform in storeService.GetPlatforms().ToList())
             {
                 if (model.StoreListings.Any(l => l.ContainsPlatform(platform)))
                 {
                     model.StorePlatforms.Add(platform);
                 }
-            }
+            }*/
 
             model.StorePlatforms.OrderBy(p => p.PlatformName).ToList();
             model.FullNavList = CreateStoreControllerStoreNavList(model);
@@ -976,7 +990,24 @@ namespace TheAfterParty.WebUI.Controllers
         public List<NavGrouping> CreateStoreControllerStoreNavList(StoreIndexViewModel model)
         {
             List<NavGrouping> navList = new List<NavGrouping>();
-            
+
+            if (User.Identity.IsAuthenticated)
+            {
+                NavGrouping basicNav = new NavGrouping();
+                basicNav.GroupingHeader = "Account";
+                basicNav.NavItems = new List<NavItem>();
+                NavItem basicNavItem = new NavItem();
+                basicNavItem.DestinationName = "My Account";
+                basicNavItem.Destination = "/Account/";
+                basicNav.NavItems.Add(basicNavItem);
+                basicNavItem = new NavItem();
+                basicNavItem.DestinationName = "My Cart";
+                basicNavItem.Destination = "/Cart/";
+                basicNav.NavItems.Add(basicNavItem);
+
+                navList.Add(basicNav);
+            }
+
             NavGrouping actions = new NavGrouping();
             actions.GroupingHeader = "Actions";
             actions.NavItems = new List<NavItem>();
@@ -991,29 +1022,29 @@ namespace TheAfterParty.WebUI.Controllers
             platforms.GroupingHeader = "Platforms";
             platforms.NavItems = new List<NavItem>();
 
-            NavGrouping platformDeals = new NavGrouping();
+            /*NavGrouping platformDeals = new NavGrouping();
             platformDeals.GroupingHeader = "Deals By Platform";
-            platformDeals.NavItems = new List<NavItem>();
+            platformDeals.NavItems = new List<NavItem>();*/
 
             for (int i = 0; i < model.StorePlatforms.Count; i++)
             {
-                int count = model.StoreListings.Where(l => l.ContainsPlatform(model.StorePlatforms[i])).Count();
+                /*int count = model.StoreListings.Where(l => l.ContainsPlatform(model.StorePlatforms[i])).Count();
                 string countText = "";
                 if (count > 0)
                 {
                     countText = " (" + count + ")";
-                }
+                }*/
 
                 NavItem navItem = new NavItem();
                 navItem.IsFormSubmit = true;
-                navItem.DestinationName = model.StorePlatforms[i].PlatformName + countText;
+                navItem.DestinationName = model.StorePlatforms[i].PlatformName; // + countText;
                 navItem.FormName = "SelectedPlatformID";
                 navItem.FormValue = model.StorePlatforms[i].PlatformID.ToString();
                 navItem.FormID = storeFormID;
 
                 platforms.NavItems.Add(navItem);
 
-                if (model.StorePlatforms[i].Listings.Any(x => x.HasSale()))
+                /*if (model.StorePlatforms[i].Listings.Any(x => x.HasSale()))
                 {
                     int dealsCount = model.StoreListings.Where(l => l.ContainsPlatform(model.StorePlatforms[i]) && l.HasSale()).Count();
 
@@ -1030,11 +1061,11 @@ namespace TheAfterParty.WebUI.Controllers
                     dealNavItem.FormValue = model.StorePlatforms[i].PlatformID.ToString();
                     dealNavItem.FormID = storeFormID;
                     platformDeals.NavItems.Add(dealNavItem);
-                }
+                }*/
             }
 
             navList.Add(platforms);
-            navList.Add(platformDeals);
+            //navList.Add(platformDeals);
 
             NavGrouping deals = new NavGrouping();
             deals.GroupingHeader = "Deals";

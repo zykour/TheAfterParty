@@ -23,7 +23,8 @@ namespace TheAfterParty.Domain.Services
         Task<List<Order>> GetUserOrders();
         Task<List<ClaimedProductKey>> GetKeys();
 
-        Task<List<ActivityFeedContainer>> GetActivityFeedItems();
+        List<ActivityFeedContainer> GetPublicActivityFeedItems(AppUser user);
+        Task<List<ActivityFeedContainer>> GetActivityFeedItems(bool includeNegativeBalanceEntries = false);
 
         List<Auction> GetAuctions();
         List<Giveaway> GetGiveaways();
@@ -64,6 +65,7 @@ namespace TheAfterParty.Domain.Services
         string RevealKey(int keyId);
 
         void BuildUser(AppUser user, string apiKey);
+        bool IsInRole(AppUser user, string role);
         bool AddBalances(string input);
     }
 }

@@ -42,7 +42,7 @@ namespace TheAfterParty.Domain.Entities
         {
             return GetPublicAuctionReservedBalance() + GetSilentAuctionReservedBalance();
         }
-
+        
         // is there wishlist private?
         public bool IsPrivateWishlist { get; set; }
 

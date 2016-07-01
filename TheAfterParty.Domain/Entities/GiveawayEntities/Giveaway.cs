@@ -7,7 +7,10 @@ namespace TheAfterParty.Domain.Entities
 {
     public class Giveaway
     {
-        public Giveaway() { }
+        public Giveaway()
+        {
+            CreatedTime = DateTime.Now;
+        }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int GiveawayID { get; set; }
@@ -35,6 +38,8 @@ namespace TheAfterParty.Domain.Entities
 
         // the datetime the giveaway starts
         public DateTime? StartDate { get; set; }
+
+        public DateTime CreatedTime { get; set; }
 
         // the steam ID of the giveaway creator
         public string CreatorID { get; set; }

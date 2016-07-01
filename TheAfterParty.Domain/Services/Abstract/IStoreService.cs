@@ -54,6 +54,7 @@ namespace TheAfterParty.Domain.Services
         void AddPlatform(Platform platform);
         void EditPlatform(Platform platform);
         void DeletePlatform(int platformId);
+        void DownloadIconURL(Platform platform, string localPath, string fileExtension);
 
         void EditProduct(Product product);
         void DeleteProduct(int id);

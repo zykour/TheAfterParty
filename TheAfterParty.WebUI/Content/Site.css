@@ -14,7 +14,7 @@
 
 /*#region Color overrides*/
 .text-highlighted-primary {
-    color: #a7279c !important;
+    color: #5e9a34 !important;
 }
 
 .text-primary {
@@ -111,6 +111,15 @@ textarea {
 
 .footer-hr {
     border-color: #541d65;
+}
+
+.activity-time {
+    color: #8e49a3;
+    font-size: 11px;
+    font-weight: bold;
+}
+.activity-row {
+    margin-bottom: -5px;
 }
 
 .flex-right {
@@ -249,14 +258,37 @@ textarea {
     border-bottom: 1px solid #541d65;
 }
 
-.custom-row {
+.custom-row, .custom-row-header, .custom-row-hollow, .custom-row-sm {
     border: 2px solid #501762;
-    background-color: #541d65;
-    color: #808080;
     border-radius: 5px 5px;
     font-size: 12px;
+    padding: 5px;
+    margin-bottom: 5px;
 }
-
+.custom-row-header {
+    margin-top: 45px;
+    padding: 0 2px 1px 15px;
+}
+.custom-row-header h3 {
+    padding: 0;
+}
+.custom-row-header h4{
+    padding: 0;
+}
+.custom-row, .custom-row-sm {
+    background-color: #541d65;
+}
+.custom-row div, .custom-row-sm div {
+    font-weight: bold;
+}
+.custom-row-sm {
+    padding: 0 0 0 12px;
+}
+.custom-row-text {
+    color: #000000;
+    font-weight: bolder !important;
+    font-size: 14px;
+}
 .image-container {
     padding: 0 10px;
 }
@@ -394,17 +426,25 @@ textarea {
 }
 .btn-link {
     width: 100%;
-    margin: 0;
-    padding: 0;
-    border: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
     background: none;
-    font: inherit;
     cursor: pointer;
     text-decoration: none !important;
+    display: inline;
+    -webkit-box-align: center;
+    -webkit-flex-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
 }
 .nav-item-link {
     display: inline;
-    padding: 4px 8px !important;
+    padding: 4px 8px;
     border: 1px solid transparent;
     -webkit-box-align: center;
     -webkit-flex-align: center;
@@ -432,6 +472,10 @@ textarea {
 .btn-link:hover .nav-item-link .nav-underline {
     border-bottom: none;
 }
+.btn-link .nav-item-link {
+    padding: 4px 8px;
+    margin: 0;
+}
 .nav-item-text {
     font: bold 9px/11px Arial, sans-serif;
     font-weight: bold;
@@ -450,6 +494,7 @@ textarea {
     padding-top: 30px;
 }
 .header-text {
+    color: #808080;
     font-size: 11px;
     font-weight: bold;
     margin: 0;
@@ -477,9 +522,23 @@ textarea {
 .tag-inline {
     display: inline;
 }
-
+.decrement-btn {
+    padding: 0 3px 0 0;
+}
+.increment-btn {
+    padding: 0 0 0 3px;
+}
+.btn-disabled {
+    color: #808080 !important;
+}
 .btn-transparent {
     background: transparent; border: none; padding: 0;
+    outline:none;
+}
+.btn-transparent:active, .btn-transparent:hover, .btn-transparent:focus {
+    border: none;
+    border: 1px solid transparent;
+    outline:none;
 }
 
 .quantity-width {

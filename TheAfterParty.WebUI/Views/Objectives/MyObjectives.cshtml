@@ -1,0 +1,49 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Objectives
+@model CompletedObjectivesViewModel
+
+@{
+    ViewBag.Title = "My Objectives";
+}
+
+<div class="container">
+    <div class="row custom-row-header">
+        <h3>My Objectives</h3>
+    </div>
+    @if (Model.LoggedInUser.BalanceEntries.Where(e => e.Objective != null).Count() == 0)
+    {
+        <br/>
+        <br/>
+        <span class="text-primary">You have not completed any objectives!</span>
+    }
+    else
+    {
+        //foreach (IEnumerable<BalanceEntry> entryGroup in Model.LoggedInUser.BalanceEntries.Where(e => e.Objective != null).OrderBy(e => e.Date).GroupBy(e => new { e.Date.Year, e.Date.Month }).SelectMany(e => e).ToList())
+        //{
+        List<BalanceEntry> list = Model.LoggedInUser.BalanceEntries.Where(e => e.Objective != null).OrderBy(e => e.Date).ToList();
+        foreach (IEnumerable<BalanceEntry> entryGroup in list.GroupBy(e => e.Date.ToString("MMyyyy")).ToList())
+        {
+            <div class="row custom-row">
+                <div class="col-lg-12 custom-row-text">
+                    @entryGroup.First().Date.ToString("MMMM yyyy")
+                </div>
+            </div>
+            foreach (BalanceEntry entry in entryGroup)
+            {
+                <div class="row">
+                    <div class="col-lg-9 activity-row">
+                        <p>You completed the objective <span class="text-primary">@entry.Objective.ObjectiveName</span>
+                        @if (entry.Objective.Product != null)
+                        {
+                            <span> in </span><span class="text-primary">@entry.Objective.Product.ProductName</span>
+                        }
+                        for <span class="text-success">@(entry.PointsAdjusted)</span> points.</p>
+                    </div>
+                    <div class="col-lg-3 text-right activity-time">
+                        @entry.Date.ToString("MMM dd, h:mm:ss tt")
+                    </div>
+                </div>
+            }
+        }
+    }
+</div>

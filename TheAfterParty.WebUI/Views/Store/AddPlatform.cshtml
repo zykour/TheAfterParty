@@ -17,5 +17,6 @@
     <span>Redemption URL: </span> @Html.TextBoxFor(x => x.Platform.PlatformURL)
     <span>Store page URL: </span> @Html.TextBoxFor(x => x.Platform.StorePageURL)
     <span>Has app ID (exposed ID): </span> @Html.CheckBoxFor(x => x.Platform.HasAppID)
+    <span>File extension (for icon, don't include period): </span> @Html.TextBoxFor(x => x.FileExtension)
     <input type="submit" name="Submit" />
 }

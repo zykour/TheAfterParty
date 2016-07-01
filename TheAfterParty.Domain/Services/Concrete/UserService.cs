@@ -40,6 +40,7 @@ namespace TheAfterParty.Domain.Services
             this.auctionRepository = auctionRepository;
             this.objectiveRepository = objectiveRepository;
             this.unitOfWork = unitOfWork;
+            userName = "";
         }
         protected UserService(AppUserManager userManager)
         {
@@ -122,7 +123,7 @@ namespace TheAfterParty.Domain.Services
         }
         public ProductKey GetProductKey(int listingId)
         {
-            return listingRepository.GetProductKeys().Where(k => k.ListingID == listingId).SingleOrDefault();
+            return listingRepository.GetProductKeys().Where(k => k.ListingID == listingId).FirstOrDefault();
         }
         public Order GetOrderByID(int id)
         {
@@ -482,15 +483,18 @@ namespace TheAfterParty.Domain.Services
 
                 userRepository.InsertBalanceEntry(balanceEntry);
             }
-            
-            if (entry.ClaimedProductKey == null)
+
+            ClaimedProductKey newKey = new ClaimedProductKey();
+
+            if (entry.ClaimedProductKeys == null)
             {
                 ProductKey key = GetProductKey(entry.ListingID);
+                newKey = new ClaimedProductKey(key, order.AppUser, date, note);
                 listingRepository.DeleteProductKey(key.ProductKeyID);
-                entry.ClaimedProductKey = new ClaimedProductKey(key, order.AppUser, date, note);
-            }           
+                entry.AddClaimedProductKey(newKey);
+                userRepository.InsertClaimedProductKey(newKey);
+            }
 
-            userRepository.InsertClaimedProductKey(entry.ClaimedProductKey);
             userRepository.InsertOrder(order);
             unitOfWork.Save();
         }
@@ -541,7 +545,10 @@ namespace TheAfterParty.Domain.Services
         {
             ProductOrderEntry entry = userRepository.GetProductOrderEntryByID(id);
 
-            userRepository.DeleteClaimedProductKey(entry.ClaimedProductKey.ClaimedProductKeyID);
+            foreach (ClaimedProductKey tempKey in entry.ClaimedProductKeys)
+            {
+                userRepository.DeleteClaimedProductKey(tempKey.ClaimedProductKeyID);
+            }
 
             if (entry.SalePrice != 0)
             {
@@ -554,17 +561,15 @@ namespace TheAfterParty.Domain.Services
         }
         #endregion
 
-        public async Task<List<ActivityFeedContainer>> GetPublicActivityFeedItems()
+        public List<ActivityFeedContainer> GetPublicActivityFeedItems(AppUser user)
         {
-            AppUser user = await GetCurrentUser();
-
             List<ActivityFeedContainer> activityFeed = new List<ActivityFeedContainer>();
 
             if (user.CreatedGiveaways != null)
             {
                 foreach (Giveaway entry in user.CreatedGiveaways)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry));
+                    activityFeed.Add(new ActivityFeedContainer(entry, entry.CreatedTime));
                 }
             }
 
@@ -572,7 +577,7 @@ namespace TheAfterParty.Domain.Services
             {
                 foreach (Giveaway entry in user.WonGiveaways)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry));
+                    activityFeed.Add(new ActivityFeedContainer(entry, entry.EndDate));
                 }
             }
 
@@ -580,13 +585,21 @@ namespace TheAfterParty.Domain.Services
             {
                 foreach (Auction entry in user.Auctions)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry));
+                    activityFeed.Add(new ActivityFeedContainer(entry, entry.CreatedTime));
                 }
             }
 
             if (user.AuctionBids != null)
             {
-                foreach (AuctionBid entry in user.AuctionBids.Where(au => Object.Equals(au.Auction.Winner.Id, user.Id)))
+                foreach (Auction entry in user.AuctionBids.Where(au => Object.Equals(au.Auction.Winner.Id, user.Id)).Select(ab => ab.Auction))
+                {
+                    activityFeed.Add(new ActivityFeedContainer(entry, entry.EndTime));
+                }
+            }
+
+            if (user.ProductReviews != null)
+            {
+                foreach (ProductReview entry in user.ProductReviews)
                 {
                     activityFeed.Add(new ActivityFeedContainer(entry));
                 }
@@ -595,7 +608,8 @@ namespace TheAfterParty.Domain.Services
             return activityFeed.OrderBy(a => a.ItemDate).ToList();
         }
 
-        public async Task<List<ActivityFeedContainer>> GetActivityFeedItems()
+        // Balances with negative adjustments are mainly caused by purchases, this does mean transfers will be omitted, however
+        public async Task<List<ActivityFeedContainer>> GetActivityFeedItems(bool includeNegativeBalanceEntries = false)
         {
             AppUser user = await GetCurrentUser();
 
@@ -623,7 +637,7 @@ namespace TheAfterParty.Domain.Services
             {
                 foreach (Giveaway entry in user.CreatedGiveaways)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry));
+                    activityFeed.Add(new ActivityFeedContainer(entry, entry.CreatedTime));
                 }
             }
 
@@ -639,15 +653,30 @@ namespace TheAfterParty.Domain.Services
             {
                 foreach (Auction entry in user.Auctions)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry));
+                    activityFeed.Add(new ActivityFeedContainer(entry, entry.CreatedTime));
+                }
+                foreach (Auction entry in user.AuctionBids.Where(au => Object.Equals(au.Auction.Winner.Id, user.Id)).Select(ab => ab.Auction))
+                {
+                    activityFeed.Add(new ActivityFeedContainer(entry, entry.CreatedTime));
                 }
             }
 
             if (user.BalanceEntries != null)
             {
-                foreach (BalanceEntry entry in user.BalanceEntries)
+                if (includeNegativeBalanceEntries)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry));
+                    foreach (BalanceEntry entry in user.BalanceEntries)
+                    {
+                        activityFeed.Add(new ActivityFeedContainer(entry));
+                    }
+
+                }
+                else
+                {
+                    foreach (BalanceEntry entry in user.BalanceEntries.Where(b => b.PointsAdjusted > 0))
+                    {
+                        activityFeed.Add(new ActivityFeedContainer(entry));
+                    }
                 }
             }
 
@@ -788,6 +817,11 @@ namespace TheAfterParty.Domain.Services
             }
 
             return fullSuccess;
+        }
+
+        public bool IsInRole(AppUser user, string role)
+        {
+            return UserManager.IsInRole(user.Id, role);
         }
 
         // --- GC and User logic

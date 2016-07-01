@@ -89,7 +89,7 @@ namespace TheAfterParty.Domain.Concrete
 
             // ClaimedProductKey ---
             modelBuilder.Entity<Gift>().HasRequired<ClaimedProductKey>(g => g.ClaimedProductKey).WithOptional(cpk => cpk.Gift).WillCascadeOnDelete(false);
-            modelBuilder.Entity<ProductOrderEntry>().HasRequired<ClaimedProductKey>(poe => poe.ClaimedProductKey).WithOptional(cpk => cpk.ProductOrderEntry).WillCascadeOnDelete(false);
+            modelBuilder.Entity<ProductOrderEntry>().HasMany<ClaimedProductKey>(poe => poe.ClaimedProductKeys).WithOptional(cpk => cpk.ProductOrderEntry).HasForeignKey(cpk => cpk.ProductOrderEntryID).WillCascadeOnDelete(false);
 
             // Giveaway ---
             modelBuilder.Entity<GiveawayEntry>().HasRequired<Giveaway>(ge => ge.Giveaway).WithMany(g => g.GiveawayEntries).HasForeignKey(ge => ge.GiveawayID).WillCascadeOnDelete(true);

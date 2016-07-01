@@ -170,19 +170,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\applogo.gif" />
     <Content Include="Content\banner.png" />
     <Content Include="Content\banner1.png" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\dropdown_linkbg.gif" />
-    <Content Include="Content\favicon.ico" />
+    <Content Include="Content\PlatformIcons\gog.ico" />
     <Content Include="Content\font-awesome\css\font-awesome.css" />
     <Content Include="Content\font-awesome\css\font-awesome.min.css" />
     <Content Include="Content\font-awesome\fonts\fontawesome-webfont.svg" />
     <Content Include="Content\font-awesome\HELP-US-OUT.txt" />
     <Content Include="Content\Site.css" />
     <Content Include="Content\small_avatar.jpg" />
-    <Content Include="Content\steam.png" />
+    <Content Include="Content\PlatformIcons\steam.png" />
     <Content Include="Content\subnav_btn.gif" />
     <Content Include="Content\topnav_bg.gif" />
     <Content Include="Content\topnav_hover.gif" />
@@ -286,6 +287,7 @@
     <Compile Include="Models\Objectives\AddEditBoostedObjectiveViewModel.cs" />
     <Compile Include="Models\Objectives\AddEditObjectivesViewModel.cs" />
     <Compile Include="Models\Objectives\AdminObjectivesViewModel.cs" />
+    <Compile Include="Models\Objectives\CompletedObjectivesViewModel.cs" />
     <Compile Include="Models\Objectives\ObjectivesIndexViewModel.cs" />
     <Compile Include="Models\Store\AddEditDiscountedListingViewModel.cs" />
     <Compile Include="Models\Store\AddEditListingViewModel.cs" />
@@ -380,6 +382,7 @@
     <Content Include="Views\Store\AdminProducts.cshtml" />
     <Content Include="Views\Store\AdminProductKeys.cshtml" />
     <Content Include="Views\Store\AdminProductCategories.cshtml" />
+    <Content Include="Views\Objectives\MyObjectives.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

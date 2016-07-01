@@ -82,7 +82,7 @@
                             <div class="navbar-header vertical-align">
                                 <ul class="topnav topnav-left">
                                     <li>
-                                        @Html.ActionLink("Account (" + @Model.LoggedInUser.Balance.ToString() + " Points)", "Index", "Store", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
+                                        @Html.ActionLink("Account (" + @Model.LoggedInUser.Balance.ToString() + " Points)", "Index", "Account", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
                                         <ul class="subnav">
                                             <li>@Html.ActionLink("Account Overview", "Index", "Account")</li>
                                             <li>@Html.ActionLink("My Orders", "Orders", "Account")</li>

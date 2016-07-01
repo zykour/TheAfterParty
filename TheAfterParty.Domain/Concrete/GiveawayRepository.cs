@@ -43,6 +43,7 @@ namespace TheAfterParty.Domain.Concrete
                 targetGiveaway.ListingID = giveaway.ListingID;
                 targetGiveaway.PointsPrize = giveaway.PointsPrize;
                 targetGiveaway.Prize = giveaway.Prize;
+                targetGiveaway.CreatedTime = giveaway.CreatedTime;
                 targetGiveaway.StartDate = giveaway.StartDate;
                 targetGiveaway.CreatorID = giveaway.CreatorID;
                 targetGiveaway.WinnerID = giveaway.WinnerID;

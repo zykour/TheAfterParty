@@ -28,8 +28,7 @@ namespace TheAfterParty.Domain.Services
 
         protected ActivityFeedContainer() { }
         public ActivityFeedContainer(BalanceEntry entry) : this()
-        {
-            
+        {            
             ItemDate = (entry.Date == null) ? siteEpoch : entry.Date;
             BalanceEntry = entry;
         }
@@ -43,9 +42,9 @@ namespace TheAfterParty.Domain.Services
             ItemDate = entry.Giveaway.EndDate;
             WonGiveaway = entry;
         }
-        public ActivityFeedContainer(Giveaway giveaway) : this()
+        public ActivityFeedContainer(Giveaway giveaway, DateTime date) : this()
         {
-            ItemDate = giveaway.EndDate;
+            ItemDate = date;
             CreatedGiveaway = giveaway;
         }
         public ActivityFeedContainer(AuctionBid entry) : this()
@@ -53,9 +52,9 @@ namespace TheAfterParty.Domain.Services
             ItemDate = entry.Auction.EndTime;
             AuctionBid = entry;
         }
-        public ActivityFeedContainer(Auction auction) : this()
+        public ActivityFeedContainer(Auction auction, DateTime date) : this()
         {
-            ItemDate = auction.EndTime;
+            ItemDate = date;
             CreatedAuction = auction;
         }
         public ActivityFeedContainer(WonPrize prize) : this()

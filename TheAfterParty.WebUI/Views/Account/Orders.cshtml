@@ -6,10 +6,11 @@
     ViewBag.Title = "Orders";
 }
 
-<h2>Orders</h2>
-
 <div class="container">
-    <div class="row">
+    <div class="row custom-row-header">
+        <h3>My Orders</h3>
+    </div>
+    <div class="row custom-row">
         <div class="col-lg-6">
             Order ID
         </div>
@@ -47,8 +48,11 @@
             <div class="col-lg-6">
                 Game Name
             </div>
-            <div class="col-lg-5">
-                Activation Method / Product Key
+            <div class="col-lg-1">
+                Platform
+            </div>
+            <div class="col-lg-4">
+                Product Key
             </div>
             <div class="col-lg-1 text-center">
                 Cost
@@ -70,8 +74,16 @@
                         @entry.Listing.ListingName
                     </div>
                 </div>
-                <div class="col-lg-5 text-center">
-                    @entry.ClaimedProductKey.Key
+                <div class="col-lg-1">
+                    @foreach (string platformIconUrl in entry.Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
+                    {
+                        <div class="icon-image-container">
+                            <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
+                        </div>
+                    }
+                </div>
+                <div class="col-lg-4 text-center">
+                    @entry.ClaimedProductKeys.First().Key
                 </div>
                 <div class="col-lg-1 text-center">
                     @entry.SalePrice

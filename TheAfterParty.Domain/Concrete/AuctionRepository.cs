@@ -37,6 +37,7 @@ namespace TheAfterParty.Domain.Concrete
 
             if (targetAuction != null)
             {
+                targetAuction.CreatedTime = auction.CreatedTime;
                 targetAuction.AlternativePrize = auction.AlternativePrize;
                 targetAuction.EndTime = auction.EndTime;
                 targetAuction.IsSilent = auction.IsSilent;

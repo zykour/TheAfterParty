@@ -24,31 +24,31 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-10">
-            <div class="btn-group-justified">
+            <div class="custom-row-header"><h3>Demo Dan's Co-op Shop</h3></div>
+            <div class="btn-group-justified custom-row-sm custom-row-text">
                 @if (Model.PreviousBeginsWithFilter == '#')
                 {
-                    <button class="btn btn-transparent text-success" type="submit" value="0" name="BeginsWithFilter" title="#"><b>#</b></button>
+                    <button class="btn btn-transparent text-success text-center" type="submit" value="0" name="BeginsWithFilter" title="#">#</button>
                 }
                 else
                 {
-                    <button class="btn btn-transparent text-success" type="submit" value="0" name="BeginsWithFilter" title="#">#</button>
+                    <button class="btn btn-transparent text-center" type="submit" value="0" name="BeginsWithFilter" title="#">#</button>
                 }
                 @for (int i = 97; i < 123; i++)
                 {
                     char letter = (char)i;
                     if (Model.PreviousBeginsWithFilter == letter)
                     {
-                        <button class="btn btn-transparent text-success" type="submit" value="@letter" name="BeginsWithFilter" title="@letter"><b>@letter</b></button>
+                        <button class="btn btn-transparent text-success text-center" type="submit" value="@letter" name="BeginsWithFilter" title="@letter">@letter.ToString().ToUpper()</button>
                     }
                     else
                     {
-                        <button class="btn btn-transparent text-success" type="submit" value="@letter" name="BeginsWithFilter" title="@letter">@letter</button>
+                        <button class="btn btn-transparent text-center" type="submit" value="@letter" name="BeginsWithFilter" title="@letter">@letter.ToString().ToUpper()</button>
                     }
                 }
             </div>
-            <br />
             <div class="container">
-                <div class="row">
+                <div class="row custom-row">
                     <div class="col-lg-8 text-center">
                         @if (Model.PreviousGameSort == 1)
                         {
@@ -60,11 +60,11 @@
                         }
                         else
                         {
-                            <button name="GameSort" value="1" type="submit" class="btn-transparent text-primary header-text">Game</button>
+                            <button name="GameSort" value="1" type="submit" class="btn-transparent header-text">Game</button>
                         }
                     </div>
-                    <div class="platform-header col-lg-1"><span class="text-primary text-left header-text">Platforms</span></div>
-                    <div class="col-lg-1  text-nowrap">
+                    <div class="platform-header col-lg-1"><span class="text-left header-text">Platforms</span></div>
+                    <div class="col-lg-1 text-nowrap">
                         @if (Model.PreviousQuantitySort == 1)
                         {
                             <button name="QuantitySort" value="2" type="submit" class="btn-transparent text-highlighted-primary text-center header-text">Quantity <i class="glyphicon glyphicon-chevron-down"></i></button>
@@ -75,7 +75,7 @@
                         }
                         else
                         {
-                            <button name="QuantitySort" value="1" type="submit" class="btn-transparent text-primary text-center header-text">Quantity</button>
+                            <button name="QuantitySort" value="1" type="submit" class="btn-transparent text-center header-text">Quantity</button>
                         }
                     </div>
                     <div class="col-lg-1 text-center text-nowrap">
@@ -89,7 +89,7 @@
                         }
                         else
                         {
-                            <button name="PriceSort" value="1" type="submit" class="btn-transparent text-primary header-text">Price</button>
+                            <button name="PriceSort" value="1" type="submit" class="btn-transparent header-text">Price</button>
                         }
                     </div>
                     <div class="col-lg-1"></div>
@@ -102,12 +102,23 @@
                             @if (Model.StoreListings.ElementAt(i).Product.AppID != 0 && Model.StoreListings.ElementAt(i).ContainsPlatform("Steam"))
                             {
                                 var url = "http://store.steampowered.com/app/" + Model.StoreListings.ElementAt(i).Product.AppID;
+
+                                if (User.Identity.IsAuthenticated)
+                                {
                                 <div class="store-entry-blacklist" id="blacklistButton" onclick="AddToBlacklist(@Model.StoreListings.ElementAt(i).ListingID, @i);">
                                     <i class="fa fa-ban store-blacklist"></i>
                                 </div>
+                                }
                                     <div class="outer-banner-container">
                                         <a href="@url">
-                                            <div class="inner-store-banner-container" style="background-image: url(@Model.StoreListings.ElementAt(i).Product.ProductDetail.HeaderImageURL)"></div>
+                                            @if (String.IsNullOrEmpty(Model.StoreListings.ElementAt(i).Product.ProductDetail.HeaderImageURL))
+                                            {
+                                                <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
+                                            }
+                                            else
+                                            {
+                                                <div class="inner-store-banner-container" style="background-image: url(@Model.StoreListings.ElementAt(i).Product.ProductDetail.HeaderImageURL)"></div>
+                                            }
                                         </a>
                                     </div>
                                     <div class="store-entry-name">
@@ -118,11 +129,21 @@
                             }
                             else
                             {
+                                if (User.Identity.IsAuthenticated)
+                                {
                                 <div class="store-entry-blacklist" id="blacklistButton" onclick="AddToBlacklist(@Model.StoreListings.ElementAt(i).ListingID, @i);">
                                     <i class="fa fa-ban store-blacklist"></i>
                                 </div>
+                                }
                                 <div class="outer-banner-container">
-                                    <div class="inner-store-banner-container" style="background-image: url(@Model.StoreListings.ElementAt(i).Product.ProductDetail.HeaderImageURL)"></div>
+                                    @if (String.IsNullOrEmpty(Model.StoreListings.ElementAt(i).Product.ProductDetail.HeaderImageURL))
+                                    {
+                                        <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
+                                    }
+                                    else
+                                    {
+                                        <div class="inner-store-banner-container" style="background-image: url(@Model.StoreListings.ElementAt(i).Product.ProductDetail.HeaderImageURL)"></div>
+                                    }
                                 </div>
                                 <div class="store-entry-name">
                                     @Model.StoreListings.ElementAt(i).ListingName
@@ -130,16 +151,10 @@
                             }
                         </div>  
                         <div class="col-lg-1 vertical-align">
-                            @if (Model.StoreListings.ElementAt(i).ContainsPlatform("Steam"))
+                            @foreach (string platformIconUrl in Model.StoreListings.ElementAt(i).Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
                             {
                                 <div class="icon-image-container">
-                                    <div class="icon-image text-center" style="background-image: url('/Content/steam.png')"></div>
-                                </div>
-                            }
-                            @if (Model.StoreListings.ElementAt(i).ContainsPlatform("GOG Galaxy"))
-                            {
-                                <div class="icon-image-container">
-                                    <div class="icon-image text-center" style="background-image: url('/Content/favicon.ico')"></div>
+                                    <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
                                 </div>
                             }
                         </div>
@@ -156,9 +171,12 @@
                                 @Model.StoreListings.ElementAt(i).ListingPrice
                             }
                         </div>
-                        <div class="col-lg-1 store-entry-cart" id="cartButton" onclick="AddToCart(@Model.StoreListings.ElementAt(i).ListingID);">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                        <div class="col-lg-1 store-entry-cart" id="cartButton" onclick="AddToCart(@(Model.StoreListings.ElementAt(i).ListingID), this);">
                             <i class="fa fa-shopping-cart store-cart"></i>
                         </div>
+                        }
                     </div>
                     if (Model.StoreListings.ElementAt(i).ChildListings.Count > 0)
                     {
@@ -192,16 +210,10 @@
                                 }
                             </div>
                             <div class="col-lg-1 vertical-align">
-                                @if (Model.StoreListings.ElementAt(i).ChildListings.ElementAt(k).ContainsPlatform("Steam"))
+                                @foreach (string platformIconUrl in Model.StoreListings.ElementAt(i).ChildListings.ElementAt(k).Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
                                 {
                                     <div class="icon-image-container">
-                                        <div class="icon-image text-center" style="background-image: url('/Content/steam.png')"></div>
-                                    </div>
-                                }
-                                @if (Model.StoreListings.ElementAt(i).ChildListings.ElementAt(k).ContainsPlatform("GOG Galaxy"))
-                            {
-                                    <div class="icon-image-container">
-                                        <div class="icon-image text-center" style="background-image: url('/Content/favicon.ico')"></div>
+                                        <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
                                     </div>
                                 }
                             </div>
@@ -219,29 +231,27 @@
             </div>
         </div>
         <div class="col-lg-2">
-            <h3 class="text-primary nav-grouping-header" style="width: 100%;">Game Search</h3>
-            <div class="input-group-xs input-group store-search">
+            <h3 class="text-primary nav-grouping-header store-search" style="width: 100%;">Game Search</h3>
+            <div class="input-group-xs input-group">
                 <input type="text" class="form-control" name="SearchText" value="@Model.SearchText" />
                 <span class="input-group-btn" style="width:0;">
                     <button class="btn btn-default btn-xs" title="Search" type="submit" name="SearchTextBool" value="true"><i class="fa fa-search search-icon"></i></button>
                 </span>
             </div>
-            <br />
-            <h3 class="text-primary nav-grouping-header" style="width: 100%;">Filter by ID</h3>
-            <div class="input-group-xs input-group store-search">
+            <h3 class="text-primary nav-grouping-header" style="width: 100%;">Filter by SteamID</h3>
+            <div class="input-group-xs input-group">
                 <input type="text" class="form-control" name="FriendSteamID" value="@Model.FriendSteamID" />
                 <span class="input-group-btn" style="width:0;">
-                    <button class="btn btn-default btn-xs" title="Search" type="submit" name="FriendSteamIDBool" value="true"><i class="fa fa-search"></i></button>
+                    <button class="btn btn-default btn-xs" title="Search" type="submit" name="FriendSteamIDBool" value="true"><i class="fa fa-search search-icon"></i></button>
                 </span>
             </div>
-            <br/>
             @if (Context.User.Identity.IsAuthenticated)
             {
             <h3 class="text-primary nav-grouping-header" style="width: 100%;">User Filters</h3>
             if (Model.PreviousFilterLibrary)
             {
                 <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
-                    <i class="glyphicon glyphicon-check"></i> @Html.Label("Unowned", new { @class = "text-success store-filter" })
+                    <i class="glyphicon glyphicon-check text-success"></i> @Html.Label("Unowned", new { @class = "text-success store-filter" })
                 </button>
             }
             else

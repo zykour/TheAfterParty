@@ -55,6 +55,17 @@ namespace TheAfterParty.WebUI.Controllers
             return View(model);
         }
 
+        public async Task<ActionResult> MyObjectives()
+        {
+            CompletedObjectivesViewModel model = new CompletedObjectivesViewModel();
+
+            model.FullNavList = CreateObjectivesNavList();
+            model.LoggedInUser = await objectiveService.GetCurrentUser();
+            //model.BalanceEntries = model.LoggedInUser.BalanceEntries.Where(e => e.Objective != null).ToList();
+
+            return View(model);
+        }
+
         [HttpGet]
         public async Task<ActionResult> Boosted()
         {
@@ -76,6 +87,8 @@ namespace TheAfterParty.WebUI.Controllers
 
             return View("Index", model);
         }
+
+        #region Admin actions
 
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> AdminObjectives()
@@ -250,6 +263,8 @@ namespace TheAfterParty.WebUI.Controllers
 
             return View("AddBoostedObjective", model);
         }
+
+#endregion
 
         public async Task PopulateGetObjectives(ObjectivesIndexViewModel model)
         {
