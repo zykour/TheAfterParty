@@ -706,6 +706,7 @@ namespace TheAfterParty.Domain.Services
             key.IsRevealed = true;
 
             userRepository.UpdateClaimedProductKey(key);
+            this.unitOfWork.Save();
 
             return key.Key;
         }
@@ -716,6 +717,7 @@ namespace TheAfterParty.Domain.Services
             key.IsUsed = !key.IsUsed;
 
             userRepository.UpdateClaimedProductKey(key);
+            this.unitOfWork.Save();
 
             return key.IsUsed;
         }

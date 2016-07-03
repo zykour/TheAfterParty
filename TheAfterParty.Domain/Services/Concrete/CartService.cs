@@ -156,7 +156,7 @@ namespace TheAfterParty.Domain.Services
                     }
                 }
 
-                if (entry.Listing.ChildListings == null || entry.Listing.ChildListings.Count == 0)
+                if (entry.Listing.ChildListings == null || entry.Listing.ChildListings.Count == 0 || keys.Count == entry.Quantity)
                 {
                     foreach (ProductKey productKey in keys)
                     {

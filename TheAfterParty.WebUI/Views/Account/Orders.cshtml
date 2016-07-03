@@ -11,84 +11,34 @@
         <h3>My Orders</h3>
     </div>
     <div class="row custom-row">
-        <div class="col-lg-6">
-            Order ID
+        <div class="col-lg-3 text-center">
+            Order No.
         </div>
         <div class="col-lg-3">
-            Purchase Date
+            Sale Date
         </div>
-        <div class="col-lg-3 text-right">
-            Total Cost
+        <div class="col-lg-3">
+            Items Purchased
         </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-12">
-            <span>&nbsp;</span>
+        <div class="col-lg-3 text-center">
+            Cost
         </div>
     </div>
     @foreach (Order order in Model.Orders)
     {
         <div class="row">
-            <div class="col-lg-6">
-                #@order.OrderID
+            <div class="col-lg-3 text-primary text-center">
+                @Html.ActionLink("#" + @order.OrderID, "Order", "Account", new { id = order.OrderID }, null)
             </div>
             <div class="col-lg-3">
-                @order.SaleDate
+                @(((DateTime)order.SaleDate).ToString("MMMM d, yyyy"))
             </div>
-            <div class="col-lg-3 text-right">
+            <div class="col-lg-3 text-success">
+                @order.ProductOrderEntries.Count
+            </div>
+            <div class="col-lg-3 text-center text-success">
                 @order.TotalSalePrice()
             </div>
         </div>
-        <div class="row">
-            <div class="col-lg-12">
-                <span>&nbsp;</span>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-6">
-                Game Name
-            </div>
-            <div class="col-lg-1">
-                Platform
-            </div>
-            <div class="col-lg-4">
-                Product Key
-            </div>
-            <div class="col-lg-1 text-center">
-                Cost
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-12">
-                <span>&nbsp;</span>
-            </div>
-        </div>
-        foreach (ProductOrderEntry entry in order.ProductOrderEntries)
-        {
-            <div class="store-entry-sm row">
-                <div class="col-lg-6 store-game-info">
-                    <div class="outer-banner-container">
-                        <div class="inner-store-banner-container" style="background-image: url(@entry.Listing.Product.ProductDetail.HeaderImageURL)"></div>
-                    </div>
-                    <div class="store-entry-name">
-                        @entry.Listing.ListingName
-                    </div>
-                </div>
-                <div class="col-lg-1">
-                    @foreach (string platformIconUrl in entry.Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
-                    {
-                        <div class="icon-image-container">
-                            <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
-                        </div>
-                    }
-                </div>
-                <div class="col-lg-4 text-center">
-                    @entry.ClaimedProductKeys.First().Key
-                </div>
-                <div class="col-lg-1 text-center">
-                    @entry.SalePrice
-                </div>
-            </div>
-        }
     }
 </div>

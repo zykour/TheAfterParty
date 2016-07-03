@@ -83,7 +83,7 @@ namespace TheAfterParty.WebUI.Controllers
             {
                 NavItem purchase = new NavItem();
                 purchase.Destination = "/Cart/Purchase";
-                purchase.DestinationName = "Purcase";
+                purchase.DestinationName = "Purchase";
 
                 actions.NavItems.Add(purchase);
             }
@@ -173,6 +173,7 @@ namespace TheAfterParty.WebUI.Controllers
             int orderId = System.Int32.Parse(id);
 
             model.Order = cartService.GetOrderByID(orderId);
+            model.Order.ProductOrderEntries = model.Order.ProductOrderEntries.OrderBy(p => p.Listing.ListingName).ToList();
             model.LoggedInUser = await cartService.GetCurrentUser();
             model.FullNavList = CreatePurchaseViewModelNavList();
 

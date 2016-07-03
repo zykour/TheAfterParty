@@ -22,7 +22,7 @@
 }
 
 h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6 {
-    color: #8e49a3 !important;
+    color: #8e49a3;
 }
 
 .text-success {
@@ -138,6 +138,51 @@ textarea {
 .store-blacklist {
     color: #dd1111 !important;
     font-weight: bold;
+}
+.reveal-btn, .unused-btn, .used-btn, .toggle-used-btn, .toggle-used-inactive-btn {
+    -moz-border-radius: 2px 2px 2px 2px;
+    border-radius: 2px 2px 2px 2px;
+    font-weight: bolder;
+    display: inline-block;
+    color: #5e9a34;
+    vertical-align: central;
+    line-height: 12px;
+    padding: 5px;
+    margin: 0;
+    background: -webkit-gradient(linear, center top, center bottom, color-stop(0%, #6e2f81), color-stop(100%, #501762));
+    background: -moz-linear-gradient(top, #6e2f81, #501762);
+    -moz-user-select: text;
+    -webkit-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+.reveal-btn, .unused-btn, .used-btn {    
+    min-width: 200px;
+}
+.unused-btn {    
+    border: 1px solid #5e9a34;
+    color: #5e9a34;
+}
+.used-btn {    
+    border: 1px solid #ae0000;
+    color: #ae0000;
+    text-decoration-color: #000000;
+    text-decoration: line-through;
+}
+.reveal-btn {    
+    border: 1px solid #000000;
+    color: #000000;
+}
+.toggle-used-btn {
+    border: 1px solid #000000;
+    color: #000000;
+    margin-right: 5px;
+}
+.toggle-used-inactive-btn {
+    border: 1px solid #000000;
+    color: #000000;
+    color: #808080;
+    margin-right: 5px;
 }
 
 .icon-image {
@@ -268,12 +313,20 @@ textarea {
 .custom-row-header {
     margin-top: 45px;
     padding: 0 2px 1px 15px;
+    color: #000000;
+    background: -webkit-gradient(linear, center top, center bottom, color-stop(0%, #6e2f81), color-stop(100%, #501762));
+    background: -moz-linear-gradient(top, #6e2f81, #501762);
+    border: 2px solid #000000;
 }
 .custom-row-header h3 {
     padding: 0;
+    color: #000000;
+    font-weight: bold;
 }
 .custom-row-header h4{
     padding: 0;
+    color: #000000;
+    font-weight: bold;
 }
 .custom-row, .custom-row-sm {
     background-color: #541d65;
@@ -284,10 +337,13 @@ textarea {
 .custom-row-sm {
     padding: 0 0 0 12px;
 }
-.custom-row-text {
+.custom-row-text, .custom-row-text button {
     color: #000000;
-    font-weight: bolder !important;
+    font-weight: bold !important;
     font-size: 14px;
+}
+.custom-row-text button:hover {
+    color: #5e9a34;
 }
 .image-container {
     padding: 0 10px;

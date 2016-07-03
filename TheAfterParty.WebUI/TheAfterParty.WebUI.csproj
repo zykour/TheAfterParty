@@ -266,6 +266,7 @@
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Models\Account\AccountIndexModel.cs" />
     <Compile Include="Models\Account\AccountKeysModel.cs" />
+    <Compile Include="Models\Account\AccountOrderModel.cs" />
     <Compile Include="Models\Account\AccountOrdersModel.cs" />
     <Compile Include="Models\Auctions\AuctionModel.cs" />
     <Compile Include="Models\Auctions\AuctionsModel.cs" />
@@ -383,6 +384,7 @@
     <Content Include="Views\Store\AdminProductKeys.cshtml" />
     <Content Include="Views\Store\AdminProductCategories.cshtml" />
     <Content Include="Views\Objectives\MyObjectives.cshtml" />
+    <Content Include="Views\Account\Order.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

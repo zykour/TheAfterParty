@@ -5,9 +5,9 @@ using System.Web;
 using TheAfterParty.Domain.Entities;
 using TheAfterParty.WebUI.Models._Nav;
 
-namespace TheAfterParty.WebUI.Models.Cart
+namespace TheAfterParty.WebUI.Models.Account
 {
-    public class PurchaseViewModel : NavModel
+    public class AccountOrderModel : NavModel
     {
         public Order Order { get; set; }
     }

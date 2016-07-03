@@ -39,7 +39,7 @@
                 {
                     GiveawayEntry entry = feedItem.GetActivityFeedItem() as GiveawayEntry;
                     <div class="row">
-                        <div class="col-lg-9">
+                        <div class="col-lg-9 activity-row">
                             <p>You entered a giveaway for <span class="text-success">@((entry.Giveaway.Listing == null) ? entry.Giveaway.Listing.ListingName : entry.Giveaway.Prize)</span>.</p>
                         </div>
                         <div class="col-lg-3 text-right activity-time">
@@ -51,7 +51,7 @@
                 {
                     ProductReview review = feedItem.GetActivityFeedItem() as ProductReview;
                     <div class="row">
-                        <div class="col-lg-9">
+                        <div class="col-lg-9 activity-row">
                             <p>You posted a review for <span class="text-success">@review.Product.ProductName</span>.</p>
                         </div>
                         <div class="col-lg-3 text-right activity-time">
@@ -63,7 +63,7 @@
                 {
                     BalanceEntry entry = feedItem.GetActivityFeedItem() as BalanceEntry;
                     <div class="row">
-                        <div class="col-lg-9">
+                        <div class="col-lg-9 activity-row">
                             <p>You earned <span class="text-success">@entry.PointsAdjusted</span> points @((entry.Objective == null) ? "" : " for completing the objective \"" + entry.Objective.ObjectiveName + "\"").</p>
                         </div>
                         <div class="col-lg-3 text-right activity-time">
@@ -75,7 +75,7 @@
                 {
                     WonPrize prize = feedItem.GetActivityFeedItem() as WonPrize;
                     <div class="row">
-                        <div class="col-lg-9">
+                        <div class="col-lg-9 activity-row">
                             <p>You won a prize for <span class="text-success">@prize.Prize.Listing.ListingName</span>.</p>
                         </div>
                         <div class="col-lg-3 text-right activity-time">
@@ -87,7 +87,7 @@
                 {
                     AuctionBid entry = feedItem.GetActivityFeedItem() as AuctionBid;
                     <div class="row">
-                        <div class="col-lg-9">
+                        <div class="col-lg-9 activity-row">
                             <p>You bid on an auction of <span class="text-success">@entry.Auction.Listing.ListingName</span> for <span class="text-warning">@entry.BidAmount</span> points.</p>
                         </div>
                         <div class="col-lg-3 text-right activity-time">
@@ -101,7 +101,7 @@
                     if (giveaway.IsCreator(Model.LoggedInUser))
                     {
                         <div class="row">
-                            <div class="col-lg-9">
+                            <div class="col-lg-9 activity-row">
                                 <p>You created a giveaway for <span class="text-success">@((giveaway.Listing == null) ? giveaway.Prize : giveaway.Listing.ListingName)</span>.</p>
                             </div>
                         </div>
@@ -109,7 +109,7 @@
                     else
                     {
                         <div class="row">
-                            <div class="col-lg-9">
+                            <div class="col-lg-9 activity-row">
                                 <p>You won a giveaway for <span class="text-success">@((giveaway.Listing == null) ? giveaway.Prize : giveaway.Listing.ListingName)</span>.</p>
                             </div>
                             <div class="col-lg-3 text-right activity-time">
@@ -124,7 +124,7 @@
                     if (auction.IsCreator(Model.LoggedInUser))
                     {
                         <div class="row">
-                            <div class="col-lg-9">
+                            <div class="col-lg-9 activity-row">
                                 <p>You created an auction for <span class="text-success">@auction.Listing.ListingName</span>.</p>
                             </div>
                             <div class="col-lg-3 text-right activity-time">
@@ -135,7 +135,7 @@
                     else
                     {
                         <div class="row">
-                            <div class="col-lg-9">
+                            <div class="col-lg-9 activity-row">
                                 <p>You won an auction of <span class="text-success">@auction.Listing.ListingName</span> for <span class="text-warning">@auction.AuctionBids.Max()</span> points.</p>
                             </div>
                             <div class="col-lg-3 text-right activity-time">

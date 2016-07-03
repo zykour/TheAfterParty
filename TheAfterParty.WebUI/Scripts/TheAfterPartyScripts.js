@@ -16,40 +16,50 @@
 
 });
 
-function MarkKeyUsed(id, caller)
+function ToggleKeyUsed(id, caller, callerCompanionId)
 {
-    var span = document.getElementById('#key' + id);
-    var keyText = span.firstChild.innerHTML;
-
-    $.ajax({
-        type: "POST",
-        url: '/Account/AjaxMarkKeyUsed',
-        data: { productKeyId: id },
-        datatype: "html",
-        success: function (data) {
-            if (data) {
-                var key = $('#key' + id).html();
-                $('#key' + id).html("<del>" + key + "</del>");
+    if ($(caller).hasClass('ajax-awaiting') == false && $(caller).hasClass('awaiting-reveal') == false) {
+        $(caller).toggleClass('ajax-awaiting');
+        $.ajax({
+            type: "POST",
+            url: '/Account/AjaxMarkKeyUsed',
+            data: { productKeyId: id },
+            datatype: "html",
+            success: function (data) {
+                $(callerCompanionId).toggleClass("unused-btn");
+                $(caller).toggleClass('ajax-awaiting');
+                $(callerCompanionId).toggleClass("used-btn");
+                if ($(caller).val() === '🔒')
+                    $(caller).val('🔓');
+                else
+                    $(caller).val('🔒');
             }
-            else {
-                var span = $('#key' + id);
-                span.html(keyText);
-            }
-        }
-    });
+        });
+    }
 }
 
 function MarkKeyRevealed(id, caller)
 {
-    $.ajax({
-        type: "POST",
-        url: '/Account/AjaxRevealKey',
-        data: { productKeyId: id },
-        datatype: "html",
-        success: function (data) {
-            $(caller).parent.html("<span class=\"text-success\" id=\"key" + id + "\">" + data + "</span><br/><span>Used</span> <input type=\"checkbox\" onclick=\"MarkKeyUsed(" + id + ",this)\" name=\"isUsed\">");
-        }
-    });
+    if ($(caller).hasClass('ajax-awaiting') == false) {
+        $(caller).toggleClass('ajax-awaiting');
+        $.ajax({
+            type: "POST",
+            url: '/Account/AjaxRevealKey',
+            data: { productKeyId: id },
+            datatype: "html",
+            success: function (data) {
+                $(caller).val(data);
+                $(caller).toggleClass('ajax-awaiting');
+                $(caller).toggleClass("unused-btn");
+                $(caller).toggleClass("reveal-btn");
+                var id = "#" + $(caller).attr('id') + "toggle";
+                document.getElementById($(caller).attr('id')).onclick = null;
+                $(id).toggleClass('toggle-used-btn');
+                $(id).toggleClass('toggle-used-inactive-btn');
+                $(id).toggleClass('awaiting-reveal');
+            }
+        });
+    }
 }
 
 function AddToCart(id, caller)

@@ -65,10 +65,17 @@ namespace TheAfterParty.WebUI.Controllers
 
             return View(model);
         }        
-        /*public async Task<ActionResult> Order(int id)
+        public async Task<ActionResult> Order(int id)
         {
+            AccountOrderModel model = new AccountOrderModel();
+            
+            model.Order = userService.GetOrderByID(id);
+            model.Order.ProductOrderEntries = model.Order.ProductOrderEntries.OrderBy(p => p.Listing.ListingName).ToList();
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateAccountControllerNavList();
 
-        }*/
+            return View(model);
+        }
         public async Task<ActionResult> Keys()
         {
             AccountKeysModel model = new AccountKeysModel();
@@ -77,8 +84,8 @@ namespace TheAfterParty.WebUI.Controllers
             model.FullNavList = CreateAccountControllerNavList();
 
             model.Keys = await userService.GetKeys();
-
-            model.Keys.OrderBy(k => k.Listing.ListingName);
+                
+            model.Keys = model.Keys.OrderBy(k => k.Listing.ListingName).ToList();
 
             return View(model);
         }
