@@ -139,7 +139,7 @@ textarea {
     color: #dd1111 !important;
     font-weight: bold;
 }
-.reveal-btn, .unused-btn, .used-btn, .toggle-used-btn, .toggle-used-inactive-btn {
+.reveal-btn, .unused-btn, .used-btn, .toggle-used-btn, .toggle-used-inactive-btn, .top-nav-outer-btn {
     -moz-border-radius: 2px 2px 2px 2px;
     border-radius: 2px 2px 2px 2px;
     font-weight: bolder;
@@ -155,6 +155,47 @@ textarea {
     -webkit-user-select: text;
     -ms-user-select: text;
     user-select: text;
+}
+.top-nav-inner-btn, .top-nav-outer-btn, .top-nav-inner-entry {    
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex
+}
+.top-nav-inner-btn {
+    padding: 0 8px;
+    color: #000000;
+    font-size: 10px;
+    line-height: 22px;
+    cursor: pointer;
+    text-shadow: 1px 1px rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    display: inline;
+}
+.top-nav-inner-btn:hover, .top-nav-inner-btn:active, .top-nav-inner-btn:focus {
+    color: #000000;
+}
+.top-nav-dropdown-left {
+    border-radius: 4px 0 0 4px;
+}
+.top-nav-dropdown-right {
+    border-radius: 0 4px 4px 0;
+}
+.top-nav-outer-btn .top-nav-inner-btn:hover {   
+    display: inline;
+    background: -webkit-gradient(linear, center top, center bottom, color-stop(0%, #7e3f91 ), color-stop(100%, #602772));
+    background: -moz-linear-gradient(top, #7e3f91 , #602772); 
+    height: 100%;
+    color: #000000;
+}
+.top-nav-outer-btn {
+    line-height: 0;
+    padding: 0;
+    margin-right: 5px;
+}
+.top-nav-outer-btn .top-nav-inner-btn.is-selected {
+    background: -webkit-gradient(linear, center top, center bottom, color-stop(0%, #681f71), color-stop(100%, #400752));
+    background: -moz-linear-gradient(top, #681f71, #400752);
 }
 .reveal-btn, .unused-btn, .used-btn {    
     min-width: 200px;
@@ -184,7 +225,88 @@ textarea {
     color: #808080;
     margin-right: 5px;
 }
-
+.top-sub-nav-relative {
+    position: relative;
+    background-color: #242424 !important;
+}
+.top-sub-nav-absolute {
+    background-color: #242424 !important;
+    top: 29px;
+    border: 1px solid #000000;
+    position: absolute;
+    width: 250px;
+    border-radius: 4px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.02), 2px 2px 5px rgba(0, 0, 0, 0.05), 1px 1px 2px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    z-index: 1;
+}
+.top-sub-nav-absolute.top-nav-right {
+    left: -250px;
+}
+.is-hidden {
+    display: none !important;
+}
+.top-nav-inner-entry {    
+    padding: 7px 13px;
+    -webkit-box-align: center;
+    -webkit-flex-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+}
+/*#region Test*/
+.nav-icon-yellow {
+    color: #edcb2c;
+}
+.nav-icon-purple {
+    color: #8e49a3;
+}
+.nav-icon-green {
+    color: #5e9a34;
+}
+.nav-icon-blue {
+    color: #4f8fb4;
+}
+.top-nav-inner-entry:not(:first-child) {
+    border-top: 1px dotted #8e49a3;
+}
+.top-nav-inner-entry:hover, .top-nav-inner-entry:hover+.top-nav-inner-entry {
+    border-top-color: transparent;
+}
+.top-nav-inner-entry i {
+    font-size: 22px;
+    margin-right: 15px;
+}
+.top-nav-inner-entry:hover i {
+    color: #808080;
+}
+.top-nav-inner-entry:hover {
+    background-image: linear-gradient(#6e2f81 0%, #6e2f81 100%);
+    background-image: -moz-linear-gradient(#6e2f81 0%, #6e2f81 100%);
+    background-image: -webkit-linear-gradient(#6e2f81 0%, #6e2f81 100%);
+    text-shadow: none;
+}
+.top-nav-inner-entry-text-primary {
+    padding-top: 8px;
+    color: #5e9a34;
+    font: bold 10px/10px Arial, sans-serif;
+}
+.top-nav-inner-entry-text-secondary {
+    margin-top: -7px;
+    color: #6b7a8c;
+    font: 9px/9px Arial, sans-serif;
+}
+.top-nav-inner-entry:hover .top-nav-inner-entry-text-primary {
+    color: #bbbbbb;
+}
+.top-nav-inner-entry:hover .top-nav-inner-entry-text-secondary {
+    color: #9a9a9a;
+}
+/*#endregion*/
+.pad-cart-left {
+    padding-right: 8px;
+    display: inline;
+}
 .icon-image {
     background-size: 18px 18px;
     width: 20px;
@@ -455,7 +577,7 @@ textarea {
 .banner-div {
     position: relative;
     margin: auto;
-    width: 90%;
+    width: 60%;
 }
 
 .banner-img {

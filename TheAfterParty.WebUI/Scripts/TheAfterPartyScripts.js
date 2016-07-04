@@ -1,19 +1,18 @@
-﻿$(document).ready(function () {
-    
-    $("ul.subnav").parent().append("<span></span>"); //Only shows drop down trigger when js is enabled (Adds empty span tag after ul.subnav*)
-
-    $("ul.topnav li span").click(function () { //When trigger is clicked...
-
-        $(this).toggleClass("clicked");
-
-        if ($(this).hasClass("clicked")) {
-            $(this).parent().find("ul.subnav").slideDown('fast').show();
+﻿$(window).click(function (e) {
+    var clickedElement = e.target;
+    if ($(clickedElement).hasClass("top-nav-dropdown-right") == false && $(clickedElement).hasClass("is-selected") == false) {
+        if ($(".top-nav-dropdown-right.is-selected").length) {
+            $(".top-nav-dropdown-right.is-selected").siblings(".top-sub-nav-relative").toggleClass("is-hidden");
+            $(".top-nav-dropdown-right.is-selected").toggleClass("is-selected");
         }
-        else {
-            $(this).parent().find("ul.subnav").slideUp('fast').show();
-        }
+    }
+});
+
+$(document).ready(function () {
+    $(".top-nav-dropdown-right").click(function () {
+        $(this).toggleClass("is-selected");
+        $(this).siblings(".top-sub-nav-relative").toggleClass("is-hidden");
     });
-
 });
 
 function ToggleKeyUsed(id, caller, callerCompanionId)

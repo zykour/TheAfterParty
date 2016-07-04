@@ -20,38 +20,78 @@
             <div class="navbar navbar-inverse navbar-fixed-top">
                 <div class="container vertical-align">
                     <div class="navbar-header vertical-align">
-                        <ul class="topnav topnav-left">
-                            <li>
-                                @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "topnav-inner topnav-inner-solo" })
-                            </li>
-                            <li>
-                                @Html.ActionLink("Store", "Index", "Store", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
-                                <ul class="subnav">
-                                    <li>@Html.ActionLink("Daily Deals", "Deals", "Store", new { id = "daily" }, new { @class = "" })</li>
-                                    <li>@Html.ActionLink("Weekly Deals", "Deals", "Store", new { id = "weekly" }, new { @class = "" })</li>
-                                    <li>@Html.ActionLink("Balances", "Index", "User")</li>
-                                </ul>
-                            </li>
-                            <li>
-                                @Html.ActionLink("Objectives", "Index", "Objectives", new { area = "" }, new { @class = "topnav-inner topnav-inner-solo" })
-                            </li>
-                            <li>
-                                @Html.ActionLink("Auctions", "Index", "Auction", new { area = "" }, new { @class = "topnav-inner topnav-inner-solo" })
-                            </li>
-                            <li>
-                                @Html.ActionLink("Giveaways", "Index", "Giveaway", new { area = "" }, new { @class = "topnav-inner topnav-inner-solo" })
-                            </li>
-                            @*<li>
-                                @Html.ActionLink("About", "Index", "About", new { area = "" }, new { @class = "topnav-inner topnav-inner-solo" })
-                            </li>*@
-                        </ul>
+                        <div class="top-nav-outer-btn">
+                            @Html.ActionLink("Home", "Index", "Home", null, new { @class = "top-nav-inner-btn" })
+                        </div>
+                        <div class="top-nav-outer-btn">
+                            <div class="top-sub-nav-relative is-hidden">
+                                <div class="top-sub-nav-absolute">
+                                    <a class="top-nav-inner-entry" href="@Url.Action("Deals", "Store", new { id = "daily" })">
+                                        <i class="nav-icon-yellow fa fa-fw fa-sun-o"></i>
+                                        <div class="top-nav-inner-entry-text">
+                                            <p class="top-nav-inner-entry-text-primary">View the daily deals.</p>
+                                            <p class="top-nav-inner-entry-text-secondary">New deal(s) every day.</p>
+                                        </div>
+                                    </a>
+                                    <a class="top-nav-inner-entry" href="@Url.Action("Deals", "Store", new { id = "weekly" })">
+                                        <i class="nav-icon-purple fa fa-fw fa-calendar"></i>
+                                        <div class="top-nav-inner-entry-text">
+                                            <p class="top-nav-inner-entry-text-primary">View the weekly deals.</p>
+                                            <p class="top-nav-inner-entry-text-secondary">New deals every Thursday.</p>
+                                        </div>
+                                    </a>
+                                    <a class="top-nav-inner-entry" href="@Url.Action("Newest", "Store", new { id = "weekly" })">
+                                        <i class="nav-icon-green fa fa-fw fa-plus-circle"></i>
+                                        <div class="top-nav-inner-entry-text">
+                                            <p class="top-nav-inner-entry-text-primary">See what's new in the shop.</p>
+                                            <p class="top-nav-inner-entry-text-secondary">View the newest additions to the shop.</p>
+                                        </div>
+                                    </a>
+                                    <a class="top-nav-inner-entry" href="@Url.Action("Index", "User")">
+                                        <i class="nav-icon-blue fa fa-fw fa-users"></i>
+                                        <div class="top-nav-inner-entry-text">
+                                            <p class="top-nav-inner-entry-text-primary">Check user balances.</p>
+                                            <p class="top-nav-inner-entry-text-secondary">View a list of users and their balances.</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>	
+                            @Html.ActionLink("Store", "Index", "Store", null, new { @class = "top-nav-inner-btn top-nav-dropdown-left" })
+                            <div class="top-nav-inner-btn top-nav-dropdown-right"><i class="fa fa-angle-down"></i></div>
+                        </div>
+                        <div class="top-nav-outer-btn"><div class="top-sub-nav-relative is-hidden">
+                                <div class="top-sub-nav-absolute">
+                                    <a class="top-nav-inner-entry" href="@Url.Action("Boosted", "Objectives")">
+                                        <i class="nav-icon-purple fa fa-fw fa-exclamation-circle"></i>
+                                        <div class="top-nav-inner-entry-text">
+                                            <p class="top-nav-inner-entry-text-primary">View boosted objectives.</p>
+                                            <p class="top-nav-inner-entry-text-secondary">Objectives worth bonus points!</p>
+                                        </div>
+                                    </a>
+                                    @if (Model.LoggedInUser != null)
+                                    {
+                                    <a class="top-nav-inner-entry" href="@Url.Action("MyObjectives", "Objectives")">
+                                        <i class="nav-icon-green fa fa-fw fa-tasks"></i>
+                                        <div class="top-nav-inner-entry-text">
+                                            <p class="top-nav-inner-entry-text-primary">View my objectives.</p>
+                                            <p class="top-nav-inner-entry-text-secondary">View objectives you've completed.</p>
+                                        </div>
+                                    </a>
+                                    }
+                                </div>
+                            </div>	
+                            @Html.ActionLink("Objectives", "Index", "Objectives", null, new { @class = "top-nav-inner-btn top-nav-dropdown-left" })
+                            <div class="top-nav-inner-btn top-nav-dropdown-right"><i class="fa fa-angle-down"></i></div>
+                        </div>
                     </div>
                     @if (Model != null && Model.LoggedInUser != null)
                     {
                         <div class="flex-right vertical-align">
-                            <div class="navbar-brand cart-container cart-adjustment">
-                                <a href="/Cart"><i class="fa fa-opencart cart-image reserve-div-left"></i></a>
-                                <a href="/Cart"><span class="reserve-div-right" id="cartTotal">@Model.LoggedInUser.GetCartTotal()</span></a>
+                            <div class="top-nav-outer-btn">
+                                <a href="@Url.Action("Index","Cart")" class="top-nav-inner-btn">
+                                    <p class="pad-cart-left"><span id="cartTotal">@Model.LoggedInUser.GetCartTotal()</span> points</p>
+                                    <span class="fa fa-lg fa-shopping-cart"></span>
+                                </a>
                             </div>
                             @if (Model.LoggedInUser.GetSilentAuctionReservedBalance() > 0 || Model.LoggedInUser.GetPublicAuctionReservedBalance() > 0)
                             {
@@ -79,22 +119,29 @@
                                     </div>
                                 </div>
                             }
+                            <div class="top-nav-outer-btn">
+                                <div class="top-sub-nav-relative is-hidden">
+                                    <div class="top-sub-nav-absolute">
+                                        <a class="top-nav-inner-entry" href="@Url.Action("Keys", "Account")">
+                                            <i class="nav-icon-green fa fa-fw fa-key"></i>
+                                            <div class="top-nav-inner-entry-text">
+                                                <p class="top-nav-inner-entry-text-primary">View my keys.</p>
+                                                <p class="top-nav-inner-entry-text-secondary">View the product keys you own.</p>
+                                            </div>
+                                        </a>
+                                        <a class="top-nav-inner-entry" href="@Url.Action("Orders", "Account")">
+                                            <i class="nav-icon-purple fa fa-fw fa-list"></i>
+                                            <div class="top-nav-inner-entry-text">
+                                                <p class="top-nav-inner-entry-text-primary">View my orders.</p>
+                                                <p class="top-nav-inner-entry-text-secondary">View past purchases made.</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                                @Html.ActionLink("Account (" + Model.LoggedInUser.Balance + " points)", "Index", "Account", null, new { @class = "top-nav-inner-btn top-nav-dropdown-left" })
+                                <div class="top-nav-inner-btn top-nav-dropdown-right"><i class="fa fa-angle-down"></i></div>
+                            </div>
                             <div class="navbar-header vertical-align">
-                                <ul class="topnav topnav-left">
-                                    <li>
-                                        @Html.ActionLink("Account (" + @Model.LoggedInUser.Balance.ToString() + " Points)", "Index", "Account", new { area = "" }, new { @class = "topnav-inner topnav-inner-multi" })
-                                        <ul class="subnav">
-                                            <li>@Html.ActionLink("Account Overview", "Index", "Account")</li>
-                                            <li>@Html.ActionLink("My Orders", "Orders", "Account")</li>
-                                            <li>@Html.ActionLink("My Keys", "Keys", "Account")</li>
-                                            <li>@Html.ActionLink("Logout", "Logout", "Account")</li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                                    @*<div class="navbar-user-info vertical-align">
-                                        <div class="navbar-user-info-inner">Account (@(Model.LoggedInUser.Balance) Points)</div>
-                                        <div class="account-button vertical-align"></div>
-                                    </div>*@
                                     @if (Model.LoggedInUser.SmallAvatar != null)
                                     {
                                         <div class="outer-avatar-nav-container vertical-align">
@@ -111,7 +158,7 @@
                                             </a>
                                         </div>
                                     }
-</div>
+                            </div>
                         </div>
                     }
                     else

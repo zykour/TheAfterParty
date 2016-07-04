@@ -237,6 +237,10 @@ namespace TheAfterParty.WebUI.Controllers
             navItem.DestinationName = "My Keys";
             navGrouping.NavItems.Add(navItem);
             navItem = new NavItem();
+            navItem.Destination = "/Objectives/MyObjectives/";
+            navItem.DestinationName = "My Objectives";
+            navGrouping.NavItems.Add(navItem);
+            navItem = new NavItem();
             navItem.Destination = "/Account/Logout/";
             navItem.DestinationName = "Logout";
             navGrouping.NavItems.Add(navItem);

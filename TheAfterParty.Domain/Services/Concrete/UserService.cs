@@ -605,7 +605,7 @@ namespace TheAfterParty.Domain.Services
                 }
             }
 
-            return activityFeed.OrderBy(a => a.ItemDate).ToList();
+            return activityFeed.OrderByDescending(a => a.ItemDate).ToList();
         }
 
         // Balances with negative adjustments are mainly caused by purchases, this does mean transfers will be omitted, however
@@ -696,7 +696,7 @@ namespace TheAfterParty.Domain.Services
                 }
             }
 
-            return activityFeed.OrderBy(a => a.ItemDate).ToList();
+            return activityFeed.OrderByDescending(a => a.ItemDate).ToList();
         }
 
         public string RevealKey(int keyId)

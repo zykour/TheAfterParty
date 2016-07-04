@@ -20,7 +20,7 @@
     {
         //foreach (IEnumerable<BalanceEntry> entryGroup in Model.LoggedInUser.BalanceEntries.Where(e => e.Objective != null).OrderBy(e => e.Date).GroupBy(e => new { e.Date.Year, e.Date.Month }).SelectMany(e => e).ToList())
         //{
-        List<BalanceEntry> list = Model.LoggedInUser.BalanceEntries.Where(e => e.Objective != null).OrderBy(e => e.Date).ToList();
+        List<BalanceEntry> list = Model.LoggedInUser.BalanceEntries.Where(e => e.Objective != null).OrderByDescending(e => e.Date).ToList();
         foreach (IEnumerable<BalanceEntry> entryGroup in list.GroupBy(e => e.Date.ToString("MMyyyy")).ToList())
         {
             <div class="row custom-row">
