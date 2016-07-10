@@ -6,7 +6,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity;
 using System;
 
-public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext> //DropCreateDatabaseIfModelChanges<AppIdentityDbContext>
+public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCreateDatabaseIfModelChanges<AppIdentityDbContext>
 {
     protected override void Seed(AppIdentityDbContext context)
     {
@@ -17,13 +17,13 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext> //DropCreat
     public void PerformInitialSetup(AppIdentityDbContext context)
     {
         IUnitOfWork unitOfWork = new UnitOfWork(context);
-        IAuctionRepository auctionRepository = new AuctionRepository(unitOfWork);
+        /*IAuctionRepository auctionRepository = new AuctionRepository(unitOfWork);
         ICouponRepository couponRepository = new CouponRepository(unitOfWork);
         IGiveawayRepository giveawayRepository = new GiveawayRepository(unitOfWork);
         IListingRepository listingRepository = new ListingRepository(unitOfWork);
         IObjectiveRepository objectiveRepository = new ObjectiveRepository(unitOfWork);
         IPrizeRepository prizeRepository = new PrizeRepository(unitOfWork);
-        IUserRepository userRepository = new UserRepository(unitOfWork);
+        IUserRepository userRepository = new UserRepository(unitOfWork);*/
 
         AppUserManager userMgr = new AppUserManager(new UserStore<AppUser>(context));
         IdentityRole role = new IdentityRole();
@@ -35,7 +35,7 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext> //DropCreat
         context.Roles.Add(admin);
         unitOfWork.Save();
 
-        AppUser monu = new AppUser { UserSteamID = 76561198030277114, UserName = "Monukai", Email = "monu.kai@example.com", Balance = 152, IsPrivateWishlist = true };
+        /*AppUser monu = new AppUser { UserSteamID = 76561198030277114, UserName = "Monukai", Email = "monu.kai@example.com", Balance = 152, IsPrivateWishlist = true };
         monu.AddOwnedGame(new OwnedGame(45000));
         monu.AddOwnedGame(new OwnedGame(620));
         monu.Nickname = "MONU";
@@ -335,6 +335,6 @@ public class DbInit : DropCreateDatabaseAlways<AppIdentityDbContext> //DropCreat
         l.Product.AddProductCategory(sp);
 
         listingRepository.InsertListing(l);
-        unitOfWork.Save();
+        unitOfWork.Save();*/
     }
 }

@@ -8,7 +8,7 @@
     //AjaxOptions ajaxOptions = new AjaxOptions { UpdateTargetId = "cartInfo", Url = Url.Action("AjaxAddToCart", "Cart") };
 }
 
-@using (Html.BeginForm("Index", "Store", FormMethod.Post, new { id = ViewBag.StoreFormID }))
+@using (Html.BeginForm(Model.FormName, "Store", new { id = Model.FormID }, FormMethod.Post, new { id = ViewBag.StoreFormID }))
 {
 @Html.HiddenFor(x => x.PreviousBeginsWithFilter)
 @Html.HiddenFor(x => x.PreviousSelectedPlatformID)
@@ -248,44 +248,44 @@
             @if (Context.User.Identity.IsAuthenticated)
             {
             <h3 class="text-primary nav-grouping-header" style="width: 100%;">User Filters</h3>
-            if (Model.PreviousFilterLibrary)
-            {
+                if (Model.PreviousFilterLibrary)
+                {
                 <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
                     <i class="glyphicon glyphicon-check text-success"></i> @Html.Label("Unowned", new { @class = "text-success store-filter" })
                 </button>
-            }
-            else
-            {
+                }
+                else
+                {
                 <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
                     <i class="glyphicon glyphicon-unchecked text-success"></i> @Html.Label("Unowned", new { @class = "text-success store-filter" })
                 </button>
-            }
-            <br/>
-            if (Model.PreviousFilterBlacklist)
-            {
+                }
+                <br/>
+                if (Model.PreviousFilterBlacklist)
+                {
                 <button type="submit" class="btn-transparent" name="FilterBlacklist" value="true">
                     <i class="glyphicon glyphicon-check text-success"></i> @Html.Label("Blacklist", new { @class = "text-success store-filter" })
                 </button>
-            }
-            else
-            {
-            <button type="submit" class="btn-transparent" name="FilterBlacklist" value="true">
-                <i class="glyphicon glyphicon-unchecked text-success"></i> @Html.Label("Blacklist", new { @class = "text-success store-filter" })
-            </button>
-            }
-            <br />
-            if (Model.PreviousAffordableFilter)
-            {
-            <button type="submit" class="btn-transparent" name="AffordableFilter" value="true">
-                <i class="glyphicon glyphicon-check text-success"></i> @Html.Label("Affordable", new { @class = "text-success store-filter" })
-            </button>
-            }
-            else
-            {
+                }
+                else
+                {
+                <button type="submit" class="btn-transparent" name="FilterBlacklist" value="true">
+                    <i class="glyphicon glyphicon-unchecked text-success"></i> @Html.Label("Blacklist", new { @class = "text-success store-filter" })
+                </button>
+                }
+                <br />
+                if (Model.PreviousAffordableFilter)
+                {
+                <button type="submit" class="btn-transparent" name="AffordableFilter" value="true">
+                    <i class="glyphicon glyphicon-check text-success"></i> @Html.Label("Affordable", new { @class = "text-success store-filter" })
+                </button>
+                }
+                else
+                {
                 <button type="submit" class="btn-transparent" name="AffordableFilter" value="true">
                     <i class="glyphicon glyphicon-unchecked text-success"></i> @Html.Label("Affordable", new { @class = "text-success store-filter" })
                 </button>
-            }
+                }
             <br />
             }
             <h3 class="text-primary nav-grouping-header">Categories</h3>
@@ -324,7 +324,7 @@
                     if (Model.SelectedTagMappings[i].IsSelected)
                     {
                         <button class="btn-transparent" type="submit" name="TagToChange" value="@Model.SelectedTagMappings[i].StoreTag.TagID">
-                            <i class="glyphicon glyphicon-check text-success" style="font-size: 9px;"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
+                            <i class="glyphicon glyphicon-check text-success"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
                         </button>
                     }
                     else

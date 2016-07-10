@@ -50,7 +50,7 @@ namespace TheAfterParty.Domain.Services
         void DeleteClaimedProductKey(int id);
         ICollection<ClaimedProductKey> GetClaimedProductKeys();
 
-        void CreateOrder(Order order, bool alreadyCharged);
+        Task CreateOrder(Order order, bool alreadyCharged, bool useDBKey = false);
         void EditOrder(Order order);
         Order GetOrderByID(int id);
         Task DeleteOrder(int id);

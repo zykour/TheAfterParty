@@ -44,7 +44,11 @@ namespace TheAfterParty.WebUI.Models.Store
 
             StorePlatforms = new List<Platform>();
 
+            FormID = "";
         }
+
+        public string FormName { get; set; }
+        public string FormID { get; set; }
 
         public List<Listing> StoreListings { get; set; }
         public List<Platform> StorePlatforms { get; set; }

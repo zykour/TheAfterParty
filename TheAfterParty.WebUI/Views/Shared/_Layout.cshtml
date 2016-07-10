@@ -40,7 +40,7 @@
                                             <p class="top-nav-inner-entry-text-secondary">New deals every Thursday.</p>
                                         </div>
                                     </a>
-                                    <a class="top-nav-inner-entry" href="@Url.Action("Newest", "Store", new { id = "weekly" })">
+                                    <a class="top-nav-inner-entry" href="@Url.Action("Newest", "Store")">
                                         <i class="nav-icon-green fa fa-fw fa-plus-circle"></i>
                                         <div class="top-nav-inner-entry-text">
                                             <p class="top-nav-inner-entry-text-primary">See what's new in the shop.</p>
@@ -193,12 +193,24 @@
                         {
                             if (item.IsFormSubmit)
                             {
-                                <button type="submit" value="@item.FormValue" name="@item.FormName" form="@ViewBag.StoreFormID" class="btn-link">
-                                    <div class="nav-item-link">
-                                        <div class="nav-tag nav-item-text">@item.DestinationName</div>
-                                        <div class="nav-tag nav-underline"></div>
-                                     </div>
-                                </button>
+                                if (String.IsNullOrEmpty(item.FormAction))
+                                {
+                                    <button type="submit" value="@item.FormValue" name="@item.FormName" form="@ViewBag.StoreFormID" class="btn-link">
+                                        <div class="nav-item-link">
+                                            <div class="nav-tag nav-item-text">@item.DestinationName</div>
+                                            <div class="nav-tag nav-underline"></div>
+                                        </div>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="submit" form="@ViewBag.StoreFormID" class="btn-link" formaction="@item.FormAction">
+                                        <div class="nav-item-link">
+                                            <div class="nav-tag nav-item-text">@item.DestinationName</div>
+                                            <div class="nav-tag nav-underline"></div>
+                                        </div>
+                                    </button>
+                                }
                             }
                             else
                             {

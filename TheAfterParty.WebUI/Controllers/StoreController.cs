@@ -479,19 +479,21 @@ namespace TheAfterParty.WebUI.Controllers
 
         // GET: CoopShop/Store
         [HttpGet]
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(string id = "")
         {
             StoreIndexViewModel model = new StoreIndexViewModel();
 
             model.StoreListings = storeService.GetStockedStoreListings().ToList();
 
             await PopulateStoreIndexViewModelFromGet(model);
+            model.FormName = "Index";
+            model.FormID = "";
 
             return View(model);
         }
         
         [HttpPost]
-        public async Task<ActionResult> Index(StoreIndexViewModel model)
+        public async Task<ActionResult> Index(StoreIndexViewModel model, string id = "")
         {
             model.StoreListings = storeService.GetStockedStoreListings().ToList();
 
@@ -499,10 +501,15 @@ namespace TheAfterParty.WebUI.Controllers
 
             await PopulateStoreIndexViewModelFromPostback(model);
 
-            if (filterOwnLibrary == false && String.IsNullOrEmpty(model.FriendSteamID) == false)// && model.FriendSteamIDBool)
+            if (filterOwnLibrary == false && String.IsNullOrEmpty(model.FriendSteamID) == false)
             {
                 model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, model.FriendSteamID, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
             }
+
+            await PopulateStoreIndexViewModelFromPostback(model);
+            
+            model.FormName = "Index";
+            model.FormID = "";
 
             // Clear the ModelState so changes in the model are reflected when using HtmlHelpers (their default behavior is to not use changes made to the model when re-rendering a view, not what we want here)
             ModelState.Clear();
@@ -511,8 +518,13 @@ namespace TheAfterParty.WebUI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Id(string id)
+        public async Task<ActionResult> Id(string id = "")
         {
+            if (String.IsNullOrEmpty(id))
+            {
+                return RedirectToAction("Index");
+            }
+
             StoreIndexViewModel model = new StoreIndexViewModel();
 
             model.StoreListings = storeService.GetStockedStoreListings().ToList();
@@ -522,12 +534,25 @@ namespace TheAfterParty.WebUI.Controllers
             model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, id, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
             model.FriendSteamID = id;
 
+            model.FormName = "Id";
+            model.FormID = id;
+
             return View("Index", model);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Id(StoreIndexViewModel model, string id)
+        public async Task<ActionResult> Id(StoreIndexViewModel model, string id = "")
         {
+            if (String.IsNullOrEmpty(id))
+            {
+                id = model.FriendSteamID;
+            }
+
+            if (String.IsNullOrEmpty(id))
+            {
+                return RedirectToAction("Index", new { model = model });
+            }
+
             model.StoreListings = storeService.GetStockedStoreListings().ToList();
 
             bool filterOwnLibrary = model.FilterLibrary;
@@ -540,7 +565,10 @@ namespace TheAfterParty.WebUI.Controllers
             {
                 model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, id, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
                 model.FriendSteamID = id;
-            }            
+            }
+
+            model.FormName = "Id";
+            model.FormID = id;
 
             // Clear the ModelState so changes in the model are reflected when using HtmlHelpers (their default behavior is to not use changes made to the model when re-rendering a view, not what we want here)
             ModelState.Clear();
@@ -549,7 +577,7 @@ namespace TheAfterParty.WebUI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Newest()
+        public async Task<ActionResult> Newest(string id = "")
         {
             StoreIndexViewModel model = new StoreIndexViewModel();
 
@@ -558,18 +586,33 @@ namespace TheAfterParty.WebUI.Controllers
             model.StoreListings = storeService.GetStockedStoreListings().Where(l => l.DateEdited.Date.CompareTo(maxDate) == 0).OrderBy(l => l.ListingName).ToList();
 
             await PopulateStoreIndexViewModelFromGet(model);
-            
+
+            model.FormName = "Newest";
+            model.FormID = "";
+
             return View("Index", model);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Newest(StoreIndexViewModel model)
+        public async Task<ActionResult> Newest(StoreIndexViewModel model, string id = "")
         {
             DateTime maxDate = storeService.GetStockedStoreListings().Select(l => l.DateEdited).Max().Date;
 
             model.StoreListings = storeService.GetStockedStoreListings().Where(l => l.DateEdited.Date.CompareTo(maxDate) == 0).OrderBy(l => l.ListingName).ToList();
 
+            bool filterOwnLibrary = model.FilterLibrary;
+
             await PopulateStoreIndexViewModelFromPostback(model);
+
+            if (filterOwnLibrary == false && String.IsNullOrEmpty(model.FriendSteamID) == false)
+            {
+                model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, model.FriendSteamID, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
+            }
+
+            model.FormName = "Newest";
+            model.FormID = "";
+
+            ModelState.Clear();
 
             return View("Index", model);
         }
@@ -609,11 +652,14 @@ namespace TheAfterParty.WebUI.Controllers
 
             await PopulateStoreIndexViewModelFromGet(model);
 
+            model.FormName = "Deals";
+            model.FormID = id;
+
             return View("Index", model);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Deals(string id, StoreIndexViewModel model)
+        public async Task<ActionResult> Deals(StoreIndexViewModel model, string id)
         {
             // conform to route convention by accepting "id" parameter, but assign it to a new variable to make it clear what purpose it serves
             string subsection = id;
@@ -640,10 +686,22 @@ namespace TheAfterParty.WebUI.Controllers
             }
             else
             {
-                return RedirectToAction("Deals", new { id = "all" });
+                return RedirectToAction("Deals", new { id = "all", model = model });
             }
 
+            bool filterOwnLibrary = model.FilterLibrary;
+
             await PopulateStoreIndexViewModelFromPostback(model);
+
+            if (filterOwnLibrary == false && String.IsNullOrEmpty(model.FriendSteamID) == false)
+            {
+                model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, model.FriendSteamID, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
+            }
+
+            model.FormName = "Deals";
+            model.FormID = id;
+
+            ModelState.Clear();
 
             return View("Index", model);
         }
@@ -974,15 +1032,7 @@ namespace TheAfterParty.WebUI.Controllers
             }
 
             model.StorePlatforms = storeService.GetPlatforms().ToList();
-
-            /*foreach (Platform platform in storeService.GetPlatforms().ToList())
-            {
-                if (model.StoreListings.Any(l => l.ContainsPlatform(platform)))
-                {
-                    model.StorePlatforms.Add(platform);
-                }
-            }*/
-
+            
             model.StorePlatforms.OrderBy(p => p.PlatformName).ToList();
             model.FullNavList = CreateStoreControllerStoreNavList(model);
         }
@@ -1022,66 +1072,41 @@ namespace TheAfterParty.WebUI.Controllers
             platforms.GroupingHeader = "Platforms";
             platforms.NavItems = new List<NavItem>();
 
-            /*NavGrouping platformDeals = new NavGrouping();
-            platformDeals.GroupingHeader = "Deals By Platform";
-            platformDeals.NavItems = new List<NavItem>();*/
-
             for (int i = 0; i < model.StorePlatforms.Count; i++)
             {
-                /*int count = model.StoreListings.Where(l => l.ContainsPlatform(model.StorePlatforms[i])).Count();
-                string countText = "";
-                if (count > 0)
-                {
-                    countText = " (" + count + ")";
-                }*/
-
                 NavItem navItem = new NavItem();
                 navItem.IsFormSubmit = true;
-                navItem.DestinationName = model.StorePlatforms[i].PlatformName; // + countText;
+                navItem.DestinationName = model.StorePlatforms[i].PlatformName; 
                 navItem.FormName = "SelectedPlatformID";
                 navItem.FormValue = model.StorePlatforms[i].PlatformID.ToString();
                 navItem.FormID = storeFormID;
 
                 platforms.NavItems.Add(navItem);
-
-                /*if (model.StorePlatforms[i].Listings.Any(x => x.HasSale()))
-                {
-                    int dealsCount = model.StoreListings.Where(l => l.ContainsPlatform(model.StorePlatforms[i]) && l.HasSale()).Count();
-
-                    countText = "";
-                    if (count > 0)
-                    {
-                        countText = " (" + count + ")";
-                    }
-
-                    NavItem dealNavItem = new NavItem();
-                    dealNavItem.IsFormSubmit = true;
-                    dealNavItem.DestinationName = model.StorePlatforms[i].PlatformName + countText;
-                    dealNavItem.FormName = "SelectedPlatformID";
-                    dealNavItem.FormValue = model.StorePlatforms[i].PlatformID.ToString();
-                    dealNavItem.FormID = storeFormID;
-                    platformDeals.NavItems.Add(dealNavItem);
-                }*/
             }
 
             navList.Add(platforms);
-            //navList.Add(platformDeals);
 
             NavGrouping deals = new NavGrouping();
             deals.GroupingHeader = "Deals";
             deals.NavItems = new List<NavItem>();
 
             NavItem weeklyDeals = new NavItem();
-            weeklyDeals.Destination = "/Store/Deals/weekly";
+            weeklyDeals.IsFormSubmit = true;
+            weeklyDeals.FormID = storeFormID;
+            weeklyDeals.FormAction = "/Store/Deals/weekly";
             weeklyDeals.DestinationName = "Weekly Deals";
 
             NavItem dailyDeals = new NavItem();
             dailyDeals.DestinationName = "Daily Deals";
-            dailyDeals.Destination = "/Store/Deals/daily";
+            dailyDeals.IsFormSubmit = true;
+            dailyDeals.FormID = storeFormID;
+            dailyDeals.FormAction = "/Store/Deals/daily";
 
             NavItem newestListings = new NavItem();
             newestListings.DestinationName = "New Additions";
-            newestListings.Destination = "/Store/Newest/";
+            newestListings.IsFormSubmit = true;
+            newestListings.FormID = storeFormID;
+            newestListings.FormAction = "/Store/Newest/";
 
             deals.NavItems.Add(weeklyDeals);
             deals.NavItems.Add(dailyDeals);

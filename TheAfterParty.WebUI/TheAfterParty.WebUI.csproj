@@ -235,6 +235,7 @@
     <Content Include="Content\font-awesome\scss\_rotated-flipped.scss" />
     <Content Include="Content\font-awesome\scss\_stacked.scss" />
     <Content Include="Content\font-awesome\scss\_variables.scss" />
+    <None Include="Properties\PublishProfiles\theafterparty.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <None Include="Scripts\jquery-2.2.0.intellisense.js" />
     <Content Include="Scripts\jquery-2.2.0.js" />
@@ -385,6 +386,7 @@
     <Content Include="Views\Store\AdminProductCategories.cshtml" />
     <Content Include="Views\Objectives\MyObjectives.cshtml" />
     <Content Include="Views\Account\Order.cshtml" />
+    <Content Include="Views\Shared\_RenderAppBanner.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

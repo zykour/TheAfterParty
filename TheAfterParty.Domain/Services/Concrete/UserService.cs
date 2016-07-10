@@ -456,10 +456,9 @@ namespace TheAfterParty.Domain.Services
             unitOfWork.Save();
         }
 
-        public void CreateOrder(Order order, bool alreadyCharged)
+        public async Task CreateOrder(Order order, bool alreadyCharged, bool useDBKey = false)
         {
             // New orders should only have one product order entry
-
             ProductOrderEntry entry = order.ProductOrderEntries.FirstOrDefault();
 
             if (entry.ListingID != 0)
@@ -468,10 +467,30 @@ namespace TheAfterParty.Domain.Services
             }
             
             DateTime date = DateTime.Now;
-
             order.SaleDate = date;
 
             String note = "Admin-created order";
+
+            ClaimedProductKey newKey = new ClaimedProductKey();
+
+            int priceToCharge = 0;
+
+            if (order.ProductOrderEntries.Count() > 0)
+            {
+                priceToCharge = order.ProductOrderEntries.First().SalePrice;
+            }
+            
+            if (useDBKey)
+            {
+                ProductKey key = GetProductKey(entry.ListingID);
+                newKey = new ClaimedProductKey(key, order.AppUser, date, note);
+                listingRepository.DeleteProductKey(key.ProductKeyID);
+                unitOfWork.Save();
+
+                priceToCharge = newKey.Listing.SaleOrDefaultPrice();
+
+                entry.AddClaimedProductKey(newKey);//userRepository.InsertClaimedProductKey(newKey);
+            }
 
             if (alreadyCharged == false)
             {
@@ -479,23 +498,18 @@ namespace TheAfterParty.Domain.Services
                 balanceEntry.Date = date;
                 balanceEntry.AppUser = order.AppUser;
                 balanceEntry.Notes = note;
-                balanceEntry.PointsAdjusted = order.TotalSalePrice();
+                balanceEntry.PointsAdjusted = priceToCharge;
+                order.AppUser.Balance -= priceToCharge;
 
-                userRepository.InsertBalanceEntry(balanceEntry);
+                //userRepository.UpdateAppUser(order.AppUser);
+                //userRepository.InsertBalanceEntry(balanceEntry);
+                order.AppUser.AddBalanceEntry(balanceEntry);
             }
-
-            ClaimedProductKey newKey = new ClaimedProductKey();
-
-            if (entry.ClaimedProductKeys == null)
-            {
-                ProductKey key = GetProductKey(entry.ListingID);
-                newKey = new ClaimedProductKey(key, order.AppUser, date, note);
-                listingRepository.DeleteProductKey(key.ProductKeyID);
-                entry.AddClaimedProductKey(newKey);
-                userRepository.InsertClaimedProductKey(newKey);
-            }
-
-            userRepository.InsertOrder(order);
+            
+            entry.SalePrice = priceToCharge;
+            order.AppUser.AddOrder(order);
+            //userRepository.InsertOrder(order);
+            await userRepository.UpdateAppUser(order.AppUser);
             unitOfWork.Save();
         }
         public void EditOrder(Order order)

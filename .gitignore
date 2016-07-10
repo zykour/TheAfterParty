@@ -210,3 +210,5 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+/TheAfterParty.Domain/Migrations/201607100456501_InitialCreate.cs
+/TheAfterParty.Domain/Migrations

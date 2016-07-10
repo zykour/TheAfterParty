@@ -448,6 +448,8 @@ namespace TheAfterParty.WebUI.Controllers
             }
             
             model.Order.AppUser = (String.IsNullOrEmpty(model.UserID)) ? userService.GetUserByNickname(model.UserNickName) : await userService.GetUserByID(model.UserID);
+            model.ClaimedProductKey.AppUser = model.Order.AppUser;
+            model.ClaimedProductKey.Date = DateTime.Now;
 
             if (!model.UseDBKey)
             {
@@ -456,7 +458,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             model.Order.ProductOrderEntries = new List<ProductOrderEntry>() { model.ProductOrderEntry };
 
-            userService.CreateOrder(model.Order, model.AlreadyCharged);
+            await userService.CreateOrder(model.Order, model.AlreadyCharged, model.UseDBKey);
 
             return RedirectToAction("AdminOrders");
         }

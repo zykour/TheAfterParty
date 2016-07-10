@@ -18,7 +18,12 @@ namespace TheAfterParty.WebUI.Models.Objectives
             TagToChange = 0;
             PreviousFilterLibrary = false;
             FilterLibrary = false;
+
+            FormID = "";
         }
+
+        public string FormName { get; set; }
+        public string FormID { get; set; }
 
         public List<Objective> Objectives { get; set; }
 

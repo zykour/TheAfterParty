@@ -117,7 +117,7 @@ namespace TheAfterParty.Domain.Concrete
         public async Task UpdateAppUser(AppUser appUser)
         {
             await userManager.UpdateAsync(appUser);
-
+            
             foreach (BalanceEntry entry in appUser.BalanceEntries)
             {
                 if (entry.BalanceEntryID == 0)
@@ -272,7 +272,14 @@ namespace TheAfterParty.Domain.Concrete
             {
                 foreach (ProductOrderEntry entry in order.ProductOrderEntries)
                 {
-                    UpdateProductOrderEntry(entry);
+                    if (entry.ProductOrderEntryID == 0)
+                    {
+                        InsertProductOrderEntry(entry);
+                    }
+                    else
+                    {
+                        UpdateProductOrderEntry(entry);
+                    }
                 }
             }
         }
@@ -290,7 +297,14 @@ namespace TheAfterParty.Domain.Concrete
             {
                 foreach (ProductOrderEntry entry in order.ProductOrderEntries)
                 {
-                    UpdateProductOrderEntry(entry);
+                    if (entry.ProductOrderEntryID == 0)
+                    {
+                        InsertProductOrderEntry(entry);
+                    }
+                    else
+                    { 
+                        UpdateProductOrderEntry(entry);
+                    }
                 }
             }
         }
@@ -314,6 +328,18 @@ namespace TheAfterParty.Domain.Concrete
         public void InsertProductOrderEntry(ProductOrderEntry productOrderEntry)
         {
             context.ProductOrderEntries.Add(productOrderEntry);
+
+            foreach (ClaimedProductKey key in productOrderEntry.ClaimedProductKeys)
+            {
+                if (key.ClaimedProductKeyID == 0)
+                {
+                    InsertClaimedProductKey(key);
+                }
+                else
+                {
+                    UpdateClaimedProductKey(key);
+                }
+            }
         }
         public void UpdateProductOrderEntry(ProductOrderEntry productOrderEntry)
         {
@@ -324,9 +350,17 @@ namespace TheAfterParty.Domain.Concrete
                 targetOrderProduct.SalePrice = productOrderEntry.SalePrice;
                 targetOrderProduct.ListingID = productOrderEntry.ListingID;
             }
-            else
+
+            foreach (ClaimedProductKey key in productOrderEntry.ClaimedProductKeys)
             {
-                InsertProductOrderEntry(productOrderEntry);
+                if (key.ClaimedProductKeyID == 0)
+                {
+                    InsertClaimedProductKey(key);
+                }
+                else
+                {
+                    UpdateClaimedProductKey(key);
+                }
             }
         }
         public void DeleteProductOrderEntry(int productOrderEntryId)

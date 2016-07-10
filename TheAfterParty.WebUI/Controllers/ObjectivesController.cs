@@ -15,10 +15,12 @@ namespace TheAfterParty.WebUI.Controllers
     public class ObjectivesController : Controller
     { 
         private IObjectivesService objectiveService;
+        private const string objectiveFormID = "objectiveForm";
 
         public ObjectivesController(IObjectivesService objectiveService)
         {
             this.objectiveService = objectiveService;
+            ViewBag.StoreForMID = objectiveFormID;
         }
 
         protected override void Initialize(RequestContext requestContext)
@@ -39,6 +41,8 @@ namespace TheAfterParty.WebUI.Controllers
             model.Objectives = objectiveService.GetObjectives().Where(o => o.IsActive).OrderBy(o => o.Title).ToList();
 
             await PopulateGetObjectives(model);
+            model.FormName = "Index";
+            model.FormID = "";
 
             return View(model);
         }
@@ -49,6 +53,8 @@ namespace TheAfterParty.WebUI.Controllers
             model.Objectives = objectiveService.GetObjectives().Where(o => o.IsActive).OrderBy(o => o.Title).ToList();
 
             await PopulatePostObjectives(model);
+            model.FormName = "Index";
+            model.FormID = "";
 
             ModelState.Clear();
 
@@ -61,7 +67,6 @@ namespace TheAfterParty.WebUI.Controllers
 
             model.FullNavList = CreateObjectivesNavList();
             model.LoggedInUser = await objectiveService.GetCurrentUser();
-            //model.BalanceEntries = model.LoggedInUser.BalanceEntries.Where(e => e.Objective != null).ToList();
 
             return View(model);
         }
@@ -75,6 +80,9 @@ namespace TheAfterParty.WebUI.Controllers
 
             await PopulateGetObjectives(model);
 
+            model.FormName = "Boosted";
+            model.FormID = "";
+
             return View("Index", model);
         }
 
@@ -84,6 +92,11 @@ namespace TheAfterParty.WebUI.Controllers
             model.Objectives = objectiveService.GetObjectives().Where(o => o.IsActive && o.BoostedObjective != null).ToList();
 
             await PopulatePostObjectives(model);
+
+            model.FormName = "Boosted";
+            model.FormID = "";
+
+            ModelState.Clear();
 
             return View("Index", model);
         }
@@ -357,17 +370,23 @@ namespace TheAfterParty.WebUI.Controllers
             objective.GroupingHeader = "Objectives";
             objective.NavItems = new List<NavItem>();
             NavItem objectiveItem = new NavItem();
-            objectiveItem.Destination = "/Objectives";
             objectiveItem.DestinationName = "Objectives";
+            objectiveItem.IsFormSubmit = true;
+            objectiveItem.FormID = objectiveFormID;
+            objectiveItem.FormAction = "/Objectives";
             objective.NavItems.Add(objectiveItem);
             objectiveItem = new NavItem();
-            objectiveItem.Destination = "/Objectives/boosted";
             objectiveItem.DestinationName = "Boosted Objectives";
+            objectiveItem.IsFormSubmit = true;
+            objectiveItem.FormID = objectiveFormID;
+            objectiveItem.FormAction = "/Objectives/boosted";
             objective.NavItems.Add(objectiveItem);
             objectiveItem = new NavItem();
             objectiveItem.Destination = "/Objectives/myobjectives";
             objectiveItem.DestinationName = "Completed Objectives";
             objective.NavItems.Add(objectiveItem);
+
+
 
             navList.Add(objective);
 

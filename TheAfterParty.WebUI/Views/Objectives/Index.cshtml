@@ -7,7 +7,7 @@
 }
 
 
-@using (Html.BeginForm("Index", "Objectives", FormMethod.Post))
+@using (Html.BeginForm(Model.FormName, "Objectives", null, FormMethod.Post, new { id = ViewBag.StoreFormID }))
 {
 @Html.HiddenFor(x => x.PreviousFilterLibrary)
 <div class="container">

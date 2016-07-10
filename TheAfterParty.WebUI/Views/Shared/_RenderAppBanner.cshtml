@@ -1,0 +1,12 @@
+﻿@using TheAfterParty.Domain.Entities
+@model string
+<div class="outer-banner-container">
+    @if (String.IsNullOrEmpty(Model))
+    {
+        <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
+    }
+    else
+    {
+        <div class="inner-store-banner-container" style="background-image: url(@Model)"></div>
+    }
+</div>
