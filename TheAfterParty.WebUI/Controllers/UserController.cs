@@ -45,7 +45,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             return View(model);
         }
-
+        
         public async Task<ActionResult> Admins()
         {
             UserIndexModel model = new UserIndexModel();
