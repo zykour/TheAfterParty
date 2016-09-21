@@ -1,7 +1,99 @@
-﻿
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Home
+@using TheAfterParty.Domain.Entities
+@using TheAfterParty.Domain.Model
+@using CodeKicker.BBCode
+@model HomeIndexViewModel
+
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Home";
 }
 
-<h2>Index</h2>
-
+@using (Html.BeginForm("Index", "Home", FormMethod.Post))
+{
+<div class="row custom-row-header">
+    <h3>Activity Feed</h3>
+</div>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-xl-12">
+        @foreach (IEnumerable<ActivityFeedContainer> feedGroup in Model.ActivityFeedList.GroupBy(f => f.ItemDate.Date).ToList())
+        {
+            <div class="row custom-row">
+                <div class="col-lg-12 col-md-12 col-xl-12 col-header">
+                    @Model.GetConvertedDateTime(feedGroup.First().ItemDate).ToString("dd MMMM")
+                </div>
+            </div>
+            foreach (ActivityFeedContainer feedItem in feedGroup)
+            {
+                if (feedItem.GetActivityFeedItem() is SiteNotification)
+                {
+                    SiteNotification notification = feedItem.GetActivityFeedItem() as SiteNotification;
+                    notification.DecodeUrlTag();
+                    <div class="row">
+                        <div class="col-lg-9 col-md-9 col-xl-9 activity-row">
+                            <p>@Html.Raw(Model.Parser.ToHtml(notification.Notification))</p>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-xl-3 text-right activity-time">
+                            @Model.GetConvertedDateTime(feedItem.ItemDate).ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                        </div>
+                    </div>
+                }
+                if (feedItem.GetActivityFeedItem() is Auction)
+                {
+                    Auction auction = feedItem.GetActivityFeedItem() as Auction;
+                    <div class="row">
+                        <div class="col-lg-9 col-md-9 col-xl-9 activity-row">
+                            <p><a href="@Url.Action("UserProfile", "User", new { id = auction.Creator.UserName })">@auction.Creator.UserName</a> created an auction for <a href="@Url.Action("Auction", "Auctions", new { id = auction.AuctionID })"><span class="text-primary">@auction.Prize()</span></a></p>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-xl-3 text-right activity-time">
+                            @Model.GetConvertedDateTime(feedItem.ItemDate).ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                        </div>
+                    </div>
+                }
+                if (feedItem.GetActivityFeedItem() is Giveaway)
+                {
+                    Giveaway giveaway = feedItem.GetActivityFeedItem() as Giveaway;
+                    <div class="row">
+                        <div class="col-lg-9 col-md-9 col-xl-9 activity-row">
+                            <p>@giveaway.Creator.UserName created an auction for @giveaway.PrizeText() open at @(Model.GetConvertedDateTime((DateTime)giveaway.StartDate).ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture))</p>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-xl-3 text-right activity-time">
+                            @Model.GetConvertedDateTime(feedItem.ItemDate).ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                        </div>
+                    </div>
+                }
+                if (feedItem.GetActivityFeedItem() is POTW)
+                {
+                    POTW potw = feedItem.GetActivityFeedItem() as POTW;
+                    <div class="row">
+                        <div class="col-lg-9 col-md-9 col-xl-9 activity-row">
+                            <p><span class="fa fa-lg fa-fw fa-trophy icon-yellow"></span> @Html.Raw(Model.Parser.ToHtml("[purl=" + Url.Action("UserProfile", "User", new { id = potw.AppUser.UserName }) + "]" + potw.AppUser.UserName + "[/purl]")) became Player of the Week!</p>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-xl-3 text-right activity-time">
+                            @Model.GetConvertedDateTime(feedItem.ItemDate).ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                        </div>
+                    </div>
+                }
+                if (feedItem.GetActivityFeedItem() is GroupEvent)
+                {
+                    GroupEvent groupEvent = feedItem.GetActivityFeedItem() as GroupEvent;
+                    <div class="row">
+                        <div class="col-lg-9 col-md-9 col-xl-9 activity-row">
+                            <p>Game night for @groupEvent.EventName created.</p>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-xl-3 text-right activity-time">
+                            @Model.GetConvertedDateTime(feedItem.ItemDate).ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                        </div>
+                    </div>
+                }
+            }
+            <br/>
+        }
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-xl-12 pagination-holder">
+                @Html.PageLinks(Model)
+            </div>
+        </div>
+    </div>
+</div>
+}

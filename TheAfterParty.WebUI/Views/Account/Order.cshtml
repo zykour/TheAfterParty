@@ -7,38 +7,44 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container">
-    <div class="row custom-row-header">
+<div>
+    <div class="row custom-row-hollow text-warning top-content-margin">
+        <ul>
+            <li>Please contact Monukai if any of your keys do not work.</li>
+            <li>Please contact Monukai if you have purchased an item listed as a gift.</li>
+        </ul>
+    </div>
+    <div class="row custom-row-header no-top-marg">
         <h3>Order #@Model.Order.OrderID</h3>
     </div>
-    <div class="row custom-row">
-        <div class="col-lg-6 text-center">Game</div>
-        <div class="col-lg-1 text-center">Platform</div>
-        <div class="col-lg-4 text-left text-center">Product Key</div>
-        <div class="col-lg-1 text-right">Price</div>
+    <div class="row custom-row col-header text-center">
+        <div class="col-lg-6 col-md-6 col-xl-6">Game</div>
+        <div class="col-lg-1 col-md-1 col-xl-1">Platform</div>
+        <div class="col-lg-4 col-md-4 col-xl-4">Product Key</div>
+        <div class="col-lg-1 col-md-1 col-xl-1">Price</div>
     </div>
     @for (int k = 0; k < Model.Order.ProductOrderEntries.Count; k++)
     {
         ProductOrderEntry entry = Model.Order.ProductOrderEntries.ElementAt(k);
         if (entry.Listing.ChildListings == null || entry.Listing.ChildListings.Count == 0 || entry.ClaimedProductKeys.Count == 1)
         {
-        <div class="row store-entry-sm">
-            <div class="col-lg-6">
+        <div class="row store-entry-sm text-center">
+            <div class="col-lg-6 col-md-6 col-xl-6 text-left vertical-align">
                 <div class="outer-banner-container">
-                    @if (String.IsNullOrEmpty(entry.Listing.Product.ProductDetail.HeaderImageURL))
+                    @if (String.IsNullOrEmpty(entry.Listing?.Product?.GetHttpsSecuredHeaderImage()))
                     {
                         <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
                     }
                     else
                     {
-                        <div class="inner-store-banner-container" style="background-image: url(@entry.Listing.Product.ProductDetail.HeaderImageURL)"></div>
+                        <div class="inner-store-banner-container" style="background-image: url(@entry.Listing.Product.GetHttpsSecuredHeaderImage())"></div>
                     }
                 </div>
                 <div class="store-entry-name">
                     @entry.Listing.ListingName
                 </div>
             </div>
-            <div class="col-lg-1 text-center">
+            <div class="col-lg-1 col-md-1 col-xl-1 vertical-align">
                 @foreach (string platformIconUrl in entry.Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
                     {
                     <div class="icon-image-container">
@@ -46,13 +52,13 @@
                     </div>
                     }
             </div>
-            <div class="col-lg-4 text-left">
+            <div class="col-lg-4 col-md-4 col-xl-4">
                 @{
                     string keyBtn = "keyBtn" + k;
                     string toggleBtn = keyBtn + "toggle";
                     if (entry.ClaimedProductKeys.First().IsGift)
                     {
-                        <input type="button" value="🔒" class="toggle-used-inactive-btn" /><input type="button" value="Gift" class="reveal-btn" />
+                        <input type="button" value="🔒" class="toggle-used-inactive-btn" /><input type="button" value="Gift Copy" class="reveal-btn" />
                     }
                     else if (entry.ClaimedProductKeys.First().IsRevealed && !entry.ClaimedProductKeys.First().IsUsed)
                     {
@@ -68,28 +74,28 @@
                     }
                 }
             </div>
-            <div class="col-lg-1 text-center">@entry.SalePrice</div>
+            <div class="col-lg-1 col-md-1 col-xl-1 col-text text-success">@entry.SalePrice</div>
         </div>
         }
         else
         {
-            <div class="row store-entry-sm">
-                <div class="col-lg-6">
+            <div class="row store-entry-sm text-center">
+                <div class="col-lg-6 col-md-6 col-xl-6 vertical-align text-left">
                     <div class="outer-banner-container">
-                        @if (String.IsNullOrEmpty(entry.Listing.Product.ProductDetail.HeaderImageURL))
+                        @if (String.IsNullOrEmpty(entry.Listing?.Product?.GetHttpsSecuredHeaderImage()))
                     {
                             <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
                         }
                         else
                         {
-                            <div class="inner-store-banner-container" style="background-image: url(@entry.Listing.Product.ProductDetail.HeaderImageURL)"></div>
+                            <div class="inner-store-banner-container" style="background-image: url(@entry.Listing.Product.GetHttpsSecuredHeaderImage())"></div>
                         }
                     </div>
                     <div class="store-entry-name">
                         @entry.Listing.ListingName
                     </div>
                 </div>
-                <div class="col-lg-1 text-center">
+                <div class="col-lg-1 col-md-1 col-xl-1 vertical-align">
                     @foreach (string platformIconUrl in entry.Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
                     {
                         <div class="icon-image-container">
@@ -97,30 +103,30 @@
                         </div>
                     }
                 </div>
-                <div class="col-lg-4 text-left"></div>
-                <div class="col-lg-1 text-center">@entry.SalePrice</div>
+                <div class="col-lg-4 col-md-4 col-xl-4"></div>
+                <div class="col-lg-1 col-md-1 col-xl-1 text-success col-text">@entry.SalePrice</div>
             </div>
             for (int i = 0; i < entry.ClaimedProductKeys.Count; i++)
             {
                 ClaimedProductKey claimedKey = entry.ClaimedProductKeys.ElementAt(i);
-                <div class="row store-entry-sm">
-                    <div class="col-lg-1"></div>
-                    <div class="col-lg-5">
+                <div class="row store-sub-entry-sm text-center">
+                    <div class="col-lg-1 col-md-1 col-xl-1"></div>
+                    <div class="col-lg-5 col-md-5 col-xl-5 text-left vertical-align">
                         <div class="outer-banner-container">
-                            @if (String.IsNullOrEmpty(claimedKey.Listing.Product.ProductDetail.HeaderImageURL))
+                            @if (String.IsNullOrEmpty(claimedKey.Listing?.Product?.GetHttpsSecuredHeaderImage()))
                             {
                                 <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
                             }
                             else
                             {
-                                <div class="inner-store-banner-container" style="background-image: url(@claimedKey.Listing.Product.ProductDetail.HeaderImageURL)"></div>
+                                <div class="inner-store-banner-container" style="background-image: url(@claimedKey.Listing.Product.GetHttpsSecuredHeaderImage())"></div>
                             }
                         </div>
                         <div class="store-entry-name">
                             @claimedKey.Listing.ListingName
                         </div>
                     </div>
-                    <div class="col-lg-1 text-center">
+                    <div class="col-lg-1 col-md-1 col-xl-1">
                         @foreach (string platformIconUrl in claimedKey.Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
                         {
                             <div class="icon-image-container">
@@ -128,7 +134,7 @@
                             </div>
                         }
                     </div>
-                    <div class="col-lg-4 text-center">
+                    <div class="col-lg-4 col-md-4 col-xl-4">
                         @{
                             string keyBtn = "keyBtn" + k + "sub" + i;
                             string toggleBtn = keyBtn + "toggle";
@@ -150,22 +156,22 @@
                             }
                         }
                     </div>
-                    <div class="col-lg-1 text-center"></div>
+                    <div class="col-lg-1 col-md-1 col-xl-1"></div>
                 </div>
             }
         }
     }
     <br/>
-    <div class="row">
-        <div class="col-lg-8"></div>
-        <div class="col-lg-1 text-primary">Total:</div>
-        <div class="col-lg-2"></div>
-        <div class="col-lg-1 text-center">@Model.Order.TotalSalePrice()</div>
+    <div class="row col-text">
+        <div class="col-lg-8 col-md-8 col-xl-8"></div>
+        <div class="col-lg-1 col-md-1 col-xl-1 text-primary">Total:</div>
+        <div class="col-lg-2 col-md-2 col-xl-2"></div>
+        <div class="col-lg-1 col-md-1 col-xl-1 text-center text-success">@Model.Order.TotalSalePrice()</div>
     </div>
     <br />
-    <div class="row">
-        <div class="col-lg-8"></div>
-        <div class="col-lg-1 text-primary">Date:</div>
-        <div class="col-lg-3 text-right">@Model.Order.SaleDate</div>
+    <div class="row col-text">
+        <div class="col-lg-8 col-md-8 col-xl-8"></div>
+        <div class="col-lg-1 col-md-1 col-xl-1 text-primary">Date:</div>
+        <div class="col-lg-3 col-md-3 col-xl-3 text-purple text-right">@Model.GetConvertedDateTime((DateTime)Model.Order.SaleDate).ToString("MMM dd, yyyy")</div>
     </div>
 </div>

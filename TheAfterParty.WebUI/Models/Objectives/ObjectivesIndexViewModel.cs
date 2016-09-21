@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using TheAfterParty.WebUI.Models._Nav;
 using TheAfterParty.Domain.Entities;
-using TheAfterParty.WebUI.Models.Store;
+using TheAfterParty.Domain.Model;
 
 namespace TheAfterParty.WebUI.Models.Objectives
 {
@@ -25,6 +25,7 @@ namespace TheAfterParty.WebUI.Models.Objectives
         public string FormName { get; set; }
         public string FormID { get; set; }
 
+        public List<Objective> MiscObjectives { get; set; }
         public List<Objective> Objectives { get; set; }
 
         public List<SelectedTagMapping> SelectedTagMappings { get; set; }

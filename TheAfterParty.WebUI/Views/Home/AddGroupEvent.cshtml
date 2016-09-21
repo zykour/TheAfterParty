@@ -1,0 +1,73 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Home
+@model AddEditGroupEventViewModel
+
+@{
+    ViewBag.Title = "Add Game Event";
+}
+
+<h2>Add Game Event</h2>
+
+@Html.ValidationSummary()
+
+
+@using (Html.BeginForm("AddGroupEvent", "Home", FormMethod.Post))
+{
+    @Html.HiddenFor(p => p.GroupEvent.AppUserID)
+    if (Model.GroupEvent?.EventDate.CompareTo(DateTime.Now) >= 0)
+    {
+        <span>Date: </span>@Html.TextBoxFor(x => x.GroupEvent.EventDate, new { @Value = Model.GroupEvent.EventDate.ToString() })<br />
+    }
+    else
+    {
+        <span>Date: </span>@Html.TextBoxFor(x => x.GroupEvent.EventDate, new { @Value = DateTime.Now.ToString() })<<<br />
+    }
+    if (String.IsNullOrEmpty(Model.GroupEvent?.Description))
+    {
+        <span>Description: </span>@Html.TextBoxFor(x => x.GroupEvent.Description)<br />
+    }
+    else
+    {
+        <span>Description: </span>@Html.TextBoxFor(x => x.GroupEvent.Description, new { @Value = Model.GroupEvent.Description })<br />
+    }
+    if (String.IsNullOrEmpty(Model.GroupEvent?.EventName))
+    {
+        <span>Evemt Name (optional if supplying Product): </span>@Html.TextBoxFor(x => x.GroupEvent.EventName)<br />
+    }
+    else
+    {
+        <span>Event Name (optional if supplying Product): </span>@Html.TextBoxFor(x => x.GroupEvent.EventName, new { @Value = Model.GroupEvent.EventName })<<br />
+    }
+    <span>ProductID: </span>@Html.TextBoxFor(x => x.GroupEvent.ProductID, new { @Value = Model.GroupEvent.ProductID })<br />
+    <span>Steam App ID:</span>@Html.TextBoxFor(x => x.AppID, new { @Value = Model.AppID })<br />
+    <span>Is game night?</span>@Html.CheckBoxFor(x => x.GroupEvent.IsGameNight, new { @checked = "checked" })
+    <hr />
+    <h4>If New Product is Required (non-steam) - Use App ID field above for new Steam Product entries</h4>
+    <span>External numeric ID: </span>@Html.TextBoxFor(x => x.Product.AppID, new { @Value = Model.Product.ProductID })<br />
+    if (String.IsNullOrEmpty(Model.Product?.StringID))
+    {
+        <span>External string ID: </span>@Html.TextBoxFor(x => x.Product.StringID)<br />
+    }
+    else
+    {
+        <span>EExternal string ID: </span>@Html.TextBoxFor(x => x.Product.StringID, new { @Value = Model.Product.StringID })<<br />
+    }
+    if (String.IsNullOrEmpty(Model.Product?.ProductName))
+    {
+        <span>Name: </span>@Html.TextBoxFor(x => x.Product.ProductName)<br />
+    }
+    else
+    {
+        <span>Name: </span>@Html.TextBoxFor(x => x.Product.ProductName, new { @Value = Model.Product.ProductName })<<br />
+    }
+    if (String.IsNullOrEmpty(Model.Product?.HeaderImageURL))
+    {
+        <span>Banner image URL: </span>@Html.TextBoxFor(x => x.Product.HeaderImageURL)<br />
+    }
+    else
+    {
+        <span>Banner image URL: </span>@Html.TextBoxFor(x => x.Product.HeaderImageURL, new { @Value = Model.Product.HeaderImageURL })<br />
+    }
+    <input type="submit" name="Submit" />
+}
+

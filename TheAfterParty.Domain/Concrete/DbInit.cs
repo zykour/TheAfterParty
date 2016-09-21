@@ -6,7 +6,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity;
 using System;
 
-public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCreateDatabaseIfModelChanges<AppIdentityDbContext>
+public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCreateDatabaseIfModelChanges<AppIdentityDbContext> // DropCreateDatabaseAlways<AppIdentityDbContext>   //
 {
     protected override void Seed(AppIdentityDbContext context)
     {
@@ -16,14 +16,18 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
 
     public void PerformInitialSetup(AppIdentityDbContext context)
     {
+
+        
+        /*
         IUnitOfWork unitOfWork = new UnitOfWork(context);
-        /*IAuctionRepository auctionRepository = new AuctionRepository(unitOfWork);
+
+        IAuctionRepository auctionRepository = new AuctionRepository(unitOfWork);
         ICouponRepository couponRepository = new CouponRepository(unitOfWork);
         IGiveawayRepository giveawayRepository = new GiveawayRepository(unitOfWork);
         IListingRepository listingRepository = new ListingRepository(unitOfWork);
         IObjectiveRepository objectiveRepository = new ObjectiveRepository(unitOfWork);
         IPrizeRepository prizeRepository = new PrizeRepository(unitOfWork);
-        IUserRepository userRepository = new UserRepository(unitOfWork);*/
+        IUserRepository userRepository = new UserRepository(unitOfWork);//
 
         AppUserManager userMgr = new AppUserManager(new UserStore<AppUser>(context));
         IdentityRole role = new IdentityRole();
@@ -34,8 +38,8 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
         context.Roles.Add(role);
         context.Roles.Add(admin);
         unitOfWork.Save();
-
-        /*AppUser monu = new AppUser { UserSteamID = 76561198030277114, UserName = "Monukai", Email = "monu.kai@example.com", Balance = 152, IsPrivateWishlist = true };
+        
+        AppUser monu = new AppUser { UserSteamID = 76561198030277114, UserName = "Monukai", Email = "monu.kai@example.com", Balance = 152, IsPrivateWishlist = true };
         monu.AddOwnedGame(new OwnedGame(45000));
         monu.AddOwnedGame(new OwnedGame(620));
         monu.Nickname = "MONU";
@@ -48,12 +52,17 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
         dan.MemberSince = DateTime.Now;
         dan.LastLogon = DateTime.Now;
 
+        AppUser user1 = new AppUser { MemberSince = DateTime.Now, LastLogon = DateTime.Now, UserSteamID = 76561198019064906, UserName = "Lucky", Email = "luckyboy@example.com", Balance = 75, IsPrivateWishlist = false, Nickname = "LUCKY" };
+        AppUser user2 = new AppUser { MemberSince = DateTime.Now, LastLogon = DateTime.Now, UserSteamID = 76561197962202166, UserName = "Don_Vino", Balance = 50, IsPrivateWishlist = false, Nickname = "VINO" };
+        AppUser user3 = new AppUser("Lina", 420, false, 76561198040771781) { MemberSince = DateTime.Now, LastLogon = DateTime.Now, Nickname = "LINA" };
+        AppUser user4 = new AppUser { MemberSince = DateTime.Now, LastLogon = DateTime.Now, UserSteamID = 76561198038935514, UserName = "Wesley", Email = "wbarton@example.com", Balance = 100, IsPrivateWishlist = false, Nickname = "WES" };
+
         userMgr.Create(dan);
         userMgr.Create(monu);
-        userMgr.Create(new AppUser { MemberSince = DateTime.Now, LastLogon = DateTime.Now, UserSteamID = 76561198019064906, UserName = "Lucky", Email = "luckyboy@example.com", Balance = 75, IsPrivateWishlist = false, Nickname = "LUCKY" });
-        userMgr.Create(new AppUser { MemberSince = DateTime.Now, LastLogon = DateTime.Now, UserSteamID = 76561197962202166, UserName = "Don_Vino", Balance = 50, IsPrivateWishlist = false, Nickname = "VINO" });
-        userMgr.Create(new AppUser("Lina", 420, false, 76561198040771781) { MemberSince = DateTime.Now, LastLogon = DateTime.Now, Nickname = "LINA" });
-        userMgr.Create(new AppUser { MemberSince = DateTime.Now, LastLogon = DateTime.Now, UserSteamID = 76561198038935514, UserName = "Wesley", Email = "wbarton@example.com", Balance = 100, IsPrivateWishlist = false, Nickname = "WES" });
+        userMgr.Create(user1);
+        userMgr.Create(user2);
+        userMgr.Create(user3);
+        userMgr.Create(user4);
 
         unitOfWork.Save();
 
@@ -79,9 +88,7 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
 
         Listing l = new Listing("Sol Survivor", 5, dateAdded);
         Product p = new Product(45000, "Sol Survivor");
-        ProductDetail pd = new ProductDetail() { };
-        pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/45000/capsule_184x69.jpg";
-        p.AddProductDetail(pd);
+        p.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/45000/capsule_184x69.jpg";
         l.AddProduct(p);
         l.AddPlatform(steam);
         ProductKey pk = new ProductKey("ASD09-SDF7A-9D70S");
@@ -96,22 +103,31 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
         unitOfWork.Save();
 
         Auction auction = new Auction();
-        auction.AlternativePrize = "N/A";
-        auction.Creator = monu;
+        auction.AlternativePrize = "";
+        auction.AddCreator(monu);
         auction.EndTime = DateTime.Now.Add(new TimeSpan(5, 0, 0));
         auction.IsSilent = false;
         auction.Listing = l;
         auction.MinimumBid = 5;
+        auction.Increment = 2;
+        auction.Copies = 1;
         auction.CreatedTime = DateTime.Now.AddDays(-1);
 
         auctionRepository.InsertAuction(auction);
         unitOfWork.Save();
 
+        AuctionBid bid = new AuctionBid();
+        bid.AddAuction(auction);
+        bid.AddAppUser(user1);
+        bid.BidDate = DateTime.Now;
+        bid.BidAmount = 8;
+
+        auctionRepository.InsertAuctionBid(bid);
+        unitOfWork.Save();
+
         l = new Listing("Zero Gear", 3, dateAdded);
         p = new Product(18820, "Zero Gear");
-        pd = new ProductDetail() {};
-        pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/18820/capsule_184x69.jpg";
-        p.AddProductDetail(pd);
+        p.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/18820/capsule_184x69.jpg";
         l.AddPlatform(steam);
         l.AddProduct(p);
         pk = new ProductKey("4A07B-SDS8N-MANSB");
@@ -126,9 +142,7 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
 
         l = new Listing("Rocket League", 40, dateAdded);
         p = new Product(252950, "Rocket League");
-        pd = new ProductDetail() { };
-        pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/252950/capsule_184x69.jpg";
-        p.AddProductDetail(pd);
+        p.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/252950/capsule_184x69.jpg";
         l.AddPlatform(steam);
         l.AddProduct(p);
         pk = new ProductKey("42B00-SD9Z8-BSBWN");
@@ -142,7 +156,21 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
 
         listingRepository.InsertListing(l);
         unitOfWork.Save();
+        
+        auction = new Auction();
+        auction.AlternativePrize = "";
+        auction.AddCreator(dan);
+        auction.EndTime = DateTime.Now.Add(new TimeSpan(5, 0, 0));
+        auction.IsSilent = true;
+        auction.Listing = l;
+        auction.MinimumBid = 15;
+        auction.Increment = 1;
+        auction.Copies = 3;
+        auction.CreatedTime = DateTime.Now.AddDays(-2);
 
+        auctionRepository.InsertAuction(auction);
+        unitOfWork.Save();
+        
         monu.AddListingBlacklistEntry(l);
         userMgr.Update(monu);
         unitOfWork.Save();
@@ -151,9 +179,7 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
 
         l = new Listing("Tabletop Simulator", 25, dateAdded);
         p = new Product(286160, "Tabletop Simulator");
-        pd = new ProductDetail() { };
-        pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/286160/capsule_184x69.jpg";
-        p.AddProductDetail(pd);
+        p.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/286160/capsule_184x69.jpg";
         l.AddPlatform(steam);
         l.AddProduct(p);
         pk = new ProductKey("W0B0Z-SHDFM-AW88W");
@@ -205,9 +231,7 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
         DiscountedListing dl2 = new DiscountedListing() { DailyDeal = true, ItemDiscountPercent = 25, ItemSaleExpiry = DateTime.Today, WeeklyDeal = false };
         l = new Listing("Warhammer: The End Times - Vermintide", 60, dateAdded);
         p = new Product(235540, "Warhammer: The End Times - Vermintide");
-        pd = new ProductDetail() { };
-        pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/235540/capsule_184x69.jpg";
-        p.AddProductDetail(pd);
+        p.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/235540/capsule_184x69.jpg";
         l.AddPlatform(steam);
         l.AddProduct(p);
         pk = new ProductKey("BAH0Z-29GGU-AQW2M");
@@ -223,6 +247,57 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
         l.Product.AddProductCategory(cp);
 
         listingRepository.InsertListing(l);
+        unitOfWork.Save();
+
+        auction = new Auction();
+        auction.AlternativePrize = "";
+        auction.AddCreator(dan);
+        auction.EndTime = DateTime.Now.Add(new TimeSpan(10, 0, 0));
+        auction.IsSilent = false;
+        auction.Listing = l;
+        auction.MinimumBid = 30;
+        auction.Increment = 5;
+        auction.Copies = 3;
+        auction.CreatedTime = DateTime.Now.AddDays(-3);
+        auction.AuctionKeys = "vermintide-key-1\nvermintide-key-2";
+
+        auctionRepository.InsertAuction(auction);
+        unitOfWork.Save();
+
+        bid = new AuctionBid();
+        bid.AddAuction(auction);
+        bid.AddAppUser(user2);
+        bid.BidDate = DateTime.Now;
+        bid.BidAmount = 35;
+
+        auctionRepository.InsertAuctionBid(bid);
+        unitOfWork.Save();
+
+        bid = new AuctionBid();
+        bid.AddAuction(auction);
+        bid.AddAppUser(user1);
+        bid.BidDate = DateTime.Now.AddHours(-3);
+        bid.BidAmount = 30;
+
+        auctionRepository.InsertAuctionBid(bid);
+        unitOfWork.Save();
+
+        bid = new AuctionBid();
+        bid.AddAuction(auction);
+        bid.AddAppUser(user3);
+        bid.BidDate = DateTime.Now.AddMinutes(-30);
+        bid.BidAmount = 36;
+
+        auctionRepository.InsertAuctionBid(bid);
+        unitOfWork.Save();
+
+        bid = new AuctionBid();
+        bid.AddAuction(auction);
+        bid.AddAppUser(user4);
+        bid.BidDate = DateTime.Now.AddMinutes(-20);
+        bid.BidAmount = 36;
+
+        auctionRepository.InsertAuctionBid(bid);
         unitOfWork.Save();
 
         obj = new Objective();
@@ -247,9 +322,7 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
 
         l = new Listing("Portal 2", 15, dateAdded);
         p = new Product(620, "Portal 2");
-        pd = new ProductDetail() {  };
-        pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/620/capsule_184x69.jpg";
-        p.AddProductDetail(pd);
+        p.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/620/capsule_184x69.jpg";
         l.AddPlatform(steam);
         l.AddProduct(p);
         pk = new ProductKey("N0WHE-ATL3Y-ISBST");
@@ -269,8 +342,6 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
 
         l = new Listing("The Witcher 3", 75, dateAdded);
         p = new Product("The Witcher 3");
-        pd = new ProductDetail();
-        p.AddProductDetail(pd);
         l.AddPlatform(gog);
         l.AddProduct(p);
         pk = new ProductKey(true, "");
@@ -291,9 +362,7 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
         //http://store.steampowered.com/app/281990/
         Listing stellarisSteam = new Listing("Stellaris", 40, yesterdayDate);
         p = new Product(281990, "Stellaris");
-        pd = new ProductDetail();
-        pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/281990/capsule_184x69.jpg";
-        p.AddProductDetail(pd);
+        p.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/281990/capsule_184x69.jpg";
         stellarisSteam.AddPlatform(gog);
         stellarisSteam.AddProduct(p);
         pk = new ProductKey(true, "");
@@ -307,9 +376,7 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
         //http://store.steampowered.com/app/228880/
         Listing ashes = new Listing("Ashes of Singularity", 30, yesterdayDate);
         p = new Product(228880, "Ashes of Singularity");
-        pd = new ProductDetail();
-        pd.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/228880/capsule_184x69.jpg";
-        p.AddProductDetail(pd);
+        p.HeaderImageURL = "https://steamcdn-a.akamaihd.net/steam/apps/228880/capsule_184x69.jpg";
         ashes.AddPlatform(steam);
         ashes.AddProduct(p);
         pk = new ProductKey(true, "");
@@ -324,8 +391,6 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
         l.AddChildListing(stellarisSteam);
         l.AddChildListing(ashes);
         p = new Product("Strategy Duo Pack");
-        pd = new ProductDetail();
-        p.AddProductDetail(pd);
         pk = new ProductKey(false, "AWES-OMEK-EYYY");
         l.AddProductKey(pk);
         l.AddPlatform(steam);
@@ -335,6 +400,6 @@ public class DbInit : CreateDatabaseIfNotExists<AppIdentityDbContext> //DropCrea
         l.Product.AddProductCategory(sp);
 
         listingRepository.InsertListing(l);
-        unitOfWork.Save();*/
+        unitOfWork.Save();//*/
     }
 }

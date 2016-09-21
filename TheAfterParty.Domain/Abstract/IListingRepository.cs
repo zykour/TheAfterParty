@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using TheAfterParty.Domain.Entities;
 using TheAfterParty.Domain.Concrete;
+using System.Linq;
+using TheAfterParty.Domain.Model;
 
 namespace TheAfterParty.Domain.Abstract
 {
@@ -11,7 +13,10 @@ namespace TheAfterParty.Domain.Abstract
 
         AppIdentityDbContext GetContext();
 
+        IQueryable<Listing> GetListingsQuery();
         IEnumerable<Listing> GetListings();
+        IEnumerable<Listing> SearchListings(string searchText, int resultLimit);
+        IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems, StoreIndexDomainModel model);
         Listing GetListingByID(int listingId);
         void InsertListing(Listing listing);
         void UpdateListing(Listing listing);
@@ -30,6 +35,7 @@ namespace TheAfterParty.Domain.Abstract
         void DeleteListingComment(int listingCommentId);
 
         IEnumerable<Platform> GetPlatforms();
+        IEnumerable<Platform> GetActivePlatforms();
         Platform GetPlatformByID(int platformId);
         void InsertPlatform(Platform platform);
         void UpdatePlatform(Platform platform);
@@ -46,25 +52,7 @@ namespace TheAfterParty.Domain.Abstract
         void InsertProductCategory(ProductCategory productCategory);
         void UpdateProductCategory(ProductCategory productCategory);
         void DeleteProductCategory(int productCategoryId);
-
-        IEnumerable<ProductDetail> GetProductDetails();
-        ProductDetail GetProductDetailByID(int productDetailId);
-        void InsertProductDetail(ProductDetail productDetail);
-        void UpdateProductDetail(ProductDetail productDetail);
-        void DeleteProductDetail(int productDetailId);
-
-        IEnumerable<AppMovie> GetAppMovies();
-        AppMovie GetAppMovieByID(int appMovieId);
-        void InsertAppMovie(AppMovie appMovie);
-        void UpdateAppMovie(AppMovie appMovie);
-        void DeleteAppMovie(int appMovieId);
-
-        IEnumerable<AppScreenshot> GetAppScreenshots();
-        AppScreenshot GetAppScreenshotByID(int appScreenshotId);
-        void InsertAppScreenshot(AppScreenshot appScreenshot);
-        void UpdateAppScreenshot(AppScreenshot appScreenshot);
-        void DeleteAppScreenshot(int appScreenshotId);
-
+        
         IEnumerable<ProductKey> GetProductKeys();
         ProductKey GetProductKeyByID(int productKeyId);
         void InsertProductKey(ProductKey productKey);

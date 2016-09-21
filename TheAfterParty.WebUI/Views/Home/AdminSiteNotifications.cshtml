@@ -1,0 +1,27 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Home
+@model AdminSiteNotificationsViewModel
+
+@{
+    ViewBag.Title = "Site Notifications";
+}
+
+<h2>Site Notifications</h2>
+
+<div>
+    <div class="row">
+        <div class="col-lg-2 text-center">Actions</div>
+        <div class="col-lg-8 text-center">Description</div>
+        <div class="col-lg-2 text-center">Date</div>
+    </div>
+    @foreach (SiteNotification notification in Model.SiteNotifications)
+    {
+        <div class="row">
+            <div class="col-lg-2">@Html.ActionLink("Edit", "EditSiteNotification", "Home", new { id = notification.SiteNotificationID }, null) @Html.ActionLink("Delete", "DeleteSiteNotification", "Home", new { id = notification.SiteNotificationID }, null)</div>
+            <div class="col-lg-8">@notification.Notification</div>
+            <div class="col-lg-2">@notification.NotificationDate.ToString()</div>
+        </div>
+    }
+</div>
+
+@Html.ActionLink("Add", "AddSiteNotification", "Home")

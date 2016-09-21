@@ -1,0 +1,21 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Home
+@model AddEditSiteNotificationViewModel
+
+@{
+    ViewBag.Title = "Add Notification";
+}
+
+<h2>Add Site Notifications</h2>
+
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("AddSiteNotification", "Home", FormMethod.Post))
+{
+    <span>Notification text: </span>@Html.TextBoxFor(x => x.SiteNotification.Notification)<br />
+    <span>Date: </span>@Html.TextBoxFor(x => x.SiteNotification.NotificationDate, new { @Value = DateTime.Now.ToString() })<br />
+    <input type="submit" name="Submit" />
+}
+
+
+@Html.ActionLink("Add Notification", "AddSiteNotification", "Home")

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using TheAfterParty.WebUI.Models._Nav;
 using System.Web.Routing;
 using TheAfterParty.WebUI.Models.Objectives;
-using TheAfterParty.WebUI.Models.Store; // borrow the selectedtagmapping class
+using TheAfterParty.Domain.Model;
 
 namespace TheAfterParty.WebUI.Controllers
 {
@@ -16,6 +16,9 @@ namespace TheAfterParty.WebUI.Controllers
     { 
         private IObjectivesService objectiveService;
         private const string objectiveFormID = "objectiveForm";
+        private const string indexDestName = "Objectives";
+        private const string boostedDestName = "Boosted";
+        private const string completedDestName = "Completed";
 
         public ObjectivesController(IObjectivesService objectiveService)
         {
@@ -38,9 +41,11 @@ namespace TheAfterParty.WebUI.Controllers
         {
             ObjectivesIndexViewModel model = new ObjectivesIndexViewModel();
 
-            model.Objectives = objectiveService.GetObjectives().Where(o => o.IsActive).OrderBy(o => o.Title).ToList();
+            model.MiscObjectives = objectiveService.GetObjectives().Where(o => o.IsActive && o.Product == null).OrderBy(o => o.Title).ToList();
+            model.Objectives = objectiveService.GetObjectives().Where(o => o.IsActive && o.Product != null).OrderBy(o => o.Title).ToList();
 
-            await PopulateGetObjectives(model);
+            List<String> destNames = new List<String>() { indexDestName };
+            await PopulateGetObjectives(model, destNames);
             model.FormName = "Index";
             model.FormID = "";
 
@@ -50,9 +55,11 @@ namespace TheAfterParty.WebUI.Controllers
         [HttpPost]
         public async Task<ActionResult> Index(ObjectivesIndexViewModel model)
         {
-            model.Objectives = objectiveService.GetObjectives().Where(o => o.IsActive).OrderBy(o => o.Title).ToList();
+            model.MiscObjectives = objectiveService.GetObjectives().Where(o => o.IsActive && o.Product == null).OrderBy(o => o.Title).ToList();
+            model.Objectives = objectiveService.GetObjectives().Where(o => o.IsActive && o.Product != null).OrderBy(o => o.Title).ToList();
 
-            await PopulatePostObjectives(model);
+            List<String> destNames = new List<String>() { indexDestName };
+            await PopulatePostObjectives(model, destNames);
             model.FormName = "Index";
             model.FormID = "";
 
@@ -61,12 +68,63 @@ namespace TheAfterParty.WebUI.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        [Authorize]
         public async Task<ActionResult> MyObjectives()
         {
             CompletedObjectivesViewModel model = new CompletedObjectivesViewModel();
 
-            model.FullNavList = CreateObjectivesNavList();
+            List<String> destNames = new List<String>() { completedDestName };
+            model.FullNavList = CreateNonFormObjectiveNavList(destNames);
             model.LoggedInUser = await objectiveService.GetCurrentUser();
+
+            model.CurrentPage = 1;
+            IEnumerable<BalanceEntry> list = model.LoggedInUser.BalanceEntries.Where(e => e.Objective != null).OrderByDescending(e => e.Date);
+            model.TotalItems = list.Count();
+
+
+            if (model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+
+                model.BalanceEntries = list.Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.BalanceEntries = list.ToList();
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<ActionResult> MyObjectives(CompletedObjectivesViewModel model)
+        {
+            List<String> destNames = new List<String>() { completedDestName };
+            model.FullNavList = CreateNonFormObjectiveNavList(destNames);
+            model.LoggedInUser = await objectiveService.GetCurrentUser();
+
+            model.CurrentPage = model.SelectedPage;
+
+            if (model.CurrentPage < 1)
+            {
+                model.CurrentPage = 1;
+            }
+
+            IEnumerable<BalanceEntry> list = model.LoggedInUser.BalanceEntries.Where(e => e.Objective != null).OrderByDescending(e => e.Date);
+            model.TotalItems = list.Count();
+            
+            if (model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+
+                model.BalanceEntries = list.Skip((model.CurrentPage - 1) * model.UserPaginationPreference).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.BalanceEntries = list.ToList();
+            }
 
             return View(model);
         }
@@ -76,9 +134,11 @@ namespace TheAfterParty.WebUI.Controllers
         {
             ObjectivesIndexViewModel model = new ObjectivesIndexViewModel();
 
-            model.Objectives = objectiveService.GetObjectives().Where(o => o.IsActive && o.BoostedObjective != null).ToList();
+            model.MiscObjectives = objectiveService.GetObjectives().Where(o => o.IsActive && o.BoostedObjective != null && o.Product == null).ToList();
+            model.Objectives = objectiveService.GetObjectives().Where(o => o.IsActive && o.BoostedObjective != null && o.Product != null).ToList();
 
-            await PopulateGetObjectives(model);
+            List<String> destNames = new List<String>() { boostedDestName };
+            await PopulateGetObjectives(model, destNames);
 
             model.FormName = "Boosted";
             model.FormID = "";
@@ -89,9 +149,12 @@ namespace TheAfterParty.WebUI.Controllers
         [HttpPost]
         public async Task<ActionResult> Boosted(ObjectivesIndexViewModel model)
         {
-            model.Objectives = objectiveService.GetObjectives().Where(o => o.IsActive && o.BoostedObjective != null).ToList();
 
-            await PopulatePostObjectives(model);
+            model.MiscObjectives = objectiveService.GetObjectives().Where(o => o.IsActive && o.BoostedObjective != null && o.Product == null).ToList();
+            model.Objectives = objectiveService.GetObjectives().Where(o => o.IsActive && o.BoostedObjective != null && o.Product != null).ToList();
+
+            List<String> destNames = new List<String>() { boostedDestName };
+            await PopulatePostObjectives(model, destNames);
 
             model.FormName = "Boosted";
             model.FormID = "";
@@ -184,9 +247,11 @@ namespace TheAfterParty.WebUI.Controllers
             model.LoggedInUser = await objectiveService.GetCurrentUser();
             model.FullNavList = CreateObjectivesAdminNavList();
 
+            ModelState.Clear();
+
             return View(model);
         }
-
+        
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> AddBoostedObjective()
@@ -248,7 +313,16 @@ namespace TheAfterParty.WebUI.Controllers
             model.LoggedInUser = await objectiveService.GetCurrentUser();
             model.FullNavList = CreateObjectivesAdminNavList();
 
+            ModelState.Clear();
+
             return View(model);
+        }
+
+        public ActionResult DeleteBoostedObjective(int id)
+        {
+            objectiveService.DeleteBoostedObjective(id);
+
+            return RedirectToAction("AdminObjectives");
         }
 
         [Authorize(Roles = "Admin")]
@@ -279,7 +353,7 @@ namespace TheAfterParty.WebUI.Controllers
 
 #endregion
 
-        public async Task PopulateGetObjectives(ObjectivesIndexViewModel model)
+        public async Task PopulateGetObjectives(ObjectivesIndexViewModel model, List<String> destNames)
         {
             if (User.Identity.IsAuthenticated)
             {
@@ -288,11 +362,11 @@ namespace TheAfterParty.WebUI.Controllers
 
             if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
             {
-                model.FullNavList = CreateObjectivesAdminNavList();
+                model.FullNavList = CreateObjectivesAdminNavList(destNames);
             }
             else
             {
-                model.FullNavList = CreateObjectivesNavList();
+                model.FullNavList = CreateObjectivesNavList(destNames);
             }
 
             if (model.Objectives != null)
@@ -311,17 +385,17 @@ namespace TheAfterParty.WebUI.Controllers
             }
         }
 
-        public async Task PopulatePostObjectives(ObjectivesIndexViewModel model)
+        public async Task PopulatePostObjectives(ObjectivesIndexViewModel model, List<String> destNames)
         {
             model.LoggedInUser = await objectiveService.GetCurrentUser();
 
             if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
             {
-                model.FullNavList = CreateObjectivesAdminNavList();
+                model.FullNavList = CreateObjectivesAdminNavList(destNames);
             }
             else
             {
-                model.FullNavList = CreateObjectivesNavList();
+                model.FullNavList = CreateObjectivesNavList(destNames);
             }
 
             if (model.Objectives != null)
@@ -361,8 +435,8 @@ namespace TheAfterParty.WebUI.Controllers
 
             model.TagToChange = 0;
         }
-
-        public List<NavGrouping> CreateObjectivesNavList()
+        
+        public List<NavGrouping> CreateObjectivesNavList(List<String> destNames)
         {
             List<NavGrouping> navList = new List<NavGrouping>();
 
@@ -370,32 +444,76 @@ namespace TheAfterParty.WebUI.Controllers
             objective.GroupingHeader = "Objectives";
             objective.NavItems = new List<NavItem>();
             NavItem objectiveItem = new NavItem();
-            objectiveItem.DestinationName = "Objectives";
+            objectiveItem.DestinationName = indexDestName;
             objectiveItem.IsFormSubmit = true;
             objectiveItem.FormID = objectiveFormID;
-            objectiveItem.FormAction = "/Objectives";
+            objectiveItem.FormAction = "/objectives";
+            objectiveItem.SetSelected(destNames);
             objective.NavItems.Add(objectiveItem);
             objectiveItem = new NavItem();
-            objectiveItem.DestinationName = "Boosted Objectives";
+            objectiveItem.DestinationName = boostedDestName;
             objectiveItem.IsFormSubmit = true;
             objectiveItem.FormID = objectiveFormID;
-            objectiveItem.FormAction = "/Objectives/boosted";
-            objective.NavItems.Add(objectiveItem);
-            objectiveItem = new NavItem();
-            objectiveItem.Destination = "/Objectives/myobjectives";
-            objectiveItem.DestinationName = "Completed Objectives";
+            objectiveItem.FormAction = "/objectives/boosted";
+            objectiveItem.SetSelected(destNames);
             objective.NavItems.Add(objectiveItem);
 
 
+            if (User.Identity.IsAuthenticated)
+            {
+                objectiveItem = new NavItem();
+                objectiveItem.Destination = "/objectives/myobjectives";
+                objectiveItem.DestinationName = completedDestName;
+                objectiveItem.SetSelected(destNames);
+                objective.NavItems.Add(objectiveItem);
+            }
 
             navList.Add(objective);
 
             return navList;
         }
 
-        public List<NavGrouping> CreateObjectivesAdminNavList()
+        public List<NavGrouping> CreateNonFormObjectiveNavList(List<String> destNames)
         {
-            List<NavGrouping> navList = CreateObjectivesNavList();
+            List<NavGrouping> navList = new List<NavGrouping>();
+
+            NavGrouping objective = new NavGrouping();
+            objective.GroupingHeader = "Objectives";
+            objective.NavItems = new List<NavItem>();
+            NavItem objectiveItem = new NavItem();
+            objectiveItem.DestinationName = indexDestName;
+            objectiveItem.Destination = "/objectives/";
+            objectiveItem.SetSelected(destNames);
+            objective.NavItems.Add(objectiveItem);
+            objectiveItem = new NavItem();
+            objectiveItem.DestinationName = boostedDestName;
+            objectiveItem.Destination = "/objectives/boosted";
+            objectiveItem.SetSelected(destNames);
+            objective.NavItems.Add(objectiveItem);
+
+
+            if (User.Identity.IsAuthenticated)
+            {
+                objectiveItem = new NavItem();
+                objectiveItem.Destination = "/objectives/myobjectives";
+                objectiveItem.DestinationName = completedDestName;
+                objectiveItem.SetSelected(destNames);
+                objective.NavItems.Add(objectiveItem);
+            }
+
+            navList.Add(objective);
+
+            return navList;
+        }
+
+        public List<NavGrouping> CreateObjectivesAdminNavList(List<String> destNames = null)
+        {
+            if (destNames == null)
+            {
+                destNames = new List<String>();
+            }
+
+            List<NavGrouping> navList = CreateObjectivesNavList(destNames);
 
             NavGrouping admin = new NavGrouping();
             admin.GroupingHeader = "Admin";
@@ -412,7 +530,7 @@ namespace TheAfterParty.WebUI.Controllers
             adminItem.Destination = "/Objectives/AddBoostedObjective";
             adminItem.DestinationName = "Add Boosted Objective";
             admin.NavItems.Add(adminItem);
-
+            
             navList.Add(admin);
 
             return navList;

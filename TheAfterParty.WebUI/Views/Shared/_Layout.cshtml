@@ -1,145 +1,168 @@
 ﻿@using TheAfterParty.WebUI.Models._Nav
 @model NavModel
+
+@functions {
+    string SelectedNav(string navName) {
+        if (this.ViewContext.RouteData.Values["controller"].ToString().ToLower().CompareTo(navName.ToLower()) == 0)
+        {
+            return "top-nav-outer-btn selected-top-nav";
+        }
+
+        return "top-nav-outer-btn";
+    }
+}
+
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title</title>
-    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/BootstrapXL.css" rel="stylesheet" type="text/css" />
     <link href="~/Content/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
     <script src="@Url.Content("~/Scripts/modernizr-2.6.2.js")" type="text/javascript"></script>
-    <script src="@Url.Content("~/Scripts/jquery-2.2.0.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery-3.1.0.js")" type="text/javascript"></script>
     <script src="@Url.Content("~/Scripts/jquery.unobtrusive-ajax.js")" type="text/javascript"></script>
     <script src="@Url.Content("~/Scripts/TheAfterPartyScripts.js")" type="text/javascript"></script>
 </head>
 <body>
-    <div class="navbar-xs">
+    <div class="navbar-sm">
         <div class="navbar-primary">
             <div class="navbar navbar-inverse navbar-fixed-top">
                 <div class="container vertical-align">
                     <div class="navbar-header vertical-align">
-                        <div class="top-nav-outer-btn">
+                        <div class="@SelectedNav("Home")">
                             @Html.ActionLink("Home", "Index", "Home", null, new { @class = "top-nav-inner-btn" })
                         </div>
-                        <div class="top-nav-outer-btn">
+                        <div class="@SelectedNav("Store")">
                             <div class="top-sub-nav-relative is-hidden">
                                 <div class="top-sub-nav-absolute">
                                     <a class="top-nav-inner-entry" href="@Url.Action("Deals", "Store", new { id = "daily" })">
-                                        <i class="nav-icon-yellow fa fa-fw fa-sun-o"></i>
+                                        <i class="icon-yellow fa fa-fw fa-sun-o"></i>
                                         <div class="top-nav-inner-entry-text">
                                             <p class="top-nav-inner-entry-text-primary">View the daily deals.</p>
                                             <p class="top-nav-inner-entry-text-secondary">New deal(s) every day.</p>
                                         </div>
                                     </a>
                                     <a class="top-nav-inner-entry" href="@Url.Action("Deals", "Store", new { id = "weekly" })">
-                                        <i class="nav-icon-purple fa fa-fw fa-calendar"></i>
+                                        <i class="text-purple fa fa-fw fa-calendar"></i>
                                         <div class="top-nav-inner-entry-text">
                                             <p class="top-nav-inner-entry-text-primary">View the weekly deals.</p>
                                             <p class="top-nav-inner-entry-text-secondary">New deals every Thursday.</p>
                                         </div>
                                     </a>
                                     <a class="top-nav-inner-entry" href="@Url.Action("Newest", "Store")">
-                                        <i class="nav-icon-green fa fa-fw fa-plus-circle"></i>
+                                        <i class="icon-green fa fa-fw fa-plus-circle"></i>
                                         <div class="top-nav-inner-entry-text">
                                             <p class="top-nav-inner-entry-text-primary">See what's new in the shop.</p>
                                             <p class="top-nav-inner-entry-text-secondary">View the newest additions to the shop.</p>
                                         </div>
                                     </a>
-                                    <a class="top-nav-inner-entry" href="@Url.Action("Index", "User")">
-                                        <i class="nav-icon-blue fa fa-fw fa-users"></i>
-                                        <div class="top-nav-inner-entry-text">
-                                            <p class="top-nav-inner-entry-text-primary">Check user balances.</p>
-                                            <p class="top-nav-inner-entry-text-secondary">View a list of users and their balances.</p>
-                                        </div>
-                                    </a>
                                 </div>
-                            </div>	
+                            </div>
                             @Html.ActionLink("Store", "Index", "Store", null, new { @class = "top-nav-inner-btn top-nav-dropdown-left" })
-                            <div class="top-nav-inner-btn top-nav-dropdown-right"><i class="fa fa-angle-down"></i></div>
+                            <div class="top-nav-inner-btn top-nav-dropdown-right"><i class="fa fa-angle-down top-nav-clickthrough"></i></div>
                         </div>
-                        <div class="top-nav-outer-btn"><div class="top-sub-nav-relative is-hidden">
+                        <div class="@SelectedNav("Objectives")">
+                            <div class="top-sub-nav-relative is-hidden">
                                 <div class="top-sub-nav-absolute">
                                     <a class="top-nav-inner-entry" href="@Url.Action("Boosted", "Objectives")">
-                                        <i class="nav-icon-purple fa fa-fw fa-exclamation-circle"></i>
+                                        <i class="text-purple fa fa-fw fa-exclamation-circle"></i>
                                         <div class="top-nav-inner-entry-text">
                                             <p class="top-nav-inner-entry-text-primary">View boosted objectives.</p>
                                             <p class="top-nav-inner-entry-text-secondary">Objectives worth bonus points!</p>
                                         </div>
                                     </a>
-                                    @if (Model.LoggedInUser != null)
+                                    @if (Model != null && Model.LoggedInUser != null)
                                     {
-                                    <a class="top-nav-inner-entry" href="@Url.Action("MyObjectives", "Objectives")">
-                                        <i class="nav-icon-green fa fa-fw fa-tasks"></i>
-                                        <div class="top-nav-inner-entry-text">
-                                            <p class="top-nav-inner-entry-text-primary">View my objectives.</p>
-                                            <p class="top-nav-inner-entry-text-secondary">View objectives you've completed.</p>
-                                        </div>
-                                    </a>
+                                        <a class="top-nav-inner-entry" href="@Url.Action("MyObjectives", "Objectives")">
+                                            <i class="icon-green fa fa-fw fa-tasks"></i>
+                                            <div class="top-nav-inner-entry-text">
+                                                <p class="top-nav-inner-entry-text-primary">View my objectives.</p>
+                                                <p class="top-nav-inner-entry-text-secondary">View objectives you've completed.</p>
+                                            </div>
+                                        </a>
                                     }
                                 </div>
-                            </div>	
+                            </div>
                             @Html.ActionLink("Objectives", "Index", "Objectives", null, new { @class = "top-nav-inner-btn top-nav-dropdown-left" })
-                            <div class="top-nav-inner-btn top-nav-dropdown-right"><i class="fa fa-angle-down"></i></div>
+                            <div class="top-nav-inner-btn top-nav-dropdown-right"><i class="fa fa-angle-down top-nav-clickthrough"></i></div>
+                        </div>
+                        <div class="@SelectedNav("User")">
+                            @Html.ActionLink("Users", "Index", "User", null, new { @class = "top-nav-inner-btn" })
+                        </div>
+                        <div class="@SelectedNav("Auctions")">
+                            <div class="top-sub-nav-relative is-hidden">
+                                <div class="top-sub-nav-absolute">
+                                    @if (Model != null && Model.LoggedInUser != null && Model.LoggedInUser.ReservedBalance() > 0)
+                                    {
+                                        <a class="top-nav-inner-entry" href="@Url.Action("MyWinningAuctions", "Auctions")">
+                                            <i class="icon-yellow fa fa-fw fa-exclamation-circle"></i>
+                                            <div class="top-nav-inner-entry-text">
+                                                <p class="top-nav-inner-entry-text-primary">View open auctions I'm winning.</p>
+                                                <p class="top-nav-inner-entry-text-secondary">@Model.LoggedInUser.ReservedBalance() points reserved in winning auctions.</p>
+                                            </div>
+                                        </a>
+                                    }
+                                    <a class="top-nav-inner-entry" href="@Url.Action("MyCurrentBids", "Auctions")">
+                                        <i class="icon-green fa fa-fw fa-list-ul"></i>
+                                        <div class="top-nav-inner-entry-text">
+                                            <p class="top-nav-inner-entry-text-primary">View my tracked auctions.</p>
+                                            <p class="top-nav-inner-entry-text-secondary">All open auctions that I've bid on.</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            @Html.ActionLink("Auctions", "Index", "Auctions", null, new { @class = "top-nav-inner-btn top-nav-dropdown-left" })
+                            <div class="top-nav-inner-btn top-nav-dropdown-right"><i class="fa fa-angle-down top-nav-clickthrough"></i></div>
                         </div>
                     </div>
                     @if (Model != null && Model.LoggedInUser != null)
                     {
                         <div class="flex-right vertical-align">
-                            <div class="top-nav-outer-btn">
+                            <div class="@SelectedNav("Cart")">
                                 <a href="@Url.Action("Index","Cart")" class="top-nav-inner-btn">
                                     <p class="pad-cart-left"><span id="cartTotal">@Model.LoggedInUser.GetCartTotal()</span> points</p>
                                     <span class="fa fa-lg fa-shopping-cart"></span>
                                 </a>
                             </div>
-                            @if (Model.LoggedInUser.GetSilentAuctionReservedBalance() > 0 || Model.LoggedInUser.GetPublicAuctionReservedBalance() > 0)
-                            {
-                                <div class="flex-right navbar-brand reserve-tooltip">
-                                    <a href="/Auction"><i class="fa fa-exclamation-triangle reserve-div-left"></i></a>
-                                    <a href="/Auction"><span class="reserve-div-right" id="reservedTotal">@Model.LoggedInUser.ReservedBalance()</span></a>
-                                    <div class="reserve-tooltip-body">
-                                        @if (Model.LoggedInUser.GetSilentAuctionReservedBalance() > 0)
-                                        {
-                                            <span class="reserve-tooltip-danger-text reserve-tooltip-bottom-spans" id="silentAuctionTotal">@Model.LoggedInUser.GetSilentAuctionReservedBalance()</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for silent auctions.</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="reserve-tooltip-success-text reserve-tooltip-bottom-spans" id="silentAuctionTotal">0</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for silent auctions.</span>
-                                        }
-                                        <br />
-                                        @if (Model.LoggedInUser.GetPublicAuctionReservedBalance() > 0)
-                                        {
-                                            <span class="reserve-tooltip-danger-text reserve-tooltip-bottom-spans" id="publicAuctionTotal">@Model.LoggedInUser.GetPublicAuctionReservedBalance()</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for winning public auction bids.</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="reserve-tooltip-success-text reserve-tooltip-bottom-spans" id="publicAuctionTotal">0</span><span class="reserve-tooltip-text reserve-tooltip-bottom-spans"> points reserved for winning public auction bids.</span>
-                                        }
-                                    </div>
-                                </div>
-                            }
-                            <div class="top-nav-outer-btn">
+                            <div class="@SelectedNav("Account")">
                                 <div class="top-sub-nav-relative is-hidden">
-                                    <div class="top-sub-nav-absolute">
+                                    <div class="top-sub-nav-absolute top-nav-right">
                                         <a class="top-nav-inner-entry" href="@Url.Action("Keys", "Account")">
-                                            <i class="nav-icon-green fa fa-fw fa-key"></i>
+                                            <i class="icon-green fa fa-fw fa-key"></i>
                                             <div class="top-nav-inner-entry-text">
                                                 <p class="top-nav-inner-entry-text-primary">View my keys.</p>
                                                 <p class="top-nav-inner-entry-text-secondary">View the product keys you own.</p>
                                             </div>
                                         </a>
                                         <a class="top-nav-inner-entry" href="@Url.Action("Orders", "Account")">
-                                            <i class="nav-icon-purple fa fa-fw fa-list"></i>
+                                            <i class="text-purple fa fa-fw fa-list"></i>
                                             <div class="top-nav-inner-entry-text">
                                                 <p class="top-nav-inner-entry-text-primary">View my orders.</p>
                                                 <p class="top-nav-inner-entry-text-secondary">View past purchases made.</p>
                                             </div>
                                         </a>
+                                        <a class="top-nav-inner-entry" href="@Url.Action("MySettings", "Account")">
+                                            <i class="icon-blue fa fa-fw fa-cog"></i>
+                                            <div class="top-nav-inner-entry-text">
+                                                <p class="top-nav-inner-entry-text-primary">Edit your site settings.</p>
+                                                <p class="top-nav-inner-entry-text-secondary">Set your timezone and pagination preferences.</p>
+                                            </div>
+                                        </a>
+                                        <a class="top-nav-inner-entry" href="@Url.Action("Logout", "Account")">
+                                            <i class="icon-red fa fa-fw fa-sign-out"></i>
+                                            <div class="top-nav-inner-entry-text">
+                                                <p class="top-nav-inner-entry-text-primary">Log out from The After Party.</p>
+                                                <p class="top-nav-inner-entry-text-secondary">Bye now!</p>
+                                            </div>
+                                        </a>
                                     </div>
                                 </div>
-                                @Html.ActionLink("Account (" + Model.LoggedInUser.Balance + " points)", "Index", "Account", null, new { @class = "top-nav-inner-btn top-nav-dropdown-left" })
-                                <div class="top-nav-inner-btn top-nav-dropdown-right"><i class="fa fa-angle-down"></i></div>
+                                @Html.ActionLink("Account (" + Model.LoggedInUser.Balance + " points)", "Index", "Account", null, new { @class = "top-nav-inner-btn top-nav-dropdown-left", id = "accountNavBtn" })
+                                <div class="top-nav-inner-btn top-nav-dropdown-right"><i class="fa fa-angle-down top-nav-clickthrough"></i></div>
                             </div>
                             <div class="navbar-header vertical-align">
                                     @if (Model.LoggedInUser.SmallAvatar != null)
@@ -180,51 +203,83 @@
             <img class="banner-img" src="~/Content/banner.png" />
         </div>
     </div>
-    <div class="container body-content">
+    <div class="container">
         @if (Model != null && Model.FullNavList != null)
         {
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-2 nav-first-row" style="height:100%">
-                    @foreach (NavGrouping grouping in Model.FullNavList)
+        <div class="row">
+            <div class="col-lg-2 col-xl-2 col-md-2 hidden-sm hidden-xs nav-first-row">
+                @foreach (NavGrouping grouping in Model.FullNavList)
+                {
+                    bool isFirst = true;
+                    <h3 class="nav-tag nav-grouping-header">@grouping.GroupingHeader</h3>
+                    foreach (NavItem item in grouping.NavItems)
                     {
-                        <h3 class="nav-tag nav-grouping-header">@grouping.GroupingHeader</h3>
-                        foreach (NavItem item in grouping.NavItems)
+                        if (item.IsFormSubmit)
                         {
-                            if (item.IsFormSubmit)
+                            if (String.IsNullOrEmpty(item.FormAction))
                             {
-                                if (String.IsNullOrEmpty(item.FormAction))
+                                if (isFirst)
                                 {
-                                    <button type="submit" value="@item.FormValue" name="@item.FormName" form="@ViewBag.StoreFormID" class="btn-link">
-                                        <div class="nav-item-link">
-                                            <div class="nav-tag nav-item-text">@item.DestinationName</div>
-                                            <div class="nav-tag nav-underline"></div>
-                                        </div>
+                                    <button type="submit" form="@ViewBag.StoreFormID" class="is-hidden">
                                     </button>
+                                    isFirst = false;
                                 }
-                                else
-                                {
-                                    <button type="submit" form="@ViewBag.StoreFormID" class="btn-link" formaction="@item.FormAction">
-                                        <div class="nav-item-link">
+                                <button type="submit" value="@item.FormValue" name="@item.FormName" form="@ViewBag.StoreFormID" class="btn-link">
+                                    <div class="nav-item-link">
+                                        @if (item.IsSelected)
+                                        {
+                                            <div class="nav-tag nav-item-text selected-nav"><span class="fa fa-caret-right"></span>@item.DestinationName</div>
+                                        }
+                                        else
+                                        {
                                             <div class="nav-tag nav-item-text">@item.DestinationName</div>
-                                            <div class="nav-tag nav-underline"></div>
-                                        </div>
-                                    </button>
-                                }
+                                        }
+                                        <div class="nav-tag nav-underline"></div>
+                                    </div>
+                                </button>
                             }
                             else
                             {
-                                <a href="@item.Destination" class="nav-item-link">
-                                    <div class="nav-tag nav-item-text">@item.DestinationName</div>
-                                    <div class="nav-tag nav-underline"></div>
-                                </a>
+                                if (isFirst)
+                                {
+                                    <button type="submit" form="@ViewBag.StoreFormID" class="is-hidden">
+                                    </button>
+                                    isFirst = false;
+                                }
+                                <button type="submit" form="@ViewBag.StoreFormID" class="btn-link" formaction="@item.FormAction">
+                                    <div class="nav-item-link">
+                                        @if (item.IsSelected)
+                                        {
+                                            <div class="nav-tag nav-item-text selected-nav"><span class="fa fa-caret-right"></span>@item.DestinationName</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="nav-tag nav-item-text">@item.DestinationName</div>
+                                        }
+                                        <div class="nav-tag nav-underline"></div>
+                                    </div>
+                                </button>
                             }
                         }
+                        else
+                        {
+                            <a href="@item.Destination" class="nav-item-link">
+                                @if (item.IsSelected)
+                                {
+                                    <div class="nav-tag nav-item-text selected-nav"><span class="fa fa-caret-right"></span>@item.DestinationName</div>
+                                }
+                                else
+                                {
+                                    <div class="nav-tag nav-item-text">@item.DestinationName</div>
+                                }
+                                <div class="nav-tag nav-underline"></div>
+                            </a>
+                        }
                     }
-</div>
-                <div class="col-lg-10">
-                    @RenderBody()
-                </div>
+                }
+            </div>
+            <div class="col-lg-10 col-xl-10 col-md-10">
+                @RenderBody()
             </div>
         </div>
         }
@@ -232,10 +287,12 @@
         {
             @RenderBody()
         }
-        <hr class="footer-hr" />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - The After Party</p>
-        </footer>
+        <div id="footer">
+            <hr class="footer-hr" />
+            <footer>
+                <p>&copy; @DateTime.Now.Year - The After Party <span class="pull-right">Powered by <a class="powered-by-steam" href="http://steampowered.com/">Steam</a></span></p>
+            </footer>
+        </div>
     </div>
     <script src="~/Scripts/jquery-1.10.2.min.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>

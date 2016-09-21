@@ -2,75 +2,164 @@
 @using TheAfterParty.Domain.Entities
 @model AccountKeysModel
 
-
 @{
     ViewBag.Title = "Keys";
 }
 
-<div class="container">
-    <div class="row custom-row-header">
-        <h3>My Keys</h3>
-    </div>
-    <div class="row custom-row">
-        <div class="col-lg-7">
-            Game Name
-        </div>
-        <div class="col-lg-1">
-            Platform
-        </div>
-        <div class="col-lg-4 text-center">
-            Product Key
-        </div>
-    </div>
-    @for (int i = 0; i < Model.Keys.Count; i++)
-    {
-        ClaimedProductKey key = Model.Keys[i];
-        <div class="row store-entry-sm">
-            <div class="col-lg-7">
-                <div class="outer-banner-container">
-                    @if (String.IsNullOrEmpty(key.Listing.Product.ProductDetail.HeaderImageURL))
-                    {
-                        <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
-                    }
-                    else
-                    {
-                        <div class="inner-store-banner-container" style="background-image: url(@key.Listing.Product.ProductDetail.HeaderImageURL)"></div>
-                    }
+@using (Html.BeginForm("Keys", "Account", FormMethod.Post))
+{
+@Html.HiddenFor(x => x.PreviousFilterRevealed)
+@Html.HiddenFor(x => x.PreviousFilterUsed)
+@Html.HiddenFor(x => x.PreviousFilterUnrevealed)
+@Html.HiddenFor(x => x.PreviousFilterUnused)
+<div>
+    <div class="row">
+        <div class="col-lg-10 col-md-10 col-xl-10 col-xl-10">
+            <div class="row custom-row-hollow text-warning top-content-margin">
+                <ul>
+                    <li>Please contact Monukai if any of your keys do not work.</li>
+                    <li>Please contact Monukai if you have purchased an item listed as a gift.</li>
+                </ul>
+            </div>
+            <div class="row custom-row-header no-top-marg">
+                <h3>My Keys</h3>
+            </div>
+            <div class="row custom-row">
+                <div class="col-lg-6 col-md-6 col-xl-6 text-center">
+                    <span class="col-header">Game Name</span>
                 </div>
-                <div class="store-entry-name">
-                    @key.Listing.ListingName
+                <div class="col-lg-1 col-md-1 col-xl-1 text-center">
+                    <span class="col-header">Platform</span>
+                </div>
+                <div class="col-lg-5 col-md-5 col-xl-5 text-center">
+                    <span class="col-header">Product Key</span>
                 </div>
             </div>
-            <div class="col-lg-1 text-center">
-            @foreach (string platformIconUrl in key.Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
+            @for (int i = 0; i < Model.Keys.Count; i++)
             {
-                <div class="icon-image-container">
-                    <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
+                ClaimedProductKey key = Model.Keys[i];
+                <div class="row store-entry-sm">
+                    <div class="col-lg-6 col-md-6 col-xl-6 vertical-align">
+                        <div class="outer-banner-container">
+                            @if (String.IsNullOrEmpty(key.Listing?.Product?.GetHttpsSecuredHeaderImage()))
+                            {
+                                <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
+                            }
+                            else
+                            {
+                                <div class="inner-store-banner-container" style="background-image: url(@key.Listing.Product.GetHttpsSecuredHeaderImage())"></div>
+                            }
+                        </div>
+                        <div class="store-entry-name">
+                            @key.Listing.ListingName
+                        </div>
+                    </div>
+                    <div class="col-lg-1 col-md-1 col-xl-1 vertical-align">
+                        @foreach (string platformIconUrl in key.Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
+                        {
+                            <div class="icon-image-container">
+                                <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
+                            </div>
+                        }
+                    </div>
+                    <div class="col-lg-5 col-md-5 col-xl-5 text-center">
+                        @{
+                            string keyBtn = "keyBtn" + i;
+                            string toggleBtn = keyBtn + "toggle";
+                            if (key.IsGift)
+                            {
+                                <input type="button" value="🔒" class="toggle-used-inactive-btn" /><input type="button" value="Gift Copy" class="reveal-btn" />
+                            }
+                            else if (key.IsRevealed && !key.IsUsed)
+                            {
+                                <input type="button" id="@toggleBtn" value="🔒" class="toggle-used-btn" onclick="ToggleKeyUsed(@key.ClaimedProductKeyID,this,@keyBtn);" /><input id="@keyBtn" type="text" value="@key.Key" class="unused-btn" />
+                            }
+                            else if (key.IsRevealed && key.IsUsed)
+                            {
+                                <input type="button" id="@toggleBtn" value="🔓" class="toggle-used-btn" onclick="ToggleKeyUsed(@key.ClaimedProductKeyID,this,@keyBtn);" /><input id="@keyBtn" type="text" value="@key.Key" class="used-btn" />
+                            }
+                            else
+                            {
+                                <input type="button" id="@toggleBtn" value="🔒" class="awaiting-reveal toggle-used-inactive-btn" onclick="ToggleKeyUsed(@key.ClaimedProductKeyID,this,@keyBtn);" /><input id="@keyBtn" type="button" value="Reveal" class="reveal-btn" onclick="MarkKeyRevealed(@key.ClaimedProductKeyID,this);" />
+                            }
+                        }
+                    </div>
                 </div>
             }
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-xl-12 pagination-holder">
+                    @Html.PageLinks(Model)
+                </div>
             </div>
-            <div class="col-lg-4 text-center">
-                @{
-                    string keyBtn = "keyBtn" + i;
-                    string toggleBtn = keyBtn + "toggle";
-                    if (key.IsGift)
-                    {
-                        <input type="button" value="🔒" class="toggle-used-inactive-btn"/><input type="button" value="Gift" class="reveal-btn" />
-                    }
-                    else if (key.IsRevealed && !key.IsUsed)
-                    {
-                        <input type="button" id="@toggleBtn" value="🔒" class="toggle-used-btn" onclick="ToggleKeyUsed(@key.ClaimedProductKeyID,this,@keyBtn);"/><input id="@keyBtn" type="button" value="@key.Key" class="unused-btn" />
-                    }
-                    else if (key.IsRevealed && key.IsUsed)
-                    {
-                        <input type="button" id="@toggleBtn" value="🔓" class="toggle-used-btn" onclick="ToggleKeyUsed(@key.ClaimedProductKeyID,this,@keyBtn);"/><input id="@keyBtn" type="button" value="@key.Key" class="used-btn" />
-                    }
-                    else
-                    {
-                        <input type="button" id="@toggleBtn" value="🔒" class="awaiting-reveal toggle-used-inactive-btn" onclick="ToggleKeyUsed(@key.ClaimedProductKeyID,this,@keyBtn);"/><input id="@keyBtn" type="button" value="Reveal" class="reveal-btn" onclick="MarkKeyRevealed(@key.ClaimedProductKeyID,this);" />
-                    }
+        </div>
+        <div class="col-lg-2 col-md-2 col-xl-2">
+            <div class="top-padding"></div>
+            <a href="@Url.Action("Keys", "Account")" class="btn btn-sm btn-success btn-custom">Clear Search</a>
+            <h3 class="text-primary nav-grouping-header">Game Search</h3>
+            <div class="input-group-xs input-group">
+                <input type="text" class="form-control gray-input" name="SearchText" value="@Model.SearchText" />
+                <span class="input-group-btn">
+                    <button class="btn btn-default btn-xs green-bg" title="Search" type="submit" name="SearchTextBool" value="true"><i class="fa fa-search search-icon"></i></button>
+                </span>
+            </div>
+            <h3 class="text-primary nav-grouping-header" style="width: 100%;">Key Filters</h3>
+            <div class="filter-div">
+                @if (Model.PreviousFilterRevealed)
+                {
+                    <button type="submit" class="btn-transparent text-nowrap" name="FilterRevealed" value="true">
+                        <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label("Revealed", new { @class = "text-success store-filter" })
+                    </button>
+                }
+                else
+                {
+                    <button type="submit" class="btn-transparent text-nowrap" name="FilterRevealed" value="true">
+                        <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label("Revealed", new { @class = "text-success store-filter" })
+                    </button>
+                }
+            </div>
+            <div class="filter-div">
+                @if (Model.PreviousFilterUnrevealed)
+                {
+                    <button type="submit" class="btn-transparent text-nowrap" name="FilterUnrevealed" value="true">
+                        <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label("Unrevealed", new { @class = "text-success store-filter" })
+                    </button>
+                }
+                else
+                {
+                    <button type="submit" class="btn-transparent text-nowrap" name="FilterUnrevealed" value="true">
+                        <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label("Unrevealed", new { @class = "text-success store-filter" })
+                    </button>
+                }
+            </div>
+            <div class="filter-div">
+                @if (Model.PreviousFilterUsed)
+                {
+                    <button type="submit" class="btn-transparent text-nowrap" name="FilterUsed" value="true">
+                        <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label("Used", new { @class = "text-success store-filter" })
+                    </button>
+                }
+                else
+                {
+                    <button type="submit" class="btn-transparent text-nowrap" name="FilterUsed" value="true">
+                        <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label("Used", new { @class = "text-success store-filter" })
+                    </button>
+                }
+            </div>
+            <div class="filter-div">
+                @if (Model.PreviousFilterUnused)
+                {
+                    <button type="submit" class="btn-transparent text-nowrap" name="FilterUnused" value="true">
+                        <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label("Unused", new { @class = "text-success store-filter" })
+                    </button>
+                }
+                else
+                {
+                    <button type="submit" class="btn-transparent text-nowrap" name="FilterUnused" value="true">
+                        <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label("Unused", new { @class = "text-success store-filter" })
+                    </button>
                 }
             </div>
         </div>
-    }
+    </div>
 </div>
+}

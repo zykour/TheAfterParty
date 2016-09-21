@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using System.Web.Http;
 
 namespace TheAfterParty.WebUI
 {
@@ -13,6 +14,8 @@ namespace TheAfterParty.WebUI
         {
             AreaRegistration.RegisterAllAreas();
             RouteConfig.RegisterRoutes(RouteTable.Routes);
+            GlobalConfiguration.Configure(WebApiConfig.Register);
+            GlobalFilters.Filters.Add(new RequireHttpsAttribute());
         }
     }
 }

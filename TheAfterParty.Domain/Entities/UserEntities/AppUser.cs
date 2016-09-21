@@ -11,16 +11,45 @@ namespace TheAfterParty.Domain.Entities
 { 
     public class AppUser : IdentityUser
     {
-        public AppUser(string name, int balance, bool privateWishlist, Int64 steamId)
+        public AppUser(string name, int balance, bool privateWishlist, Int64 steamId) : this()
         {
             UserSteamID = steamId;
             UserName = name;
             Balance = balance;
             IsPrivateWishlist = privateWishlist;
+        }
+        public AppUser()
+        {
             MemberSince = DateTime.Now;
             LastLogon = DateTime.Now;
+            TimeZoneID = "Greenwich Standard Time";
+            PaginationPreference = 100;
+            ShoppingCartEntries = new HashSet<ShoppingCartEntry>();
+            this.AuctionBids = new HashSet<AuctionBid>();
+            this.Auctions = new HashSet<Auction>();
+            this.BalanceEntries = new HashSet<BalanceEntry>();
+            this.BlacklistedListings = new HashSet<Listing>();
+            this.ClaimedProductKeys = new HashSet<ClaimedProductKey>();
+            this.CreatedGiveaways = new HashSet<Giveaway>();
+            this.GiveawayEntries = new HashSet<GiveawayEntry>();
+            this.GroupEvents = new HashSet<GroupEvent>();
+            this.ListingComments = new HashSet<ListingComment>();
+            this.Orders = new HashSet<Order>();
+            this.OwnedGames = new HashSet<OwnedGame>();
+            this.POTWs = new HashSet<POTW>();
+            this.ProductReviews = new HashSet<ProductReview>();
+            this.ReceivedGifts = new HashSet<Gift>();
+            this.ReceivedMail = new HashSet<Mail>();
+            this.SentGifts = new HashSet<Gift>();
+            this.SentMail = new HashSet<Mail>();
+            this.UserCoupons = new HashSet<UserCoupon>();
+            this.UserNotifications = new HashSet<UserNotification>();
+            this.UserTags = new HashSet<UserTag>();
+            this.WishlistEntries = new HashSet<WishlistEntry>();
+            this.WonAuctions = new HashSet<Auction>();
+            this.WonGiveaways = new HashSet<Giveaway>();
+            this.WonPrizes = new HashSet<WonPrize>();
         }
-        public AppUser() {  }
 
         // the 64bit UserID representing the users on this site
         [Required]
@@ -28,6 +57,25 @@ namespace TheAfterParty.Domain.Entities
         public SteamID GetAsSteamID()
         {
             return new SteamKit2.SteamID((ulong)UserSteamID);
+        }
+
+        [Range(0, 100)]
+        public int PaginationPreference { get; set; }
+
+        public string TimeZoneID { get; set; }
+        public TimeZoneInfo GetTimezone()
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
+        }
+        public DateTime GetLocalUserTime(DateTime time)
+        {
+            DateTime utcTime = new DateTime(time.Ticks, DateTimeKind.Utc);
+
+            TimeZoneInfo info = GetTimezone();
+
+            DateTime convertedTime = TimeZoneInfo.ConvertTime(utcTime, info);
+
+            return convertedTime;
         }
 
         public DateTime MemberSince { get; set; }
@@ -52,6 +100,10 @@ namespace TheAfterParty.Domain.Entities
         public string MediumAvatar { get; set; }
         public string LargeAvatar { get; set; }
 
+        public virtual ICollection<POTW> POTWs { get; set; }
+        public virtual ICollection<GroupEvent> GroupEvents { get; set; }
+
+        public virtual ICollection<Auction> WonAuctions { get; set; }
         // the list of auctions the user has participated in
         public virtual ICollection<AuctionBid> AuctionBids { get; set; }
         public void AddAuctionBid(AuctionBid auctionBid)
@@ -174,9 +226,60 @@ namespace TheAfterParty.Domain.Entities
 
         // the entries for changes in user balance
         public virtual ICollection<BalanceEntry> BalanceEntries { get; set; }
+        public void CreateBalanceEntry(Objective objective, DateTime date)
+        {
+            if (objective == null || objective.FixedReward() <= 0)
+            {
+                return;
+            }
+
+            BalanceEntry entry = new BalanceEntry(this, "Objective reward for \"" + objective.ObjectiveName + "\"", objective.FixedReward(), date);
+            entry.Objective = objective;
+
+            if (BalanceEntries == null)
+            {
+                BalanceEntries = new HashSet<BalanceEntry>();
+            }
+
+            BalanceEntries.Add(entry);
+
+            Balance = Balance + objective.FixedReward();
+        }
         public void CreateBalanceEntry(string notes, int pointsAdjusted, DateTime date)
         {
+            if (pointsAdjusted == 0)
+            {
+                return;
+            }
+
             BalanceEntry entry = new BalanceEntry(this, notes, pointsAdjusted, date);
+
+            if (BalanceEntries == null)
+            {
+                BalanceEntries = new HashSet<BalanceEntry>();
+            }
+
+            BalanceEntries.Add(entry);
+
+            Balance = Balance + pointsAdjusted;
+        }
+        public void CreateBalanceEntry(string notes, int pointsAdjusted, DateTime date, Objective objective)
+        {
+            if (pointsAdjusted == 0)
+            {
+                return;
+            }
+
+            BalanceEntry entry = new BalanceEntry(this, notes, pointsAdjusted, date);
+
+            entry.Objective = objective;
+            
+            if (objective.BalanceEntries == null)
+            {
+                objective.BalanceEntries = new HashSet<BalanceEntry>();
+            }
+
+            objective.BalanceEntries.Add(entry);
 
             if (BalanceEntries == null)
             {
@@ -360,13 +463,15 @@ namespace TheAfterParty.Domain.Entities
         }
         public int GetCartTotal()
         {
-            // Get entries associated with this UserID
-            ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => Object.Equals(entry.UserID, this.Id)).ToList();
+            if (ShoppingCartEntries == null || ShoppingCartEntries.Count == 0)
+            {
+                return 0;
+            }
 
             // Totals are always integer values
             int total = 0;
 
-            foreach (ShoppingCartEntry entry in myEntries)
+            foreach (ShoppingCartEntry entry in ShoppingCartEntries)
             {
                 // SaleOrDefaultPrice returns the price, if it's on sale it's the discounted price, otherwise the base price
                 total += entry.Listing.SaleOrDefaultPrice() * entry.Quantity;
@@ -406,6 +511,28 @@ namespace TheAfterParty.Domain.Entities
 
             BlacklistedListings.Add(listing);
             listing.UsersBlacklist.Add(this);
+        }
+        public void RemoveListingBlacklistEntry(Listing listing)
+        {
+            if (BlacklistedListings == null || listing.UsersBlacklist == null)
+            {
+                return;
+            }
+
+            if (IsBlacklisted(listing))
+            {
+                BlacklistedListings.Remove(listing);
+                listing.UsersBlacklist.Remove(this);
+            }
+        }
+        public bool IsBlacklisted(Listing listing)
+        {
+            if (BlacklistedListings == null)
+            {
+                return false;
+            }
+
+            return BlacklistedListings.Any(l => l.ListingID == listing.ListingID);
         }
     }
 }

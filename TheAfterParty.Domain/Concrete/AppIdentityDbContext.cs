@@ -25,7 +25,6 @@ namespace TheAfterParty.Domain.Concrete
         public DbSet<Prize> Prizes { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ListingComment> ListingComments { get; set; }
-        public DbSet<ProductDetail> ProductDetails { get; set; }
         public DbSet<ProductKey> ProductKeys { get; set; }
         public DbSet<ProductOrderEntry> ProductOrderEntries { get; set; }
         public DbSet<ProductReview> ProductReviews { get; set; }
@@ -37,9 +36,10 @@ namespace TheAfterParty.Domain.Concrete
         public DbSet<WonPrize> WonPrizes { get; set; }
         public DbSet<Platform> Platforms { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }
-        public DbSet<AppMovie> AppMovies { get; set; }
-        public DbSet<AppScreenshot> AppScreenshots { get; set; }
         public DbSet<UserTag> UserTags { get; set; }
+        public DbSet<SiteNotification> SiteNotifications { get; set; }
+        public DbSet<POTW> POTWs { get; set; }
+        public DbSet<GroupEvent> GroupEvents { get; set; }
 
         public AppIdentityDbContext() : base("AppIdentityDbContext")
         {
@@ -49,7 +49,7 @@ namespace TheAfterParty.Domain.Concrete
 
         static AppIdentityDbContext()
         {
-            Database.SetInitializer<AppIdentityDbContext>(new DbInit());
+            Database.SetInitializer<AppIdentityDbContext>(null); //new DbInit());
         }
 
         public static AppIdentityDbContext Create()
@@ -70,6 +70,7 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<Giveaway>().HasRequired<AppUser>(g => g.Winner).WithMany(au => au.WonGiveaways).HasForeignKey(g => g.WinnerID).WillCascadeOnDelete(false);
             modelBuilder.Entity<AuctionBid>().HasRequired<AppUser>(ab => ab.AppUser).WithMany(au => au.AuctionBids).HasForeignKey(ab => ab.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<Auction>().HasRequired<AppUser>(a => a.Creator).WithMany(au => au.Auctions).HasForeignKey(a => a.CreatorID).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Auction>().HasMany<AppUser>(a => a.Winners).WithMany(au => au.WonAuctions);
             modelBuilder.Entity<GiveawayEntry>().HasRequired<AppUser>(ge => ge.AppUser).WithMany(au => au.GiveawayEntries).HasForeignKey(ge => ge.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<Order>().HasRequired<AppUser>(o => o.AppUser).WithMany(au => au.Orders).HasForeignKey(o => o.UserID).WillCascadeOnDelete(false);
             modelBuilder.Entity<ClaimedProductKey>().HasRequired<AppUser>(cpk => cpk.AppUser).WithMany(au => au.ClaimedProductKeys).HasForeignKey(cpk => cpk.UserID).WillCascadeOnDelete(false);
@@ -83,6 +84,8 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<OwnedGame>().HasRequired<AppUser>(og => og.AppUser).WithMany(au => au.OwnedGames).HasForeignKey(og => og.UserID).WillCascadeOnDelete(true);
             modelBuilder.Entity<ShoppingCartEntry>().HasRequired<AppUser>(sce => sce.AppUser).WithMany(au => au.ShoppingCartEntries).HasForeignKey(sce => sce.UserID).WillCascadeOnDelete(true);
             modelBuilder.Entity<Listing>().HasMany<AppUser>(l => l.UsersBlacklist).WithMany(au => au.BlacklistedListings);
+            modelBuilder.Entity<POTW>().HasRequired<AppUser>(p => p.AppUser).WithMany(au => au.POTWs).HasForeignKey(p => p.AppUserID).WillCascadeOnDelete(true);
+            modelBuilder.Entity<GroupEvent>().HasRequired<AppUser>(p => p.AppUser).WithMany(au => au.GroupEvents).HasForeignKey(p => p.AppUserID).WillCascadeOnDelete(true);
 
             // Auction ---
             modelBuilder.Entity<AuctionBid>().HasRequired<Auction>(ab => ab.Auction).WithMany(a => a.AuctionBids).HasForeignKey(ab => ab.AuctionID).WillCascadeOnDelete(true);
@@ -123,15 +126,11 @@ namespace TheAfterParty.Domain.Concrete
             // Product ---
             modelBuilder.Entity<ProductReview>().HasRequired<Product>(pr => pr.Product).WithMany(p => p.ProductReviews).HasForeignKey(pr => pr.ProductID).WillCascadeOnDelete(false);
             modelBuilder.Entity<Tag>().HasMany<Product>(t => t.Products).WithMany(p => p.Tags);
-            modelBuilder.Entity<ProductDetail>().HasRequired<Product>(pd => pd.Product).WithOptional(p => p.ProductDetail).WillCascadeOnDelete(false);
             modelBuilder.Entity<ProductCategory>().HasMany<Product>(pc => pc.Products).WithMany(p => p.ProductCategories);
+            modelBuilder.Entity<GroupEvent>().HasOptional<Product>(ge => ge.Product).WithMany(p => p.GroupEvents);
 
             // Product/Objective ---
             modelBuilder.Entity<Objective>().HasOptional<Product>(o => o.Product).WithMany(p => p.Objectives);
-
-            // ProductDetail ---
-            modelBuilder.Entity<AppMovie>().HasRequired<ProductDetail>(am => am.ProductDetail).WithMany(pd => pd.AppMovies).HasForeignKey(am => am.ProductDetailID).WillCascadeOnDelete(true);
-            modelBuilder.Entity<AppScreenshot>().HasRequired<ProductDetail>(a => a.ProductDetail).WithMany(pd => pd.AppScreenshots).HasForeignKey(a => a.ProductDetailID).WillCascadeOnDelete(true);
             
             // Coupon ---
             modelBuilder.Entity<UserCoupon>().HasRequired<Coupon>(c => c.Coupon).WithMany(uc => uc.UserCoupons).HasForeignKey(uc => uc.CouponID).WillCascadeOnDelete(false);

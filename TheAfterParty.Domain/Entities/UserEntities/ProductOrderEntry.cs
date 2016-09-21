@@ -33,6 +33,31 @@ namespace TheAfterParty.Domain.Entities
             OrderID = order.OrderID;
             this.Order = order;
         }
+        public ProductOrderEntry(Order order, Listing listing)
+        {
+            ListingID = listing.ListingID;
+            Listing = listing;
+            SalePrice = listing.SaleOrDefaultPrice();
+
+            ClaimedProductKeys = new HashSet<ClaimedProductKey>();
+
+            OrderID = order.OrderID;
+            this.Order = order;
+        }
+        public ProductOrderEntry(Order order, ClaimedProductKey claimedKey)
+        {
+            ListingID = claimedKey.ListingID;
+            Listing = claimedKey.Listing;
+            SalePrice = claimedKey.Listing.SaleOrDefaultPrice();
+
+            ClaimedProductKeys = new HashSet<ClaimedProductKey>() { claimedKey };
+            claimedKey.ProductOrderEntry = this;
+
+            OrderID = order.OrderID;
+            this.Order = order;
+
+            //ProductOrderEntryID = claimedKey.ClaimedProductKeyID;
+        }
         public ProductOrderEntry(){}
         
         [Key]//, DatabaseGenerated(DatabaseGeneratedOption.Identity)]

@@ -9,6 +9,7 @@ namespace TheAfterParty.Domain.Abstract
     {
         AppIdentityDbContext GetContext();
 
+        IEnumerable<Objective> SearchObjectives(string searchText, int resultsLimit);
         IEnumerable<Objective> GetObjectives();
         Objective GetObjectiveByID(int objectiveId);
         void InsertObjective(Objective objective);

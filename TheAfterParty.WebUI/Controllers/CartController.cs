@@ -7,6 +7,7 @@ using TheAfterParty.Domain.Entities;
 using TheAfterParty.WebUI.Models._Nav;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace TheAfterParty.WebUI.Controllers
 {
@@ -39,7 +40,7 @@ namespace TheAfterParty.WebUI.Controllers
                 ReturnUrl = returnUrl
             };
 
-            cartViewModel.FullNavList = CreateCartControllerNavList(cartViewModel.LoggedInUser);
+            cartViewModel.FullNavList = CreateCartViewModelNavList();
 
             cartViewModel.CartEntries = cartViewModel.CartEntries.OrderBy(e => e.Listing.ListingName).ToList();
 
@@ -172,28 +173,34 @@ namespace TheAfterParty.WebUI.Controllers
 
             int orderId = System.Int32.Parse(id);
 
-            model.Order = cartService.GetOrderByID(orderId);
-            model.Order.ProductOrderEntries = model.Order.ProductOrderEntries.OrderBy(p => p.Listing.ListingName).ToList();
             model.LoggedInUser = await cartService.GetCurrentUser();
-            model.FullNavList = CreatePurchaseViewModelNavList();
+
+            model.Order = model.LoggedInUser.Orders.SingleOrDefault(o => o.OrderID == orderId);
+
+            if (model.Order == null)
+            {
+                return RedirectToAction("Orders", "Account", null);
+            }
+
+            model.Order.ProductOrderEntries = model.Order.ProductOrderEntries.OrderBy(p => p.Listing.ListingName).ToList();
+            model.FullNavList = CreateCartViewModelNavList();
 
             return View(model);
         }
 
-        public List<NavGrouping> CreatePurchaseViewModelNavList()
+        public List<NavGrouping> CreateCartViewModelNavList()
         {
             List<NavGrouping> grouping = new List<NavGrouping>();
 
             NavGrouping actions = new NavGrouping();
-            actions.GroupingHeader = "Actions";
+            actions.GroupingHeader = "Navigation";
 
             NavItem store = new NavItem();
-            store.Destination = "/Store";
-            store.DestinationName = "Return To Store";
-
+            store.Destination = "/store";
+            store.DestinationName = "Store";
             NavItem account = new NavItem();
             account.DestinationName = "My Account";
-            account.Destination = "/Account";
+            account.Destination = "/account";
 
             actions.NavItems.Add(account);
             actions.NavItems.Add(store);

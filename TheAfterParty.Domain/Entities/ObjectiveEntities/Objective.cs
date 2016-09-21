@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
+using System;
 
 namespace TheAfterParty.Domain.Entities
 {
@@ -64,6 +65,19 @@ namespace TheAfterParty.Domain.Entities
         {
             if (BoostedObjective == null) return Reward;
             return (int)System.Math.Ceiling(Reward * BoostedObjective.BoostAmount);
+        }
+        public DateTime? GetBoostedExpiryOrNull()
+        {
+            if (HasBoostedObjective() == false)
+            {
+                return null;
+            }
+
+            return BoostedObjective.EndDate;
+        }
+        public bool HasBoostedObjective()
+        {
+            return BoostedObjective != null;
         }
 
         // a list of balance entries associated with users who have done this objective

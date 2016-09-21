@@ -14,6 +14,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using Newtonsoft.Json.Linq;
+using TheAfterParty.Domain.Model;
 
 namespace TheAfterParty.Domain.Services
 {
@@ -21,14 +22,16 @@ namespace TheAfterParty.Domain.Services
     {
         private IListingRepository listingRepository;
         private IUserRepository userRepository;
+        private ISiteRepository siteRepository;
         private IUnitOfWork unitOfWork;
         public AppUserManager UserManager { get; private set; }
         public string userName { get; set; }
 
-        public StoreService(IListingRepository listingRepository, IUserRepository userRepository, IUnitOfWork unitOfWork) : this(new AppUserManager(new UserStore<AppUser>(unitOfWork.DbContext)))
+        public StoreService(IListingRepository listingRepository, IUserRepository userRepository, ISiteRepository siteRepository, IUnitOfWork unitOfWork) : this(new AppUserManager(new UserStore<AppUser>(unitOfWork.DbContext)))
         {
             this.listingRepository = listingRepository;
             this.userRepository = userRepository;
+            this.siteRepository = siteRepository;
             this.unitOfWork = unitOfWork;
             userName = "";
         }
@@ -40,6 +43,25 @@ namespace TheAfterParty.Domain.Services
         public void SetUserName(string userName)
         {
             this.userName = userName;
+        }
+
+        public IEnumerable<int> GetAppIDsByID(string id, string apiKey)
+        {
+            string gamesURL = String.Format("http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={0}&steamid={1}&format=json", apiKey, id);
+
+            string result = new System.Net.WebClient().DownloadString(gamesURL);
+
+            JObject gameData = JObject.Parse(result);
+
+            if (gameData["response"] != null && gameData["response"]["games"] != null)
+            {
+                JArray jGames = (JArray)gameData["response"]["games"];
+                int[] array = jGames.Select(j => (int)j["appid"]).ToArray<int>();
+
+                return array.AsEnumerable();
+            }
+
+            return new HashSet<int>();
         }
 
         public List<Listing> FilterListingsByUserSteamID(List<Listing> currentListing, string id, string apiKey)
@@ -188,6 +210,146 @@ namespace TheAfterParty.Domain.Services
             unitOfWork.Save();
         }
 
+        public List<String> BuildOrUpdateProductsWithSteamID(string appIDCsv)
+        {
+            string[] appIds = appIDCsv.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+            List<string> outputList = new List<string>();
+
+            if (appIds.Count() > 0)
+            {
+                foreach (string appId in appIds)
+                {
+                    int appIdVal = 0;
+
+                    Int32.TryParse(appId, out appIdVal);
+
+                    if (appIdVal != 0)
+                    {
+                        Product prod = listingRepository.GetProducts().FirstOrDefault(p => p.AppID == appIdVal);
+
+                        if (prod == null)
+                        {
+                            prod = new Product(appIdVal);
+                        }
+
+                        BuildOrUpdateSteamProduct(appIdVal, prod);
+
+                        if (prod != null)
+                        {
+                            if (prod.ProductID == 0)
+                            {
+                                listingRepository.InsertProduct(prod);
+                                outputList.Add("Added " + appId);
+                            }
+                            else
+                            {
+                                listingRepository.UpdateProduct(prod);
+                                outputList.Add("Updated " + appId);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        outputList.Add("Failed to add entry for " + appId);
+                    }
+                }
+            }
+
+            unitOfWork.Save();
+
+            return outputList;
+        }
+
+        public List<String> AddOrUpdateNonSteamProducts(string input)
+        {
+            List<String> addedProducts = new List<String>();
+
+            input = input.Replace("\r\n", "\r");
+
+            List<String> lines = input.Split(new string[] { "\r" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            Regex IDNameImage = new Regex(@"^id/([^\t]+)\t+([^\t]+)\t+([^\t]+)$");
+            Regex IDName = new Regex(@"^id/([^\t]+)\t+([^\t]+)$");
+
+            Match match;
+            
+            foreach (String line in lines)
+            {
+                string gameName = String.Empty;
+                string p_id = String.Empty;
+                string image = String.Empty;
+
+                if (IDNameImage.Match(line).Success || IDName.Match(line).Success)
+                {
+                    if (IDNameImage.Match(line).Success)
+                    {
+                        match = IDNameImage.Match(line);
+                        image = match.Groups[3].ToString();
+                    }
+                    else
+                    {
+                        match = IDName.Match(line);
+                    }
+
+                    p_id = match.Groups[1].ToString();
+                    gameName = match.Groups[2].ToString();
+
+                    int idVal = 0;
+
+                    Int32.TryParse(p_id, out idVal);
+                    Product product = null;
+
+                    if (idVal != 0)
+                    {
+                        product = listingRepository.GetProducts().FirstOrDefault(p => p.AppID == idVal && p.IsSteamAppID == false);
+                    }
+                    else
+                    {
+                        product = listingRepository.GetProducts().FirstOrDefault(p => String.Equals(p.StringID, p_id) && p.IsSteamAppID == false);
+                    }
+                    
+                    if (product == null)
+                    {
+                        product = new Product(gameName, false);
+                        if (idVal != 0)
+                        {
+                            product.AppID = idVal;
+                        }
+                        else
+                        {
+                            product.StringID = p_id;
+                        }
+                    }
+                    else
+                    {
+                        product.ProductName = gameName;
+                    }
+
+                    product.HeaderImageURL = image;
+
+                    if (product.ProductID == 0)
+                    {
+                        listingRepository.InsertProduct(product);
+                        addedProducts.Add("Added " + product.ProductName);
+                    }
+                    else
+                    {
+                        listingRepository.UpdateProduct(product);
+                        addedProducts.Add("Updated " + product.ProductName);
+                    }
+                }
+                else
+                {
+                    addedProducts.Add("Unable to updated or add " + line);
+                }
+            }
+            
+            unitOfWork.Save();
+
+            return addedProducts;
+        }
+
         public List<String> AddProductKeys(Platform platform, string input)
         {
             if (platform.PlatformName.ToLower().CompareTo("steam") == 0)
@@ -201,6 +363,7 @@ namespace TheAfterParty.Domain.Services
 
             List<String> lines = input.Split(new string[] { "\r" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
+            Regex IDPriceKey = new Regex(@"^id/([0-9]+)\t+([0-9]+)\t+([^\t]+)$");
             Regex NamePriceKey = new Regex("^([^\t]+)\t+([0-9]+)\t+([^\t]+)$");
             Regex NamePrice = new Regex("^([^\t]+)\t+([0-9]+)$");
 
@@ -219,8 +382,17 @@ namespace TheAfterParty.Domain.Services
                 gameName = "";
                 key = "";
                 isGift = false;
+                int p_id = 0;
 
-                if (NamePriceKey.Match(line).Success)
+                if (IDPriceKey.Match(line).Success)
+                {
+                    match = IDPriceKey.Match(line);
+
+                    p_id = Int32.Parse(match.Groups[1].ToString());
+                    price = Int32.Parse(match.Groups[2].ToString());
+                    key = match.Groups[3].ToString();
+                }
+                else if (NamePriceKey.Match(line).Success)
                 {
                     match = NamePriceKey.Match(line);
 
@@ -237,14 +409,17 @@ namespace TheAfterParty.Domain.Services
                     isGift = true;
                 }
 
-                Listing listing;
+                Listing listing = null;
 
-                listing = listingRepository.GetListings().Where(l => l.ContainsPlatform(platform) && object.Equals(l.Product.ProductName, gameName)).SingleOrDefault();
+                if (String.IsNullOrEmpty(gameName) == false)
+                {
+                    listing = listingRepository.GetListings().Where(l => l.ContainsPlatform(platform) && object.Equals(l.Product.ProductName, gameName)).SingleOrDefault();
+                }
 
                 if (listing != null)
                 {
                     listing.ListingPrice = price;
-                    listing.AddProductKey(new ProductKey(isGift, key));
+                    listing.AddProductKeyAndUpdateQuantity(new ProductKey(isGift, key));
                     listing.DateEdited = dateAdded;
                     listingRepository.UpdateListing(listing);
 
@@ -252,20 +427,72 @@ namespace TheAfterParty.Domain.Services
                 }
                 else
                 {
-                    listing = new Listing(gameName, price, dateAdded);
-                    listing.AddPlatform(platform);
-                    listing.AddProductKey(new ProductKey(isGift, key));
+                    if (p_id != 0)
+                    {
+                        listing = listingRepository.GetListings().Where(l => l.Platforms.Any(p => p.PlatformID == platform.PlatformID) && l.Product.AppID == p_id && l.Product.IsSteamAppID == true).FirstOrDefault();
+                    }
 
-                    Product product = new Product(gameName);
-                    //Add logic to get data from api on product info & product details
+                    if (listing == null)
+                    {
+                        Product product = null;
 
-                    listing.AddProduct(product);
+                        if (p_id != 0)
+                        {
+                            product = listingRepository.GetProducts().FirstOrDefault(p => p.AppID == p_id && p.IsSteamAppID == true);
 
-                    listingRepository.InsertListing(listing);
+                            if (product == null)
+                            {
+                                product = new Product(p_id);
 
-                    addedKeys.Add(platform.PlatformName + ": " + listing.ListingName + "...created!");
+                                bool success = BuildOrUpdateSteamProduct(p_id, product);
+
+                                if (success == false)
+                                {
+                                    product = null;
+                                }
+                            }
+                        }
+
+                        if (product != null)
+                        {
+                            listing = new Listing(product.ProductName, price, dateAdded);
+                        }
+                        else
+                        {
+                            product = new Product(gameName, false);
+                            listing = new Listing(gameName, price, dateAdded);
+                        }
+
+                        listing.AddPlatform(platform);
+                        listing.AddProduct(product);
+                        listing.AddProductKeyAndUpdateQuantity(new ProductKey(isGift, key));
+
+                        listingRepository.InsertListing(listing);
+
+                        addedKeys.Add(platform.PlatformName + ": " + listing.ListingName + "...created!");
+                    }
+                    else
+                    {
+
+                        listing.ListingPrice = price;
+                        listing.AddProductKeyAndUpdateQuantity(new ProductKey(isGift, key));
+                        listing.DateEdited = dateAdded;
+
+                        listingRepository.UpdateListing(listing);
+
+                        addedKeys.Add(platform.PlatformName + ": " + listing.ListingName + "...+1!");
+                    }
                 }
+
+                unitOfWork.Save();
             }
+            
+            SiteNotification notification = new SiteNotification();
+            notification.Notification = "[new] [gtext]" + addedKeys.Count() + "[/gtext] items added to the [url=https://theafterparty.azurewebsites.net/store/newest]Co-op Shop[/url]!";
+            notification.NotificationDate = DateTime.Now;
+            siteRepository.InsertSiteNotification(notification);
+
+            unitOfWork.Save();
 
             return addedKeys;
         }
@@ -296,12 +523,13 @@ namespace TheAfterParty.Domain.Services
             List<String> addedKeys = new List<String>();
 
             input = input.Replace("\r\n", "\r");
+            input = input.Replace("\n", "\r");
 
             List<String> lines = input.Split(new string[] { "\r" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
             Regex SubIDPriceKey = new Regex(@"^sub/([0-9]+)\t+([0-9,]+)\t+([0-9]+)\t+([^\t]+)(\t+[^\t]+)?$");
-            Regex AppIDPriceKey = new Regex(@"^([0-9]+)\t+([0-9]+)\t+([^\t]+)(\t+[^\t]+)?$");
-            //Regex ExistingSubKey = new Regex(@"^sub/([0-9]+)\t+([0-9]+)(\t+[^\t]+)?$");
+            Regex AppIDPriceKey = new Regex(@"^([0-9]+)\t+([0-9]+)(\t+[^\t]+)?$");
+            //\t+([^\t]+)
 
             DateTime dateAdded = DateTime.Now;
 
@@ -330,16 +558,14 @@ namespace TheAfterParty.Domain.Services
 
                     appId = Int32.Parse(match.Groups[1].ToString());
                     price = Int32.Parse(match.Groups[2].ToString());
-
-                    gameName = match.Groups[3].Value;
-
-                    if (String.IsNullOrEmpty(match.Groups[4].Value))
+                    
+                    if (String.IsNullOrEmpty(match.Groups[3].Value))
                     {
                         isGift = true;
                     }
                     else
                     {
-                        key = match.Groups[4].Value.Trim();
+                        key = match.Groups[3].Value.Trim();
                     }
                 }
                 else if (SubIDPriceKey.Match(line).Success)
@@ -386,7 +612,7 @@ namespace TheAfterParty.Domain.Services
                 if (listing != null)
                 {
                     listing.ListingPrice = price;
-                    listing.AddProductKey(new ProductKey(isGift, key));
+                    listing.AddProductKeyAndUpdateQuantity(new ProductKey(isGift, key));
                     listing.DateEdited = dateAdded;
                     listingRepository.UpdateListing(listing);
 
@@ -396,7 +622,7 @@ namespace TheAfterParty.Domain.Services
                 {
                     listing = new Listing(gameName, price, dateAdded);
                     listing.AddPlatform(platform);
-                    listing.AddProductKey(new ProductKey(isGift, key));
+                    listing.AddProductKeyAndUpdateQuantity(new ProductKey(isGift, key));
 
                     Product product = new Product(appId, gameName);
                     //Add logic to get data from api on product info & product details
@@ -405,7 +631,7 @@ namespace TheAfterParty.Domain.Services
 
                     // insert this listing entry for now, as we build the listing with data gathered from Steam's store api
                     // we may need to build more listings recursively, we need this listing to be in the repository so it doesn't get stuck in a loop
-                    AddListing(listing);
+                    //AddListing(listing);
 
                     if (appId != 0)
                     {
@@ -421,16 +647,21 @@ namespace TheAfterParty.Domain.Services
 
                     addedKeys.Add(platform.PlatformName + ": " + listing.ListingName + "...created!");
                 }
-
-                // test regex
-
+                
                 unitOfWork.Save();
             }
+
+            SiteNotification notification = new SiteNotification();
+            notification.Notification = "[new] [gtext]" + addedKeys.Count() + "[/gtext] items added to the [url=https://theafterparty.azurewebsites.net/store/newest]Co-op Shop[/url]!";
+            notification.NotificationDate = DateTime.Now;
+            siteRepository.InsertSiteNotification(notification);
+
+            unitOfWork.Save();
 
             return addedKeys;
         }
 
-        // gets the AppIDs contained within the package and then builds a listing for each one (and recursively builds listings for DLCs or the base game for each AppID, if any exists) using BuildListingWithAppID
+        // gets the AppIDs contained within the package and then builds a listing for each one using BuildListingWithAppID
         private void BuildListingWithPackageID(Listing listing, List<int> appIds, string name = "")
         {
             foreach (int id in appIds)
@@ -477,26 +708,102 @@ namespace TheAfterParty.Domain.Services
             }
         }
 
+        public bool BuildOrUpdateSteamProduct(int appId, Product product)
+        {
+            string url = String.Format("http://store.steampowered.com/api/appdetails?appids={0}", appId);
+
+            string result = new System.Net.WebClient().DownloadString(url);
+
+            JObject jsonResult = JObject.Parse(result);
+
+            string appID = appId.ToString();
+
+            if (jsonResult == null || jsonResult[appID] == null || jsonResult[appID]["data"] == null)
+            {
+                return false;
+            }
+            
+            JToken appData = jsonResult[appID]["data"];
+            
+            product.ProductName = (string)appData["name"] ?? "";
+            product.HeaderImageURL = (string)appData["header_image"] ?? "";
+
+            if (!appData["genres"].IsNullOrEmpty())
+            {
+                JArray jGenres = (JArray)appData["genres"];
+                List<string> genresList = new List<string>();
+
+                for (int i = 0; i < jGenres.Count; i++)
+                {
+                    genresList.Add((string)jGenres[i]["description"]);
+                }
+
+                string[] genres = genresList.ToArray();
+
+                if (genres != null)
+                {
+                    for (int i = 0; i < genres.Count(); i++)
+                    {
+                        if (product.HasTag(genres[i]) == false)
+                        {
+                            if (GetTagByName(genres[i]) != null)
+                            {
+                                product.AddTag(GetTagByName(genres[i]));
+                            }
+                            else
+                            {
+                                Tag tag = new Tag(genres[i]);
+                                product.AddTag(tag);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!appData["categories"].IsNullOrEmpty())
+            {
+                JArray jCategories = (JArray)appData["categories"];
+                List<string> categoriesList = new List<string>();
+
+                for (int i = 0; i < jCategories.Count; i++)
+                {
+                    categoriesList.Add((string)jCategories[i]["description"]);
+                }
+
+                string[] categories = categoriesList.ToArray();
+
+                if (categories != null)
+                {
+                    for (int i = 0; i < categories.Count(); i++)
+                    {
+                        if (product.HasProductCategory(categories[i]) == false)
+                        {
+                            if (GetProductCategoryByName(categories[i]) == null)
+                            {
+                                ProductCategory category = new ProductCategory(categories[i]);
+                                product.AddProductCategory(category);
+                            }
+                            else
+                            {
+                                product.AddProductCategory(GetProductCategoryByName(categories[i]));
+                            }
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
         // using a Steam App ID, queries the storefront API to get information about the product and build the listing object
         // listings sent to this method should be persisted to prevent looping behavior
         private void BuildListingWithAppID(Listing listing, int appId)
         {
-            if (listing.ListingID == 0)
-            {
-                throw new Exception("The listing was not persisted!");
-            }
             if (listing.Product == null)
             {
                 throw new Exception("A valid product object was not added to the listing object!");
             }
-
-            ProductDetail productDetail = listing.Product.ProductDetail ?? new ProductDetail();
-
-            if (listing.Product.ProductDetail == null)
-            {
-                listing.Product.AddProductDetail(productDetail);
-            }
-
+            
             string url = String.Format("http://store.steampowered.com/api/appdetails?appids={0}", listing.Product.AppID);
 
             string result = new System.Net.WebClient().DownloadString(url);
@@ -511,93 +818,19 @@ namespace TheAfterParty.Domain.Services
             }
 
             JToken appData = jsonResult[appID]["data"];
-            int baseAppID = 0;
 
-            //get all the product details from the jtoken
-            productDetail.AppID = (appData["steam_appid"].IsNullOrEmpty()) ? 0 : (int)appData["steam_appid"];
-            productDetail.ProductType = (string)appData["type"] ?? "";
-            productDetail.ProductName = (string)appData["name"] ?? "";
-            listing.ListingName = (String.IsNullOrEmpty(productDetail.ProductName) ? listing.ListingName : productDetail.ProductName);
 
-            productDetail.AgeRequirement = (appData["required_age"].IsNullOrEmpty()) ? 0 : (int)appData["required_age"];
-            productDetail.DetailedDescription = (string)appData["detailed_description"] ?? "";
-
-            if (!appData["dlc"].IsNullOrEmpty())
+            if (String.IsNullOrWhiteSpace(listing.Product.ProductName))
             {
-                productDetail.DLCAppIDs = appData["dlc"].Select(d => (int)d).ToArray();
+                listing.Product.ProductName = (string)appData["name"] ?? "";
             }
-
-            productDetail.AboutTheGame = (string)appData["about_the_game"] ?? "";
-
-            if (!appData["fullgame"].IsNullOrEmpty())
+            if (String.IsNullOrWhiteSpace(listing.ListingName))
             {
-                productDetail.BaseProductName = (string)appData["fullgame"]["name"] ?? "";
-                baseAppID = (appData["fullgame"]["appid"].IsNullOrEmpty()) ? 0 : (int)appData["fullgame"]["appid"];
+                listing.ListingName = (string)appData["name"] ?? "";
             }
-
-            productDetail.SupportedLanguages = (string)appData["supported_languages"] ?? "";
-            productDetail.HeaderImageURL = (string)appData["header_image"] ?? "";
-            productDetail.ProductWebsite = (string)appData["website"] ?? "";
-
-            if (!appData["pc_requirements"].IsNullOrEmpty())
-            {
-                productDetail.PCMinimumRequirements = (string)appData["pc_requirements"]["minimum"] ?? "";
-                productDetail.PCRecommendedRequirements = (string)appData["pc_requirements"]["recommended"] ?? "";
-            }
-
-            if (!appData["mac_requirements"].IsNullOrEmpty())
-            {
-                productDetail.MacMinimumRequirements = (string)appData["mac_requirements"]["minimum"] ?? "";
-                productDetail.MacRecommendedRequirements = (string)appData["mac_requirements"]["recommended"] ?? "";
-            }
-
-            if (!appData["linux_requirements"].IsNullOrEmpty())
-            {
-                productDetail.LinuxMinimumRequirements = (string)appData["linux_requirements"]["minimum"] ?? "";
-                productDetail.LinuxRecommendedRequirements = (string)appData["linux_requirements"]["recommended"] ?? "";
-            }
-
-            if (!appData["developers"].IsNullOrEmpty())
-            {
-                productDetail.Developers = appData["developers"].Select(d => (string)d).ToArray();
-            }
-
-            if (!appData["publishers"].IsNullOrEmpty())
-            {
-                productDetail.Publishers = appData["publishers"].Select(d => (string)d).ToArray();
-            }
-
-            if (!appData["demos"].IsNullOrEmpty())
-            {
-                productDetail.DemoAppID = (appData["demos"][0]["appid"].IsNullOrEmpty()) ? 0 : (int)appData["demos"][0]["appid"];
-                productDetail.DemoRestrictions = (string)appData["demos"][0]["description"] ?? "";
-            }
-
-            if (!appData["price_overview"].IsNullOrEmpty())
-            {
-                productDetail.FinalPrice = (appData["price_overview"]["final"].IsNullOrEmpty()) ? 0 : (int)appData["price_overview"]["final"];
-                productDetail.InitialPrice = (appData["price_overview"]["initial"].IsNullOrEmpty()) ? 0 : (int)appData["price_overview"]["initial"];
-                productDetail.CurrencyType = (string)appData["price_overview"]["currency"] ?? "";
-            }
-
-            if (!appData["packages"].IsNullOrEmpty())
-            {
-                productDetail.PackageIDs = appData["packages"].Select(d => (int)d).ToArray();
-            }
-
-            if (!appData["platforms"].IsNullOrEmpty())
-            {
-                productDetail.AvailableOnPC = (appData["platforms"]["windows"].IsNullOrEmpty()) ? true : (bool)appData["platforms"]["windows"];
-                productDetail.AvailableOnMac = (appData["platforms"]["mac"].IsNullOrEmpty()) ? false : (bool)appData["platforms"]["mac"];
-                productDetail.AvailableOnLinux = (appData["platforms"]["linux"].IsNullOrEmpty()) ? false : (bool)appData["platforms"]["linux"];
-            }
-
-            if (!appData["metacritic"].IsNullOrEmpty())
-            {
-                productDetail.MetacriticScore = (appData["metacritic"]["score"].IsNullOrEmpty()) ? 0 : (int)appData["metacritic"]["score"];
-                productDetail.MetacriticURL = (string)appData["metacritic"]["url"] ?? "";
-            }
-
+                        
+            listing.Product.HeaderImageURL = (string)appData["header_image"] ?? "";
+            
             if (!appData["genres"].IsNullOrEmpty())
             {
                 JArray jGenres = (JArray)appData["genres"];
@@ -625,124 +858,7 @@ namespace TheAfterParty.Domain.Services
                         }
                     }
                 }
-
-                productDetail.Genres = genresList.ToArray();
-            }
-
-            if (!appData["recommendations"].IsNullOrEmpty())
-            {
-                productDetail.TotalRecommendations = (appData["recommendations"]["total"].IsNullOrEmpty()) ? 0 : (int)appData["recommendations"]["total"];
-            }
-
-            if (!appData["achievements"].IsNullOrEmpty())
-            {
-                productDetail.NumAchievements = (appData["achievements"]["total"].IsNullOrEmpty()) ? 0 : (int)appData["achievements"]["total"];
-            }
-
-            if (!appData["release_date"].IsNullOrEmpty())
-            {
-                productDetail.ReleaseDate = (string)appData["release_date"]["date"] ?? "";
-            }
-
-            // run a sub-routine to build a listing/product for the base game of this demo/DLC
-            if (baseAppID != 0)
-            {
-                Listing baseGameListing = GetListingByAppID(baseAppID, "Steam");
-
-                if (baseGameListing == null)
-                {
-                    baseGameListing = new Listing(productDetail.BaseProductName);
-                    baseGameListing.AddPlatform(GetPlatforms().Where(p => object.Equals(p.PlatformName, "Steam")).SingleOrDefault());
-                    baseGameListing.AddProduct(new Product(baseAppID));
-
-                    AddListing(baseGameListing);
-
-                    BuildListingWithAppID(baseGameListing, baseAppID);
-
-                    if (productDetail.ProductType.CompareTo("dlc") == 0)
-                    {
-                        baseGameListing.Product.ProductDetail.AddDLC(productDetail.Product);
-                    }
-                    else
-                    {
-                        productDetail.BaseProduct = baseGameListing.Product;
-                    }
-
-                    UpdateListing(baseGameListing);
-                }
-                else
-                {
-                    if (productDetail.ProductType.CompareTo("dlc") == 0)
-                    {
-                        baseGameListing.Product.ProductDetail.AddDLC(productDetail.Product);
-                    }
-                    else
-                    {
-                        productDetail.BaseProduct = baseGameListing.Product;
-                    }
-                }
-            }
-
-            // run a series of sub-routines to build listings/products for each DLC of this game (if applicable)
-            if (productDetail.DLCAppIDs != null && productDetail.DLCAppIDs.Count() > 0)
-            {
-                for (int i = 0; i < productDetail.DLCAppIDs.Count(); i++)
-                {
-                    Listing DLCListing = GetListingByAppID(productDetail.DLCAppIDs[i], "Steam");
-
-                    if (DLCListing == null)
-                    {
-                        DLCListing = new Listing();
-                        DLCListing.AddPlatform(GetPlatforms().Where(p => object.Equals(p.PlatformName, "Steam")).SingleOrDefault());
-                        DLCListing.AddProduct(new Product(productDetail.DLCAppIDs[i]));
-
-                        AddListing(DLCListing);
-
-                        BuildListingWithAppID(DLCListing, productDetail.DLCAppIDs[i]);
-
-                        productDetail.AddDLC(DLCListing.Product);
-
-                        UpdateListing(DLCListing);
-                    }
-                    else
-                    {
-                        productDetail.AddDLC(DLCListing.Product);
-                    }
-                }
-            }
-
-            if (!appData["movies"].IsNullOrEmpty())
-            {
-                JArray movies = (JArray)appData["movies"];
-
-                for (int i = 0; i < movies.Count; i++)
-                {
-                    AppMovie temp = new AppMovie();
-
-                    temp.Highlight = (!movies[i]["highlight"].IsNullOrEmpty()) ? false : (bool)movies[i]["highlight"];
-                    temp.LargeMovieURL = (string)movies[i]["webm"]["max"] ?? "";
-                    temp.Name = (string)movies[i]["name"] ?? "";
-                    temp.SmallMovieURL = (string)movies[i]["webm"]["480"] ?? "";
-                    temp.ThumbnailURL = (string)movies[i]["thumbnail"] ?? "";
-
-                    productDetail.AddAppMovie(temp);
-                }
-            }
-
-            if (!appData["screenshots"].IsNullOrEmpty())
-            {
-                JArray screenshots = (JArray)appData["screenshots"];
-
-                for (int i = 0; i < screenshots.Count; i++)
-                {
-                    AppScreenshot temp = new AppScreenshot();
-
-                    temp.FullSizeURL = (string)screenshots[i]["path_full"] ?? "";
-                    temp.ThumbnailURL = (string)screenshots[i]["path_thumbnail"] ?? "";
-
-                    productDetail.AddAppScreenshot(temp);
-                }
-            }
+            }            
 
             if (!appData["categories"].IsNullOrEmpty())
             {
@@ -772,17 +888,6 @@ namespace TheAfterParty.Domain.Services
                     }
                 }
             }
-
-            listing.Product.AddProductDetail(productDetail);
-
-            if (String.IsNullOrEmpty(listing.Product.ProductName))
-            {
-                listing.Product.ProductName = productDetail.ProductName;
-            }
-            if (String.IsNullOrEmpty(listing.ListingName))
-            {
-                listing.ListingName = productDetail.ProductName;
-            }
         }
         
         public void DownloadIconURL(Platform platform, string localPath, string fileExtension)
@@ -803,15 +908,19 @@ namespace TheAfterParty.Domain.Services
 
         public IEnumerable<Listing> GetListings()
         {
-            return listingRepository.GetListings().ToList();
+            return listingRepository.GetListings();
         }
         public IEnumerable<Listing> GetStockedStoreListings()
         {
-            return listingRepository.GetListings().Where(l => l.Quantity > 0).ToList();
+            return listingRepository.GetListings().Where(l => l.Quantity > 0 && l.ListingPrice > 0);
         }
         public IEnumerable<Listing> GetListingsWithDeals()
         {
-            return listingRepository.GetListings().Where(l => l.HasSale() && l.Quantity > 0).ToList();
+            return listingRepository.GetListings().Where(l => l.HasSale() && l.Quantity > 0);
+        }
+        public IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems, StoreIndexDomainModel model)
+        {
+            return listingRepository.GetListingsWithFilter(filter, out TotalItems, model);
         }
         public IEnumerable<AppUser> GetAppUsers()
         {
@@ -820,6 +929,10 @@ namespace TheAfterParty.Domain.Services
         public IEnumerable<Platform> GetPlatforms()
         {
             return listingRepository.GetPlatforms();
+        }
+        public IEnumerable<Platform> GetActivePlatforms()
+        {
+            return listingRepository.GetActivePlatforms();
         }
         public IEnumerable<Product> GetProducts()
         {
@@ -842,7 +955,7 @@ namespace TheAfterParty.Domain.Services
 
         public Listing GetListingByAppID(int id, string platformName)
         {
-            return listingRepository.GetListings().Where(l => l.Product.AppID == id && l.ContainsPlatform(platformName)).SingleOrDefault();
+            return listingRepository.GetListings().Where(l => l.Product.AppID == id && l.Product.IsSteamAppID == true && l.ContainsPlatform(platformName)).SingleOrDefault();
         }
 
         public DiscountedListing GetDiscountedListingByID(int id)
@@ -895,6 +1008,10 @@ namespace TheAfterParty.Domain.Services
         public AppUser GetCurrentUserSynch()
         {
             return UserManager.FindByName(userName);
+        }
+        public async Task<AppUser> GetCurrentUserWithStoreFilters()
+        {
+            return await UserManager.FindByNameAsyncWithStoreFilters(userName);
         }
         public async Task<AppUser> GetCurrentUser()
         {

@@ -1,0 +1,25 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Home
+@model AdminPOTWsViewModel
+
+@{
+    ViewBag.Title = "Admin POTWs";
+}
+
+<h2>POTWs</h2>
+
+<div>
+    <div class="row">
+        <div class="col-lg-3 text-center">Actions</div>
+        <div class="col-lg-5 text-center">Player</div>
+        <div class="col-lg-4 text-center">Date</div>
+    </div>
+    @foreach (POTW potw in Model.POTWs)
+    {
+        <div class="row">
+            <div class="col-lg-3">@Html.ActionLink("Edit", "EditPOTW", "Home", new { id = potw.POTWID }, null) @Html.ActionLink("Delete", "DeletePOTW", "Home", new { id = potw.POTWID }, null) @Html.ActionLink("Add GN", "AddGroupEvent", "Home", new { id = potw.AppUser.Id }, null)</div>
+            <div class="col-lg-5">@potw.AppUser.UserName</div>
+            <div class="col-lg-4">@potw.StartDate.ToString()</div>
+        </div>
+    }
+</div>

@@ -26,7 +26,7 @@ else
 {
 <span>Product ID (optional): </span>@Html.TextBoxFor(x => x.ProductID)<<br />
 }
-<span>Is Active?: </span>@Html.CheckBoxFor(x => x.Objective.IsActive, new { @Value = Model.Objective.IsActive })<br />
-<span>Requires Monu?: </span>@Html.CheckBoxFor(x => x.Objective.RequiresAdmin, new { @Value = Model.Objective.RequiresAdmin })<br />
+<span>Is Active?: </span>@Html.CheckBoxFor(x => x.Objective.IsActive)<br />
+<span>Requires Monu?: </span>@Html.CheckBoxFor(x => x.Objective.RequiresAdmin)<br />
 <input type="submit" name="Submit" />
 }

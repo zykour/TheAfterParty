@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using TheAfterParty.Domain.Abstract;
 using TheAfterParty.Domain.Entities;
+using System.Data.Entity;
+using TheAfterParty.Domain.Model;
 
 namespace TheAfterParty.Domain.Concrete
 {
@@ -24,17 +26,238 @@ namespace TheAfterParty.Domain.Concrete
         // ---- Listing entity persistance
             // ---- Parent entity
 
+        public IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems, StoreIndexDomainModel model)
+        {
+            IQueryable<Listing> listingQuery = context.Listings
+                        .Include(x => x.ChildListings.Select(y => y.Product.Listings))
+                        .Include(x => x.ChildListings.Select(y => y.Platforms))
+                        .Include(x => x.ChildListings.Select(y => y.DiscountedListings))
+                        .Include(x => x.DiscountedListings)
+                        .Include(x => x.Platforms)
+                        .Include(x => x.Product.Listings)
+                        .AsQueryable()
+                        .Where(x => x.ListingPrice > 0 && x.Quantity > 0);
+
+            if (filter.IsDailyDeal)
+            {
+                listingQuery = listingQuery.Where(x => x.DiscountedListings.Any(y => y.DailyDeal));
+            }
+
+            if (filter.IsOtherDeal)
+            {
+                listingQuery = listingQuery.Where(x => x.DiscountedListings.Any(y => y.DailyDeal == false && y.WeeklyDeal == false));
+            }
+
+            if (filter.IsWeeklyDeal)
+            {
+                listingQuery = listingQuery.Where(x => x.DiscountedListings.Any(y => y.WeeklyDeal));
+            }
+
+            if (filter.IsAllDeal)
+            {
+                listingQuery = listingQuery.Where(x => x.DiscountedListings.Any());
+            }
+
+            if (filter.IsNewest)
+            {
+                var date = context.Listings.OrderByDescending(x => x.DateEdited).FirstOrDefault().DateEdited.Date;
+                var day = date.Day;
+                var month = date.Month;
+                var year = date.Year;
+
+                listingQuery = listingQuery.Where(x => x.DateEdited.Day == day && x.DateEdited.Year == year && x.DateEdited.Month == month);
+            }
+
+            if (String.IsNullOrWhiteSpace(filter.SearchText) == false)
+            {
+                var searchText = filter.SearchText.ToLower();
+
+                listingQuery = listingQuery.Where(x => x.ListingName.ToLower().Contains(searchText));
+            }
+
+            if (filter.BeginsWithFilter != filter.BeginsWithSentinel)
+            {
+                string beginsWithText = filter.BeginsWithFilter.ToString();
+
+                if (filter.BeginsWithSentinel != '0')
+                {
+                    listingQuery = listingQuery.Where(x => x.ListingName.StartsWith(beginsWithText));
+                }
+                else
+                {
+                    listingQuery = listingQuery.Where(x => !char.IsLetter(x.ListingName.First()));
+                }
+            }
+
+            if (String.IsNullOrWhiteSpace(filter.UserID) == false)
+            {
+                if (filter.UnownedFilter)
+                {
+                    listingQuery = listingQuery.Where(x => !context.OwnedGames.Where(y => y.UserID.Equals(filter.UserID)).Select(y => y.AppID).Any(z => z == x.Product.AppID));
+                }
+            }
+
+            if ((filter.UnownedFilter | filter.BlacklistFilter | filter.AffordableFilter) == false)
+            {
+                if (filter.FriendAppIDs.Count() > 0)
+                {
+                    listingQuery = listingQuery.Where(x => !filter.FriendAppIDs.Any(z => z == x.Product.AppID));
+                }
+            }
+
+            if (filter.PlatformID != 0)
+            {
+                listingQuery = listingQuery.Where(x => x.Platforms.Select(y => y.PlatformID).Contains(filter.PlatformID));
+            }
+
+            if (String.IsNullOrWhiteSpace(filter.UserID) == false)
+            {
+                if (filter.BlacklistFilter)
+                {
+                    listingQuery = listingQuery.Where(x => !context.Users.FirstOrDefault(y => y.Id.Equals(filter.UserID)).BlacklistedListings.Select(z => z.ListingID).Any(a => a == x.ListingID));
+                }
+            }
+
+            if (String.IsNullOrWhiteSpace(filter.UserID) == false)
+            {
+                if (filter.AffordableFilter)
+                {
+                    listingQuery = listingQuery.Where(x => x.ListingPrice <= context.Users.FirstOrDefault(y => y.Id.Equals(filter.UserID)).Balance);
+                }
+            }
+
+            if (filter.TagIDs.Count > 0)
+            {
+                listingQuery = listingQuery.Where(x => !filter.TagIDs.Except(x.Product.Tags.Select(y => y.TagID)).Any());
+            }
+
+            if (filter.ProductCategoryIDs.Count > 0)
+            {
+                listingQuery = listingQuery.Where(x => !filter.ProductCategoryIDs.Except(x.Product.ProductCategories.Select(y => y.ProductCategoryID)).Any());
+            }
+
+            if (filter.GameSort > 0)
+            {
+                if (filter.GameSort == 1)
+                {
+                    listingQuery = listingQuery.OrderBy(x => x.ListingName);
+                }
+                else
+                {
+                    listingQuery = listingQuery.OrderByDescending(x => x.ListingName);
+                }
+            }
+            else if (filter.PriceSort > 0)
+            {
+                if (filter.PriceSort == 1)
+                {
+                    listingQuery = listingQuery.OrderBy(x => x.ListingPrice).ThenBy(x => x.ListingName);
+                }
+                else
+                {
+                    listingQuery = listingQuery.OrderByDescending(x => x.ListingPrice).ThenBy(x => x.ListingName);
+                }
+            }
+            else if (filter.QuantitySort > 0)
+            {
+                if (filter.QuantitySort == 1)
+                {
+                    listingQuery = listingQuery.OrderBy(x => x.Quantity).ThenBy(x => x.ListingName);
+                }
+                else
+                {
+                    listingQuery = listingQuery.OrderByDescending(x => x.Quantity).ThenBy(x => x.ListingName);
+                }
+            }
+
+            TotalItems = listingQuery.Count();
+
+            if (filter.PaginationNum > 0 && filter.Page > 0)
+            {
+                listingQuery = listingQuery.Skip((filter.Page - 1) * filter.PaginationNum).Take(filter.PaginationNum);
+            }
+
+            model.StorePlatforms = GetActivePlatforms();
+            model.Tags = GetTags();
+            model.ProductCategories = GetProductCategories();
+
+            return listingQuery;
+        }
+        public IEnumerable<Listing> SearchListings(string searchText, int resultLimit)
+        {
+            IQueryable<Listing> listingQuery = context.Listings
+                        .Include(x => x.ChildListings.Select(y => y.Product))
+                        .Include(x => x.ChildListings.Select(y => y.Platforms))
+                        .Include(x => x.ChildListings.Select(y => y.DiscountedListings))
+                        .Include(x => x.DiscountedListings)
+                        .Include(x => x.Platforms)
+                        .Include(x => x.Product)
+                        .AsQueryable()
+                        .Where(x => x.ListingPrice > 0 && x.Quantity > 0);
+
+            searchText = searchText.Trim().ToLower();
+
+            listingQuery = listingQuery.Where(x => x.ListingName.ToLower().Contains(searchText)).Take(resultLimit);
+
+            return listingQuery;
+        }
+        public IQueryable<Listing> GetListingsQuery()
+        {
+            return context.Listings
+                        .Include(x => x.Product.Tags)
+                        .Include(x => x.Product.ProductCategories)
+                        .Include(x => x.Platforms)
+                        .Include(x => x.ChildListings.Select(y => y.Product.Listings))
+                        .Include(x => x.ChildListings.Select(y => y.Platforms))
+                        .Include(x => x.ChildListings.Select(y => y.DiscountedListings))
+                        .Include(x => x.DiscountedListings)
+                        .Include(x => x.UsersBlacklist)
+                        .AsQueryable();
+            //                        .ToList();
+        }
         public IEnumerable<Listing> GetListings()
         {
-            return context.Listings.ToList();
+            return context.Listings
+                        .Include(x => x.Product.Tags)
+                        .Include(x => x.Product.ProductCategories)
+                        .Include(x => x.Platforms)
+                        .Include(x => x.ChildListings.Select(y => y.Product.Listings))
+                        .Include(x => x.ChildListings.Select(y => y.Platforms))
+                        .Include(x => x.ChildListings.Select(y => y.DiscountedListings))
+                        .Include(x => x.DiscountedListings)
+                        .Include(x => x.UsersBlacklist);
+//                        .ToList();
         }
         public Listing GetListingByID(int id)
         {
-            return context.Listings.Find(id);
+            //return context.Listings.Find(id);
+
+            return context.Listings
+                        .Include(x => x.Product.Tags)
+                        .Include(x => x.Product.ProductCategories)
+                        .Include(x => x.Platforms)
+                        .Include(x => x.ChildListings.Select(y => y.Product))
+                        .Include(x => x.UsersBlacklist)
+                        .SingleOrDefault(x => x.ListingID == id);
         }
         public void InsertListing(Listing listing)
         {
             context.Listings.Add(listing);
+
+            if (listing.ParentListings != null)
+            {
+                foreach (Listing parentListing in listing.ParentListings)
+                {
+                    if (parentListing.ListingID == 0)
+                    {
+                        InsertListing(parentListing);
+                    }
+                    else
+                    {
+                        UpdateListing(parentListing);
+                    }
+                }
+            }
 
             if (listing.Product != null)
             {
@@ -103,6 +326,21 @@ namespace TheAfterParty.Domain.Concrete
                 targetListing.ListingPrice = listing.ListingPrice;
                 targetListing.Quantity = listing.Quantity;
                 targetListing.DateEdited = listing.DateEdited;
+            }
+
+            if (listing.ParentListings != null)
+            {
+                foreach (Listing parentListing in listing.ParentListings)
+                {
+                    if (parentListing.ListingID == 0)
+                    {
+                        InsertListing(parentListing);
+                    }
+                    else
+                    {
+                        UpdateListing(parentListing);
+                    }
+                }
             }
 
             if (listing.Product != null)
@@ -174,11 +412,18 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<Product> GetProducts()
         {
-            return context.Products.ToList();
+            return context.Products
+                            .Include(x => x.ProductCategories)
+                            .Include(x => x.Tags);
         }
         public Product GetProductByID(int id)
         {
-            return context.Products.Find(id);
+            //return context.Products.Find(id);
+
+            return context.Products
+                            .Include(x => x.ProductCategories)
+                            .Include(x => x.Tags)
+                            .SingleOrDefault(x => x.ProductID == id);
         }
         public void InsertProduct(Product product)
         {
@@ -213,19 +458,7 @@ namespace TheAfterParty.Domain.Concrete
                     }
                 }
             }
-
-            if (product.ProductDetail != null)
-            {
-                if (product.ProductDetail.ProductDetailID == 0)
-                {
-                    InsertProductDetail(product.ProductDetail);
-                }
-                else
-                {
-                    UpdateProductDetail(product.ProductDetail);
-                }
-            }
-
+            
             if (product.ProductCategories != null)
             {
                 foreach (ProductCategory category in product.ProductCategories)
@@ -250,6 +483,7 @@ namespace TheAfterParty.Domain.Concrete
                 targetProduct.AppID = product.AppID;
                 targetProduct.ProductName = product.ProductName;
                 targetProduct.StringID = product.StringID;
+                targetProduct.HeaderImageURL = product.HeaderImageURL;
             }
 
             if (product.Tags != null)
@@ -281,19 +515,7 @@ namespace TheAfterParty.Domain.Concrete
                     }
                 }
             }
-
-            if (product.ProductDetail != null)
-            {
-                if (product.ProductDetail.ProductDetailID == 0)
-                {
-                    InsertProductDetail(product.ProductDetail);
-                }
-                else
-                {
-                    UpdateProductDetail(product.ProductDetail);
-                }
-            }
-
+            
             if (product.ProductCategories != null)
             {
                 foreach (ProductCategory category in product.ProductCategories)
@@ -319,11 +541,17 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<DiscountedListing> GetDiscountedListings()
         {
-            return context.DiscountedListings.ToList();
+            return context.DiscountedListings
+                                .Include(x => x.Listing)
+                                .ToList();
         }
         public DiscountedListing GetDiscountedListingByID(int id)
         {
-            return context.DiscountedListings.Find(id);
+            //return context.DiscountedListings.Find(id);
+
+            return context.DiscountedListings
+                                .Include(x => x.Listing)
+                                .SingleOrDefault(x => x.DiscountedListingID == id);
         }
         public void InsertDiscountedListing(DiscountedListing discountedListing)
         {
@@ -337,7 +565,6 @@ namespace TheAfterParty.Domain.Concrete
             {
                 targetDiscountedListing.ItemDiscountPercent = discountedListing.ItemDiscountPercent;
                 targetDiscountedListing.ItemSaleExpiry = discountedListing.ItemSaleExpiry;
-                targetDiscountedListing.ListingID = discountedListing.ListingID;
                 targetDiscountedListing.DailyDeal = discountedListing.DailyDeal;
                 targetDiscountedListing.WeeklyDeal = discountedListing.WeeklyDeal;
             }
@@ -345,7 +572,11 @@ namespace TheAfterParty.Domain.Concrete
         public void DeleteDiscountedListing(int discountedListingId)
         {
             DiscountedListing discountedListing = context.DiscountedListings.Find(discountedListingId);
-            context.DiscountedListings.Remove(discountedListing);
+
+            if (discountedListing != null)
+            {
+                context.DiscountedListings.Remove(discountedListing);
+            }
         }
 
         
@@ -383,145 +614,25 @@ namespace TheAfterParty.Domain.Concrete
             context.ListingComments.Remove(listingComment);
         }
 
-
-        // ---- ProductDetail entity persistance
-
-        public IEnumerable<ProductDetail> GetProductDetails()
-        {
-            return context.ProductDetails.ToList();
-        }
-        public ProductDetail GetProductDetailByID(int id)
-        {
-            return context.ProductDetails.Find(id);
-        }
-        public void InsertProductDetail(ProductDetail productDetail)
-        {
-            context.ProductDetails.Add(productDetail);
-
-            if (productDetail.AppMovies != null)
-            {
-                foreach (AppMovie movie in productDetail.AppMovies)
-                {
-                    if (movie.AppMovieID == 0)
-                    {
-                        InsertAppMovie(movie);
-                    }
-                    else
-                    {
-                        UpdateAppMovie(movie);
-                    }
-                }
-            }
-
-            if (productDetail.AppScreenshots != null)
-            {
-                foreach (AppScreenshot screenshot in productDetail.AppScreenshots)
-                {
-                    if (screenshot.AppScreenshotID == 0)
-                    {
-                        InsertAppScreenshot(screenshot);
-                    }
-                    else
-                    {
-                        UpdateAppScreenshot(screenshot);
-                    }
-                }
-            }
-        }
-        public void UpdateProductDetail(ProductDetail productDetail)
-        {
-            ProductDetail targetProductDetail = context.ProductDetails.Find(productDetail.ProductID);
-
-            if (targetProductDetail != null)
-            {
-                targetProductDetail.ImageData = productDetail.ImageData;
-                targetProductDetail.ImageMimeType = productDetail.ImageMimeType;
-                targetProductDetail.ProductName = productDetail.ProductName;
-                targetProductDetail.AboutTheGame = productDetail.AboutTheGame;
-                targetProductDetail.AgeRequirement = productDetail.AgeRequirement;
-                targetProductDetail.AppID = productDetail.AppID;
-                targetProductDetail.AvailableOnLinux = productDetail.AvailableOnLinux;
-                targetProductDetail.AvailableOnMac = productDetail.AvailableOnMac;
-                targetProductDetail.AvailableOnPC = productDetail.AvailableOnPC;
-                targetProductDetail.BaseProductID = productDetail.BaseProductID;
-                targetProductDetail.BaseProductName = productDetail.BaseProductName;
-                targetProductDetail.CurrencyType = productDetail.CurrencyType;
-                targetProductDetail.DemoAppID = productDetail.DemoAppID;
-                targetProductDetail.DemoRestrictions = productDetail.DemoRestrictions;
-                targetProductDetail.DetailedDescription = productDetail.DetailedDescription;
-                targetProductDetail.Developers = productDetail.Developers;
-                targetProductDetail.DiscountPercent = productDetail.DiscountPercent;
-                targetProductDetail.DLCAppIDs = productDetail.DLCAppIDs;
-                targetProductDetail.FinalPrice = productDetail.FinalPrice;
-                targetProductDetail.Genres = productDetail.Genres;
-                targetProductDetail.HeaderImageURL = productDetail.HeaderImageURL;
-                targetProductDetail.InitialPrice = productDetail.InitialPrice;
-                targetProductDetail.LinuxMinimumRequirements = productDetail.LinuxMinimumRequirements;
-                targetProductDetail.LinuxRecommendedRequirements = productDetail.LinuxRecommendedRequirements;
-                targetProductDetail.MacMinimumRequirements = productDetail.MacMinimumRequirements;
-                targetProductDetail.MacRecommendedRequirements = productDetail.MacRecommendedRequirements;
-                targetProductDetail.MetacriticScore = productDetail.MetacriticScore;
-                targetProductDetail.MetacriticURL = productDetail.MetacriticURL;
-                targetProductDetail.NumAchievements = productDetail.NumAchievements;
-                targetProductDetail.PackageIDs = productDetail.PackageIDs;
-                targetProductDetail.PCMinimumRequirements = productDetail.PCMinimumRequirements;
-                targetProductDetail.PCRecommendedRequirements = productDetail.PCRecommendedRequirements;
-                targetProductDetail.ProductID = productDetail.ProductID;
-                targetProductDetail.ProductType = productDetail.ProductType;
-                targetProductDetail.ProductWebsite = productDetail.ProductWebsite;
-                targetProductDetail.Publishers = productDetail.Publishers;
-                targetProductDetail.ReleaseDate = productDetail.ReleaseDate;
-                targetProductDetail.SupportedLanguages = productDetail.SupportedLanguages;
-                targetProductDetail.TotalRecommendations = productDetail.TotalRecommendations;
-                targetProductDetail.Unreleased = productDetail.Unreleased;
-            }
-
-            if (productDetail.AppMovies != null)
-            {
-                foreach (AppMovie movie in productDetail.AppMovies)
-                {
-                    if (movie.AppMovieID == 0)
-                    {
-                        InsertAppMovie(movie);
-                    }
-                    else
-                    {
-                        UpdateAppMovie(movie);
-                    }
-                }
-            }
-
-            if (productDetail.AppScreenshots != null)
-            {
-                foreach (AppScreenshot screenshot in productDetail.AppScreenshots)
-                {
-                    if (screenshot.AppScreenshotID == 0)
-                    {
-                        InsertAppScreenshot(screenshot);
-                    }
-                    else
-                    {
-                        UpdateAppScreenshot(screenshot);
-                    }
-                }
-            }
-        }
-        public void DeleteProductDetail(int productDetailId)
-        {
-            ProductDetail productDetail = context.ProductDetails.Find(productDetailId);
-            context.ProductDetails.Remove(productDetail);
-        }
-
-
         // ---- ProductKey entity persistance
 
         public IEnumerable<ProductKey> GetProductKeys()
         {
-            return context.ProductKeys.ToList();
+            return context.ProductKeys
+                                .Include(x => x.Listing)
+                                .Include(x => x.Listing.ParentListings)
+                                .Include(x => x.Listing.ChildListings)
+                                .ToList();
         }
         public ProductKey GetProductKeyByID(int id)
         {
-            return context.ProductKeys.Find(id);
+            //return context.ProductKeys.Find(id);
+            
+            return context.ProductKeys
+                                .Include(x => x.Listing)
+                                .Include(x => x.Listing.ParentListings)
+                                .Include(x => x.Listing.ChildListings)
+                                .SingleOrDefault(x => x.ProductKeyID == id);
         }
         public void InsertProductKey(ProductKey productKey)
         {
@@ -585,10 +696,12 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<Tag> GetTags()
         {
-            return context.Tags.ToList();
+            return context.Tags;
         }
         public Tag GetTagByID(int id)
         {
+            //return context.Tags.Find(id);
+
             return context.Tags.Find(id);
         }
         public void InsertTag(Tag tag)
@@ -615,7 +728,11 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<Platform> GetPlatforms()
         {
-            return context.Platforms.ToList();
+            return context.Platforms;
+        }
+        public IEnumerable<Platform> GetActivePlatforms()
+        {
+            return context.Platforms.Where(p => p.Listings.Any()).OrderBy(p => p.PlatformName);
         }
         public Platform GetPlatformByID(int platformId)
         {
@@ -653,7 +770,7 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<ProductCategory> GetProductCategories()
         {
-            return context.ProductCategories.ToList();
+            return context.ProductCategories;
         }
         public ProductCategory GetProductCategoryByID(int productCategoryId)
         {
@@ -680,83 +797,6 @@ namespace TheAfterParty.Domain.Concrete
             if (targetProductCategory != null)
             {
                 context.ProductCategories.Remove(targetProductCategory);
-            }
-        }
-
-
-        // ---- AppMovie persistance
-
-        public IEnumerable<AppMovie> GetAppMovies()
-        {
-            return context.AppMovies.ToList();
-        }
-        public AppMovie GetAppMovieByID(int appMovieId)
-        {
-            return context.AppMovies.Find(appMovieId);
-        }
-        public void InsertAppMovie(AppMovie appMovie)
-        {
-            context.AppMovies.Add(appMovie);
-        }
-        public void UpdateAppMovie(AppMovie appMovie)
-        {
-            AppMovie targetAppMovie = context.AppMovies.Find(appMovie.AppMovieID);
-
-            if (targetAppMovie != null)
-            {
-                targetAppMovie.Highlight = appMovie.Highlight;
-                targetAppMovie.LargeMovieURL = appMovie.LargeMovieURL;
-                targetAppMovie.Name = appMovie.Name;
-                targetAppMovie.ProductDetailID = appMovie.ProductDetailID;
-                targetAppMovie.SmallMovieURL = appMovie.SmallMovieURL;
-                targetAppMovie.ThumbnailURL = appMovie.ThumbnailURL;
-            }
-        }
-        public void DeleteAppMovie(int appMovieId)
-        {
-            AppMovie targetAppMovie = context.AppMovies.Find(appMovieId);
-
-            if (targetAppMovie != null)
-            {
-                context.AppMovies.Remove(targetAppMovie);
-            }
-        }
-
-
-        // ---- AppScreenshot persistance
-
-        public IEnumerable<AppScreenshot> GetAppScreenshots()
-        {
-            return context.AppScreenshots.ToList();
-        }
-        public AppScreenshot GetAppScreenshotByID(int appScreenshotId)
-        {
-            return context.AppScreenshots.Find(appScreenshotId);
-        }
-        public void InsertAppScreenshot(AppScreenshot appScreenshot)
-        {
-            context.AppScreenshots.Add(appScreenshot);
-        }
-        public void UpdateAppScreenshot(AppScreenshot appScreenshot)
-        {
-            AppScreenshot targetAppScreenshot = context.AppScreenshots.Find(appScreenshot.AppScreenshotID);
-
-            if (targetAppScreenshot != null)
-            {
-                targetAppScreenshot.FullSizeURL = appScreenshot.FullSizeURL;
-                targetAppScreenshot.ProductDetailID = appScreenshot.ProductDetailID;
-                targetAppScreenshot.Screenshot = appScreenshot.Screenshot;
-                targetAppScreenshot.ScreenshotMimeType = appScreenshot.ScreenshotMimeType;
-                targetAppScreenshot.ThumbnailURL = appScreenshot.ThumbnailURL;
-            }
-        }
-        public void DeleteAppScreenshot(int appScreenshotId)
-        {
-            AppScreenshot targetAppScreenshot = context.AppScreenshots.Find(appScreenshotId);
-
-            if (targetAppScreenshot != null)
-            {
-                context.AppScreenshots.Remove(targetAppScreenshot);
             }
         }
 

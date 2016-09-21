@@ -1,0 +1,71 @@
+﻿@using TheAfterParty.WebUI.Models.Account
+@using TheAfterParty.Domain.Entities
+@model MySettingsViewModel
+
+@{
+    ViewBag.Title = "My Settings";
+}
+
+@{
+    var timeZoneList = TimeZoneInfo
+        .GetSystemTimeZones()
+        .Select(t => new SelectListItem
+        {
+            Text = t.DisplayName,
+            Value = t.Id,
+            Selected = Model != null && t.Id == Model.LoggedInUser.TimeZoneID
+        });
+
+    List<SelectListItem> paginationPrefListItems = new List<SelectListItem>();
+
+    paginationPrefListItems.Add(new SelectListItem() { Text = "All", Value = "0", Selected = Model != null && Model.LoggedInUser != null && Model.LoggedInUser.PaginationPreference == 0 });
+    paginationPrefListItems.Add(new SelectListItem() { Text = "10", Value = "10", Selected = Model != null && Model.LoggedInUser != null && Model.LoggedInUser.PaginationPreference == 10 });
+    paginationPrefListItems.Add(new SelectListItem() { Text = "25", Value = "25", Selected = Model != null && Model.LoggedInUser != null && Model.LoggedInUser.PaginationPreference == 25 });
+    paginationPrefListItems.Add(new SelectListItem() { Text = "50", Value = "50", Selected = Model != null && Model.LoggedInUser != null && Model.LoggedInUser.PaginationPreference == 50 });
+    paginationPrefListItems.Add(new SelectListItem() { Text = "100", Value = "100", Selected = Model != null && Model.LoggedInUser != null && Model.LoggedInUser.PaginationPreference == 100 });
+}
+
+
+@using (Html.BeginForm("MySettings", "Account", FormMethod.Post))
+{
+@Html.HiddenFor(m => m.LoggedInUser.Id)
+<div>
+    <div class="row custom-row-header">
+        <h3>My Settings</h3>
+    </div>
+    @Html.ValidationSummary()
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-xl-6 col-text text-purple">
+            @Html.Label("Timezone: ")
+        </div>
+        <div class="col-lg-6 col-md-6 col-xl-6">
+            @Html.DropDownListFor(m => m.LoggedInUser.TimeZoneID, timeZoneList)
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-xl-6 col-text text-purple">
+            @Html.Label("Number of results per page (0 for unlimited): ")
+        </div>
+        <div class="col-lg-6 col-md-6 col-xl-6">
+            @Html.DropDownListFor(m => m.PaginationPreference, paginationPrefListItems)
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-xl-12 pull-right">
+            <input type="submit" class="btn btn-sm btn-success" value="Save" />
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-xl-6 col-text text-purple">
+            <p class="col-text text-primary">Update owned games. After clicking, feel free to browse the site, updates may take a few minutes.</p>
+        </div>
+        <div class="col-lg-6 col-md-6 col-xl-6">
+            <a href="@Url.Action("UpdateUser", "User", new { id = Model.LoggedInUser.Id, returnUrl = Request.RawUrl })" class="btn btn-sm btn-success">Update</a>
+        </div>
+    </div>
+</div>
+}
+

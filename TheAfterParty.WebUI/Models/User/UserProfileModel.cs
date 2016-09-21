@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TheAfterParty.WebUI.Models._Nav;
 using TheAfterParty.Domain.Services;
+using TheAfterParty.Domain.Model;
 
 namespace TheAfterParty.WebUI.Models.User
 {

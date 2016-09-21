@@ -14,6 +14,7 @@ namespace TheAfterParty.Domain.Abstract
         Task<AppUser> GetAppUserByID(string appUserId);
         Task InsertAppUser(AppUser appUser);
         Task UpdateAppUser(AppUser appUser);
+        void UpdateAppUserSynch(AppUser appUser);
         Task DeleteAppUser(string appUserId);
 
         IEnumerable<ShoppingCartEntry> GetShoppingCartEntries();

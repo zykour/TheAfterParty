@@ -1,0 +1,18 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Home
+@model AddEditPOTWViewModel
+
+@{
+    ViewBag.Title = "Add POTW";
+}
+
+<h2>Add POTW</h2>
+
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("AddPOTW", "Home", FormMethod.Post))
+{
+    @Html.HiddenFor(p => p.POTW.AppUserID)
+    <span>Date: </span>@Html.TextBoxFor(x => x.POTW.StartDate, new { @Value = DateTime.Now.ToString() })<br />
+    <input type="submit" name="Submit" />
+}

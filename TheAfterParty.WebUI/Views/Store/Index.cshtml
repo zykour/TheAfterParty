@@ -5,14 +5,12 @@
 @{
     ViewBag.Title = "Shop";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    //AjaxOptions ajaxOptions = new AjaxOptions { UpdateTargetId = "cartInfo", Url = Url.Action("AjaxAddToCart", "Cart") };
 }
 
 @using (Html.BeginForm(Model.FormName, "Store", new { id = Model.FormID }, FormMethod.Post, new { id = ViewBag.StoreFormID }))
 {
 @Html.HiddenFor(x => x.PreviousBeginsWithFilter)
 @Html.HiddenFor(x => x.PreviousSelectedPlatformID)
-@Html.HiddenFor(x => x.PreviousSelectedDealsPlatformID)
 @Html.HiddenFor(x => x.PreviousSearchText)
 @Html.HiddenFor(x => x.PreviousGameSort)
 @Html.HiddenFor(x => x.PreviousPriceSort)
@@ -20,110 +18,163 @@
 @Html.HiddenFor(x => x.PreviousFilterLibrary)
 @Html.HiddenFor(x => x.PreviousFilterBlacklist)
 @Html.HiddenFor(x => x.PreviousAffordableFilter)
-@Html.HiddenFor(x => x.PreviousCartAffordableFilter)
-<div class="container">
+<div>
     <div class="row">
-        <div class="col-lg-10">
-            <div class="custom-row-header"><h3>Demo Dan's Co-op Shop</h3></div>
-            <div class="btn-group-justified custom-row-sm custom-row-text">
-                @if (Model.PreviousBeginsWithFilter == '#')
-                {
-                    <button class="btn btn-transparent text-success text-center" type="submit" value="0" name="BeginsWithFilter" title="#">#</button>
-                }
-                else
-                {
-                    <button class="btn btn-transparent text-center" type="submit" value="0" name="BeginsWithFilter" title="#">#</button>
-                }
-                @for (int i = 97; i < 123; i++)
-                {
-                    char letter = (char)i;
-                    if (Model.PreviousBeginsWithFilter == letter)
+        <div class="col-lg-10 col-md-10 col-xl-10">
+            <div class="row custom-row-header"><h3>Demo Dan's Co-op Shop</h3></div>
+            <div class="row custom-just custom-row-sm custom-row-text">
+                <div class="btn-group btn-group-justified" role="group">
+                    @if (Model.PreviousBeginsWithFilter == '0')
                     {
-                        <button class="btn btn-transparent text-success text-center" type="submit" value="@letter" name="BeginsWithFilter" title="@letter">@letter.ToString().ToUpper()</button>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-transparent text-success text-center" type="submit" value="0" name="BeginsWithFilter" title="#">#</button>
+                        </div>
                     }
                     else
                     {
-                        <button class="btn btn-transparent text-center" type="submit" value="@letter" name="BeginsWithFilter" title="@letter">@letter.ToString().ToUpper()</button>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-transparent text-center" type="submit" value="0" name="BeginsWithFilter" title="#">#</button>
+                        </div>
                     }
-                }
-            </div>
-            <div class="container">
-                <div class="row custom-row">
-                    <div class="col-lg-8 text-center">
-                        @if (Model.PreviousGameSort == 1)
+                    @for (int i = 97; i < 123; i++)
+                    {
+                        char letter = (char)i;
+                        if (Model.PreviousBeginsWithFilter == letter)
                         {
-                            <button name="GameSort" value="2" type="submit" class="btn-transparent text-highlighted-primary header-text">Game <i class="glyphicon glyphicon-chevron-down"></i></button>
-                        }
-                        else if (Model.PreviousGameSort == 2)
-                        {
-                            <button name="GameSort" value="1" type="submit" class="btn-transparent text-highlighted-primary header-text">Game <i class="glyphicon glyphicon-chevron-up"></i></button>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-transparent text-success text-center" type="submit" value="@letter" name="BeginsWithFilter" title="@letter.ToString().ToUpper()">@letter.ToString().ToUpper()</button>
+                            </div>
                         }
                         else
                         {
-                            <button name="GameSort" value="1" type="submit" class="btn-transparent header-text">Game</button>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-transparent text-center" type="submit" value="@letter" name="BeginsWithFilter" title="@letter.ToString().ToUpper()">@letter.ToString().ToUpper()</button>
+                            </div>
                         }
-                    </div>
-                    <div class="platform-header col-lg-1"><span class="text-left header-text">Platforms</span></div>
-                    <div class="col-lg-1 text-nowrap">
-                        @if (Model.PreviousQuantitySort == 1)
-                        {
-                            <button name="QuantitySort" value="2" type="submit" class="btn-transparent text-highlighted-primary text-center header-text">Quantity <i class="glyphicon glyphicon-chevron-down"></i></button>
-                        }
-                        else if (Model.PreviousQuantitySort == 2)
-                        {
-                            <button name="QuantitySort" value="1" type="submit" class="btn-transparent text-highlighted-primary text-center header-text">Quantity <i class="glyphicon glyphicon-chevron-up"></i></button>
-                        }
-                        else
-                        {
-                            <button name="QuantitySort" value="1" type="submit" class="btn-transparent text-center header-text">Quantity</button>
-                        }
-                    </div>
-                    <div class="col-lg-1 text-center text-nowrap">
-                        @if (Model.PreviousPriceSort == 1)
-                        {
-                            <button name="PriceSort" value="2" type="submit" class="btn-transparent text-highlighted-primary header-text">Price <i class="glyphicon glyphicon-chevron-down"></i></button>
-                        }
-                        else if (Model.PreviousPriceSort == 2)
-                        {
-                            <button name="PriceSort" value="1" type="submit" class="btn-transparent text-highlighted-primary header-text">Price <i class="glyphicon glyphicon-chevron-up"></i></button>
-                        }
-                        else
-                        {
-                            <button name="PriceSort" value="1" type="submit" class="btn-transparent header-text">Price</button>
-                        }
-                    </div>
-                    <div class="col-lg-1"></div>
+                    }
                 </div>
-                @for (int i = 0; i < Model.StoreListings.ToList().Count; i++)
+            </div>
+            <div class="row custom-row">
+                <div class="col-lg-1 col-md-1 col-xl-1 text-left sort-direction">
+                    @if (Model.PreviousGameSort == 1 || Model.PreviousQuantitySort == 1 || Model.PreviousPriceSort == 1)
+                    {
+                        <span class="text-highlighted-primary fa fa-lg fa-arrow-down"></span>
+                    }
+                    else
+                    {
+                        <span class="text-highlighted-primary fa fa-lg fa-arrow-up"></span>
+                    }                        
+                </div>
+                <div class="col-lg-7 col-md-7 col-xl-7 text-center">
+                    @if (Model.PreviousGameSort == 1)
+                    {
+                        <button name="GameSort" value="2" type="submit" class="btn-sort text-highlighted-primary col-header">Game</button>
+                    }
+                    else if (Model.PreviousGameSort == 2)
+                    {
+                        <button name="GameSort" value="1" type="submit" class="btn-sort text-highlighted-primary col-header">Game</button>
+                    }   
+                    else
+                    {
+                        <button name="GameSort" value="1" type="submit" class="btn-sort col-header">Game</button>
+                    }
+                </div>
+                <div class="col-lg-1 col-md-1 col-xl-1 text-center"><span class="col-header">Platform</span></div>
+                <div class="col-lg-1 col-md-1 col-xl-1 text-center">
+                    @if (Model.PreviousQuantitySort == 1)
+                    {
+                        <button name="QuantitySort" value="2" type="submit" class="btn-sort text-highlighted-primary col-header">Quantity</button>
+                    }
+                    else if (Model.PreviousQuantitySort == 2)
+                    {
+                        <button name="QuantitySort" value="1" type="submit" class="btn-sort text-highlighted-primary col-header">Quantity</button>
+                    }
+                    else
+                    {
+                        <button name="QuantitySort" value="1" type="submit" class="btn-sort col-header">Quantity</button>
+                    }
+                </div>
+                <div class="col-lg-1 col-md-1 col-xl-1 text-center">
+                    @if (Model.PreviousPriceSort == 1)
+                    {
+                        <button name="PriceSort" value="2" type="submit" class="btn-sort text-highlighted-primary col-header">Price</button>
+                    }
+                    else if (Model.PreviousPriceSort == 2)
+                    {
+                        <button name="PriceSort" value="1" type="submit" class="btn-sort text-highlighted-primary col-header">Price</button>
+                    }
+                    else
+                    {
+                        <button name="PriceSort" value="1" type="submit" class="btn-sort col-header">Price</button>
+                    }
+                </div>
+                <div class="col-lg-1 col-md-1 col-xl-1"></div>
+            </div>
+            @if (Model.StoreListings.Count() == 0)
+            {
+                Html.RenderPartial("_EmptyResults", "");
+            }
+            else
+            {
+                var i = 0;
+                foreach (Listing storeListing in Model.StoreListings)
                 {
-                    var rowId = "listingRow" + i;
-                    <div class="store-entry-sm row">
-                        <div class="col-lg-8 store-game-info">
-                            @if (Model.StoreListings.ElementAt(i).Product.AppID != 0 && Model.StoreListings.ElementAt(i).ContainsPlatform("Steam"))
+                   var rowId = "listingRow" + ++i;
+                    <div class="row store-entry-sm" id="@rowId">
+                        <div class="col-lg-8 col-md-8 col-xl-8 vertical-align">
+                            @if (storeListing.Product.AppID != 0 && storeListing.Product.IsSteamAppID == true)
                             {
-                                var url = "http://store.steampowered.com/app/" + Model.StoreListings.ElementAt(i).Product.AppID;
+                                var url = String.Empty;
+
+                                if (storeListing.IsComplex())
+                                {
+                                    url = "http://store.steampowered.com/sub/";
+                                }
+                                else
+                                {
+                                    url = "http://store.steampowered.com/app/";
+                                }
+
+                                 url += storeListing.Product.AppID.ToString();
+
+                                if (storeListing.IsComplex())
+                                {
+                                    var listing = "listing" + i + "id";
+                                    <div id="@listing" onclick="ToggleHiddenAlt(this)">
+                                        <span class="fa fa-fw fa-lg fa-chevron-right pad-left expand-button icon-blue"></span>
+                                    </div>
+                                }
 
                                 if (User.Identity.IsAuthenticated)
                                 {
-                                <div class="store-entry-blacklist" id="blacklistButton" onclick="AddToBlacklist(@Model.StoreListings.ElementAt(i).ListingID, @i);">
-                                    <i class="fa fa-ban store-blacklist"></i>
-                                </div>
+                                    if (Model.LoggedInUser.IsBlacklisted(storeListing))
+                                    {
+                                        <div class="store-entry-blacklist text-inactive" id="blacklistButton" onclick="AddToBlacklist(this, @storeListing.ListingID, @i);">
+                                            <i class="fa fa-ban fa-lg store-blacklist store-blacklist-active"></i>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="store-entry-blacklist" id="blacklistButton" onclick="AddToBlacklist(this, @storeListing.ListingID, @i);">
+                                            <i class="fa fa-ban fa-lg store-blacklist"></i>
+                                        </div>
+                                    }
                                 }
                                     <div class="outer-banner-container">
                                         <a href="@url">
-                                            @if (String.IsNullOrEmpty(Model.StoreListings.ElementAt(i).Product.ProductDetail.HeaderImageURL))
+                                            @if (String.IsNullOrEmpty(storeListing.Product?.GetHttpsSecuredHeaderImage()))
                                             {
-                                                <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
+                                                <div class="inner-store-banner-container delayed-load" data-src="/Content/applogo.gif" style="background-image: url('a.gif')"></div>
                                             }
                                             else
                                             {
-                                                <div class="inner-store-banner-container" style="background-image: url(@Model.StoreListings.ElementAt(i).Product.ProductDetail.HeaderImageURL)"></div>
+                                                <div class="inner-store-banner-container delayed-load" data-src="@storeListing.Product.GetHttpsSecuredHeaderImage()" style="background-image: url('a.gif')"></div>
                                             }
                                         </a>
                                     </div>
                                     <div class="store-entry-name">
                                         <a href="@url">
-                                            @Model.StoreListings.ElementAt(i).ListingName
+                                            @storeListing.ListingName
                                         </a>
                                     </div>
                             }
@@ -131,211 +182,264 @@
                             {
                                 if (User.Identity.IsAuthenticated)
                                 {
-                                <div class="store-entry-blacklist" id="blacklistButton" onclick="AddToBlacklist(@Model.StoreListings.ElementAt(i).ListingID, @i);">
-                                    <i class="fa fa-ban store-blacklist"></i>
+                                <div class="store-entry-blacklist" id="blacklistButton" onclick="AddToBlacklist(this, @storeListing.ListingID, @i);">
+                                    <i class="fa fa-ban fa-lg store-blacklist"></i>
                                 </div>
                                 }
                                 <div class="outer-banner-container">
-                                    @if (String.IsNullOrEmpty(Model.StoreListings.ElementAt(i).Product.ProductDetail.HeaderImageURL))
+                                    @if (String.IsNullOrEmpty(storeListing.Product?.GetHttpsSecuredHeaderImage()))
                                     {
-                                        <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
+                                        <div class="inner-store-banner-container delayed-load" data-src="/Content/applogo.gif" style="background-image: url('a.gif')"></div>
                                     }
                                     else
                                     {
-                                        <div class="inner-store-banner-container" style="background-image: url(@Model.StoreListings.ElementAt(i).Product.ProductDetail.HeaderImageURL)"></div>
+                                        <div class="inner-store-banner-container delayed-load" data-src="@storeListing.Product.GetHttpsSecuredHeaderImage()" style="background-image: url('a.gif')"></div>
                                     }
                                 </div>
                                 <div class="store-entry-name">
-                                    @Model.StoreListings.ElementAt(i).ListingName
+                                    @storeListing.ListingName
                                 </div>
                             }
                         </div>  
-                        <div class="col-lg-1 vertical-align">
-                            @foreach (string platformIconUrl in Model.StoreListings.ElementAt(i).Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
+                        <div class="col-lg-1 col-md-1 col-xl-1 vertical-align">
+                            @foreach (string platformIconUrl in storeListing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
                             {
                                 <div class="icon-image-container">
-                                    <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
+                                    <div class="icon-image text-center delayed-load" data-src="@platformIconUrl" style="background-image: url('a.gif')"></div>
                                 </div>
                             }
                         </div>
-                        <div class="col-lg-1 text-center">
-                            @Model.StoreListings.ElementAt(i).Quantity
+                        <div class="col-lg-1 col-md-1 col-xl-1 col-text text-center">
+                            @storeListing.Quantity
                         </div>
-                        <div class="col-lg-1 text-center text-nowrap">
-                            @if (Model.StoreListings.ElementAt(i).HasSale())
+                        <div class="col-lg-1 col-md-1 col-xl-1 col-text text-center text-nowrap">
+                            @if (storeListing.HasSale())
                             {
-                                <del>@Model.StoreListings.ElementAt(i).ListingPrice</del>   <span class="text-success tag-inline">@Model.StoreListings.ElementAt(i).SaleOrDefaultPrice()</span>
+                                <del>@storeListing.ListingPrice</del>   <span class="text-success tag-inline">@storeListing.SaleOrDefaultPrice()</span>
                             }
                             else
                             {
-                                @Model.StoreListings.ElementAt(i).ListingPrice
+                                @storeListing.ListingPrice
                             }
                         </div>
                         @if (User.Identity.IsAuthenticated)
                         {
-                        <div class="col-lg-1 store-entry-cart" id="cartButton" onclick="AddToCart(@(Model.StoreListings.ElementAt(i).ListingID), this);">
-                            <i class="fa fa-shopping-cart store-cart"></i>
+                        <div class="col-lg-1 col-md-1 col-xl-1 store-entry-cart" id="cartButton" onclick="AddToCart(@(storeListing.ListingID), this);">
+                            <i class="fa fa-shopping-cart fa-lg store-cart"></i>
                         </div>
                         }
                     </div>
-                    if (Model.StoreListings.ElementAt(i).ChildListings.Count > 0)
+                    if (storeListing.ChildListings.Count > 0)
                     {
-                        for (int k = 0; k < Model.StoreListings.ElementAt(i).ChildListings.Count; k++)
-                        {
-                        <div class="row store-entry-sm">
-                            <div class="col-lg-1"></div>
-                            <div class="col-lg-7 store-game-info">
-                                @if (Model.StoreListings.ElementAt(i).ChildListings.ElementAt(k).Product.AppID != 0 && Model.StoreListings.ElementAt(i).ChildListings.ElementAt(k).ContainsPlatform("Steam"))
-                                {
-                                    var url = "http://store.steampowered.com/app/" + Model.StoreListings.ElementAt(i).ChildListings.ElementAt(k).Product.AppID;
-                                    <div class="outer-banner-container">
-                                        <a href="@url">
-                                            <div class="inner-store-banner-container" style="background-image: url(@Model.StoreListings.ElementAt(i).ChildListings.ElementAt(k).Product.ProductDetail.HeaderImageURL)"></div>
-                                        </a>
+                        var listing = "listing" + i + "id1";
+                        <div class="is-hidden" id="@listing">
+                            @foreach (Listing childListing in storeListing.ChildListings)
+                            {
+                                <div class="row store-sub-entry-sm">
+                                    <div class="col-lg-1 col-md-1 col-xl-1"></div>
+                                    <div class="col-lg-7 col-md-7 col-xl-7 vertical-align">
+                                        @if (childListing.Product.AppID != 0 && childListing.ContainsPlatform("Steam"))
+                                        {
+                                            var url = "http://store.steampowered.com/app/" + childListing.Product.AppID;
+                                            <div class="outer-banner-container">
+                                                <a href="@url">
+                                                    @if (String.IsNullOrEmpty(childListing.Product?.GetHttpsSecuredHeaderImage()))
+                                                    {
+                                                        <div class="inner-store-banner-container delayed-load" data-src="/Content/applogo.gif" style="background-image: url('a.gif')"></div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="inner-store-banner-container delayed-load" data-src="@childListing.Product.GetHttpsSecuredHeaderImage()" style="background-image: url('a.gif')"></div>
+                                                    }
+                                                </a>
+                                            </div>
+                                            <div class="store-entry-name">
+                                                <a href="@url">
+                                                    @childListing.ListingName
+                                                </a>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="outer-banner-container">
+                                               @if (String.IsNullOrEmpty(childListing.Product?.GetHttpsSecuredHeaderImage()))
+                                                {
+                                                <div class="inner-store-banner-container delayed-load" data-src="/Content/applogo.gif" style="background-image: url('a.gif')"></div>
+                                                }
+                                                else
+                                                {
+                                                <div class="inner-store-banner-container delayed-load" data-src="@storeListing.Product.GetHttpsSecuredHeaderImage()" style="background-image: url('a.gif')"></div>
+                                                }
+                                            </div>
+                                            <div class="store-entry-name">
+                                                @childListing.ListingName
+                                            </div>
+                                        }
                                     </div>
-                                    <div class="store-entry-name">
-                                        <a href="@url">
-                                            @Model.StoreListings.ElementAt(i).ChildListings.ElementAt(k).ListingName
-                                        </a>
+                                    <div class="col-lg-1 col-md-1 col-xl-1 vertical-align">
+                                        @foreach (string platformIconUrl in childListing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
+                                        {
+                                            <div class="icon-image-container">
+                                                <div class="icon-image text-center delayed-load" data-src="@platformIconUrl" style="background-image: url('a.gif')"></div>
+                                            </div>
+                                        }
                                     </div>
-                                }
-                                else
-                                {
-                                    <div class="outer-banner-container">
-                                        <div class="inner-store-banner-container" style="background-image: url(@Model.StoreListings.ElementAt(i).ChildListings.ElementAt(k).Product.ProductDetail.HeaderImageURL)"></div>
+                                    <div class="col-lg-1 col-md-1 col-xl-1 col-text text-center">
+                                        @childListing.Quantity
                                     </div>
-                                    <div class="store-entry-name">
-                                        @Model.StoreListings.ElementAt(i).ChildListings.ElementAt(k).ListingName
+                                    <div class="col-lg-1 col-md-1 col-xl-1 col-text text-center">
+                                        @childListing.ListingPrice
                                     </div>
-                                }
-                            </div>
-                            <div class="col-lg-1 vertical-align">
-                                @foreach (string platformIconUrl in Model.StoreListings.ElementAt(i).ChildListings.ElementAt(k).Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
-                                {
-                                    <div class="icon-image-container">
-                                        <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
-                                    </div>
-                                }
-                            </div>
-                            <div class="col-lg-1 text-center">
-                                @Model.StoreListings.ElementAt(i).ChildListings.ElementAt(k).Quantity
-                            </div>
-                            <div class="col-lg-1 text-center">
-                                @Model.StoreListings.ElementAt(i).ChildListings.ElementAt(k).ListingPrice
-                            </div>
-                            <div  class="col-lg-1"></div>
+                                    <div class="col-lg-1 col-md-1 col-xl-1"></div>
+                                </div>
+                            }
                         </div>
-                        }
                     }
                 }
-            </div>
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-xl-12 pagination-holder vertical-align">
+                        @Html.PageLinks(Model)
+                    </div>
+                </div>
+            }
         </div>
-        <div class="col-lg-2">
-            <h3 class="text-primary nav-grouping-header store-search" style="width: 100%;">Game Search</h3>
+        <div class="col-lg-2 col-md-2 col-xl-2">
+            <div class="top-padding"></div>
+            <a href="@Url.Action("Index", "Store")" class="btn btn-sm btn-success btn-custom">Clear Search</a>
+            <h3 class="text-primary nav-grouping-header">Game Search</h3>
             <div class="input-group-xs input-group">
-                <input type="text" class="form-control" name="SearchText" value="@Model.SearchText" />
-                <span class="input-group-btn" style="width:0;">
-                    <button class="btn btn-default btn-xs" title="Search" type="submit" name="SearchTextBool" value="true"><i class="fa fa-search search-icon"></i></button>
+                <input type="text" class="form-control gray-input" name="SearchText" value="@Model.SearchText" />
+                <span class="input-group-btn">
+                    <button class="btn btn-default btn-xs green-bg" title="Search" type="submit" name="SearchTextBool" value="true"><i class="fa fa-search search-icon"></i></button>
                 </span>
             </div>
-            <h3 class="text-primary nav-grouping-header" style="width: 100%;">Filter by SteamID</h3>
+            <h3 class="text-primary nav-grouping-header text-nowrap" style="width: 100%;">Filter by SteamID</h3>
             <div class="input-group-xs input-group">
-                <input type="text" class="form-control" name="FriendSteamID" value="@Model.FriendSteamID" />
-                <span class="input-group-btn" style="width:0;">
-                    <button class="btn btn-default btn-xs" title="Search" type="submit" name="FriendSteamIDBool" value="true"><i class="fa fa-search search-icon"></i></button>
+                <input type="text" class="form-control gray-input" name="FriendSteamID" value="@Model.FriendSteamID" />
+                <span class="input-group-btn">
+                    <button class="btn btn-default btn-xs green-bg" title="Search" type="submit" name="FriendSteamIDBool" value="true"><i class="fa fa-search search-icon"></i></button>
                 </span>
             </div>
             @if (Context.User.Identity.IsAuthenticated)
             {
-            <h3 class="text-primary nav-grouping-header" style="width: 100%;">User Filters</h3>
-                if (Model.PreviousFilterLibrary)
-                {
-                <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
-                    <i class="glyphicon glyphicon-check text-success"></i> @Html.Label("Unowned", new { @class = "text-success store-filter" })
-                </button>
-                }
-                else
-                {
-                <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
-                    <i class="glyphicon glyphicon-unchecked text-success"></i> @Html.Label("Unowned", new { @class = "text-success store-filter" })
-                </button>
-                }
-                <br/>
-                if (Model.PreviousFilterBlacklist)
-                {
-                <button type="submit" class="btn-transparent" name="FilterBlacklist" value="true">
-                    <i class="glyphicon glyphicon-check text-success"></i> @Html.Label("Blacklist", new { @class = "text-success store-filter" })
-                </button>
-                }
-                else
-                {
-                <button type="submit" class="btn-transparent" name="FilterBlacklist" value="true">
-                    <i class="glyphicon glyphicon-unchecked text-success"></i> @Html.Label("Blacklist", new { @class = "text-success store-filter" })
-                </button>
-                }
-                <br />
-                if (Model.PreviousAffordableFilter)
-                {
-                <button type="submit" class="btn-transparent" name="AffordableFilter" value="true">
-                    <i class="glyphicon glyphicon-check text-success"></i> @Html.Label("Affordable", new { @class = "text-success store-filter" })
-                </button>
-                }
-                else
-                {
-                <button type="submit" class="btn-transparent" name="AffordableFilter" value="true">
-                    <i class="glyphicon glyphicon-unchecked text-success"></i> @Html.Label("Affordable", new { @class = "text-success store-filter" })
-                </button>
-                }
-            <br />
+                <h3 class="text-primary nav-grouping-header" style="width: 100%;">User Filters</h3>
+                <div id="userContainer">
+                    <div class="filter-div">
+                        @if (Model.PreviousFilterLibrary)
+                        {
+                            <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
+                                <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label("Unowned", new { @class = "text-success store-filter" })
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
+                                <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label("Unowned", new { @class = "text-success store-filter" })
+                            </button>
+                        }
+                    </div>
+                    <div class="filter-div">
+                    @if (Model.PreviousFilterBlacklist)
+                    {
+                        <button type="submit" class="btn-transparent" name="FilterBlacklist" value="true">
+                            <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label("Blacklist", new { @class = "text-success store-filter" })
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn-transparent" name="FilterBlacklist" value="true">
+                            <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label("Blacklist", new { @class = "text-success store-filter" })
+                        </button>
+                    }
+                    </div>
+                    <div class="filter-div">
+                        @if (Model.PreviousAffordableFilter)
+                    {
+                            <button type="submit" class="btn-transparent" name="AffordableFilter" value="true">
+                                <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label("Affordable", new { @class = "text-success store-filter" })
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="submit" class="btn-transparent" name="AffordableFilter" value="true">
+                                <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label("Affordable", new { @class = "text-success store-filter" })
+                            </button>
+                        }
+                    </div>
+                    <div class="text-center filter-expand-text clickable" onclick="ToggleFilters('user')">
+                        collapse
+                    </div>
+                </div>
+                <div id="userCollapse" class="text-center filter-expand-text clickable is-hidden" onclick="ToggleFilters('user')">
+                    expand
+                </div>
             }
             <h3 class="text-primary nav-grouping-header">Categories</h3>
-            @if (Model.SelectedProductCategoryMappings != null)
-            {
-                for (int i = 0; i < Model.SelectedProductCategoryMappings.Count(); i++)
+                @if (Model.SelectedProductCategoryMappings != null)
                 {
-                    string idString = "SelectedProductCategoryMappings_" + i + "__IsSelected";
-                    @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].ProductCategory.ProductCategoryID);
-                    @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].ProductCategory.CategoryString);
-                    @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].IsSelected);
-                    if (Model.SelectedProductCategoryMappings[i].IsSelected)
-                    {
-                        <button type="submit" class="btn-transparent" name="CategoryToChange" value="@Model.SelectedProductCategoryMappings[i].ProductCategory.ProductCategoryID">
-                            <i class="glyphicon glyphicon-check text-success"></i> @Html.Label(Model.SelectedProductCategoryMappings[i].ProductCategory.CategoryString, new { @class = "store-filter text-success" })
-                        </button>
-                    }
-                    else
-                    {
-                        <button type="submit" class="btn-transparent" name="CategoryToChange" value="@Model.SelectedProductCategoryMappings[i].ProductCategory.ProductCategoryID">
-                            <i class="glyphicon glyphicon-unchecked text-success"></i> @Html.Label(Model.SelectedProductCategoryMappings[i].ProductCategory.CategoryString, new { @class = "store-filter text-success" })
-                        </button>
-                    }
-                    <br />
+                    <div id="categoriesContainer">
+                        @for (int i = 0; i < Model.SelectedProductCategoryMappings.Count(); i++)
+                        {
+                            string idString = "SelectedProductCategoryMappings_" + i + "__IsSelected";
+                            @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].ProductCategory.ProductCategoryID)
+                            @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].ProductCategory.CategoryString)
+                            @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].IsSelected)
+                            <div class="filter-div">                                
+                                @if (Model.SelectedProductCategoryMappings[i].IsSelected)
+                                {
+                                <button type="submit" class="btn-transparent text-nowrap" name="CategoryToChange" value="@Model.SelectedProductCategoryMappings[i].ProductCategory.ProductCategoryID">
+                                    <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label(Model.SelectedProductCategoryMappings[i].ProductCategory.CategoryString, new { @class = "store-filter text-success" })
+                                </button>
+                                }
+                                else
+                                {
+                                <button type="submit" class="btn-transparent text-nowrap" name="CategoryToChange" value="@Model.SelectedProductCategoryMappings[i].ProductCategory.ProductCategoryID">
+                                    <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label(Model.SelectedProductCategoryMappings[i].ProductCategory.CategoryString, new { @class = "store-filter text-success" })
+                                </button>
+                                }
+                            </div>
+                                }
+                                <div class="text-center filter-expand-text clickable" onclick="ToggleFilters('categories')">
+                                    collapse
+                                </div>
+                            </div>
+                    <div id="categoriesCollapse" class="text-center filter-expand-text clickable is-hidden" onclick="ToggleFilters('categories')">
+                        expand
+                    </div>
                 }
-            }
-            <h3 class="text-primary nav-grouping-header">Genres & Tags</h3>
-            @if (Model.SelectedTagMappings != null)
-            {
-                for (int i = 0; i < Model.SelectedTagMappings.Count(); i++)
+                <h3 class="text-primary nav-grouping-header">Genres & Tags</h3>
+                @if (Model.SelectedTagMappings != null)
                 {
-                    string idString = "SelectedTagMappings_" + i + "__IsSelected";
-                    @Html.HiddenFor(x => x.SelectedTagMappings[i].StoreTag.TagID)
-                    @Html.HiddenFor(x => x.SelectedTagMappings[i].StoreTag.TagName)
-                    @Html.HiddenFor(x => x.SelectedTagMappings[i].IsSelected)
-                    if (Model.SelectedTagMappings[i].IsSelected)
-                    {
-                        <button class="btn-transparent" type="submit" name="TagToChange" value="@Model.SelectedTagMappings[i].StoreTag.TagID">
-                            <i class="glyphicon glyphicon-check text-success"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
-                        </button>
-                    }
-                    else
-                    {
-                        <button class="btn-transparent" type="submit" name="TagToChange" value="@Model.SelectedTagMappings[i].StoreTag.TagID">
-                            <i class="glyphicon glyphicon-unchecked text-success"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
-                        </button>
-                    }
-                    <br />
+                    <div id="genresContainer">
+                        @for (int i = 0; i < Model.SelectedTagMappings.Count(); i++)
+                        {
+                            string idString = "SelectedTagMappings_" + i + "__IsSelected";
+                            @Html.HiddenFor(x => x.SelectedTagMappings[i].StoreTag.TagID)
+                            @Html.HiddenFor(x => x.SelectedTagMappings[i].StoreTag.TagName)
+                            @Html.HiddenFor(x => x.SelectedTagMappings[i].IsSelected)
+                            <div class="filter-div">
+                                @if (Model.SelectedTagMappings[i].IsSelected)
+                                {
+                                    <button class="btn-transparent text-nowrap" type="submit" name="TagToChange" value="@Model.SelectedTagMappings[i].StoreTag.TagID">
+                                        <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn-transparent text-nowrap" type="submit" name="TagToChange" value="@Model.SelectedTagMappings[i].StoreTag.TagID">
+                                        <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
+                                    </button>
+                                }
+                            </div>
+                        }
+                            <div class="text-center filter-expand-text clickable" onclick="ToggleFilters('genres')">
+                                collapse
+                            </div>
+                    </div>
+                    <div id="genresCollapse" class="text-center clickable filter-expand-text is-hidden" onclick="ToggleFilters('genres')">
+                        expand
+                    </div>
                 }
-            }
         </div>
     </div>
 </div>

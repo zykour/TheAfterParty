@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using TheAfterParty.Domain.Entities;
 using TheAfterParty.WebUI.Models._Nav;
+using TheAfterParty.Domain.Model;
 
 namespace TheAfterParty.WebUI.Models.Store
 {
@@ -17,8 +18,6 @@ namespace TheAfterParty.WebUI.Models.Store
             BeginsWithFilter = '.';
             PreviousBeginsWithFilter = '.';
             SelectedPlatformID = 0;
-            SelectedDealsPlatformID = 0;
-            PreviousSelectedDealsPlatformID = 0;
             PreviousSelectedPlatformID = 0;
             PreviousSearchText = "";
 
@@ -34,23 +33,25 @@ namespace TheAfterParty.WebUI.Models.Store
             CategoryToChange = 0;
 
             AffordableFilter = false;
-            CartAffordableFilter = false;
             FilterBlacklist = false;
             FilterLibrary = false;
             PreviousAffordableFilter = false;
-            PreviousCartAffordableFilter = false;
             PreviousFilterBlacklist = false;
             PreviousFilterLibrary = false;
 
             StorePlatforms = new List<Platform>();
 
             FormID = "";
+
+            SpecialFilterType = String.Empty;
         }
 
         public string FormName { get; set; }
         public string FormID { get; set; }
 
-        public List<Listing> StoreListings { get; set; }
+        public string SpecialFilterType { get; set; }
+
+        public IEnumerable<Listing> StoreListings { get; set; }
         public List<Platform> StorePlatforms { get; set; }
 
         // Container objects for storing the entity (tags and ProductCategories) and whether or not that tag is selected)
@@ -61,17 +62,9 @@ namespace TheAfterParty.WebUI.Models.Store
 
         public string FriendSteamID { get; set; }
         public bool FriendSteamIDBool { get; set; }
-
-        // price range filters
-        /*public int LowPrice { get; set; }
-        public int PreviousLowPrice { get; set; }
-        public int HighPrice { get; set; }
-        public int PreviousHighPrice { get; set; }*/
-
+        
         public bool AffordableFilter { get; set; }
         public bool PreviousAffordableFilter { get; set; }
-        public bool CartAffordableFilter { get; set; }
-        public bool PreviousCartAffordableFilter { get; set; }
         public bool FilterLibrary { get; set; }
         public bool PreviousFilterLibrary { get; set; }
         public bool FilterBlacklist { get; set; }
@@ -93,10 +86,6 @@ namespace TheAfterParty.WebUI.Models.Store
         // Which Platform did the user select
         public int SelectedPlatformID { get; set; }
         public int PreviousSelectedPlatformID { get; set; }
-
-        // Which Platform did the user select to see deals for
-        public int SelectedDealsPlatformID { get; set; }
-        public int PreviousSelectedDealsPlatformID { get; set; }
 
         public int QuantitySort { get; set; }
         public int PriceSort { get; set; }

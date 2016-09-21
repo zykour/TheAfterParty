@@ -2,6 +2,8 @@
 using TheAfterParty.Domain.Entities;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using TheAfterParty.Domain.Concrete;
+using TheAfterParty.Domain.Model;
 
 namespace TheAfterParty.Domain.Services
 {
@@ -9,15 +11,18 @@ namespace TheAfterParty.Domain.Services
     {
         void SetUserName(string userName);
         Task<AppUser> GetCurrentUser();
+        Task<AppUser> GetCurrentUserWithStoreFilters();
         AppUser GetCurrentUserSynch();
 
         IEnumerable<Listing> GetStockedStoreListings();
         IEnumerable<AppUser> GetAppUsers();
         IEnumerable<Listing> GetListingsWithDeals();
         IEnumerable<Listing> GetListings();
+        IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems, StoreIndexDomainModel model);
         IEnumerable<Tag> GetTags();
         IEnumerable<ProductCategory> GetProductCategories();
         IEnumerable<Platform> GetPlatforms();
+        IEnumerable<Platform> GetActivePlatforms();
         IEnumerable<Product> GetProducts();
         IEnumerable<ProductKey> GetProductKeys();
         
@@ -41,6 +46,9 @@ namespace TheAfterParty.Domain.Services
         void AddListing(Listing listing);
 
         List<String> AddProductKeys(Platform platform, string input);
+        List<String> BuildOrUpdateProductsWithSteamID(string appIDCsv);
+        List<String> AddOrUpdateNonSteamProducts(string input);
+        bool BuildOrUpdateSteamProduct(int appId, Product product);
 
         void AddProductCategory(ProductCategory category);
 
@@ -65,6 +73,7 @@ namespace TheAfterParty.Domain.Services
         void EditProductKey(ProductKey productKey);
         void DeleteProductKey(int productKeyId);
 
+        IEnumerable<int> GetAppIDsByID(string id, string apiKey);
         List<Listing> FilterListingsByUserSteamID(List<Listing> currentListing, string id, string apiKey);
     }
 }

@@ -1,0 +1,65 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Auctions
+@model AddEditAuctionViewModel
+
+@{
+    ViewBag.Title = "Edit Auction";
+}
+
+<h2>Edit Auction</h2>
+
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("EditAuction", "Auctions", FormMethod.Post))
+{
+    @Html.HiddenFor(x => x.Auction.AuctionID)
+    <span>Listing ID: </span>@Html.LabelFor(x => x.Auction.ListingID)<br />
+    <span>Alternative Prize (leave above blank if filling this out): </span>@Html.TextBoxFor(x => x.Auction.AlternativePrize, new { @Value = Model.Auction.AlternativePrize })<br />
+    <span># of copies (default 1): </span>@Html.TextBoxFor(x => x.Auction.Copies, new { @Value = Model.Auction.Copies })<br />
+    <span>Is silent?: </span>
+    if (Model.Auction.IsSilent)
+    {
+        @Html.CheckBoxFor(x => x.Auction.IsSilent, new { @checked = "checked" })<br />
+    }
+    else
+    {
+        @Html.CheckBoxFor(x => x.Auction.IsSilent)<br />
+    }
+
+    <span>If no (open auction) is there a bid increment (default of 1):</span>@Html.TextBoxFor(x => x.Auction.Increment, new { @Value = Model.Auction.Increment })<br />
+    <span>Minimum bid amount? (default of 1):</span>@Html.TextBoxFor(x => x.Auction.MinimumBid, new { @Value = Model.Auction.MinimumBid })<br />
+    <span>Ending Date (RECOMMENDED NOT TO CHANGE, CHECK HANGFIRE JOB IF YOU DO): </span>@Html.TextBoxFor(x => x.Auction.EndTime, new { @Value = Model.Auction.EndTime })<br /><br />
+    <span>Keys (Seperated by new lines): </span>@Html.TextAreaFor(x => x.Auction.AuctionKeys, new { @Value = Model.Auction.AuctionKeys })<br /><br />
+    <input type="submit" name="Submit" />
+}
+<br/>
+<br/>
+<h3>Auction Bids</h3>
+@if (Model.Auction?.AuctionBids?.Count == 0)
+{
+    <br/>
+    <span>No bids</span>
+}
+else
+{
+<br/>
+<div>
+    <div class="row">
+        <div class="col-lg-3 text-center">Actions</div>
+        <div class="col-lg-2 text-center">User</div>
+        <div class="col-lg-2 text-center">Bid</div>
+        <div class="col-lg-2 text-center">Bid#(?)</div>
+        <div class="col-lg-3 text-center">Bid Date</div>
+    </div>
+    @foreach (AuctionBid auctionBid in Model.Auction.AuctionBids)
+    {
+        <div class="row">
+            <div class="col-lg-3">@Html.ActionLink("Delete", "DeleteAuctionBid", "Auctions", new { id = auctionBid.AuctionBidID }, null)</div>
+            <div class="col-lg-2">@auctionBid.AppUser.UserName</div>
+            <div class="col-lg-2">@auctionBid.BidAmount</div>
+            <div class="col-lg-2">@auctionBid.BidNumber</div>
+            <div class="col-lg-3">@auctionBid.BidDate.ToString()</div>
+        </div>
+    }
+</div>
+}

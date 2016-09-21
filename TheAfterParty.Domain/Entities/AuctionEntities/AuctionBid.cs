@@ -19,12 +19,33 @@ namespace TheAfterParty.Domain.Entities
 
         // the auction info for the auction this bid is associated with
         public virtual Auction Auction { get; set; }
+        public void AddAuction(Auction auction)
+        {
+            Auction = auction;
+
+            if (Auction.AuctionBids == null)
+            {
+                Auction.AuctionBids = new HashSet<AuctionBid>();
+            }
+
+            Auction.AuctionBids.Add(this);
+        }
 
         // the id of the bidder
         public string UserID { get; set; }
 
         // the appuser who made this bid
         public virtual AppUser AppUser { get; set; }
+        public void AddAppUser(AppUser user)
+        {
+            if (user.AuctionBids == null)
+            {
+                user.AuctionBids = new HashSet<AuctionBid>();
+            }
+
+            user.AuctionBids.Add(this);
+            this.AppUser = user;
+        }
 
         // the date of this bid
         public DateTime BidDate { get; set; }

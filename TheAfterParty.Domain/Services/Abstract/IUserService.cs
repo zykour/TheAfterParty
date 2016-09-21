@@ -2,6 +2,8 @@
 using TheAfterParty.Domain.Entities;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using TheAfterParty.Domain.Concrete;
+using TheAfterParty.Domain.Model;
 
 namespace TheAfterParty.Domain.Services
 {
@@ -10,20 +12,23 @@ namespace TheAfterParty.Domain.Services
         void SetUserName(string userName);
         Task<AppUser> GetCurrentUser();
         AppUser GetCurrentUserSynch();
+        AppUserManager GetUserManager();
 
-        Task AddBlacklistEntry(int listingId);
+        Task<bool> IsBlacklisted(int listingId);
+        Task ToggleBlacklist(int listingId);
         Task TransferPoints(int points, string userId);
 
         AppUser GetRequestedUser(string profileName, bool nickname = false);
-        ICollection<AppUser> GetAllUsers();
-        List<AppUser> GetAdmins();
+        IEnumerable<AppUser> GetAllUsers();
+        IEnumerable<AppUser> GetAdmins();
         Task<AppUser> GetUserByID(string id);
         AppUser GetUserByNickname(string nickname);
+        Task UpdateUser(string id, string apiKey);
 
         Task<List<Order>> GetUserOrders();
         Task<List<ClaimedProductKey>> GetKeys();
 
-        List<ActivityFeedContainer> GetPublicActivityFeedItems(AppUser user);
+        Task<List<ActivityFeedContainer>> GetPublicActivityFeedItems(AppUser user);
         Task<List<ActivityFeedContainer>> GetActivityFeedItems(bool includeNegativeBalanceEntries = false);
 
         List<Auction> GetAuctions();
@@ -33,8 +38,9 @@ namespace TheAfterParty.Domain.Services
         Task<int> GetPublicAuctionReservedBalance();
         Task<int> GetCartTotal();
 
-        Task CreateAppUser(AppUser appUser, string roleToAdd, string apiKey);
+        Task CreateAppUser(AppUser appUser, string password, string roleToAdd, string apiKey);
         Task EditAppUser(AppUser appUser, string roleToAdd, string roleToRemove);
+        Task EditAppUserSettings(AppUser appUser);
 
         ICollection<BalanceEntry> GetBalanceEntries();
         Task CreateBalanceEntry(BalanceEntry entry, int objectiveId, string nickname);
@@ -64,7 +70,7 @@ namespace TheAfterParty.Domain.Services
         bool MarkKeyUsed(int keyId);
         string RevealKey(int keyId);
 
-        void BuildUser(AppUser user, string apiKey);
+        Task BuildUser(AppUser user, string apiKey);
         bool IsInRole(AppUser user, string role);
         bool AddBalances(string input);
     }

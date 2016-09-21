@@ -1,0 +1,40 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Home
+@model AdminGroupEventsViewModel
+
+@{
+    ViewBag.Title = "Admin Group Events";
+}
+
+<h2>Group Events</h2>
+
+<div>
+    <div class="row">
+        <div class="col-lg-2 text-center">Actions</div>
+        <div class="col-lg-2 text-center">Name</div>
+        <div class="col-lg-4 text-center">Desc.</div>
+        <div class="col-lg-1 text-center">User</div>
+        <div class="col-lg-2 text-center">Date</div>
+        <div class="col-lg-1 text-center">GN?</div>
+    </div>
+    @foreach (GroupEvent groupEvent in Model.GroupEvents)
+    {
+        <div class="row">
+            <div class="col-lg-2">@Html.ActionLink("Edit", "EditGroupEvent", "Home", new { id = groupEvent.GroupEventID }, null) @Html.ActionLink("Delete", "DeleteGroupEvent", "Home", new { id = groupEvent.GroupEventID }, null)</div>
+            <div class="col-lg-2">
+                @if (String.IsNullOrEmpty(groupEvent.EventName) == false)
+                {
+                    <span>@groupEvent.EventName</span>
+                }
+                else if (groupEvent.Product != null)
+                {
+                    <span>@groupEvent.Product.ProductName</span>
+                }
+            </div>
+            <div class="col-lg-4">@groupEvent.Description </div>
+            <div class="col-lg-1">@groupEvent.AppUser.UserName</div>
+            <div class="col-lg-2">@groupEvent.EventDate.ToString()</div>
+            <div class="col-lg-1">@groupEvent.IsGameNight</div>
+        </div>
+    }
+</div>

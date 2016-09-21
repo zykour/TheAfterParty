@@ -6,7 +6,54 @@
     ViewBag.Title = "AddGames";
 }
 
-<h2>AddGames</h2>
+<h2>Add Games for @Model.Platform.PlatformName</h2>
+
+@if (Model.AddedGames != null)
+{ 
+<h3>Added the following games:</h3>
+
+    foreach (String addedGame in Model.AddedGames)
+    {
+        <span>@addedGame.ToString()</span>
+        <br/>
+    }
+}
+
+<h3>IMPORTANT</h3>
+
+<p>
+    <span>Valve does not support packages on the storefront API, you must always specify a name when adding packages, if the package already exist in TAP db, then you can supply a gibberish value.</span>
+
+    <h4>Steam:</h4>
+
+    <h5>AppID(tab)Price(tab)Key?</h5>
+
+    <span>620	10	asfd-adsfb</span>
+    <br />
+    <span>620   10</span>
+
+    <h5>sub/SubID(tab)AppIDCSVList(tab)Price(tab)Name(tab)Key?</h5>
+
+    <span>
+        sub/15933	98800,98822,98820	10	Dungeons of Dredmor Complete	asdf-zxcvz
+    </span>
+    <br/>
+    <span>
+        sub/15933	98800,98822,98820	10	Dungeons of Dredmor Complete
+    </span>
+
+    <h4>Non-Steam</h4>
+
+    <h5>Name(tab)Price(tab)Key?</h5>
+
+    <span>The Witcher 3	10	asdf-zvzxc</span>
+    <br />
+    <span>The Witcher 3	10</span>
+
+    <h5>id/SteamID(tab)GameName(tab)Key</h5>
+
+    <span>id/620    15    asdf-asdf-adfz</span>
+</p>
 
 @using (Html.BeginForm("AddGames", "Store", FormMethod.Post))
 {
@@ -15,4 +62,12 @@
 <div class="panel-footer">
     <input type="submit" value="Save" class="btn btn-primary" />
 </div>
+}
+
+<br/>
+<br/>
+@foreach(Platform plat in Model.Platforms)
+{
+    @Html.ActionLink("Add " + plat.PlatformName + " keys", "AddGames", "Store", new { id = @plat.PlatformID }, null)
+    <br/>
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TheAfterParty.Domain.Abstract;
 using TheAfterParty.Domain.Entities;
+using System.Data.Entity;
 
 namespace TheAfterParty.Domain.Concrete
 {
@@ -21,11 +22,25 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<Auction> GetAuctions()
         {
-            return context.Auctions.ToList();
+            return context.Auctions
+                        .Include(x => x.AuctionBids.Select(b => b.AppUser))
+                        .Include(x => x.Creator.AuctionBids)
+                        .Include(x => x.Creator.Auctions)
+                        .Include(x => x.Listing.Platforms)
+                        .Include(x => x.Listing.Product)
+                        .Include(x => x.Winners)
+                        .ToList();
         }
         public Auction GetAuctionByID(int auctionId)
         {
-            return context.Auctions.Find(auctionId);
+            return context.Auctions
+                        .Include(x => x.AuctionBids.Select(b => b.AppUser))
+                        .Include(x => x.Creator.AuctionBids)
+                        .Include(x => x.Creator.Auctions)
+                        .Include(x => x.Listing.Platforms)
+                        .Include(x => x.Listing.Product)
+                        .Include(x => x.Winners)
+                        .SingleOrDefault(a => a.AuctionID == auctionId);
         }
         public void InsertAuction(Auction auction)
         {
@@ -42,11 +57,9 @@ namespace TheAfterParty.Domain.Concrete
                 targetAuction.EndTime = auction.EndTime;
                 targetAuction.IsSilent = auction.IsSilent;
                 targetAuction.MinimumBid = auction.MinimumBid;
-                targetAuction.WinnerID = auction.WinnerID;
-                targetAuction.ListingID = auction.ListingID;
-                targetAuction.CreatorID = auction.CreatorID;
                 targetAuction.Copies = auction.Copies;
                 targetAuction.Increment = auction.Increment;
+                targetAuction.AuctionKeys = auction.AuctionKeys;
             }
 
             foreach (AuctionBid bid in auction.AuctionBids)
@@ -73,11 +86,17 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<AuctionBid> GetAuctionBids()
         {
-            return context.AuctionBids.ToList();
+            return context.AuctionBids
+                            .Include(x => x.AppUser)
+                            .Include(x => x.Auction)
+                            .ToList();
         }
         public AuctionBid GetAuctionBidByID(int auctionBidId)
         {
-            return context.AuctionBids.Find(auctionBidId);
+            return context.AuctionBids
+                            .Include(x => x.AppUser)
+                            .Include(x => x.Auction)
+                            .SingleOrDefault(x => x.AuctionBidID == auctionBidId);
         }
         public void InsertAuctionBid(AuctionBid auctionBid)
         {

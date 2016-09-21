@@ -11,6 +11,10 @@ namespace TheAfterParty.WebUI.App_Start
     using Ninject;
     using Ninject.Web.Common;
 
+    using Domain.Services;
+    using Domain.Abstract;
+    using Domain.Concrete;
+
     public static class NinjectWebCommon 
     {
         private static readonly Bootstrapper bootstrapper = new Bootstrapper();
@@ -37,7 +41,7 @@ namespace TheAfterParty.WebUI.App_Start
         /// Creates the kernel that will manage your application.
         /// </summary>
         /// <returns>The created kernel.</returns>
-        private static IKernel CreateKernel()
+        public static IKernel CreateKernel()
         {
             var kernel = new StandardKernel();
             try
@@ -47,7 +51,7 @@ namespace TheAfterParty.WebUI.App_Start
 
                 RegisterServices(kernel);
                 return kernel;
-            }                                   
+            }
             catch
             {
                 kernel.Dispose();
@@ -61,7 +65,26 @@ namespace TheAfterParty.WebUI.App_Start
         /// <param name="kernel">The kernel.</param>
         private static void RegisterServices(IKernel kernel)
         {
-            System.Web.Mvc.DependencyResolver.SetResolver(new TheAfterParty.WebUI.Infrastructure.NinjectDependencyResolver(kernel));
+            kernel.Bind<AppIdentityDbContext>().ToSelf().InRequestScope();
+
+            kernel.Bind<IAuctionRepository>().To<AuctionRepository>().InRequestScope();
+            kernel.Bind<ICouponRepository>().To<CouponRepository>().InRequestScope();
+            kernel.Bind<IGiveawayRepository>().To<GiveawayRepository>().InRequestScope();
+            kernel.Bind<IListingRepository>().To<ListingRepository>().InRequestScope();
+            kernel.Bind<IObjectiveRepository>().To<ObjectiveRepository>().InRequestScope();
+            kernel.Bind<IPrizeRepository>().To<PrizeRepository>().InRequestScope();
+            kernel.Bind<IUserRepository>().To<UserRepository>().InRequestScope();
+            kernel.Bind<ISiteRepository>().To<SiteRepository>().InRequestScope();
+
+            kernel.Bind<IUnitOfWork>().To<UnitOfWork>().InRequestScope();
+
+            kernel.Bind<ICartService>().To<CartService>().InRequestScope();
+            kernel.Bind<IStoreService>().To<StoreService>().InRequestScope();
+            kernel.Bind<IUserService>().To<UserService>().InRequestScope();
+            kernel.Bind<ISiteService>().To<SiteService>().InRequestScope();
+            kernel.Bind<IObjectivesService>().To<ObjectivesService>().InRequestScope();
+            kernel.Bind<IAuctionService>().To<AuctionService>().InRequestScope();
+            kernel.Bind<IApiService>().To<ApiService>().InRequestScope();
         }        
     }
 }

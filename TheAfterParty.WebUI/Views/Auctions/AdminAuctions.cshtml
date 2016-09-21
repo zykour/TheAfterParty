@@ -1,0 +1,33 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Auctions
+@model AdminAuctionsViewModel
+
+@{
+    ViewBag.Title = "Admin Auctions";
+}
+
+<h2>Auctions</h2>
+
+<div>
+    <div class="row">
+        <div class="col-lg-3 text-center">Actions</div>
+        <div class="col-lg-2 text-center">Game/Prize</div>
+        <div class="col-lg-1 text-center">Silent?</div>
+        <div class="col-lg-1 text-center">Min.Bid</div>
+        <div class="col-lg-1 text-center">Bid.Incr</div>
+        <div class="col-lg-1 text-center">Qty</div>
+        <div class="col-lg-3 text-center">Ends</div>
+    </div>
+    @foreach (Auction auction in Model.Auctions)
+    {
+        <div class="row">
+            <div class="col-lg-3">@Html.ActionLink("Edit", "EditAuction", "Auctions", new { id = auction.AuctionID }, null) @Html.ActionLink("Delete", "DeleteAuction", "Auctions", new { id = auction.AuctionID }, null)</div>
+            <div class="col-lg-2">@auction.Prize()</div>
+            <div class="col-lg-1">@auction.IsSilent</div>
+            <div class="col-lg-1">@auction.MinimumBid</div>
+            <div class="col-lg-1">@auction.Increment</div>
+            <div class="col-lg-1">@auction.Copies</div>
+            <div class="col-lg-3">@auction.EndTime.ToString()</div>
+        </div>
+    }
+</div>

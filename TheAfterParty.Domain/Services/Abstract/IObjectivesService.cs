@@ -22,6 +22,7 @@ namespace TheAfterParty.Domain.Services
         BoostedObjective GetBoostedObjectiveByID(int id);
         void AddBoostedObjective(BoostedObjective boostedObjective);
         void EditBoostedObjective(BoostedObjective boostedObjective, int days);
+        void DeleteBoostedObjective(int id);
         Product GetProductByID(int id);
         IEnumerable<Tag> GetTags();
     }

@@ -16,6 +16,8 @@ using System.Net;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using TheAfterParty.Domain.Services;
+using System.Web.Mvc;
+using TheAfterParty.Domain.Model;
 
 namespace TheAfterParty.Domain.Services
 {
@@ -45,11 +47,17 @@ namespace TheAfterParty.Domain.Services
         protected UserService(AppUserManager userManager)
         {
             UserManager = userManager;
+            UserManager.UserValidator = new UserValidator<AppUser>(userManager) { AllowOnlyAlphanumericUserNames = false };
         }
 
         public void SetUserName(string userName)
         {
             this.userName = userName;
+        }
+
+        public AppUserManager GetUserManager()
+        {
+            return UserManager;
         }
 
 
@@ -65,13 +73,13 @@ namespace TheAfterParty.Domain.Services
         }
         public async Task<int> GetSilentAuctionReservedBalance()
         {
-            AppUser user = await GetCurrentUser();
+            AppUser user = await GetCurrentUserWithAuctions();
 
             return user.GetSilentAuctionReservedBalance();
         }
         public async Task<int> GetPublicAuctionReservedBalance()
         {
-            AppUser user = await GetCurrentUser();
+            AppUser user = await GetCurrentUserWithAuctions();
 
             return user.GetPublicAuctionReservedBalance();
         }
@@ -87,22 +95,40 @@ namespace TheAfterParty.Domain.Services
             return UserManager.Users.Where(u => object.Equals(nickname.ToUpper(), u.Nickname.ToUpper())).SingleOrDefault();
         }
 
-
-        public async Task AddBlacklistEntry(int listingId)
+        public async Task<bool> IsBlacklisted(int listingId)
         {
-            AppUser user = await GetCurrentUser();
+            Listing listing = listingRepository.GetListingByID(listingId);
 
-            user.AddListingBlacklistEntry(listingRepository.GetListingByID(listingId));
+            AppUser user = await GetCurrentUserWithBlacklist();
+
+            return user.IsBlacklisted(listing);
+        }
+
+        public async Task ToggleBlacklist(int listingId)
+        {
+            AppUser user = await GetCurrentUserWithBlacklist();
+
+            Listing listing = listingRepository.GetListingByID(listingId);
+
+            if (user.IsBlacklisted(listing))
+            {
+                user.RemoveListingBlacklistEntry(listing);
+            }
+            else
+            {
+                user.AddListingBlacklistEntry(listing);
+            }
+
             UserManager.Update(user);
             unitOfWork.Save();
         }
 
         public async Task TransferPoints(int points, string userId)
         {
-            AppUser donor = await GetCurrentUser();
+            AppUser donor = await GetCurrentUserNoProperties();
             AppUser recipient = await UserManager.FindByIdAsync(userId);
 
-            if (donor.Balance - donor.ReservedBalance() > points)
+            if (donor.Balance - donor.ReservedBalance() >= points)
             {
                 donor.CreateBalanceEntry("Transfer of points to " + recipient.UserName, 0 - points, DateTime.Now);
                 recipient.CreateBalanceEntry("Gift of points from " + donor.UserName, points, DateTime.Now);
@@ -173,85 +199,135 @@ namespace TheAfterParty.Domain.Services
                 return UserManager.Users.Where(u => object.Equals(u.UserName.ToLower(), profileName.Trim().ToLower())).SingleOrDefault();
             }
         }
-        public ICollection<AppUser> GetAllUsers()
+        public IEnumerable<AppUser> GetAllUsers()
         {
-            return UserManager.Users.ToList();
+            return userRepository.GetAppUsers();
         }
         public async Task<AppUser> GetUserByID(string id)
         {
-            return await userRepository.GetAppUserByID(id);
+            return await UserManager.FindByIdAsync(id);
+            //return await userRepository.GetAppUserByID(id);
         }
-        public List<AppUser> GetAdmins()
+        public IEnumerable<AppUser> GetAdmins()
         {
             return userRepository.GetAppUsers().Where(au => UserManager.IsInRole(au.Id, "Admin")).ToList();
         }
         public async Task<List<Order>> GetUserOrders()
         {
-            AppUser user = await GetCurrentUser();
+            AppUser user = await GetCurrentUserNoProperties();
 
             return userRepository.GetOrders().Where(o => object.Equals(o.UserID, user.Id)).ToList();
         }
         public async Task<List<ClaimedProductKey>> GetKeys()
         {
-            AppUser user = await GetCurrentUser();
+            AppUser user = await GetCurrentUserNoProperties();
 
             return userRepository.GetClaimedProductKeys().Where(o => object.Equals(o.UserID, user.Id)).ToList();
         }
         public async Task<List<WonPrize>> GetWonPrizes()
         {
-            AppUser user = await GetCurrentUser();
+            AppUser user = await GetCurrentUserNoProperties();
 
             return prizeRepository.GetWonPrizes().Where(p => object.Equals(p.UserID, user.Id)).ToList();
         }
         public async Task<List<AuctionBid>> GetAuctionBids()
         {
-            AppUser user = await GetCurrentUser();
+            AppUser user = await GetCurrentUserNoProperties();
 
             return auctionRepository.GetAuctionBids().Where(b => object.Equals(b.UserID, user.Id)).ToList();
         }
         public async Task<List<Auction>> GetCreatedAuctions()
         {
-            AppUser user = await GetCurrentUser();
+            AppUser user = await GetCurrentUserNoProperties();
 
             return auctionRepository.GetAuctions().Where(a => object.Equals(a.CreatorID, user.Id)).ToList();
         }
         public async Task<List<GiveawayEntry>> GetGiveawayEntries()
         {
-            AppUser user = await GetCurrentUser();
+            AppUser user = await GetCurrentUserNoProperties();
 
             return giveawayRepository.GetGiveawayEntries().Where(ge => object.Equals(ge.UserID, user.Id)).ToList();
         }
         public async Task<List<Giveaway>> GetCreatedGiveaways()
         {
-            AppUser user = await GetCurrentUser();
+            AppUser user = await GetCurrentUserNoProperties();
 
             return giveawayRepository.GetGiveaways().Where(g => object.Equals(g.CreatorID, user.Id)).ToList();
         }
         #endregion
 
         #region Admin Actions
-        public async Task CreateAppUser(AppUser appUser, string roleToAdd, string apiKey)
+        public async Task CreateAppUser(AppUser appUser, string password, string roleToAdd, string apiKey)
         {
-            BuildUser(appUser, apiKey);
             appUser.MemberSince = DateTime.Now;
+            appUser.LastLogon = DateTime.Now;
 
-            await UserManager.CreateAsync(appUser);
+            if (String.IsNullOrEmpty(password) == false)
+            {
+                appUser.PasswordHash = UserManager.PasswordHasher.HashPassword(password);
+                await UserManager.CreateAsync(appUser, password);
+            }
+            else
+            {
+                await UserManager.CreateAsync(appUser);
+            }
 
             if (String.IsNullOrEmpty(roleToAdd) == false)
             {
+                RoleManager<IdentityRole> roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(unitOfWork.DbContext));
+
                 if (roleToAdd.Contains(","))
                 {
                     string[] rolesToAdd = roleToAdd.Split(new char[] { ',' });
 
                     foreach (string role in rolesToAdd)
                     {
-                        await UserManager.AddToRoleAsync(appUser.Id, roleToAdd);
+                        if (roleManager.RoleExists(role) == false)
+                        {
+                            await roleManager.CreateAsync(new IdentityRole(role));
+                        }
+
+                        await UserManager.AddToRoleAsync(appUser.Id, role);
                     }
                 }
                 else
                 {
+                    if (roleManager.RoleExists(roleToAdd) == false)
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(roleToAdd));
+                    }
+
                     await UserManager.AddToRoleAsync(appUser.Id, roleToAdd);
                 }
+            }
+
+            Task task = new Task(new Action(() => BuildUser(appUser, apiKey)));
+            task.Start();
+        }
+        public async Task<AppUser> GetUserByIdentifier(string identifier)
+        {
+            AppUser user = await GetUserByID(identifier);
+
+            if (user == null)
+            {
+                user = GetRequestedUser(identifier);
+            }
+
+            if (user == null)
+            {
+                user = GetUserByNickname(identifier);
+            }
+
+            return user;
+        }
+        public async Task UpdateUser(string userIdentifier, string apiKey)
+        {
+            AppUser user = await GetUserByIdentifier(userIdentifier);
+
+            if (user != null)
+            {
+                Task task = new Task(new Action(() => BuildUser(user, apiKey)));
+                task.Start();
             }
         }
         public async Task EditAppUser(AppUser appUser, string roleToAdd, string roleToRemove)
@@ -268,6 +344,8 @@ namespace TheAfterParty.Domain.Services
             updatedUser.UserSteamID = appUser.UserSteamID;
             updatedUser.UserName = appUser.UserName;
             updatedUser.MemberSince = appUser.MemberSince;
+            updatedUser.TimeZoneID = appUser.TimeZoneID;
+            updatedUser.PaginationPreference = appUser.PaginationPreference;
 
             await UserManager.UpdateAsync(updatedUser);
 
@@ -276,9 +354,14 @@ namespace TheAfterParty.Domain.Services
                 if (roleToAdd.Contains(","))
                 {
                     string[] rolesToAdd = roleToAdd.Split(new char[] { ',' });
+                    RoleManager<IdentityRole> roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>());
 
                     foreach (string role in rolesToAdd)
                     {
+                        if (roleManager.RoleExists(role) == false)
+                        {
+                            await roleManager.CreateAsync(new IdentityRole(role));
+                        }
                         await UserManager.AddToRoleAsync(appUser.Id, role);
                     }
                 }
@@ -387,7 +470,7 @@ namespace TheAfterParty.Domain.Services
 
             updatedEntry.PointsAdjusted = entry.PointsAdjusted;
             updatedEntry.Notes = entry.Notes;
-            
+
             userRepository.UpdateBalanceEntry(updatedEntry);
             unitOfWork.Save();
         }
@@ -403,7 +486,7 @@ namespace TheAfterParty.Domain.Services
 
             unitOfWork.Save();
         }
-      
+
         public void CreateClaimedProductKey(ClaimedProductKey key, string nickname)
         {
             if (key.ListingID != 0)
@@ -427,12 +510,12 @@ namespace TheAfterParty.Domain.Services
             unitOfWork.Save();
         }
         public void CreateClaimedProductKey(ClaimedProductKey key)
-        { 
+        {
             if (key.ListingID != 0)
             {
                 key.Listing = listingRepository.GetListingByID(key.ListingID);
             }
-            
+
             key.Date = DateTime.Now;
 
             userRepository.InsertClaimedProductKey(key);
@@ -465,7 +548,7 @@ namespace TheAfterParty.Domain.Services
             {
                 entry.Listing = listingRepository.GetListingByID(entry.ListingID);
             }
-            
+
             DateTime date = DateTime.Now;
             order.SaleDate = date;
 
@@ -479,7 +562,7 @@ namespace TheAfterParty.Domain.Services
             {
                 priceToCharge = order.ProductOrderEntries.First().SalePrice;
             }
-            
+
             if (useDBKey)
             {
                 ProductKey key = GetProductKey(entry.ListingID);
@@ -505,7 +588,7 @@ namespace TheAfterParty.Domain.Services
                 //userRepository.InsertBalanceEntry(balanceEntry);
                 order.AppUser.AddBalanceEntry(balanceEntry);
             }
-            
+
             entry.SalePrice = priceToCharge;
             order.AppUser.AddOrder(order);
             //userRepository.InsertOrder(order);
@@ -575,15 +658,36 @@ namespace TheAfterParty.Domain.Services
         }
         #endregion
 
-        public List<ActivityFeedContainer> GetPublicActivityFeedItems(AppUser user)
+        public async Task EditAppUserSettings(AppUser appUser)
+        {
+            AppUser updatedUser = UserManager.FindById(appUser.Id);
+
+            if (updatedUser == null)
+            {
+                return;
+            }
+
+            updatedUser.TimeZoneID = appUser.TimeZoneID;
+            updatedUser.PaginationPreference = appUser.PaginationPreference;
+
+            await UserManager.UpdateAsync(updatedUser);
+
+            unitOfWork.Save();
+        }
+
+        public async Task<List<ActivityFeedContainer>> GetPublicActivityFeedItems(AppUser user)
         {
             List<ActivityFeedContainer> activityFeed = new List<ActivityFeedContainer>();
+
+            AppUser loggedInUser = await GetCurrentUserWithActivityProperties();
+
+            TimeZoneInfo info = TimeZoneInfo.FindSystemTimeZoneById(loggedInUser.TimeZoneID);
 
             if (user.CreatedGiveaways != null)
             {
                 foreach (Giveaway entry in user.CreatedGiveaways)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry, entry.CreatedTime));
+                    activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.CreatedTime, info)));
                 }
             }
 
@@ -591,7 +695,7 @@ namespace TheAfterParty.Domain.Services
             {
                 foreach (Giveaway entry in user.WonGiveaways)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry, entry.EndDate));
+                    activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.EndDate, info)));
                 }
             }
 
@@ -599,15 +703,15 @@ namespace TheAfterParty.Domain.Services
             {
                 foreach (Auction entry in user.Auctions)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry, entry.CreatedTime));
+                    activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.CreatedTime, info)));
                 }
             }
 
             if (user.AuctionBids != null)
             {
-                foreach (Auction entry in user.AuctionBids.Where(au => Object.Equals(au.Auction.Winner.Id, user.Id)).Select(ab => ab.Auction))
+                foreach (Auction entry in user.WonAuctions)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry, entry.EndTime));
+                    activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.EndTime, info)));
                 }
             }
 
@@ -615,7 +719,7 @@ namespace TheAfterParty.Domain.Services
             {
                 foreach (ProductReview entry in user.ProductReviews)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry));
+                    activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.PostDate, info)));
                 }
             }
 
@@ -625,17 +729,19 @@ namespace TheAfterParty.Domain.Services
         // Balances with negative adjustments are mainly caused by purchases, this does mean transfers will be omitted, however
         public async Task<List<ActivityFeedContainer>> GetActivityFeedItems(bool includeNegativeBalanceEntries = false)
         {
-            AppUser user = await GetCurrentUser();
+            AppUser user = await GetCurrentUserWithActivityProperties();
+
+            TimeZoneInfo info = TimeZoneInfo.FindSystemTimeZoneById(user.TimeZoneID);
 
             List<ActivityFeedContainer> activityFeed = new List<ActivityFeedContainer>();
-            
+
             List<Order> orders = await GetUserOrders();
 
             if (orders != null)
             {
                 foreach (Order order in orders)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(order));
+                    activityFeed.Add(new ActivityFeedContainer(order, ConvertDateTime(((DateTime)order.SaleDate), info)));
                 }
             }
 
@@ -643,7 +749,7 @@ namespace TheAfterParty.Domain.Services
             {
                 foreach (GiveawayEntry entry in user.GiveawayEntries)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry));
+                    activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.EntryDate, info)));
                 }
             }
 
@@ -651,7 +757,7 @@ namespace TheAfterParty.Domain.Services
             {
                 foreach (Giveaway entry in user.CreatedGiveaways)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry, entry.CreatedTime));
+                    activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.CreatedTime, info)));
                 }
             }
 
@@ -659,7 +765,7 @@ namespace TheAfterParty.Domain.Services
             {
                 foreach (AuctionBid entry in user.AuctionBids)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry));
+                    activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.BidDate, info)));
                 }
             }
 
@@ -667,11 +773,11 @@ namespace TheAfterParty.Domain.Services
             {
                 foreach (Auction entry in user.Auctions)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry, entry.CreatedTime));
+                    activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.CreatedTime, info)));
                 }
-                foreach (Auction entry in user.AuctionBids.Where(au => Object.Equals(au.Auction.Winner.Id, user.Id)).Select(ab => ab.Auction))
+                foreach (Auction entry in user.WonAuctions)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry, entry.CreatedTime));
+                    activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.CreatedTime, info)));
                 }
             }
 
@@ -681,15 +787,14 @@ namespace TheAfterParty.Domain.Services
                 {
                     foreach (BalanceEntry entry in user.BalanceEntries)
                     {
-                        activityFeed.Add(new ActivityFeedContainer(entry));
+                        activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.Date, info)));
                     }
-
                 }
                 else
                 {
                     foreach (BalanceEntry entry in user.BalanceEntries.Where(b => b.PointsAdjusted > 0))
                     {
-                        activityFeed.Add(new ActivityFeedContainer(entry));
+                        activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.Date, info)));
                     }
                 }
             }
@@ -698,7 +803,7 @@ namespace TheAfterParty.Domain.Services
             {
                 foreach (WonPrize entry in user.WonPrizes)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry));
+                    activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.TimeWon, info)));
                 }
             }
 
@@ -706,7 +811,7 @@ namespace TheAfterParty.Domain.Services
             {
                 foreach (ProductReview entry in user.ProductReviews)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry));
+                    activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.PostDate, info)));
                 }
             }
 
@@ -735,9 +840,14 @@ namespace TheAfterParty.Domain.Services
 
             return key.IsUsed;
         }
-        
-        public void BuildUser(AppUser user, string apiKey)
+
+        public async Task BuildUser(AppUser user, string apiKey)
         {
+            UnitOfWork tempUOW = new UnitOfWork(AppIdentityDbContext.Create());
+            AppUserManager tempUM = new AppUserManager(new UserStore<AppUser>(tempUOW.DbContext));
+
+            user = await tempUM.FindByIdAsyncWithStoreFilters(user.Id);
+
             if (user.UserSteamID == 0)
             {
                 // possibly add default data here
@@ -762,20 +872,25 @@ namespace TheAfterParty.Domain.Services
             result = new System.Net.WebClient().DownloadString(gamesURL);
 
             JObject gameData = JObject.Parse(result);
-            
+
             if (gameData["response"] != null && gameData["response"]["games"] != null)
             {
                 JArray jGames = (JArray)gameData["response"]["games"];
                 for (int i = 0; i < jGames.Count; i++)
                 {
-                    user.AddOwnedGame(new OwnedGame((int)jGames[i]["appid"], (int)jGames[i]["playtime_forever"]));
+                    int appId = (int)jGames[i]["appid"];
+                    if (user.OwnedGames.Any(o => o.AppID == appId) == false)
+                    {
+                        user.AddOwnedGame(new OwnedGame((int)jGames[i]["appid"], (int)jGames[i]["playtime_forever"]));
+                    }
                 }
             }
 
-                UserManager.Update(user);
-            unitOfWork.Save();            
+            tempUM.Update(user);
+            tempUOW.Save();
+            tempUOW.Dispose();
         }
-        
+
         public bool AddBalances(string input)
         {
             /*
@@ -835,6 +950,15 @@ namespace TheAfterParty.Domain.Services
             return fullSuccess;
         }
 
+        public DateTime ConvertDateTime(DateTime time, TimeZoneInfo info)
+        {
+            DateTime utcTime = new DateTime(time.Ticks, DateTimeKind.Utc);
+
+            DateTime convertedTime = TimeZoneInfo.ConvertTime(utcTime, info);
+
+            return convertedTime;
+        }
+
         public bool IsInRole(AppUser user, string role)
         {
             return UserManager.IsInRole(user.Id, role);
@@ -852,9 +976,29 @@ namespace TheAfterParty.Domain.Services
             return UserManager.FindByName(userName);
         }
 
-        public async Task<AppUser> GetCurrentUser()
+        private async Task<AppUser> GetCurrentUserWithActivityProperties()
+        {
+            return await UserManager.FindByNameAsyncWithActivityProperties(userName);
+        }
+
+        private async Task<AppUser> GetCurrentUserNoProperties()
         {
             return await UserManager.FindByNameAsync(userName);
+        }
+
+        private async Task<AppUser> GetCurrentUserWithBlacklist()
+        {
+            return await UserManager.FindByNameAsyncWithBlacklist(userName);
+        }
+
+        private async Task<AppUser> GetCurrentUserWithAuctions()
+        {
+            return await UserManager.FindByNameAsyncWithAuctions(userName);
+        }
+
+        public async Task<AppUser> GetCurrentUser()
+        {
+            return await UserManager.FindByNameAsyncWithCartAndOpenAuctionBids(userName);
         }
     }
 }

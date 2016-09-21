@@ -11,6 +11,7 @@ using TheAfterParty.WebUI.Models._Nav;
 using TheAfterParty.Domain.Entities;
 using Microsoft.AspNet.Identity.Owin;
 using TheAfterParty.Domain.Concrete;
+using TheAfterParty.Domain.Model;
 
 namespace TheAfterParty.WebUI.Controllers
 {
@@ -18,6 +19,8 @@ namespace TheAfterParty.WebUI.Controllers
     public class UserController : Controller
     {
         private IUserService userService;
+        private const string allActionDest = "All Users";
+        private const string adminsActionDest = "Admins";
 
         public UserController(IUserService userService)
         {
@@ -37,13 +40,21 @@ namespace TheAfterParty.WebUI.Controllers
             ModelState.Clear();
 
             UserIndexModel model = new UserIndexModel();
-
+            
             model.LoggedInUser = await userService.GetCurrentUser();
             model.Users = userService.GetAllUsers().OrderBy(u => u.UserName).ToList();
             model.Title = "Users";
-            model.FullNavList = CreateUserControllerNavList();
+            List<String> destNames = new List<String>() { allActionDest };
+            model.FullNavList = CreateUserControllerNavList(destNames);
 
             return View(model);
+        }
+
+        public async Task<ActionResult> UpdateUser(string id, string returnUrl = "/")
+        {
+            await userService.UpdateUser(id, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
+
+            return Redirect(returnUrl);
         }
         
         public async Task<ActionResult> Admins()
@@ -52,14 +63,16 @@ namespace TheAfterParty.WebUI.Controllers
 
             model.LoggedInUser = await userService.GetCurrentUser();
             model.Title = "Users > Admins";
-            model.FullNavList = CreateUserControllerNavList();
-            model.Users = userService.GetAdmins();
+            List<String> destNames = new List<String>() { adminsActionDest };
+            model.FullNavList = CreateUserControllerNavList(destNames);
+            model.Users = userService.GetAdmins().ToList();
 
             return View("Index", model);
         }
 
         // GET: User/Profile/name
         // base class Controller has a "Profile" method, thus need to rename this action and give it a custom route
+        [HttpGet]
         public async Task<ActionResult> UserProfile(string id = "")
         {
             ModelState.Clear();
@@ -73,8 +86,9 @@ namespace TheAfterParty.WebUI.Controllers
 
             model.LoggedInUser = await userService.GetCurrentUser();
             model.RequestedUser = userService.GetRequestedUser(id);
-            model.FullNavList = CreateUserControllerNavList();
-            
+            List<String> destNames = new List<String>();
+            model.FullNavList = CreateUserControllerNavList(destNames);
+
             if (model.RequestedUser == null)
             {
                 return RedirectToAction("Index");
@@ -82,10 +96,27 @@ namespace TheAfterParty.WebUI.Controllers
 
             if (model.RequestedUser.LargeAvatar == null)
             {
-                userService.BuildUser(model.RequestedUser, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
+                Task task = new Task(new Action(() => userService.BuildUser(model.RequestedUser, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"])));
+                task.Start();
             }
 
-            model.ActivityFeedList = userService.GetPublicActivityFeedItems(model.RequestedUser);
+            if (model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+
+                IEnumerable<ActivityFeedContainer> list = await userService.GetPublicActivityFeedItems(model.RequestedUser);
+
+                model.TotalItems = list.Count();
+
+                model.ActivityFeedList = list.Take(model.LoggedInUser.PaginationPreference).ToList();
+            }
+            else
+            {
+                model.ActivityFeedList = await userService.GetPublicActivityFeedItems(model.RequestedUser);
+                model.TotalItems = model.ActivityFeedList.Count();
+            }
+
+            model.CurrentPage = 1;
 
             if (userService.IsInRole(model.RequestedUser, "Admin"))
             {
@@ -107,6 +138,78 @@ namespace TheAfterParty.WebUI.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        public async Task<ActionResult> UserProfile(UserProfileModel model, string id = "")
+        {
+            ModelState.Clear();
+
+            if (String.IsNullOrEmpty(id))
+            {
+                return RedirectToAction("Index");
+            }
+
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.RequestedUser = userService.GetRequestedUser(id);
+            List<String> destNames = new List<String>();
+            model.FullNavList = CreateUserControllerNavList(destNames);
+
+            if (model.RequestedUser == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            if (model.RequestedUser.LargeAvatar == null)
+            {
+                Task task = new Task(new Action(() => userService.BuildUser(model.RequestedUser, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"])));
+                task.Start();
+            }
+
+
+            if (model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+
+                IEnumerable<ActivityFeedContainer> list = await userService.GetPublicActivityFeedItems(model.RequestedUser);
+
+                model.TotalItems = list.Count();
+
+
+                model.CurrentPage = model.SelectedPage;
+
+                if (model.CurrentPage < 1)
+                {
+                    model.CurrentPage = 1;
+                }
+
+                model.ActivityFeedList = list.Skip((model.CurrentPage - 1) * model.UserPaginationPreference).Take(model.LoggedInUser.PaginationPreference).ToList();
+            }
+            else
+            {
+                model.CurrentPage = 1;
+                model.ActivityFeedList = await userService.GetPublicActivityFeedItems(model.RequestedUser);
+                model.TotalItems = model.ActivityFeedList.Count();
+            }
+
+            if (userService.IsInRole(model.RequestedUser, "Admin"))
+            {
+                model.HighestRole = "Admin";
+            }
+            else if (userService.IsInRole(model.RequestedUser, "Moderator"))
+            {
+                model.HighestRole = "Mod";
+            }
+            else if (userService.IsInRole(model.RequestedUser, "Member"))
+            {
+                model.HighestRole = "Member";
+            }
+            else
+            {
+                model.HighestRole = "Guest";
+            }
+
+            return View(model);
+        }
+
         #region Admin Actions
 
         [Authorize(Roles = "Admin")]
@@ -114,7 +217,7 @@ namespace TheAfterParty.WebUI.Controllers
         {
             UserAddBalancesViewModel model = new UserAddBalancesViewModel();
             model.Users = userService.GetAllUsers().OrderBy(u => u.UserName).ToList();
-            model.FullNavList = CreateUserControllerNavList();
+            model.FullNavList = CreateUserControllerAdminNavList();
 
             return View(model);
         }
@@ -176,7 +279,7 @@ namespace TheAfterParty.WebUI.Controllers
                 return View(model);
             }
 
-            await userService.CreateAppUser(model.AppUser, model.RoleToAdd, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
+            await userService.CreateAppUser(model.AppUser, model.Password, model.RoleToAdd, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
 
             return RedirectToAction("AdminAppUsers");
         }
@@ -543,7 +646,7 @@ namespace TheAfterParty.WebUI.Controllers
 
         #endregion
         
-        private List<NavGrouping> CreateUserControllerNavList()
+        private List<NavGrouping> CreateUserControllerNavList(List<String> destNames)
         {
             List<NavGrouping> navList;
 
@@ -551,12 +654,14 @@ namespace TheAfterParty.WebUI.Controllers
             navGrouping.GroupingHeader = "Users";
 
             NavItem admin = new NavItem();
-            admin.Destination = "/User/Admins/";
-            admin.DestinationName = "Admins";
+            admin.Destination = "/user/admins/";
+            admin.DestinationName = adminsActionDest;
+            admin.SetSelected(destNames);
 
             NavItem users = new NavItem();
-            users.Destination = "/User/";
-            users.DestinationName = "All Users";
+            users.Destination = "/user/";
+            users.DestinationName = allActionDest;
+            users.SetSelected(destNames);
 
             navGrouping.NavItems = new List<NavItem>() { admin, users };
             navList = new List<NavGrouping>() { navGrouping };
@@ -564,9 +669,14 @@ namespace TheAfterParty.WebUI.Controllers
             return navList;
         }
 
-        private List<NavGrouping> CreateUserControllerAdminNavList()
+        private List<NavGrouping> CreateUserControllerAdminNavList(List<String> destNames = null)
         {
-            List<NavGrouping> navList = CreateUserControllerNavList();
+            if (destNames == null)
+            {
+                destNames = new List<String>();
+            }
+
+            List<NavGrouping> navList = CreateUserControllerNavList(destNames);
 
             NavGrouping navGrouping = new NavGrouping();
             navGrouping.GroupingHeader = "Admin Actions";
@@ -637,13 +747,13 @@ namespace TheAfterParty.WebUI.Controllers
         }
 
         [Authorize]
-        public async Task<ActionResult> AjaxAddToBlacklist(int listingId)
+        public async Task<bool> AjaxToggleBlacklist(int listingId)
         {
-            await userService.AddBlacklistEntry(listingId);
-
-            return new PartialViewResult();
+            await userService.ToggleBlacklist(listingId);
+            
+            return await userService.IsBlacklisted(listingId);
         }
-
+        
         [Authorize]
         public async Task<ActionResult> AjaxTransferPoints(int points, string userId)
         {

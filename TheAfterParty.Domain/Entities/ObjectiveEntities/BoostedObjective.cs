@@ -6,7 +6,10 @@ namespace TheAfterParty.Domain.Entities
 {
     public class BoostedObjective
     {
-        public BoostedObjective() { }
+        public BoostedObjective()
+        {
+            IsDaily = false;
+        }
         
         public int BoostedObjectiveID { get; set; }
         
@@ -18,5 +21,12 @@ namespace TheAfterParty.Domain.Entities
 
         // when the boost ends
         public DateTime EndDate { get; set; }
+        public bool IsLive()
+        {
+            return EndDate.CompareTo(DateTime.Now) > 0;
+        }
+
+        // is a daily boosted objective
+        public bool IsDaily { get; set; }
     }
 }

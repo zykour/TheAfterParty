@@ -17,6 +17,17 @@ namespace TheAfterParty.Domain.Entities
 
         // what is being giveaway, if null or empty, product.name should be used
         public string Prize { get; set; }
+        public string PrizeText()
+        {
+            if (Listing != null)
+            {
+                return Listing.ListingName;
+            }
+            else
+            {
+                return Prize;
+            }
+        }
 
         // if the prize is not a game, one of the options is to giveaway a number of points
         public int? PointsPrize { get; set; }

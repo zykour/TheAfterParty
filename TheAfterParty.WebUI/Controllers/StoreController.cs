@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using TheAfterParty.WebUI.Models._Nav;
 using TheAfterParty.Domain.Entities;
 using System.Text.RegularExpressions;
+using TheAfterParty.Domain.Model;
 
 namespace TheAfterParty.WebUI.Controllers
 {
@@ -20,6 +21,13 @@ namespace TheAfterParty.WebUI.Controllers
         private const char noSelectionSentinel = '.';
         private const string storeFormID = "storeForm";
         private IStoreService storeService;
+
+        private const string weeklyActionDest = "Weekly Deals";
+        private const string dailyActionDest = "Daily Deals";
+        private const string newActionDest = "New Additions";
+        private const string otherActionDest = "Other Deals";
+        private const string allActionDest = "All Deals";
+        private const string platformsActionDest = "All Platforms";
 
         public StoreController(IStoreService storeService)
         {
@@ -37,43 +45,137 @@ namespace TheAfterParty.WebUI.Controllers
             }
         }
 
+        private static string GetApiKey()
+        {
+            return System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"];
+        }
 
         #region Admin
 
         #region Advanced Listing Methods
 
         [Authorize(Roles = "Admin")]
-        public ActionResult AddGames(string id = "Steam")
+        [HttpGet]
+        public async Task<ActionResult> AddGames(string id)
         {
-            // use the id convention, but place the id into a new variable to make it clear what it represents
-            string platformName = id;
+            int p_id = 0;
 
-            AddGamesViewModel model = new AddGamesViewModel();
-
-            foreach (Platform platform in storeService.GetPlatforms())
+            if (String.IsNullOrEmpty(id) == true)
             {
-                if (platform.PlatformName.ToLower().CompareTo(platformName.ToLower()) == 0)
+                id = "0";
+            }
+
+            Int32.TryParse(id, out p_id);
+
+            if (p_id == 0)
+            {
+                Platform plat = storeService.GetPlatforms().FirstOrDefault(p => object.Equals("Steam", p.PlatformName));
+
+                if (plat == null)
                 {
-                    model.Platform = platform;
-                    return View(model);
+                    return RedirectToAction("AdminPlatforms");
+                }
+
+                p_id = plat.PlatformID;
+
+                if (p_id == 0)
+                {
+                    return RedirectToAction("AdminPlatforms");
                 }
             }
 
-            return RedirectToAction("EditPlatform", new { id = platformName });
+            AddGamesViewModel model = new AddGamesViewModel();
+
+            model.Platforms = storeService.GetPlatforms().ToList();
+
+            Platform platform = storeService.GetPlatformByID(p_id);
+
+            if (platform == null)
+            {
+                return RedirectToAction("AdminPlatforms");
+            }
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            model.Platform = platform;
+
+            return View(model);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public ActionResult AddGames(AddGamesViewModel model)
+        public async Task<ActionResult> AddGames(AddGamesViewModel model)
         {
-            AddedListingsViewModel outputModel = new AddedListingsViewModel();
-
             Platform platform = storeService.GetPlatformByID(model.Platform.PlatformID);
 
-            outputModel.NewListings = storeService.AddProductKeys(platform, model.Input);//.ToList();
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+            model.AddedGames = storeService.AddProductKeys(platform, model.Input);
 
-            return View("AddGamesSuccess", outputModel);
+            model.Input = String.Empty;
+
+            model.Platforms = storeService.GetPlatforms().ToList();
+
+            ModelState.Clear();
+
+            return View(model);
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<ActionResult> AddOrUpdateSteamProducts()
+        {
+            AddOrUpdateSteamProductsViewModel model = new AddOrUpdateSteamProductsViewModel();
+            
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult> AddOrUpdateSteamProducts(AddOrUpdateSteamProductsViewModel model)
+        {
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            model.AddedProducts = storeService.BuildOrUpdateProductsWithSteamID(model.Input);
+            model.Input = String.Empty;
+
+            ModelState.Clear();
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<ActionResult> AddNonSteamProducts()
+        {
+            AddNonSteamProductsViewModel model = new AddNonSteamProductsViewModel();
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult> AddNonSteamProducts(AddNonSteamProductsViewModel model)
+        {
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            model.AddedProducts = storeService.AddOrUpdateNonSteamProducts(model.Input);
+            model.Input = String.Empty;
+
+            ModelState.Clear();
+
+            return View(model);
+        }
+
 
         #endregion
 
@@ -483,9 +585,9 @@ namespace TheAfterParty.WebUI.Controllers
         {
             StoreIndexViewModel model = new StoreIndexViewModel();
 
-            model.StoreListings = storeService.GetStockedStoreListings().ToList();
+            IEnumerable<Listing> listings = storeService.GetStockedStoreListings();
 
-            await PopulateStoreIndexViewModelFromGet(model);
+            await PopulateStoreIndexViewModelFromGet(model, null, GetApiKey(), id);
             model.FormName = "Index";
             model.FormID = "";
 
@@ -495,18 +597,7 @@ namespace TheAfterParty.WebUI.Controllers
         [HttpPost]
         public async Task<ActionResult> Index(StoreIndexViewModel model, string id = "")
         {
-            model.StoreListings = storeService.GetStockedStoreListings().ToList();
-
-            bool filterOwnLibrary = model.FilterLibrary;
-
-            await PopulateStoreIndexViewModelFromPostback(model);
-
-            if (filterOwnLibrary == false && String.IsNullOrEmpty(model.FriendSteamID) == false)
-            {
-                model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, model.FriendSteamID, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
-            }
-
-            await PopulateStoreIndexViewModelFromPostback(model);
+            await PopulateStoreIndexViewModelFromPostback(model, null, GetApiKey(), id);
             
             model.FormName = "Index";
             model.FormID = "";
@@ -527,13 +618,8 @@ namespace TheAfterParty.WebUI.Controllers
 
             StoreIndexViewModel model = new StoreIndexViewModel();
 
-            model.StoreListings = storeService.GetStockedStoreListings().ToList();
-
-            await PopulateStoreIndexViewModelFromGet(model);
-
-            model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, id, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
-            model.FriendSteamID = id;
-
+            await PopulateStoreIndexViewModelFromGet(model, null, GetApiKey(), id);
+            
             model.FormName = "Id";
             model.FormID = id;
 
@@ -552,20 +638,8 @@ namespace TheAfterParty.WebUI.Controllers
             {
                 return RedirectToAction("Index", new { model = model });
             }
-
-            model.StoreListings = storeService.GetStockedStoreListings().ToList();
-
-            bool filterOwnLibrary = model.FilterLibrary;
-
-            await PopulateStoreIndexViewModelFromPostback(model);
-
-            // don't want users filtering their own libraries along with their friend's library (this just doesn't make sense)
-            // so if the passed in id is a relic make sure to 
-            if (filterOwnLibrary == false)
-            {
-                model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, id, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
-                model.FriendSteamID = id;
-            }
+            
+            await PopulateStoreIndexViewModelFromPostback(model, null, GetApiKey(), id);
 
             model.FormName = "Id";
             model.FormID = id;
@@ -581,34 +655,23 @@ namespace TheAfterParty.WebUI.Controllers
         {
             StoreIndexViewModel model = new StoreIndexViewModel();
 
-            DateTime maxDate = storeService.GetStockedStoreListings().Select(l => l.DateEdited).Max().Date;
+            model.SpecialFilterType = "newest";
 
-            model.StoreListings = storeService.GetStockedStoreListings().Where(l => l.DateEdited.Date.CompareTo(maxDate) == 0).OrderBy(l => l.ListingName).ToList();
-
-            await PopulateStoreIndexViewModelFromGet(model);
+            await PopulateStoreIndexViewModelFromGet(model, null, GetApiKey(), id);
 
             model.FormName = "Newest";
             model.FormID = "";
-
+                        
             return View("Index", model);
         }
 
         [HttpPost]
         public async Task<ActionResult> Newest(StoreIndexViewModel model, string id = "")
         {
-            DateTime maxDate = storeService.GetStockedStoreListings().Select(l => l.DateEdited).Max().Date;
+            model.SpecialFilterType = "newest";
 
-            model.StoreListings = storeService.GetStockedStoreListings().Where(l => l.DateEdited.Date.CompareTo(maxDate) == 0).OrderBy(l => l.ListingName).ToList();
-
-            bool filterOwnLibrary = model.FilterLibrary;
-
-            await PopulateStoreIndexViewModelFromPostback(model);
-
-            if (filterOwnLibrary == false && String.IsNullOrEmpty(model.FriendSteamID) == false)
-            {
-                model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, model.FriendSteamID, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
-            }
-
+            await PopulateStoreIndexViewModelFromPostback(model, null, GetApiKey(), id);
+            
             model.FormName = "Newest";
             model.FormID = "";
 
@@ -621,36 +684,21 @@ namespace TheAfterParty.WebUI.Controllers
         public async Task<ActionResult> Deals(string id = "all")
         {
             // conform to route convention by accepting "id" parameter, but assign it to a new variable to make it clear what purpose it serves
-            string subsection = id;
+            string subsection = id.ToLower().Trim();
 
             StoreIndexViewModel model = new StoreIndexViewModel();
 
-            if (String.Compare(subsection.ToLower(), "all") == 0)
-            {
-                model.StoreListings = storeService.GetListingsWithDeals().ToList();
-                ViewBag.Title = "All Deals";
-            }
-            else if (String.Compare(subsection.ToLower(), "daily") == 0)
-            {
-                model.StoreListings = storeService.GetListingsWithDeals().Where(l => l.HasDailyDeal()).ToList();
-                ViewBag.Title = "Daily Deals";
-            }
-            else if (String.Compare(subsection.ToLower(), "weekly") == 0)
-            {
-                model.StoreListings = storeService.GetListingsWithDeals().Where(l => l.HasWeeklyDeal()).ToList();
-                ViewBag.Title = "Weekly Deals";
-            }
-            else if (String.Compare(subsection.ToLower(), "other") == 0)
-            {
-                model.StoreListings = storeService.GetListingsWithDeals().Where(d => d.HasDailyDeal() == false && d.HasWeeklyDeal() == false).ToList();
-                ViewBag.Title = "Other Deals";
-            }
-            else
+            model.SpecialFilterType = subsection;
+
+            if ((String.Compare(subsection, "all") == 0 
+                    || String.Compare(subsection, "daily") == 0 
+                    || String.Compare(subsection, "weekly") == 0
+                    || String.Compare(subsection, "other") == 0) == false)
             {
                 return RedirectToAction("Deals", new { id = "all" });
             }
 
-            await PopulateStoreIndexViewModelFromGet(model);
+            await PopulateStoreIndexViewModelFromGet(model, null, GetApiKey());
 
             model.FormName = "Deals";
             model.FormID = id;
@@ -662,41 +710,19 @@ namespace TheAfterParty.WebUI.Controllers
         public async Task<ActionResult> Deals(StoreIndexViewModel model, string id)
         {
             // conform to route convention by accepting "id" parameter, but assign it to a new variable to make it clear what purpose it serves
-            string subsection = id;
+            string subsection = id.Trim().ToLower();
 
-            if (String.Compare(subsection.ToLower(), "all") == 0)
-            {
-                model.StoreListings = storeService.GetListingsWithDeals().ToList();
-                ViewBag.Title = "All Deals";
-            }
-            else if (String.Compare(subsection.ToLower(), "daily") == 0)
-            {
-                model.StoreListings = storeService.GetListingsWithDeals().Where(l => l.HasDailyDeal()).ToList();
-                ViewBag.Title = "Daily Deals";
-            }
-            else if (String.Compare(subsection.ToLower(), "weekly") == 0)
-            {
-                model.StoreListings = storeService.GetListingsWithDeals().Where(l => l.HasWeeklyDeal()).ToList();
-                ViewBag.Title = "Weekly Deals";
-            }
-            else if (String.Compare(subsection.ToLower(), "other") == 0)
-            {
-                model.StoreListings = storeService.GetListingsWithDeals().Where(d => d.HasDailyDeal() == false && d.HasWeeklyDeal() == false).ToList();
-                ViewBag.Title = "Other Deals";
-            }
-            else
-            {
-                return RedirectToAction("Deals", new { id = "all", model = model });
-            }
+            model.SpecialFilterType = subsection;
 
-            bool filterOwnLibrary = model.FilterLibrary;
-
-            await PopulateStoreIndexViewModelFromPostback(model);
-
-            if (filterOwnLibrary == false && String.IsNullOrEmpty(model.FriendSteamID) == false)
+            if ((String.Compare(subsection, "all") == 0
+                    || String.Compare(subsection, "daily") == 0
+                    || String.Compare(subsection, "weekly") == 0
+                    || String.Compare(subsection, "other") == 0) == false)
             {
-                model.StoreListings = storeService.FilterListingsByUserSteamID(model.StoreListings, model.FriendSteamID, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
+                return RedirectToAction("Deals", new { id = "all" });
             }
+            
+            await PopulateStoreIndexViewModelFromPostback(model, null, GetApiKey());
 
             model.FormName = "Deals";
             model.FormID = id;
@@ -707,120 +733,209 @@ namespace TheAfterParty.WebUI.Controllers
         }
 
         #endregion
-
-        #region Other Action Results
-
-        public async Task<ActionResult> UserBalances()
-        {
-            StoreBalancesViewModel model = new StoreBalancesViewModel();
-
-            if (HttpContext.User.Identity.IsAuthenticated)
-            {
-                model.LoggedInUser = await storeService.GetCurrentUser();
-                model.Users = storeService.GetAppUsers();
-            }
-
-            return View();
-        }
-
-        #endregion
-
+        
         #region Auxiliary Methods/Functions
 
-        private async Task PopulateStoreIndexViewModelFromGet(StoreIndexViewModel model)
+        private async Task PopulateStoreIndexViewModelFromGet(StoreIndexViewModel model, List<String> currentDestName, string apiKey = null, string id = null)
         {
-            model.StoreListings = model.StoreListings.OrderBy(l => l.ListingName).ToList();
+            TheAfterParty.Domain.Concrete.ListingFilter filter = new Domain.Concrete.ListingFilter();
 
-            //if (User.Identity.IsAuthenticated)
-            //{
-                model.LoggedInUser = await storeService.GetCurrentUser();
-            //}
+            model.LoggedInUser = await storeService.GetCurrentUserWithStoreFilters();
+            model.CurrentPage = 1;
+            filter.Page = 1;
 
-            List<Platform> platforms = storeService.GetPlatforms().ToList();
-
-            model.StorePlatforms = storeService.GetPlatforms().ToList();
-
-            /*foreach (Platform platform in platforms)
+            if (currentDestName == null)
             {
-                if (model.StoreListings.Any(l => l.ContainsPlatform(platform)))
-                {
-                    model.StorePlatforms.Add(platform);
-                }
-            }*/
+                currentDestName = new List<String>();
+            }
 
-            model.StorePlatforms.OrderBy(p => p.PlatformName).ToList();
-            model.FullNavList = CreateStoreControllerStoreNavList(model);
+            if (model.SpecialFilterType.ToLower().CompareTo("newest") == 0)
+            {
+                filter.IsNewest = true;
+                currentDestName.Add(newActionDest);
+            }
+            else if (model.SpecialFilterType.ToLower().CompareTo("all") == 0)
+            {
+                filter.IsAllDeal = true;
+                currentDestName.Add(allActionDest);
+            }
+            else if (model.SpecialFilterType.ToLower().CompareTo("daily") == 0)
+            {
+                filter.IsDailyDeal = true;
+                currentDestName.Add(dailyActionDest);
+            }
+            else if (model.SpecialFilterType.ToLower().CompareTo("weekly") == 0)
+            {
+                filter.IsWeeklyDeal = true;
+                currentDestName.Add(weeklyActionDest);
+            }
+            else if (model.SpecialFilterType.ToLower().CompareTo("other") == 0)
+            {
+                filter.IsOtherDeal = true;
+                currentDestName.Add(otherActionDest);
+            }
+
+            model.SpecialFilterType = String.Empty;
+
+            if (String.IsNullOrWhiteSpace(apiKey) == false && String.IsNullOrWhiteSpace(id) == false)
+            {
+                filter.FriendAppIDs = storeService.GetAppIDsByID(id, apiKey);
+                model.FriendSteamID = id;
+            }
+
+            if (model.LoggedInUser != null && model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                filter.PaginationNum = model.UserPaginationPreference;  
+            }
+
+            currentDestName.Add(platformsActionDest);
+
+            int count = 0;
+
+            StoreIndexDomainModel domainModel = new StoreIndexDomainModel();
+
+            model.StoreListings = storeService.GetListingsWithFilter(filter, out count, domainModel).ToList();
+
+            model.TotalItems = count;
+
+            model.StorePlatforms = domainModel.StorePlatforms.ToList();
+            
+            model.FullNavList = CreateStoreControllerStoreNavList(model, currentDestName);
 
             List<SelectedTagMapping> tagMappings = new List<SelectedTagMapping>();
 
-            foreach (Tag tag in storeService.GetTags())
+            foreach (Tag tag in domainModel.Tags)
             {
-                if (model.StoreListings.Any(l => l.ContainsTag(tag)))
-                {
-                    tagMappings.Add(new SelectedTagMapping(tag, false));
-                }
+                tagMappings.Add(new SelectedTagMapping(tag, false));
             }
 
             model.SelectedTagMappings = tagMappings.OrderBy(t => t.StoreTag.TagName).ToList();
 
             List<SelectedProductCategoryMapping> categoryMappings = new List<SelectedProductCategoryMapping>();
 
-            foreach (ProductCategory category in storeService.GetProductCategories())
+            foreach (ProductCategory category in domainModel.ProductCategories)
             {
-                if (model.StoreListings.Any(l => l.ContainsProductCategory(category)))
-                {
-                    categoryMappings.Add(new SelectedProductCategoryMapping(category, false));
-                }
+                categoryMappings.Add(new SelectedProductCategoryMapping(category, false));
             }
 
             model.SelectedProductCategoryMappings = categoryMappings.OrderBy(c => c.ProductCategory.CategoryString).ToList();
         }
 
-        // Populate StoreIndexViewModel for various actions
-        private async Task PopulateStoreIndexViewModelFromPostback(StoreIndexViewModel model)
+        private async Task PopulateStoreIndexViewModelFromPostback(StoreIndexViewModel model, List<String> currentDestName, string apiKey = null, string id = null)
         {
-            //if (User.Identity.IsAuthenticated)
-            //{
-                model.LoggedInUser = await storeService.GetCurrentUser();
-            //}
+            TheAfterParty.Domain.Concrete.ListingFilter filter = new Domain.Concrete.ListingFilter();
 
-            if (!String.IsNullOrEmpty(model.SearchText))//model.SearchTextBool == true && 
+            model.LoggedInUser = await storeService.GetCurrentUserWithStoreFilters();
+
+            if (currentDestName == null)
             {
-                if (!String.IsNullOrEmpty(model.SearchText))
+                currentDestName = new List<String>();
+            }
+
+            if (model.SpecialFilterType.ToLower().CompareTo("newest") == 0)
+            {
+                filter.IsNewest = true;
+                currentDestName.Add(newActionDest);
+            }
+            else if (model.SpecialFilterType.ToLower().CompareTo("all") == 0)
+            {
+                filter.IsAllDeal = true;
+                currentDestName.Add(allActionDest);
+            }
+            else if (model.SpecialFilterType.ToLower().CompareTo("daily") == 0)
+            {
+                filter.IsDailyDeal = true;
+                currentDestName.Add(dailyActionDest);
+            }
+            else if (model.SpecialFilterType.ToLower().CompareTo("weekly") == 0)
+            {
+                filter.IsWeeklyDeal = true;
+                currentDestName.Add(weeklyActionDest);
+            }
+            else if (model.SpecialFilterType.ToLower().CompareTo("other") == 0)
+            {
+                filter.IsOtherDeal = true;
+                currentDestName.Add(otherActionDest);
+            }
+
+            model.SpecialFilterType = String.Empty;
+
+            if (String.IsNullOrWhiteSpace(apiKey) == false && (model.FilterBlacklist | model.AffordableFilter | model.FilterLibrary) == false)
+            {
+                if (String.IsNullOrWhiteSpace(model.FriendSteamID) == false)
                 {
-                    model.StoreListings = model.StoreListings.Where(l => l.ListingName.ToLower().Contains(model.SearchText.Trim().ToLower())).ToList();
+                    filter.FriendAppIDs = storeService.GetAppIDsByID(model.FriendSteamID, apiKey);
+                    model.PreviousAffordableFilter = false;
+                    model.PreviousFilterBlacklist = false;
+                    model.PreviousFilterLibrary = false;
+                }
+                else if (String.IsNullOrWhiteSpace(id) == false)
+                {
+                    filter.FriendAppIDs = storeService.GetAppIDsByID(id, apiKey);
+                    model.PreviousAffordableFilter = false;
+                    model.PreviousFilterBlacklist = false;
+                    model.PreviousFilterLibrary = false;
+                    model.FriendSteamID = id;
                 }
             }
 
-            foreach (SelectedProductCategoryMapping mapping in model.SelectedProductCategoryMappings)
+            if (model.LoggedInUser != null)
             {
-                if (model.CategoryToChange == mapping.ProductCategory.ProductCategoryID)
-                {
-                    mapping.IsSelected = !mapping.IsSelected;
-                }
+                filter.UserID = model.LoggedInUser.Id;
+            }
 
-                mapping.ProductCategory = storeService.GetProductCategoryByID(mapping.ProductCategory.ProductCategoryID);
+            if (model.SelectedPage > 0)
+            {
+                model.CurrentPage = model.SelectedPage;
+            }
+            else
+            {
+                model.CurrentPage = 1;
+            }
 
-                if (mapping.IsSelected)
+            filter.Page = model.CurrentPage;
+            
+            if (String.IsNullOrWhiteSpace(model.SearchText) == false)
+            {
+                filter.SearchText = model.SearchText;
+            }
+
+            if (model?.SelectedProductCategoryMappings?.Count > 0)
+            {
+                foreach (SelectedProductCategoryMapping mapping in model.SelectedProductCategoryMappings)
                 {
-                    model.StoreListings = model.StoreListings.Where(l => l.ContainsProductCategory(mapping.ProductCategory)).ToList();
+                    if (model.CategoryToChange == mapping.ProductCategory.ProductCategoryID)
+                    {
+                        mapping.IsSelected = !mapping.IsSelected;
+                    }
+
+                    mapping.ProductCategory = storeService.GetProductCategoryByID(mapping.ProductCategory.ProductCategoryID);
+
+                    if (mapping.IsSelected)
+                    {
+                        filter.ProductCategoryIDs.Add(mapping.ProductCategory.ProductCategoryID);
+                    }
                 }
             }
 
             model.CategoryToChange = 0;
 
-            foreach (SelectedTagMapping mapping in model.SelectedTagMappings)
+            if (model?.SelectedTagMappings?.Count > 0)
             {
-                if (model.TagToChange == mapping.StoreTag.TagID)
+                foreach (SelectedTagMapping mapping in model.SelectedTagMappings)
                 {
-                    mapping.IsSelected = !mapping.IsSelected;
-                }
+                    if (model.TagToChange == mapping.StoreTag.TagID)
+                    {
+                        mapping.IsSelected = !mapping.IsSelected;
+                    }
 
-                mapping.StoreTag = storeService.GetTagByID(mapping.StoreTag.TagID);
+                    mapping.StoreTag = storeService.GetTagByID(mapping.StoreTag.TagID);
 
-                if (mapping.IsSelected)
-                {
-                    model.StoreListings = model.StoreListings.Where(l => l.ContainsTag(mapping.StoreTag)).ToList();
+                    if (mapping.IsSelected)
+                    {
+                        filter.TagIDs.Add(mapping.StoreTag.TagID);
+                    }
                 }
             }
 
@@ -831,28 +946,21 @@ namespace TheAfterParty.WebUI.Controllers
                 Platform platform = storeService.GetPlatformByID(model.SelectedPlatformID);
                 model.PreviousSelectedPlatformID = model.SelectedPlatformID;
                 model.SelectedPlatformID = 0;
-                model.PreviousSelectedDealsPlatformID = 0;
-                model.StoreListings = model.StoreListings.Where(l => l.ContainsPlatform(platform)).ToList();
+                filter.PlatformID = platform.PlatformID;
+                currentDestName.Add(platform.PlatformName);
             }
             else if (model.PreviousSelectedPlatformID != 0)
             {
                 Platform platform = storeService.GetPlatformByID(model.PreviousSelectedPlatformID);
-                model.StoreListings = model.StoreListings.Where(l => l.ContainsPlatform(platform)).ToList();
+                filter.PlatformID = platform.PlatformID;
+                currentDestName.Add(platform.PlatformName);
+            }
+            else
+            {
+                currentDestName.Add(platformsActionDest);
             }
 
-            if (model.SelectedDealsPlatformID != 0)
-            {
-                Platform platform = storeService.GetPlatformByID(model.SelectedDealsPlatformID);
-                model.PreviousSelectedDealsPlatformID = model.SelectedDealsPlatformID;
-                model.SelectedDealsPlatformID = 0;
-                model.PreviousSelectedPlatformID = 0;
-                model.StoreListings = model.StoreListings.Where(l => l.HasSale() && l.ContainsPlatform(platform)).ToList();
-            }
-            else if (model.PreviousSelectedDealsPlatformID != 0)
-            {
-                Platform platform = storeService.GetPlatformByID(model.PreviousSelectedDealsPlatformID);
-                model.StoreListings = model.StoreListings.Where(l => l.HasSale() && l.ContainsPlatform(platform)).ToList();
-            }
+            filter.BeginsWithSentinel = noSelectionSentinel;
 
             if (model.BeginsWithFilter != noSelectionSentinel)
             {
@@ -864,222 +972,125 @@ namespace TheAfterParty.WebUI.Controllers
                 else
                 {
                     model.PreviousBeginsWithFilter = model.BeginsWithFilter;
-                    if (model.BeginsWithFilter == '0')
-                    {
-                        model.StoreListings = model.StoreListings.Where(l => Regex.IsMatch(l.ListingName, @"^\d.*")).ToList();
-                    }
-                    else
-                    {
-                        model.StoreListings = model.StoreListings.Where(l => l.ListingName.ToLower().StartsWith(model.BeginsWithFilter.ToString())).ToList();
-                    }
+                    filter.BeginsWithFilter = model.BeginsWithFilter;
                 }
                 model.BeginsWithFilter = noSelectionSentinel;
             }
             else if (model.PreviousBeginsWithFilter != noSelectionSentinel)
             {
-                if (model.PreviousBeginsWithFilter == '0')
-                {
-                    model.StoreListings = model.StoreListings.Where(l => Regex.IsMatch(l.ListingName, @"^\d.*")).ToList();
-                }
-                else
-                {
-                    model.StoreListings = model.StoreListings.Where(l => l.ListingName.ToLower().StartsWith(model.PreviousBeginsWithFilter.ToString())).ToList();
-                }
+                filter.BeginsWithFilter = model.PreviousBeginsWithFilter;
             }
 
             if (model.FilterLibrary)
             {
                 model.PreviousFilterLibrary = !model.PreviousFilterLibrary;
-
-                if (model.PreviousFilterLibrary && HttpContext.User.Identity.IsAuthenticated)
-                {
-                    AppUser user = await storeService.GetCurrentUser();
-
-                    if (user.OwnedGames != null)
-                    {
-                        model.StoreListings = model.StoreListings.Where(l => !user.OwnsListing(l)).ToList();
-                    }
-                }
+                model.FilterLibrary = false;
+            }
+            if (model.PreviousFilterLibrary && HttpContext.User.Identity.IsAuthenticated)
+            {
+                filter.UnownedFilter = true;
             }
 
             if (model.FilterBlacklist)
             {
                 model.PreviousFilterBlacklist = !model.PreviousFilterBlacklist;
-
-                if (model.PreviousFilterBlacklist && HttpContext.User.Identity.IsAuthenticated)
-                {
-                    AppUser user = await storeService.GetCurrentUser();
-
-                    if (user.BlacklistedListings != null)
-                    {
-                        model.StoreListings = model.StoreListings.Where(l => !user.BlacklistedListings.Contains(l)).ToList();
-                    }
-                }
+                model.FilterBlacklist = false;
+            }
+            if (model.PreviousFilterBlacklist && HttpContext.User.Identity.IsAuthenticated)
+            {
+                filter.BlacklistFilter = true;
             }
 
             if (model.AffordableFilter)
             {
                 model.PreviousAffordableFilter = !model.PreviousAffordableFilter;
+                model.AffordableFilter = false;
             }
-
-            if (model.PreviousAffordableFilter && !model.CartAffordableFilter)
+            if (model.PreviousAffordableFilter && HttpContext.User.Identity.IsAuthenticated)
             {
-                model.PreviousCartAffordableFilter = false;
-
-                if (HttpContext.User.Identity.IsAuthenticated)
-                {
-                    AppUser user = await storeService.GetCurrentUser();
-
-                    int targetMaxPrice = user.Balance - user.ReservedBalance();
-
-                    model.StoreListings = model.StoreListings.Where(l => l.SaleOrDefaultPrice() <= targetMaxPrice).ToList();
-                }
+                filter.AffordableFilter = true;
             }
-
-            if (model.CartAffordableFilter)
-            {
-                model.PreviousCartAffordableFilter = !model.PreviousCartAffordableFilter;
-            }
-
-            if (model.PreviousCartAffordableFilter)
-            {
-                model.PreviousAffordableFilter = false;
-
-                if (HttpContext.User.Identity.IsAuthenticated)
-                {
-                    AppUser user = await storeService.GetCurrentUser();
-
-                    int targetMaxPrice = user.Balance - user.ReservedBalance() - user.GetCartTotal();
-
-                    model.StoreListings = model.StoreListings.Where(l => l.SaleOrDefaultPrice() <= targetMaxPrice).ToList();
-                }
-            }
-
+            
             if (model.GameSort > 0)
             {
-                if (model.GameSort == 1)
-                {
-                    model.StoreListings = model.StoreListings.OrderBy(l => l.ListingName).ToList();
-                }
-                else
-                {
-                    model.StoreListings = model.StoreListings.OrderByDescending(l => l.ListingName).ToList();
-                }
+                filter.GameSort = model.GameSort;
                 model.PreviousGameSort = model.GameSort;
                 model.PreviousPriceSort = 0;
                 model.PreviousQuantitySort = 0;
             }
             else if (model.QuantitySort > 0)
             {
-                if (model.QuantitySort == 1)
-                {
-                    model.StoreListings = model.StoreListings.OrderBy(l => l.Quantity).ToList();
-                }
-                else
-                {
-                    model.StoreListings = model.StoreListings.OrderByDescending(l => l.Quantity).ToList();
-                }
+                filter.SetQuantitySort(model.QuantitySort);
                 model.PreviousQuantitySort = model.QuantitySort;
                 model.PreviousPriceSort = 0;
                 model.PreviousGameSort = 0;
             }
             else if (model.PriceSort > 0)
             {
-                if (model.PriceSort == 1)
-                {
-                    model.StoreListings = model.StoreListings.OrderBy(l => l.SaleOrDefaultPrice()).ToList();
-                }
-                else
-                {
-                    model.StoreListings = model.StoreListings.OrderByDescending(l => l.SaleOrDefaultPrice()).ToList();
-                }
+                filter.SetPriceSort(model.PriceSort);
                 model.PreviousPriceSort = model.PriceSort;
                 model.PreviousGameSort = 0;
                 model.PreviousQuantitySort = 0;
             }
             else if (model.PreviousGameSort > 0)
             {
-                if (model.PreviousGameSort == 1)
-                {
-                    model.StoreListings = model.StoreListings.OrderBy(l => l.ListingName).ToList();
-                }
-                else
-                {
-                    model.StoreListings = model.StoreListings.OrderByDescending(l => l.ListingName).ToList();
-                }
+                filter.GameSort = model.PreviousGameSort;
             }
             else if (model.PreviousQuantitySort > 0)
             {
-                if (model.PreviousQuantitySort == 1)
-                {
-                    model.StoreListings = model.StoreListings.OrderBy(l => l.Quantity).ToList();
-                }
-                else
-                {
-                    model.StoreListings = model.StoreListings.OrderByDescending(l => l.Quantity).ToList();
-                }
+                filter.SetQuantitySort(model.PreviousQuantitySort);
             }
             else if (model.PreviousPriceSort > 0)
             {
-                if (model.PreviousPriceSort == 1)
-                {
-                    model.StoreListings = model.StoreListings.OrderBy(l => l.ListingPrice).ToList();
-                }
-                else
-                {
-                    model.StoreListings = model.StoreListings.OrderByDescending(l => l.ListingPrice).ToList();
-                }
+                filter.SetPriceSort(model.PreviousPriceSort);
             }
 
-            model.StorePlatforms = storeService.GetPlatforms().ToList();
+            model.FullNavList = CreateStoreControllerStoreNavList(model, currentDestName);
             
-            model.StorePlatforms.OrderBy(p => p.PlatformName).ToList();
-            model.FullNavList = CreateStoreControllerStoreNavList(model);
+            if (model.LoggedInUser != null && model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                filter.PaginationNum = model.LoggedInUser.PaginationPreference;
+            }
+
+            int count = 0;
+            StoreIndexDomainModel domainModel = new StoreIndexDomainModel();
+
+            model.StoreListings = storeService.GetListingsWithFilter(filter, out count, domainModel).ToList();
+
+            model.TotalItems = count;
+
+            model.StorePlatforms = domainModel.StorePlatforms.ToList();
+
         }
 
-        public List<NavGrouping> CreateStoreControllerStoreNavList(StoreIndexViewModel model)
+        public List<NavGrouping> CreateStoreControllerStoreNavList(StoreIndexViewModel model, List<String> destNames)
         {
             List<NavGrouping> navList = new List<NavGrouping>();
-
-            if (User.Identity.IsAuthenticated)
-            {
-                NavGrouping basicNav = new NavGrouping();
-                basicNav.GroupingHeader = "Account";
-                basicNav.NavItems = new List<NavItem>();
-                NavItem basicNavItem = new NavItem();
-                basicNavItem.DestinationName = "My Account";
-                basicNavItem.Destination = "/Account/";
-                basicNav.NavItems.Add(basicNavItem);
-                basicNavItem = new NavItem();
-                basicNavItem.DestinationName = "My Cart";
-                basicNavItem.Destination = "/Cart/";
-                basicNav.NavItems.Add(basicNavItem);
-
-                navList.Add(basicNav);
-            }
-
-            NavGrouping actions = new NavGrouping();
-            actions.GroupingHeader = "Actions";
-            actions.NavItems = new List<NavItem>();
-            NavItem clearSearch = new NavItem();
-            clearSearch.DestinationName = "Clear Search";
-            clearSearch.Destination = "/Store/";
-            actions.NavItems.Add(clearSearch);
-
-            navList.Add(actions);
-
+            
             NavGrouping platforms = new NavGrouping();
             platforms.GroupingHeader = "Platforms";
             platforms.NavItems = new List<NavItem>();
 
+            NavItem navItem = new NavItem();
+            navItem.IsFormSubmit = true;
+            navItem.DestinationName = platformsActionDest;
+            navItem.FormName = "SelectedPlatformID";
+            navItem.FormValue = "0";
+            navItem.FormID = storeFormID;
+            navItem.SetSelected(destNames);
+
+            platforms.NavItems.Add(navItem);
+
             for (int i = 0; i < model.StorePlatforms.Count; i++)
             {
-                NavItem navItem = new NavItem();
+                navItem = new NavItem();
                 navItem.IsFormSubmit = true;
                 navItem.DestinationName = model.StorePlatforms[i].PlatformName; 
                 navItem.FormName = "SelectedPlatformID";
                 navItem.FormValue = model.StorePlatforms[i].PlatformID.ToString();
                 navItem.FormID = storeFormID;
+                navItem.SetSelected(destNames);
 
                 platforms.NavItems.Add(navItem);
             }
@@ -1090,26 +1101,45 @@ namespace TheAfterParty.WebUI.Controllers
             deals.GroupingHeader = "Deals";
             deals.NavItems = new List<NavItem>();
 
+            NavItem dailyDeals = new NavItem();
+            dailyDeals.DestinationName = dailyActionDest;
+            dailyDeals.IsFormSubmit = true;
+            dailyDeals.FormID = storeFormID;
+            dailyDeals.FormAction = "/store/deals/daily";
+            dailyDeals.SetSelected(destNames);
+
             NavItem weeklyDeals = new NavItem();
             weeklyDeals.IsFormSubmit = true;
             weeklyDeals.FormID = storeFormID;
-            weeklyDeals.FormAction = "/Store/Deals/weekly";
-            weeklyDeals.DestinationName = "Weekly Deals";
+            weeklyDeals.FormAction = "/store/deals/weekly";
+            weeklyDeals.DestinationName = weeklyActionDest;
+            weeklyDeals.SetSelected(destNames);
 
-            NavItem dailyDeals = new NavItem();
-            dailyDeals.DestinationName = "Daily Deals";
-            dailyDeals.IsFormSubmit = true;
-            dailyDeals.FormID = storeFormID;
-            dailyDeals.FormAction = "/Store/Deals/daily";
+            NavItem otherDeals = new NavItem();
+            otherDeals.IsFormSubmit = true;
+            otherDeals.FormID = storeFormID;
+            otherDeals.FormAction = "/store/deals/other";
+            otherDeals.DestinationName = otherActionDest;
+            otherDeals.SetSelected(destNames);
+
+            NavItem allDeals = new NavItem();
+            allDeals.IsFormSubmit = true;
+            allDeals.FormID = storeFormID;
+            allDeals.FormAction = "/store/deals/all";
+            allDeals.DestinationName = allActionDest;
+            allDeals.SetSelected(destNames);
 
             NavItem newestListings = new NavItem();
-            newestListings.DestinationName = "New Additions";
+            newestListings.DestinationName = newActionDest;
             newestListings.IsFormSubmit = true;
             newestListings.FormID = storeFormID;
-            newestListings.FormAction = "/Store/Newest/";
+            newestListings.FormAction = "/store/newest/";
+            newestListings.SetSelected(destNames);
 
-            deals.NavItems.Add(weeklyDeals);
             deals.NavItems.Add(dailyDeals);
+            deals.NavItems.Add(weeklyDeals);
+            deals.NavItems.Add(otherDeals);
+            deals.NavItems.Add(allDeals);
             deals.NavItems.Add(newestListings);
 
             navList.Add(deals);
@@ -1161,6 +1191,14 @@ namespace TheAfterParty.WebUI.Controllers
             item = new NavItem();
             item.DestinationName = "Add Platform";
             item.Destination = "/Store/AddPlatform";
+            grouping.NavItems.Add(item);
+            item = new NavItem();
+            item.DestinationName = "Add/Update Steam Products";
+            item.Destination = "/Store/AddOrUpdateSteamProducts";
+            grouping.NavItems.Add(item);
+            item = new NavItem();
+            item.DestinationName = "Add Non-Steam Products";
+            item.Destination = "/Store/AddNonSteamProducts";
             grouping.NavItems.Add(item);
 
             navList.Add(grouping);

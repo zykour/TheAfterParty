@@ -18,8 +18,8 @@
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort>44338</IISExpressSSLPort>
-    <IISExpressAnonymousAuthentication />
-    <IISExpressWindowsAuthentication />
+    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>disabled</IISExpressWindowsAuthentication>
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
@@ -43,12 +43,48 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CodeKicker.BBCode, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CodeKicker.BBCode.5.0.0.0\lib\net35\CodeKicker.BBCode.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Glimpse.Ado, Version=1.7.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Glimpse.Ado.1.7.3\lib\net45\Glimpse.Ado.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Glimpse.AspNet, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Glimpse.AspNet.1.8.0\lib\net45\Glimpse.AspNet.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Glimpse.Core, Version=1.8.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Glimpse.1.8.6\lib\net45\Glimpse.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Glimpse.EF6, Version=1.6.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Glimpse.EF6.1.6.5\lib\net45\Glimpse.EF6.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Glimpse.Mvc5, Version=1.5.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Glimpse.Mvc5.1.5.3\lib\net45\Glimpse.Mvc5.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Hangfire.Core, Version=1.6.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.Core.1.6.3\lib\net45\Hangfire.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Hangfire.Ninject, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.Ninject.1.2.0\lib\net45\Hangfire.Ninject.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Hangfire.SqlServer, Version=1.6.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.SqlServer.1.6.3\lib\net45\Hangfire.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -72,6 +108,10 @@
       <HintPath>..\packages\Microsoft.Owin.3.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.Owin.Cors, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Cors.3.0.1\lib\net45\Microsoft.Owin.Cors.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.3.0.1\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
       <Private>True</Private>
@@ -92,20 +132,40 @@
       <HintPath>..\packages\Moq.4.2.1507.0118\lib\net40\Moq.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
+      <HintPath>..\packages\Ninject.3.2.0.0\lib\net45-full\Ninject.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Ninject.Extensions.ContextPreservation, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.Extensions.ContextPreservation.3.2.0.0\lib\net45-full\Ninject.Extensions.ContextPreservation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Ninject.Extensions.NamedScope, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.Extensions.NamedScope.3.2.0.0\lib\net45-full\Ninject.Extensions.NamedScope.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Ninject.Web.Common, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ninject.Web.Common.3.2.3.0\lib\net45-full\Ninject.Web.Common.dll</HintPath>
+      <HintPath>..\packages\Ninject.Web.Common.3.2.0.0\lib\net45-full\Ninject.Web.Common.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Ninject.Web.Common.OwinHost, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.Web.Common.OwinHost.3.2.3.0\lib\net45-full\Ninject.Web.Common.OwinHost.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Ninject.Web.Mvc, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ninject.MVC3.3.2.1.0\lib\net45-full\Ninject.Web.Mvc.dll</HintPath>
+      <HintPath>..\packages\Ninject.MVC5.3.2.1.0\lib\net45-full\Ninject.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Ninject.Web.WebApi, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.Web.WebApi.3.2.4.0\lib\net45-full\Ninject.Web.WebApi.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Ninject.Web.WebApi.OwinHost, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.Web.WebApi.OwinHost.3.2.4.0\lib\net45-full\Ninject.Web.WebApi.OwinHost.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
@@ -120,8 +180,17 @@
       <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SteamKit2, Version=1.7.0.33680, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SteamKit2.1.7.0\lib\net45\SteamKit2.dll</HintPath>
+    <Reference Include="SteamKit2, Version=1.8.0.26737, Culture=neutral, PublicKeyToken=ed3ce47ed5aad940, processorArchitecture=MSIL">
+      <HintPath>..\packages\SteamKit2.1.8.0\lib\net45\SteamKit2.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Cors, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Cors.5.0.0\lib\net45\System.Web.Cors.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Web.DynamicData" />
@@ -133,6 +202,18 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Http.Owin, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Owin.5.2.3\lib\net45\System.Web.Http.Owin.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.3\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
@@ -141,7 +222,7 @@
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="WebActivatorEx, Version=2.0.0.0, Culture=neutral, PublicKeyToken=7b26dc2a43f6a0d4, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebActivatorEx.2.0\lib\net40\WebActivatorEx.dll</HintPath>
+      <HintPath>..\packages\WebActivatorEx.2.1.0\lib\net40\WebActivatorEx.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -172,27 +253,38 @@
     <Content Include="Content\applogo.gif" />
     <Content Include="Content\banner.png" />
     <Content Include="Content\banner1.png" />
+    <Content Include="Content\bootstrap-theme.css" />
+    <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
-    <Content Include="Content\dropdown_linkbg.gif" />
-    <Content Include="Content\PlatformIcons\gog.ico" />
+    <Content Include="Content\BootstrapXL.css" />
     <Content Include="Content\font-awesome\css\font-awesome.css" />
     <Content Include="Content\font-awesome\css\font-awesome.min.css" />
     <Content Include="Content\font-awesome\fonts\fontawesome-webfont.svg" />
     <Content Include="Content\font-awesome\HELP-US-OUT.txt" />
+    <Content Include="Content\PlatformIcons\SquareEnix.ico" />
     <Content Include="Content\Site.css" />
     <Content Include="Content\small_avatar.jpg" />
-    <Content Include="Content\PlatformIcons\steam.png" />
-    <Content Include="Content\subnav_btn.gif" />
-    <Content Include="Content\topnav_bg.gif" />
-    <Content Include="Content\topnav_hover.gif" />
+    <Content Include="Content\PlatformIcons\Steam.png" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Content\bootstrap.min.css.map" />
+    <Content Include="Content\bootstrap.css.map" />
+    <Content Include="Content\bootstrap-theme.min.css.map" />
+    <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <None Include="Scripts\jquery-3.1.0.intellisense.js" />
+    <Content Include="Scripts\jquery-3.1.0.js" />
+    <Content Include="Scripts\jquery-3.1.0.min.js" />
+    <Content Include="Scripts\jquery-3.1.0.slim.js" />
+    <Content Include="Scripts\jquery-3.1.0.slim.min.js" />
     <Content Include="Scripts\TheAfterPartyScripts.js" />
     <Content Include="Views\Account\Index.cshtml" />
-    <Content Include="Views\Balances\Index.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Objectives\Index.cshtml" />
     <Content Include="Views\Store\Index.cshtml" />
@@ -203,8 +295,6 @@
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Cart\Index.cshtml" />
     <Content Include="Views\Cart\Success.cshtml" />
-    <Content Include="Views\Store\StoreEntry.cshtml" />
-    <Content Include="Views\Shared\_ShoppingCart.cshtml" />
     <Content Include="Content\font-awesome\fonts\fontawesome-webfont.eot" />
     <Content Include="Content\font-awesome\fonts\fontawesome-webfont.ttf" />
     <Content Include="Content\font-awesome\fonts\fontawesome-webfont.woff" />
@@ -236,13 +326,14 @@
     <Content Include="Content\font-awesome\scss\_rotated-flipped.scss" />
     <Content Include="Content\font-awesome\scss\_stacked.scss" />
     <Content Include="Content\font-awesome\scss\_variables.scss" />
+    <None Include="Properties\PublishProfiles\theafterparty - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\theafterparty - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\theafterparty.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
-    <None Include="Scripts\jquery-2.2.0.intellisense.js" />
-    <Content Include="Scripts\jquery-2.2.0.js" />
-    <Content Include="Scripts\jquery-2.2.0.min.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
+    <Content Include="Scripts\jquery-3.1.0.slim.min.map" />
+    <Content Include="Scripts\jquery-3.1.0.min.map" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
@@ -255,38 +346,51 @@
     <Compile Include="App_Start\IdentityConfig.cs" />
     <Compile Include="App_Start\NinjectWebCommon.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="Controllers\AboutController.cs" />
+    <Compile Include="App_Start\TaskRegister.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\AuctionController.cs" />
-    <Compile Include="Controllers\BalancesController.cs" />
+    <Compile Include="Controllers\AuctionsController.cs" />
     <Compile Include="Controllers\CartController.cs" />
     <Compile Include="Controllers\GiveawayController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ObjectivesController.cs" />
-    <Compile Include="Controllers\PurchaseController.cs" />
     <Compile Include="Controllers\StoreController.cs" />
+    <Compile Include="Controllers\TapController.cs" />
     <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="GlimpseSecurityPolicy.cs" />
+    <Compile Include="HtmlHelpers\PagingHelpers.cs" />
+    <Compile Include="Infrastructure\SimpleAuthorizationServerProvider.cs" />
     <Compile Include="Models\Account\AccountIndexModel.cs" />
     <Compile Include="Models\Account\AccountKeysModel.cs" />
     <Compile Include="Models\Account\AccountOrderModel.cs" />
     <Compile Include="Models\Account\AccountOrdersModel.cs" />
-    <Compile Include="Models\Auctions\AuctionModel.cs" />
-    <Compile Include="Models\Auctions\AuctionsModel.cs" />
-    <Compile Include="Models\Auctions\ClosedAuctionsModel.cs" />
-    <Compile Include="Models\Auctions\CreatedAuctionsModel.cs" />
-    <Compile Include="Models\Balances\BalancesIndexViewModel.cs" />
+    <Compile Include="Models\Account\ErrorViewModel.cs" />
+    <Compile Include="Models\Api\ApiAppUserModel.cs" />
+    <Compile Include="Models\Api\ApiAuctionModel.cs" />
+    <Compile Include="Models\Api\ApiBoostedObjectiveModel.cs" />
+    <Compile Include="Models\Api\ApiDiscountedListingModel.cs" />
+    <Compile Include="Models\Api\ApiListingModel.cs" />
+    <Compile Include="Models\Api\ApiObjectiveModel.cs" />
+    <Compile Include="Models\Auctions\AddEditAuctionViewModel.cs" />
+    <Compile Include="Models\Auctions\AdminAuctionsViewModel.cs" />
+    <Compile Include="Models\Auctions\AuctionViewModel.cs" />
+    <Compile Include="Models\Auctions\AuctionsIndexViewModel.cs" />
     <Compile Include="Models\Cart\CartIndexViewModel.cs" />
     <Compile Include="Models\Cart\CartLayoutViewModel.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Infrastructure\NinjectDependencyResolver.cs" />
     <Compile Include="Models\Cart\PurchaseViewModel.cs" />
     <Compile Include="Models\Giveaways\ClosedGiveawaysModel.cs" />
     <Compile Include="Models\Giveaways\CreatedGiveawaysModel.cs" />
     <Compile Include="Models\Giveaways\GiveawaysModel.cs" />
-    <Compile Include="Models\Home\HomeActivityFeedModel.cs" />
-    <Compile Include="Models\Home\HomeTestModel.cs" />
+    <Compile Include="Models\Home\AddEditGroupEventViewModel.cs" />
+    <Compile Include="Models\Home\AddEditPOTWViewModel.cs" />
+    <Compile Include="Models\Home\AddEditSiteNotificationViewModel.cs" />
+    <Compile Include="Models\Home\AdminGroupEventsViewModel.cs" />
+    <Compile Include="Models\Home\AdminPOTWsViewModel.cs" />
+    <Compile Include="Models\Home\AdminSiteNotificationsViewModel.cs" />
+    <Compile Include="Models\Home\HomeIndexViewModel.cs" />
     <Compile Include="Models\Objectives\AddEditBoostedObjectiveViewModel.cs" />
     <Compile Include="Models\Objectives\AddEditObjectivesViewModel.cs" />
     <Compile Include="Models\Objectives\AdminObjectivesViewModel.cs" />
@@ -300,15 +404,13 @@
     <Compile Include="Models\Store\AddedListingsViewModel.cs" />
     <Compile Include="Models\Store\AddGamesViewModel.cs" />
     <Compile Include="Models\Store\AddEditPlatformViewModel.cs" />
+    <Compile Include="Models\Store\AddNonSteamProductsViewModel.cs" />
+    <Compile Include="Models\Store\AddOrUpdateSteamProductsViewModel.cs" />
     <Compile Include="Models\Store\AdminListingViewModel.cs" />
     <Compile Include="Models\Store\AdminPlatformViewModel.cs" />
     <Compile Include="Models\Store\AdminProductCategoryViewModel.cs" />
     <Compile Include="Models\Store\AdminProductKeyViewModel.cs" />
     <Compile Include="Models\Store\AdminProductViewModel.cs" />
-    <Compile Include="Models\Store\SelectedProductCategoryMapping.cs" />
-    <Compile Include="Models\Store\SelectedTagMapping.cs" />
-    <Compile Include="Models\Store\StoreBalancesViewModel.cs" />
-    <Compile Include="Models\Store\StoreDealsViewModel.cs" />
     <Compile Include="Models\Store\StoreIndexViewModel.cs" />
     <Compile Include="Models\User\AddEditAppUserViewModel.cs" />
     <Compile Include="Models\User\AddEditBalanceEntryViewModel.cs" />
@@ -320,6 +422,7 @@
     <Compile Include="Models\User\AdminClaimedProductKeyViewModel.cs" />
     <Compile Include="Models\User\AdminOrderViewModel.cs" />
     <Compile Include="Models\User\AdminSingleOrderViewModel.cs" />
+    <Compile Include="Models\Account\MySettingsViewModel.cs" />
     <Compile Include="Models\User\UserActivityFeedModel.cs" />
     <Compile Include="Models\User\UserAddBalancesViewModel.cs" />
     <Compile Include="Models\User\UserIndexModel.cs" />
@@ -334,16 +437,8 @@
     <Content Include="packages.config" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\About\Index.cshtml" />
-    <Content Include="fonts\glyphicons-halflings-regular.woff" />
-    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
-    <Content Include="fonts\glyphicons-halflings-regular.eot" />
-    <Content Include="Scripts\jquery-2.2.0.min.map" />
-    <Content Include="Views\Store\UserBalances.cshtml" />
-    <Content Include="Views\Store\Deals.cshtml" />
     <Content Include="Views\Store\AddGames.cshtml" />
     <Content Include="Views\Store\EditPlatform.cshtml" />
-    <Content Include="Views\Home\Test.cshtml" />
     <Content Include="Views\User\AjaxAddToBlacklist.cshtml" />
     <Content Include="Views\User\Index.cshtml" />
     <Content Include="Views\User\UserProfile.cshtml" />
@@ -351,9 +446,8 @@
     <Content Include="Views\User\AddBalances.cshtml" />
     <Content Include="Views\Account\Orders.cshtml" />
     <Content Include="Views\Account\Keys.cshtml" />
-    <Content Include="Views\Home\ActivityFeed.cshtml" />
-    <Content Include="Views\Auction\Index.cshtml" />
-    <Content Include="Views\Auction\Auction.cshtml" />
+    <Content Include="Views\Auctions\Index.cshtml" />
+    <Content Include="Views\Auctions\Auction.cshtml" />
     <Content Include="Views\Objectives\AdminObjectives.cshtml" />
     <Content Include="Views\Objectives\AddObjective.cshtml" />
     <Content Include="Views\Objectives\EditObjective.cshtml" />
@@ -388,6 +482,23 @@
     <Content Include="Views\Objectives\MyObjectives.cshtml" />
     <Content Include="Views\Account\Order.cshtml" />
     <Content Include="Views\Shared\_RenderAppBanner.cshtml" />
+    <Content Include="Views\Shared\_EmptyResults.cshtml" />
+    <Content Include="Views\Home\EditSiteNotification.cshtml" />
+    <Content Include="Views\Home\AddSiteNotification.cshtml" />
+    <Content Include="Views\Home\AdminSiteNotifications.cshtml" />
+    <Content Include="Views\Home\AddPOTW.cshtml" />
+    <Content Include="Views\Home\EditPOTW.cshtml" />
+    <Content Include="Views\Home\AdminPOTWs.cshtml" />
+    <Content Include="Views\Home\AddGroupEvent.cshtml" />
+    <Content Include="Views\Home\EditGroupEvent.cshtml" />
+    <Content Include="Views\Home\AdminGroupEvents.cshtml" />
+    <Content Include="Views\Auctions\AddAuction.cshtml" />
+    <Content Include="Views\Auctions\EditAuction.cshtml" />
+    <Content Include="Views\Auctions\AdminAuctions.cshtml" />
+    <Content Include="Views\Account\MySettings.cshtml" />
+    <Content Include="Views\Account\Error.cshtml" />
+    <Content Include="Views\Store\AddOrUpdateSteamProducts.cshtml" />
+    <Content Include="Views\Store\AddNonSteamProducts.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

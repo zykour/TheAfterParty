@@ -32,6 +32,7 @@ if (num == 1)
     </select>
 }
 
+<div class="col-xl-10 col-lg-10 col-md-10">
 @if (Model.LoggedInUser.GetCartQuantity() == 0)
 {
     <div class="row custom-row-header"><h3>@(Model.LoggedInUser.UserName)'s Cart</h3></div>
@@ -43,57 +44,75 @@ if (num == 1)
 }
 else
 {
-    <div class="row custom-row-header"><h3>@(Model.LoggedInUser.UserName)'s Cart</h3></div>
-    if (Model.LoggedInUser.AssertQuantityOfCart() == false)
+    if (Model.LoggedInUser.AssertQuantityOfCart() == false || Model.LoggedInUser.AssertBalanceExceedsCost() == false)
     {
-        <span class="text-warning">The quantity of some items in your cart exceeds the available quantity.</span><br/>
+        <div class="row custom-row-hollow text-warning top-content-margin">
+            <ul>
+            @if (Model.LoggedInUser.AssertQuantityOfCart() == false)
+            {
+                <li>The quantity of some items in your cart exceeds the available quantity.</li>
+            }
+            @if (Model.LoggedInUser.AssertBalanceExceedsCost() == false)
+            {
+                <li>The cost of the items in the cart exceeds your unreserved balance.</li>
+            }
+            </ul>
+        </div>
     }
-    if (Model.LoggedInUser.AssertBalanceExceedsCost() == false)
-    {
-        <span class="text-warning">The cost of the items in the cart exceeds your unreserved balance.</span><br />
-    }
-    <div class="row custom-row">
-        <div class="col-lg-1"></div>
-        <div class="col-lg-2 text-center">Quantity</div>
-        <div class="col-lg-6 text-center">Game</div>
-        <div class="col-lg-1">Platform</div>
-        <div class="col-lg-1">Price</div>
-        <div class="col-lg-1">Subtotal</div>
+    <div class="row custom-row-header no-top-marg"><h3>@(Model.LoggedInUser.UserName)'s Cart</h3></div>
+    <div class="row custom-row col-header text-center">
+        <div class="col-lg-1 col-md-1 col-xl-1"></div>
+        <div class="col-lg-6 col-md-6 col-xl-7">Game</div>
+        <div class="col-lg-1 col-md-1 col-xl-1">Platform</div>
+        <div class="col-lg-2 col-md-2 col-xl-1">Quantity</div>
+        <div class="col-lg-1 col-md-1 col-xl-1">Price</div>
+        <div class="col-lg-1 col-md-1 col-xl-1">Subtotal</div>
     </div>
     for (int i = 0; i < Model.CartEntries.Count(); i++)
     {
-        <div class="row store-entry-sm">
-            <div class="col-lg-1">
+        <div class="row store-entry-sm col-text text-center">
+            <div class="col-lg-1 col-md-1 col-xl-1 text-center">
                 @using (Html.BeginForm("RemoveItem", "Cart", new { shoppingId = Model.CartEntries.ElementAt(i).ShoppingCartEntryID }, FormMethod.Post, new { @class = "tag-inline" }))
                 {
                 <div class="tag-inline">
                     @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
                     <button type="submit" class="btn-transparent">
-                        <i class="glyphicon glyphicon-remove store-blacklist"></i>
+                        <i class="fa fa-remove fa-lg store-blacklist-active"></i>
                     </button>
                 </div>
                 }
             </div>
-            <div class="col-lg-2 text-center">
-                @if (Model.CartEntries.ElementAt(i).Quantity > 1)
+            <div class="col-lg-7 col-md-7 col-xl-7 vertical-align">
+                @if (Model.CartEntries.ElementAt(i).Listing.IsComplex())
                 {
-                    using (Html.BeginForm("DecrementCartQuantity", "Cart", new { shoppingId = Model.CartEntries.ElementAt(i).ShoppingCartEntryID }, FormMethod.Post, new { @class = "tag-inline" }))
-                    {
-                        <div class="tag-inline decrement-btn">
-                            @Html.HiddenFor(m => m.CartEntries.ElementAt(i).ShoppingCartEntryID)
-                            @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
-                            <button type="submit" class="btn-transparent tag-inline">
-                                <i class="glyphicon glyphicon-minus store-blacklist tag-inline"></i>
-                            </button>
-                        </div>
-                    }
+                var listing = "listing" + i + "id";
+                <div id="@listing" onclick="ToggleHiddenAlt(this)">
+                    <span class="fa fa-fw fa-lg fa-chevron-right pad-left expand-button icon-blue"></span>
+                </div>
                 }
-                else
-                {
-                    <div class="tag-inline decrement-btn">
-                        <i class="glyphicon glyphicon-minus tag-inline btn-disabled"></i>
+                <div class="outer-banner-container">
+                    @if (String.IsNullOrEmpty(Model.CartEntries.ElementAt(i).Listing?.Product?.GetHttpsSecuredHeaderImage()))
+                    {
+                        <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
+                    }
+                    else
+                    {
+                        <div class="inner-store-banner-container" style="background-image: url(@Model.CartEntries.ElementAt(i).Listing.Product.GetHttpsSecuredHeaderImage())"></div>
+                    }
+                </div>
+                <div class="store-entry-name">
+                    @Model.CartEntries.ElementAt(i).Listing.ListingName
+                </div>
+            </div>
+            <div class="col-lg-1 col-md-1 col-xl-1">
+                @foreach (string platformIconUrl in Model.CartEntries.ElementAt(i).Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
+                    {
+                    <div class="icon-image-container">
+                        <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
                     </div>
                 }
+            </div>
+            <div class="col-lg-1 col-md-1 col-xl-1">
                 @if (Model.CartEntries.ElementAt(i).Quantity > Model.CartEntries.ElementAt(i).Listing.Quantity)
                 {
                     <span class="text-warning">@Model.CartEntries.ElementAt(i).Quantity</span>
@@ -102,94 +121,76 @@ else
                 {
                     <span class="text-success">@Model.CartEntries.ElementAt(i).Quantity</span>
                 }
-                @if (Model.CartEntries.ElementAt(i).Quantity < Model.CartEntries.ElementAt(i).Listing.Quantity)
-                {
-                    using (Html.BeginForm("IncrementCartQuantity", "Cart", new { shoppingId = Model.CartEntries.ElementAt(i).ShoppingCartEntryID }, FormMethod.Post, new { @class = "tag-inline" }))
-                    {
-                        <div class="tag-inline increment-btn">
-                            @Html.HiddenFor(m => m.CartEntries.ElementAt(i).ShoppingCartEntryID)
-                            @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
-                            <button type="submit" class="btn-transparent">
-                                <i class="glyphicon glyphicon-plus tag-inline text-success"></i>
-                            </button>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <div class="tag-inline increment-btn">
-                        <i class="glyphicon glyphicon-plus tag-inline btn-disabled"></i>
-                    </div>
-                }
             </div>
-            <div class="col-lg-6">
-                <div class="outer-banner-container">
-                    @if (String.IsNullOrEmpty(Model.CartEntries.ElementAt(i).Listing.Product.ProductDetail.HeaderImageURL))
-                    {
-                        <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
-                    }
-                    else
-                    {
-                        <div class="inner-store-banner-container" style="background-image: url(@Model.CartEntries.ElementAt(i).Listing.Product.ProductDetail.HeaderImageURL)"></div>
-                    }
-                </div>
-                <div class="store-entry-name">
-                    @Model.CartEntries.ElementAt(i).Listing.ListingName
-                </div>
-            </div>
-            <div class="col-lg-1">
-                @foreach (string platformIconUrl in Model.CartEntries.ElementAt(i).Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
-                    {
-                    <div class="icon-image-container">
-                        <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
-                    </div>
-                }
-            </div>
-            <div class="col-lg-1">@Model.CartEntries.ElementAt(i).Listing.SaleOrDefaultPrice()</div>
-            <div class="col-lg-1">@(Model.CartEntries.ElementAt(i).Listing.SaleOrDefaultPrice() * Model.CartEntries.ElementAt(i).Quantity)</div>
+            <div class="col-lg-1 col-md-1 col-xl-1 text-success">@Model.CartEntries.ElementAt(i).Listing.SaleOrDefaultPrice()</div>
+            <div class="col-lg-1 col-md-1 col-xl-1 text-success">@(Model.CartEntries.ElementAt(i).Listing.SaleOrDefaultPrice() * Model.CartEntries.ElementAt(i).Quantity)</div>
         </div>
         if (Model.CartEntries.ElementAt(i).Listing.ChildListings != null && Model.CartEntries.ElementAt(i).Listing.ChildListings.Count > 0)
         {
-            foreach (Listing child in Model.CartEntries.ElementAt(i).Listing.ChildListings)
-            {
-            <div class="row store-entry-sm">
-                <div class="col-lg-3"></div>
-                <div class="col-lg-6">
-                    <div class="outer-banner-container">
-                        @if (String.IsNullOrEmpty(child.Product.ProductDetail.HeaderImageURL))
-                        {
-                            <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
-                        }
-                        else
-                        {
-                            <div class="inner-store-banner-container" style="background-image: url(@child.Product.ProductDetail.HeaderImageURL)"></div>
-                        }
-                    </div>
-                    <div class="store-entry-name">
-                        @child.ListingName
-                    </div>
-                </div>
-                <div class="col-lg-1">
-                    @foreach (string platformIconUrl in child.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
-                    {
-                        <div class="icon-image-container">
-                            <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
+            var id = "listing" + i + "id1";
+            <div class="is-hidden" id="@id">
+                @foreach (Listing child in Model.CartEntries.ElementAt(i).Listing.ChildListings)
+                {
+                <div class="row store-sub-entry-sm">
+                    <div class="col-lg-2 col-md-2 col-xl-2"></div>
+                    <div class="col-lg-6 col-md-6 col-xl-6 vertical-align">
+                        <div class="outer-banner-container">
+                            @if (String.IsNullOrEmpty(child?.Product?.GetHttpsSecuredHeaderImage()))
+                            {
+                                <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
+                            }
+                            else
+                            {
+                                <div class="inner-store-banner-container" style="background-image: url(@child.Product.GetHttpsSecuredHeaderImage())"></div>
+                            }
                         </div>
-                    }
+                        <div class="store-entry-name">
+                            @child.ListingName
+                        </div>
+                    </div>
+                    <div class="col-lg-1 col-md-1 col-xl-1">
+                        @foreach (string platformIconUrl in child.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
+                        {
+                            <div class="icon-image-container">
+                                <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
+                            </div>
+                        }
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-xl-2"></div>
                 </div>
-                <div class="col-lg-2"></div>
+                }
             </div>
-            }
         }
     }
     <br/>
-    <div class="row">
-        <div class="col-lg-10"></div>
-        <div class="col-lg-1 text-primary">
+    <div class="row text-center col-text">
+        <div class="col-lg-10 col-md-10 col-xl-10"></div>
+        <div class="col-lg-1 col-md-1 col-xl-1 text-primary">
             Total:
         </div>
-        <div class="col-lg-1">
-            @Model.LoggedInUser.GetCartTotal()
+        <div class="col-lg-1 col-md-1 col-xl-1">
+            @if (Model.LoggedInUser.Balance < Model.LoggedInUser.GetCartTotal())
+            {
+                <span class="text-warning">@Model.LoggedInUser.GetCartTotal()</span>
+            }
+            else
+            {
+                <span class="text-success">@Model.LoggedInUser.GetCartTotal()</span>
+            }
         </div>
     </div>
 }
+</div>
+<div class="col-xl-2 col-lg-2 col-md-2">
+    <h3 class="text-primary nav-grouping-header store-search">Actions</h3>
+    <a href="@Url.Action("EmptyCart","Cart")" class="btn btn-sm btn-success btn-custom empty-confirm">Empty Cart</a>
+    <div class="top-padding-sm"></div>
+    @if (Model.LoggedInUser.Balance < Model.LoggedInUser.GetCartTotal())
+    {
+        <span class="btn btn-sm btn-custom btn-disabled">Purchase</span>
+    }
+    else
+    {
+        <a href="@Url.Action("Purchase", "Cart")" class="btn btn-sm btn-success btn-custom purchase-confirm">Purchase</a>
+    }
+</div>

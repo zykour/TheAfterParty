@@ -5,6 +5,7 @@ using System.Web;
 using TheAfterParty.Domain.Entities;
 using TheAfterParty.Domain.Services;
 using TheAfterParty.WebUI.Models._Nav;
+using TheAfterParty.Domain.Model;
 
 namespace TheAfterParty.WebUI.Models.Account
 {

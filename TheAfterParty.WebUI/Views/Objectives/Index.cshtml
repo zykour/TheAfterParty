@@ -3,87 +3,190 @@
 @model ObjectivesIndexViewModel
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Objectives";
 }
 
 
 @using (Html.BeginForm(Model.FormName, "Objectives", null, FormMethod.Post, new { id = ViewBag.StoreFormID }))
 {
 @Html.HiddenFor(x => x.PreviousFilterLibrary)
-<div class="container">
-    <div class="col-lg-10">
-        <div class="row custom-row-header"><h3>Objectives</h3></div>
-        @foreach (ICollection<Objective> group in Model.Objectives.GroupBy(o => o.Title))
-        {
-            <div class="row custom-row">
-                <div class="col-lg-12">@group.FirstOrDefault().Title</div>
-            </div>
-            <div class="row custom-row">
-                <div class="col-lg-4 text-center">Objective Name</div>
-                <div class="col-lg-1 text-center">Boosted</div>
-                <div class="col-lg-1">Reward</div>
-                <div class="col-lg-1">Monuplay</div>
-                <div class="col-lg-5">Description</div>
-            </div>
-            foreach (Objective obj in group)
+<div>
+    <div class="row">
+        <div class="col-lg-10 col-md-10 col-xl-10">
+            <div class="row custom-row-header"><h3>Objectives</h3></div>
+            @if (Model.MiscObjectives != null && Model.MiscObjectives.Count > 0)
             {
-            <div class="row store-entry-sm">
-                <div class="col-lg-1">
-                    @if (String.IsNullOrEmpty(obj.Product.ProductDetail.HeaderImageURL) == true)
+                <div class="row custom-row clickable" id="MiscObj" onclick="ToggleHidden(this,MiscObj)">
+                    <div class="col-lg-11 col-md-11 col-xl-11">
+                        <span class="objective-title">Misc.</span>
+                    </div>
+                    <div class="col-lg-1 col-md-1 col-xl-1">
+                        <span class="fa fa-chevron-up fa-2x expand-button"></span>
+                    </div>
+                </div>
+                <div id="MiscObj1" class="is-hidden">
+                    <div class="row custom-row">
+                        <div class="col-lg-1 col-md-1 col-xl-1 text-center"><span class="col-header">ID</span></div>
+                        <div class="col-lg-6 col-md-6 col-xl-6 text-center"><span class="col-header">Objective</span></div>
+                        <div class="col-lg-1 col-md-1 col-xl-1 text-center"><span class="col-header">Monuplay</span></div>
+                        <div class="col-lg-1 col-md-1 col-xl-1 text-center"><span class="col-header">Boosted</span></div>
+                        <div class="col-lg-1 col-md-1 col-xl-1 text-center"><span class="col-header">Reward</span></div>
+                        <div class="col-lg-1 col-md-1 col-xl-1 text-center"><span class="col-header">Expires</span></div>
+                    </div>
+                    @foreach (Objective obj in Model.MiscObjectives.OrderBy(o => o.ObjectiveID))
                     {
-                        <span></span>
-                    }
-                    else
-                    {
-                        <div class="outer-banner-container">
-                            <div class="inner-store-banner-container" style="background-image: url(@obj.Product.ProductDetail.HeaderImageURL)"></div>
+                        <div class="row store-entry-sm objective-row">
+                            <div class="col-lg-1 col-md-1 col-xl-1 text-center col-text text-lblue"><span>@obj.ObjectiveID</span></div>
+                            <div class="col-lg-6 col-md-6 col-xl-6 text-left">
+                                <p><span class="objective-name">@obj.ObjectiveName</span><br /><span>@obj.Description</span></p>
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-xl-1 text-center">
+                                @if (obj.RequiresAdmin == false)
+                                {
+                                    <span class="fa fa-close fa-lg text-danger"></span>
+                                }
+                                else
+                                {
+                                    <span class="fa fa-check fa-lg text-success"></span>
+                                }
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-xl-1 text-center">
+                                @if (obj.BoostedObjective == null)
+                                {
+                                    <span class="fa fa-close fa-lg text-danger"></span>
+                                }
+                                else
+                                {
+                                    <span class="col-text text-success">@(obj.BoostedObjective.BoostAmount)X</span>
+                                }
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-xl-1 text-center">
+                                @if (obj.BoostedObjective == null)
+                                {
+                                    <span class="col-text">@obj.FixedReward()</span>
+                                }
+                                else
+                                {
+                                    <span class="col-text text-success">@obj.FixedReward()</span>
+                                }
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-xl-1 text-center col-text">
+                                @if (obj.BoostedObjective == null)
+                                {
+                                    <span class="fa fa-close fa-lg text-danger"></span>
+                                }
+                                else
+                                {
+                                    <span class="objective-date">@(Model.GetConvertedDateTime(obj.BoostedObjective.EndDate).ToString("d MMM"))</span>
+                                }
+                            </div>
                         </div>
                     }
                 </div>
-                <div class="col-lg-3 text-primary">@obj.ObjectiveName</div>
-                <div class="col-lg-1 text-center">
-                    @if (obj.BoostedObjective == null)
-                    {
-                        <i class="fa fa-close text-danger"></i>
-                    }
-                    else
-                    {
-                        <i class="fa fa-check text-success"></i>
-                    }
-                </div>
-                <div class="col-lg-1 text-center text-success">@obj.FixedReward()</div>
-                <div class="col-lg-1 text-center">
-                    @if (obj.RequiresAdmin == false)
-                    {
-                        <i class="fa fa-close text-danger"></i>
-                    }
-                    else
-                    {
-                        <i class="fa fa-check text-success"></i>
-                    }
-                </div>
-                <div class="col-lg-5">@obj.Description</div>
-            </div>
             }
-        }
+            @foreach (ICollection<Objective> group in Model.Objectives.GroupBy(o => o.Title))
+            {
+                string id = "prod" + group.First().Product.ProductID + "p";
+                <div class="row custom-row clickable" id="@id" onclick="ToggleHidden(this,@id)">
+                    <div class="col-lg-11 col-md-11 col-xl-11">
+                        @if (group.FirstOrDefault()?.Product != null)
+                        {
+                            <div class="outer-banner-container-row">
+                                @if (String.IsNullOrEmpty(group.FirstOrDefault().Product.GetHttpsSecuredHeaderImage()))
+                                {
+                                    <div class="inner-store-banner-container-row" style="background-image: url('/Content/applogo.gif')"></div>
+                                }
+                                else
+                                {
+                                    <div class="inner-store-banner-container-row" style="background-image: url(@group.FirstOrDefault().Product.GetHttpsSecuredHeaderImage())"></div>
+                                }
+                            </div>
+                        }
+                        <span class="objective-title">@group.FirstOrDefault().Title</span>
+                    </div>
+                    <div class="col-lg-1 col-md-1 col-xl-1">
+                        <span class="fa fa-chevron-up fa-2x expand-button"></span>
+                    </div>
+                </div>
+                <div id="@(id)1" class="is-hidden">
+                    <div class="row custom-row col-header">
+                        <div class="col-lg-1 col-md-1 col-xl-1">ID</div>
+                        <div class="col-lg-6 col-md-6 col-xl-6 text-center" >Objective</div>
+                        <div class="col-lg-1 col-md-1 col-xl-1">Monuplay</div>
+                        <div class="col-lg-1 col-md-1 col-xl-1">Boosted</div>
+                        <div class="col-lg-1 col-md-1 col-xl-1">Reward</div>
+                        <div class="col-lg-1 col-md-1 col-xl-1">Expires</div>
+                    </div>
+                    @foreach (Objective obj in group)
+                    {
+                        <div class="row store-entry-sm objective-row text-center">
+                            <div class="col-lg-1 col-md-1 col-xl-1 col-text text-lblue">@obj.ObjectiveID</div>
+                            <div class="col-lg-6 col-md-6 col-xl-6 text-left">
+                                <p><span class="objective-name">@obj.ObjectiveName</span><br />@obj.Description</p>
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-xl-1 text-center">
+                                @if (obj.RequiresAdmin == false)
+                                {
+                                    <span class="fa fa-close fa-lg text-danger"></span>
+                                }
+                                else
+                                {
+                                    <span class="fa fa-check fa-lg text-success"></span>
+                                }
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-xl-1 text-center">
+                                @if (obj.BoostedObjective == null)
+                                {
+                                    <span class="fa fa-close fa-lg text-danger"></span>
+                                }
+                                else
+                                {
+                                    <span class="col-text text-success">@(obj.BoostedObjective.BoostAmount)X</span>
+                                }
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-xl-1 text-center">
+                                @if (obj.BoostedObjective == null)
+                                {
+                                    <span class="col-text">@obj.FixedReward()</span>
+                                }
+                                else
+                                {
+                                    <span class="col-text text-success">@obj.FixedReward()</span>
+                                }
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-xl-1 text-center col-text">
+                                @if (obj.BoostedObjective == null)
+                                {
+                                    <span class="fa fa-close fa-lg text-danger"></span>
+                                }
+                                else
+                                {
+                                    <span class="objective-date">@(Model.GetConvertedDateTime(obj.BoostedObjective.EndDate).ToString("d MMM"))</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
         </div>
-        <div class="col-lg-2">
+        <div class="col-lg-2 col-md-2 col-xl-2">
             @if (Context.User.Identity.IsAuthenticated)
             {
-                <h3 class="text-primary nav-grouping-header store-search" style="width: 100%;">User Filters</h3>
-                if (Model.PreviousFilterLibrary)
-                {
-                    <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
-                        <i class="glyphicon glyphicon-check text-success"></i> @Html.Label("Owned", new { @class = "text-success store-filter" })
-                    </button>
-                }
-                else
-                {
-                    <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
-                        <i class="glyphicon glyphicon-unchecked text-success"></i> @Html.Label("Owned", new { @class = "text-success store-filter" })
-                    </button>
-                }
-                <br />
+                <h3 class="text-primary nav-grouping-header store-search">User Filters</h3>
+                <div class="filter-div">
+                    @if (Model.PreviousFilterLibrary)
+                    {
+                        <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
+                            <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label("Owned", new { @class = "text-success store-filter" })
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
+                            <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label("Owned", new { @class = "text-success store-filter" })
+                        </button>
+                    }
+                </div>
                 <h3 class="text-primary nav-grouping-header">Genres & Tags</h3>
             }
             else
@@ -98,21 +201,23 @@
                     @Html.HiddenFor(x => x.SelectedTagMappings[i].StoreTag.TagID)
                     @Html.HiddenFor(x => x.SelectedTagMappings[i].StoreTag.TagName)
                     @Html.HiddenFor(x => x.SelectedTagMappings[i].IsSelected)
-                    if (Model.SelectedTagMappings[i].IsSelected)
-                    {
-                        <button class="btn-transparent" type="submit" name="TagToChange" value="@Model.SelectedTagMappings[i].StoreTag.TagID">
-                            <i class="glyphicon glyphicon-check text-success" style="font-size: 9px;"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
+                    <div class="filter-div">
+                        @if (Model.SelectedTagMappings[i].IsSelected)
+                        {
+                        <button class="btn-transparent text-nowrap" type="submit" name="TagToChange" value="@Model.SelectedTagMappings[i].StoreTag.TagID">
+                            <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
                         </button>
-                    }
-                    else
-                    {
-                        <button class="btn-transparent" type="submit" name="TagToChange" value="@Model.SelectedTagMappings[i].StoreTag.TagID">
-                            <i class="glyphicon glyphicon-unchecked text-success"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
+                        }
+                        else
+                        {
+                        <button class="btn-transparent text-nowrap" type="submit" name="TagToChange" value="@Model.SelectedTagMappings[i].StoreTag.TagID">
+                            <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
                         </button>
-                    }
-                    <br />
+                        }
+                    </div>
                 }
             }
+        </div>
     </div>
 </div>
 }

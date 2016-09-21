@@ -38,6 +38,18 @@
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Glimpse.Ado, Version=1.7.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Glimpse.Ado.1.7.3\lib\net45\Glimpse.Ado.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Glimpse.Core, Version=1.8.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Glimpse.1.8.6\lib\net45\Glimpse.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Glimpse.EF6, Version=1.6.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Glimpse.EF6.1.6.5\lib\net45\Glimpse.EF6.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
       <Private>True</Private>
@@ -70,8 +82,8 @@
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
@@ -82,8 +94,8 @@
       <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SteamKit2, Version=1.7.0.33680, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SteamKit2.1.7.0\lib\net45\SteamKit2.dll</HintPath>
+    <Reference Include="SteamKit2, Version=1.8.0.26737, Culture=neutral, PublicKeyToken=ed3ce47ed5aad940, processorArchitecture=MSIL">
+      <HintPath>..\packages\SteamKit2.1.8.0\lib\net45\SteamKit2.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -121,12 +133,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Services\Abstract\IApiService.cs" />
     <Compile Include="Abstract\IAuctionRepository.cs" />
     <Compile Include="Abstract\ICouponRepository.cs" />
     <Compile Include="Abstract\IGiveawayRepository.cs" />
     <Compile Include="Abstract\IListingRepository.cs" />
     <Compile Include="Abstract\IObjectiveRepository.cs" />
     <Compile Include="Abstract\IPrizeRepository.cs" />
+    <Compile Include="Abstract\ISiteRepository.cs" />
     <Compile Include="Abstract\IUnitOfWork.cs" />
     <Compile Include="Abstract\IUserRepository.cs" />
     <Compile Include="Concrete\AppUserManager.cs" />
@@ -138,13 +152,12 @@
     <Compile Include="Concrete\ListingRepository.cs" />
     <Compile Include="Concrete\ObjectiveRepository.cs" />
     <Compile Include="Concrete\PrizeRepository.cs" />
+    <Compile Include="Concrete\SiteRepository.cs" />
     <Compile Include="Concrete\UnitOfWork.cs" />
     <Compile Include="Concrete\UserRepository.cs" />
+    <Compile Include="Entities\SiteEntities\GroupEvent.cs" />
+    <Compile Include="Entities\SiteEntities\POTW.cs" />
     <Compile Include="Entities\SiteEntities\SiteNotification.cs" />
-    <Compile Include="Entities\_EntityBase\ActivityItem.cs" />
-    <Compile Include="Entities\_EntityBase\Commentable.cs" />
-    <Compile Include="Entities\ListingEntities\AppMovie.cs" />
-    <Compile Include="Entities\ListingEntities\AppScreenshot.cs" />
     <Compile Include="Entities\ListingEntities\Platform.cs" />
     <Compile Include="Entities\ListingEntities\ProductCategory.cs" />
     <Compile Include="Entities\UserEntities\AppUser.cs" />
@@ -162,7 +175,6 @@
     <Compile Include="Entities\UserEntities\Order.cs" />
     <Compile Include="Entities\UserEntities\OwnedGame.cs" />
     <Compile Include="Entities\PrizeEntities\Prize.cs" />
-    <Compile Include="Entities\ListingEntities\ProductDetail.cs" />
     <Compile Include="Entities\UserEntities\ProductOrderEntry.cs" />
     <Compile Include="Entities\ListingEntities\Product.cs" />
     <Compile Include="Entities\ListingEntities\ListingComment.cs" />
@@ -177,39 +189,41 @@
     <Compile Include="Entities\UserEntities\WishlistEntry.cs" />
     <Compile Include="Entities\PrizeEntities\WonPrize.cs" />
     <Compile Include="Entities\UserEntities\UserTag.cs" />
-    <Compile Include="Migrations\201607100456501_InitialCreate.cs" />
-    <Compile Include="Migrations\201607100456501_InitialCreate.Designer.cs">
-      <DependentUpon>201607100456501_InitialCreate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201607100646284_Initial.cs" />
-    <Compile Include="Migrations\201607100646284_Initial.Designer.cs">
-      <DependentUpon>201607100646284_Initial.cs</DependentUpon>
+    <Compile Include="Migrations\201607262226500_Initial.cs" />
+    <Compile Include="Migrations\201607262226500_Initial.Designer.cs">
+      <DependentUpon>201607262226500_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\Abstract\IAuctionService.cs" />
     <Compile Include="Services\Abstract\ICartService.cs" />
     <Compile Include="Services\Abstract\IObjectivesService.cs" />
-    <Compile Include="Services\Abstract\IPurchaseService.cs" />
+    <Compile Include="Services\Abstract\ISiteService.cs" />
     <Compile Include="Services\Abstract\IStoreService.cs" />
     <Compile Include="Services\Abstract\IUserService.cs" />
+    <Compile Include="Services\Concrete\ApiService.cs" />
+    <Compile Include="Services\Concrete\AuctionService.cs" />
+    <Compile Include="Services\Concrete\HangfireJobService.cs" />
     <Compile Include="Services\Concrete\ObjectivesService.cs" />
-    <Compile Include="Services\Model\ActivityFeedContainer.cs" />
+    <Compile Include="Services\Concrete\SiteService.cs" />
+    <Compile Include="Model\ActivityFeedContainer.cs" />
     <Compile Include="Services\Concrete\CartService.cs" />
-    <Compile Include="Services\Concrete\ListingBuilder.cs" />
-    <Compile Include="Services\Concrete\PurchaseService.cs" />
     <Compile Include="Services\Concrete\StoreService.cs" />
     <Compile Include="Services\Concrete\UserService.cs" />
+    <Compile Include="Concrete\ListingFilter.cs" />
+    <Compile Include="Model\SelectedProductCategoryMapping.cs" />
+    <Compile Include="Model\SelectedTagMapping.cs" />
+    <Compile Include="Model\StoreIndexDomainModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201607100456501_InitialCreate.resx">
-      <DependentUpon>201607100456501_InitialCreate.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201607100646284_Initial.resx">
-      <DependentUpon>201607100646284_Initial.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201607262226500_Initial.resx">
+      <DependentUpon>201607262226500_Initial.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

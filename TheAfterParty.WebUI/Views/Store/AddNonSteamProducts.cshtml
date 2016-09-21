@@ -1,0 +1,47 @@
+﻿@using TheAfterParty.WebUI.Models.Store
+@using TheAfterParty.Domain.Entities;
+@model AddNonSteamProductsViewModel
+
+@{
+    ViewBag.Title = "AddNonSteamProducts";
+}
+
+<h2>Add Non SteamProducts</h2>
+
+
+@if (Model.AddedProducts != null)
+{
+    <h3>Added the following games:</h3>
+
+    foreach (String addedGame in Model.AddedProducts)
+    {
+        <span>@addedGame.ToString()</span>
+        <br />
+    }
+}
+
+<h3>IMPORTANT</h3>
+
+<p>
+    <h4>Non-Steam</h4>
+
+    <h5>Each line:</h5>
+
+    <h5>id/ID(tab)Name(tab)BannerImgHTTPSURL</h5>
+    <h5>id/ID(tab)Name</h5>
+
+    <span>id/620    Portal 2    https://imgur.com/sadf.png </span>
+    <br/>
+    <span>id/620    Portal 2</span>
+    <br/>
+    <br/>
+    <span>Notes: If there is no id, put 0. These are NOT steam ids</span>
+</p>
+
+@using (Html.BeginForm("AddNonSteamProducts", "Store", FormMethod.Post))
+{
+    @Html.TextAreaFor(m => m.Input, new { @class = "text-box-multi-line form-control", rows = 5 })
+    <div class="panel-footer">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+}

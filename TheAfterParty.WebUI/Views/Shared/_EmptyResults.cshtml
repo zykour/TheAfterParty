@@ -1,0 +1,10 @@
+﻿@model string
+
+@if (String.IsNullOrEmpty(Model) == false)
+{
+    <h3 class="empty-results">@Model</h3>
+}
+else
+{
+    <h3 class="empty-results">Oops, it looks like Demo Dan couldn't find any results!</h3>
+}

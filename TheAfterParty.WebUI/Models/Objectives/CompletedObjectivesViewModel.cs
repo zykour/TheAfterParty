@@ -9,5 +9,6 @@ namespace TheAfterParty.WebUI.Models.Objectives
 {
     public class CompletedObjectivesViewModel : NavModel
     {
+        public IEnumerable<BalanceEntry> BalanceEntries { get; set; }
     }
 }

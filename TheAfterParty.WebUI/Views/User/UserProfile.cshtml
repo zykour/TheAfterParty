@@ -1,57 +1,60 @@
 ﻿@using TheAfterParty.WebUI.Models.User
 @using TheAfterParty.Domain.Entities
-@using TheAfterParty.Domain.Services
+@using TheAfterParty.Domain.Model
 @model UserProfileModel
 
 @{
     ViewBag.Title = Model.RequestedUser.UserName;
 }
 
-<div class="container">
+@using (Html.BeginForm("UserProfile", "User", new { id = Model.RequestedUser.UserName }, FormMethod.Post, null))
+{
+<div>
     <div class="row custom-row-header">
-        <div class="col-lg-3">
+        <div class="col-lg-3 col-md-3 col-xl-3">
             <div>
                 <img class="pull-left" style="border: thin; padding: 4px;" src="@Model.RequestedUser.LargeAvatar" />
             </div>
         </div>
-        <div class="col-lg-9">
-            <h2>@Model.RequestedUser.UserName</h2>
+        <div class="col-lg-9 col-md-9 col-xl-9 col-text">
+            <h2 class="text-lblue">@Model.RequestedUser.UserName</h2>
+            <br/>
             <div class="row">
-                <div class="col-lg-6">
+                <div class="col-lg-6 col-md-6 col-xl-6">
                     <div class="row">
-                        <div class="col-lg-6 text-left text-primary">
+                        <div class="col-lg-6 col-md-6 col-xl-6 text-left">
                             Role:
                         </div>
-                        <div class="col-lg-6 text-right text-success">
+                        <div class="col-lg-6 col-md-6 col-xl-6 text-right text-success">
                             @Model.HighestRole
                         </div>
                     </div>
                     <br/>
                     <div class="row">
-                        <div class="col-lg-6 text-left text-primary">
+                        <div class="col-lg-6 col-md-6 col-xl-6 text-left">
                             Steam ID:
                         </div>
-                        <div class="col-lg-6 text-right text-success">
+                        <div class="col-lg-6 col-md-6 col-xl-6 text-right text-success">
                             @Model.RequestedUser.UserSteamID
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6">
+                <div class="col-lg-6 col-md-6 col-xl-6">
                     <div class="row">
-                        <div class="col-lg-6 text-left text-primary">
+                        <div class="col-lg-6 col-md-6 col-xl-6 text-left">
                             Balance:
                         </div>
-                        <div class="col-lg-6 text-right text-success">
+                        <div class="col-lg-6 col-md-6 col-xl-6 text-right text-success">
                             @Model.RequestedUser.Balance
                         </div>
                     </div>
                     <br />
                     <div class="row">
-                        <div class="col-lg-6 text-left text-primary">
+                        <div class="col-lg-6 col-md-6 col-xl-6 text-left">
                             Member since:
                         </div>
-                        <div class="col-lg-6 text-right text-success">
-                            @Model.RequestedUser.MemberSince.ToShortDateString()
+                        <div class="col-lg-6 col-md-6 col-xl-6 text-right text-success">
+                            @Model.GetConvertedDateTime(Model.RequestedUser.MemberSince).ToShortDateString()
                         </div>
                     </div>
                 </div>
@@ -61,11 +64,11 @@
     <div class="row custom-row-header">
         <h3>Activity Feed</h3>
     </div>
-    @foreach (IEnumerable<ActivityFeedContainer> feedGroup in Model.ActivityFeedList.GroupBy(f => f.ItemDate).ToList())
+    @foreach (IEnumerable<ActivityFeedContainer> feedGroup in Model.ActivityFeedList.GroupBy(f => f.ItemDate.Date).ToList())
     {
         <div class="row custom-row">
-            <div class="col-lg-12 custom-row-text">
-                @feedGroup.First().ItemDate.ToString("dd MMMM")
+            <div class="col-lg-12 col-md-12 col-xl-12 custom-row-text">
+                @Model.GetConvertedDateTime(feedGroup.First().ItemDate).ToString("dd MMMM")
             </div>
         </div>
         foreach (ActivityFeedContainer feedItem in feedGroup)
@@ -76,7 +79,7 @@
                 if (giveaway.IsCreator(Model.RequestedUser))
                 {
                 <div class="row">
-                    <div class="col-lg-12">
+                    <div class="col-lg-12 col-md-12 col-xl-12">
                         <p><span class="text-primary">@Model.RequestedUser.UserName</span> created a giveaway for <span class="text-success">@((giveaway.Listing == null) ? giveaway.Prize : giveaway.Listing.ListingName)</span>.</p>
                     </div>
                 </div>
@@ -84,7 +87,7 @@
                 else
                 {
                 <div class="row">
-                    <div class="col-lg-12">
+                    <div class="col-lg-12 col-md-12 col-xl-12">
                         <p><span class="text-primary">@Model.RequestedUser.UserName</span> won a giveaway for <span class="text-success">@((giveaway.Listing == null) ? giveaway.Prize : giveaway.Listing.ListingName)</span>.</p>
                     </div>
                 </div>
@@ -96,7 +99,7 @@
                 if (auction.IsCreator(Model.RequestedUser))
                 {
                 <div class="row">
-                    <div class="col-lg-12">
+                    <div class="col-lg-12 col-md-12 col-xl-12">
                         <p><span class="text-primary">@Model.RequestedUser.UserName</span> created an auction for <span class="text-success">@auction.Listing.ListingName</span>.</p>
                     </div>
                 </div>
@@ -104,7 +107,7 @@
                 else
                 {
                 <div class="row">
-                    <div class="col-lg-12">
+                    <div class="col-lg-12 col-md-12 col-xl-12">
                         <p><span class="text-primary">@Model.RequestedUser.UserName</span> won an auction of <span class="text-success">@auction.Listing.ListingName</span> for <span class="text-warning">@auction.AuctionBids.Max()</span> points.</p>
                      </div>
                 </div>
@@ -114,11 +117,17 @@
             {
                 ProductReview review = feedItem.GetActivityFeedItem() as ProductReview;
                 <div class="row">
-                    <div class="col-lg-12">
+                    <div class="col-lg-12 col-md-12 col-xl-12">
                         <p><span class="text-primary">@Model.RequestedUser.UserName</span> posted a review for <span class="text-success">@review.Product.ProductName</span>.</p>
                     </div>
                 </div>
             }
         }
     }
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-xl-12 pagination-holder">
+            @Html.PageLinks(Model)
+        </div>
+    </div>
 </div>
+}

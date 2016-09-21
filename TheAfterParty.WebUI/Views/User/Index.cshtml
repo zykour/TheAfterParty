@@ -6,9 +6,9 @@
     ViewBag.Title = "Users";
 }
 
-<div class="container">
+<div>
     <div class="row">
-        <div class="col-lg-12 text-center custom-row-header">
+        <div class="col-lg-12 col-md-12 col-xl-12 text-center custom-row-header">
             <h3 class="text-left">@Model.Title</h3>
         </div>
     </div>
@@ -22,16 +22,15 @@
             }
         }
     }
-    <div class="row custom-row">
-        <div class="col-lg-6 text-left" style="font-weight: bold;">User</div>
-        <div class="col-lg-2 text-center" style="font-weight: bold;">Member Since</div>
-        <div class="col-lg-2 text-center" style="font-weight: bold;">Last Login</div>
-        <div class="col-lg-2 text-center" style="font-weight: bold;">Balance</div>
+    <div class="row custom-row text-center">
+        <div class="col-lg-8 col-md-8 col-xl-8 text-center col-header">User</div>
+        <div class="col-lg-2 col-md-2 col-xl-2 col-header">Member Since</div>
+        <div class="col-lg-2 col-md-2 col-xl-2 col-header">Balance</div>
     </div>
     @if (Model.Users.Count == 0)
     {
     <div class="row">
-        <div class="col-lg-12">
+        <div class="col-lg-12 col-md-12 col-xl-12">
             No User Accounts!
         </div>
     </div>
@@ -40,30 +39,31 @@
     {
     for (int i = 0; i < Model.Users.Count; i++)
     {
-    <div class="row user-row">
-        <div class="col-lg-6 vertical-align">
-            <div class="image-container vertical-align">
+    <div class="row user-row text-center">
+        <div class="col-lg-8 col-md-8 col-xl-8 text-left vertical-align">
+            <div class="pad-left vertical-align">
                 @if (Model.LoggedInUser == null)
                 {
-                    <i class="fa fa-gift" style="color: dimgrey"></i>
+                    <i class="fa fa-gift fa-lg text-gray-faded"></i>
                 }
                 else if (Model.Users[i].UserName.CompareTo(Model.LoggedInUser.UserName) == 0)
                 {
-                    <i class="fa fa-gift" style="color: #373737"></i>
+                    <i class="fa fa-gift fa-lg icon-gray-faded"></i>
                 }
                 else
                 {
-                    <div style="cursor: pointer;" onclick="TransferPoints(@("\"" + Model.Users[i].Id + "\""),@i,@myRow);"><i class="fa fa-gift"></i></div>
+                    <div class="clickable" onclick="TransferPoints(@("\"" + Model.Users[i].Id + "\""),@i,@myRow);"><i class="fa fa-lg fa-gift text-success"></i></div>
                 }
             </div>
-            <div class="outer-avatar-container">
-                <div class="inner-avatar-container" style="background-image: url(@Model.Users[i].SmallAvatar)"></div>
-            </div>
-            <div class="username-text" id="@("userName" + i)">@Model.Users[i].UserName</div>
+            <a href="@Url.Action("UserProfile", "User", new { id = Model.Users[i].UserName })">
+                <div class="outer-avatar-container">
+                    <div class="inner-avatar-container-lg" style="background-image: url(@Model.Users[i].SmallAvatar)"></div>
+                </div>
+            </a>
+            <div class="pad-right col-text text-lblue" id="@("userName" + i)">@Model.Users[i].UserName</div>
         </div>
-        <div class="col-lg-2 text-center" style="font-size: 11px;">@Model.Users[i].MemberSince.ToShortDateString()</div>
-        <div class="col-lg-2 text-center" style="font-size: 11px;">@Model.Users[i].LastLogon</div>
-        <div class="col-lg-2 text-center" id="@("userBalance" + i)">@Model.Users[i].Balance</div>
+        <div class="col-lg-2 col-md-2 col-xl-2 col-text text-primary">@Model.GetConvertedDateTime(Model.Users[i].MemberSince).ToShortDateString()</div>
+        <div class="col-lg-2 col-md-2 col-xl-2 col-text text-success" id="@("userBalance" + i)">@Model.Users[i].Balance</div>
     </div>
     }
     }

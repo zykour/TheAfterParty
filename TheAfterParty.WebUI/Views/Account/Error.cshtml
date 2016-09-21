@@ -1,0 +1,14 @@
+﻿@using TheAfterParty.WebUI.Models.Account
+@model ErrorViewModel
+
+@{
+    ViewBag.Title = "Error";
+}
+
+<h2>Error</h2>
+
+@foreach (string str in Model.Errors)
+{
+    <span>@str.ToString()</span>
+}
+

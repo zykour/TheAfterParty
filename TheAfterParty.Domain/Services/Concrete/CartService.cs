@@ -102,17 +102,17 @@ namespace TheAfterParty.Domain.Services
         {
             AppUser user = await GetCurrentUser();
 
-            if (!user.AssertValidOrder())
+            if (user == null || user.ShoppingCartEntries == null || user.ShoppingCartEntries.Count == 0 || !user.AssertValidOrder())
             {
                 return null;
             }
 
-            DateTime orderDate = new DateTime();
-            orderDate = DateTime.Now;
+            DateTime orderDate = DateTime.Now;
 
             Order order = new Order(user, orderDate);
+
             userRepository.InsertOrder(order);
-            this.unitOfWork.Save();
+            unitOfWork.Save();
 
             ICollection<ShoppingCartEntry> cartEntries = user.ShoppingCartEntries;
             
@@ -121,10 +121,14 @@ namespace TheAfterParty.Domain.Services
                 List<ProductKey> keys = listingRepository.GetProductKeys().Where(k => k.ListingID == entry.ListingID).Take(entry.Quantity).ToList();
                 int remainingQuantity = entry.Quantity - keys.Count;
 
-                if (keys.Count > 0 && keys.Count < entry.Quantity && entry.Listing.ChildListings != null)
+                if (keys != null && keys.Count > 0 && keys.Count < entry.Quantity && entry.Listing.ChildListings != null)
                 {
                     foreach (ProductKey productKey in keys)
                     {
+                        productKey.Listing.Quantity--;
+                        productKey.Listing.UpdateParentQuantities();
+
+                        listingRepository.UpdateListing(productKey.Listing);
                         listingRepository.DeleteProductKey(productKey.ProductKeyID);
 
                         ClaimedProductKey claimedKey = new ClaimedProductKey(productKey, user, orderDate, "Purchase - Order #" + order.OrderID);
@@ -160,6 +164,10 @@ namespace TheAfterParty.Domain.Services
                 {
                     foreach (ProductKey productKey in keys)
                     {
+                        productKey.Listing.Quantity--;
+                        productKey.Listing.UpdateParentQuantities();
+
+                        listingRepository.UpdateListing(productKey.Listing);
                         listingRepository.DeleteProductKey(productKey.ProductKeyID);
 
                         ClaimedProductKey claimedKey = new ClaimedProductKey(productKey, user, orderDate, "Purchase - Order #" + order.OrderID);
@@ -188,6 +196,11 @@ namespace TheAfterParty.Domain.Services
                         {
                             ProductKey productKey = keys.Where(k => k.Listing.ListingID == childListing.ListingID).First();
                             keys.Remove(productKey);
+
+                            productKey.Listing.Quantity--;
+                            productKey.Listing.UpdateParentQuantities();
+
+                            listingRepository.UpdateListing(productKey.Listing);
                             listingRepository.DeleteProductKey(productKey.ProductKeyID);
 
                             ClaimedProductKey claimedKey = new ClaimedProductKey(productKey, user, orderDate, "Purchase - Order #" + order.OrderID);
@@ -200,11 +213,6 @@ namespace TheAfterParty.Domain.Services
                         order.AddProductOrderEntry(orderEntry);
                     }
                 }
-
-                Listing listing = listingRepository.GetListingByID(entry.ListingID);
-                listing.Quantity -= entry.Quantity;
-                listing.UpdateParentQuantities();
-                listingRepository.UpdateListing(listing);
                 
                 unitOfWork.Save();
             }
@@ -213,7 +221,6 @@ namespace TheAfterParty.Domain.Services
 
             BalanceEntry balanceEntry = new BalanceEntry(user, "Purchase - Order #" + order.OrderID, 0 - order.TotalSalePrice() , orderDate);
             user.BalanceEntries.Add(balanceEntry);
-            //userRepository.InsertBalanceEntry(balanceEntry);
 
             user.Balance -= order.TotalSalePrice();
             user.AddOrder(order);
@@ -308,7 +315,7 @@ namespace TheAfterParty.Domain.Services
 
         public async Task<AppUser> GetCurrentUser()
         {
-            return await UserManager.FindByNameAsync(userName);
+            return await UserManager.FindByNameAsyncWithCartAndOpenAuctionBids(userName);
         }
     }
 }

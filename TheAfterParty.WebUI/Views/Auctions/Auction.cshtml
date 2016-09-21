@@ -1,0 +1,277 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Auctions
+@model AuctionViewModel
+
+@{
+    ViewBag.Title = Model.Auction.Prize() + " Auction";
+}
+
+
+@using (Html.BeginForm("Auction", "Auctions", new { id = Model.Auction.AuctionID }, FormMethod.Post, null))//null, FormMethod.Post, new { id = ViewBag.StoreFormID }))
+{
+@Html.HiddenFor(m => m.Auction.AuctionID)
+    <div>
+        <div class="row">
+            <div class="col-lg-10 col-md-10 col-xl-10">
+                @Html.ValidationSummary(null, new { @class = "text-warning top-content-margin" })
+                <div class="row custom-row top-content-margin">
+                    @if (Model.Auction.IsSilent)
+                    {
+                        <div class="col-lg-6 col-md-6 col-xl-6 vertical-align">
+                            <div class="tag-inline-block auction-title-padding">
+                                <span class="fa fa-fw fa-user-secret fa-2x icon-blue"></span>
+                            </div>
+                            @if (Model.Auction.IsOpen() == true)
+                            {
+                            <div class="tag-inline-block auction-title-padding">
+                                @if (Model.Auction.HasDaysOpen())
+                                {
+                                    <span class="fa fa-clock-o text-success fa-lg"></span>
+                                        <span class="auction-time text-success">@Model.Auction.DaysLeft()d</span>
+                                }
+                                else if (Model.Auction.HasHoursOpen())
+                                {
+                                    <span class="fa fa-clock-o text-warning fa-lg"></span>
+                                        <span class="auction-time text-warning">@Model.Auction.HoursLeft()h</span>
+                                }
+                                else if (Model.Auction.HasMinutesOpen())
+                                {
+                                    <span class="fa fa-clock-o text-warning fa-lg"></span>
+                                        <span class="auction-time text-warning">@Model.Auction.MinutesLeft()m</span>
+                                }
+                                else
+                                {
+                                    <span class="fa fa-clock-o text-failure fa-lg"></span>
+                                        <span class="auction-time text-failure">@Model.Auction.SecondsLeft()s</span>
+                                }
+                            </div>
+                            }
+                            <div class="tag-inline-block">
+                                @if (Model.Auction?.Listing?.Product != null)
+                                {
+                                    <div class="outer-banner-container-row">
+                                        <div class="inner-store-banner-container-row" style="background-image: url(@Model.Auction.Listing.Product.GetHttpsSecuredHeaderImage())"></div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="tag-inline-block">
+                                <span class="auction-title">@Model.Auction.Prize()</span>
+                            </div>
+                        </div>
+                            <div class="col-lg-5 col-md-5 col-xl-5 text-left text-nowrap vertical-align">
+                                <div class="tag-inline-block faint-border-left pad-right-far">
+                                    @if (Model.Auction.IsOpen() == true)
+                                    {
+                                        if (Model.Auction.Copies == 1)
+                                        {
+                                            <p><span class="auction-header-text">@Model.Auction.Copies copy</span><br /><span class="auction-header-text">available</span></p>
+                                        }
+                                        else
+                                        {
+                                            <p><span class="auction-header-text">@Model.Auction.Copies copies</span><br /><span class="auction-header-text">available</span></p>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (Model.Auction.Copies == 1)
+                                        {
+                                            <p><span class="auction-header-text">@Model.Auction.Copies copy</span><br /><span class="auction-header-text">auctioned</span></p>
+                                        }
+                                        else
+                                        {
+                                            <p><span class="auction-header-text">@Model.Auction.Copies copies</span><br /><span class="auction-header-text">auctioned</span></p>
+                                        }
+                                    }
+                                </div>
+                                <div class="tag-inline-block faint-border-left">
+                                    <p><span class="auction-header-text">@Model.Auction.MinimumBid point</span><br /><span class="auction-header-text">minimum bid</span></p>
+                                </div>
+                                <div class="tag-inline-block faint-border-left">
+                                    <p><span class="auction-header-text">no</span><br /><span class="auction-header-text">increments</span></p>
+                                </div>
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-xl-1 vertical-align"></div>
+                    }
+                    else
+                    {
+                        <div class="col-lg-6 col-md-6 col-xl-6 vertical-align">
+                            <div class="tag-inline-block auction-title-padding">
+                                <span class="fa fa-fw fa-users fa-2x icon-blue"></span>
+                            </div>
+                            @if (Model.Auction.IsOpen() == true)
+                            {
+                                <div class="tag-inline-block auction-title-padding">
+                                    @if (Model.Auction.HasDaysOpen())
+                                    {
+                                        <span class="fa fa-clock-o text-success fa-lg"></span>
+                                                <span class="auction-time text-success">@Model.Auction.DaysLeft()d</span>
+                                    }
+                                    else if (Model.Auction.HasHoursOpen())
+                                    {
+                                        <span class="fa fa-clock-o text-warning fa-lg"></span>
+                                                <span class="auction-time text-warning">@Model.Auction.HoursLeft()h</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fa fa-clock-o text-failure fa-lg"></span>
+                                                <span class="auction-time text-failure">@Model.Auction.MinutesLeft()m</span>
+                                    }
+                                </div>
+                            }
+                            <div class="tag-inline-block">
+                                @if (Model.Auction?.Listing?.Product != null)
+                                {
+                                    <div class="outer-banner-container-row">
+                                        <div class="inner-store-banner-container-row" style="background-image: url(@Model.Auction.Listing.Product.GetHttpsSecuredHeaderImage())"></div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="tag-inline-block">
+                                <span class="auction-title">@Model.Auction.Prize()</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 col-md-5 col-xl-5 text-nowrap vertical-align">
+                            <div class="tag-inline-block faint-border-left pad-right-far">
+                                @if (Model.Auction.IsOpen() == true)
+                                {
+                                    if (Model.Auction.Copies == 1)
+                                    {
+                                        <p><span class="auction-header-text">@Model.Auction.Copies copy</span><br /><span class="auction-header-text">available</span></p>
+                                    }
+                                    else
+                                    {
+                                        <p><span class="auction-header-text">@Model.Auction.Copies copies</span><br /><span class="auction-header-text">available</span></p>
+                                    }
+                                }
+                                else
+                                {
+                                    if (Model.Auction.Copies == 1)
+                                    {
+                                        <p><span class="auction-header-text">@Model.Auction.Copies copy</span><br /><span class="auction-header-text">auctioned</span></p>
+                                    }
+                                    else
+                                    {
+                                        <p><span class="auction-header-text">@Model.Auction.Copies copies</span><br /><span class="auction-header-text">auctioned</span></p>
+                                    }
+                                }
+                            </div>
+                            <div class="tag-inline-block faint-border-left">
+                                @if (Model.Auction.HasMoreCopiesThanWinningBids() == true)
+                                {
+                                    <p><span class="auction-header-text">@Model.Auction.MinimumBid point</span><br /><span class="auction-header-text">minimum bid</span></p>
+                                }
+                                else if (Model.Auction.Copies > 1)
+                                {
+                                    <p><span class="auction-header-text">@Model.Auction.LowestWinningBid()+ point</span><br /><span class="auction-header-text">winning bids</span></p>
+                                }
+                                else
+                                {
+                                    <p><span class="auction-header-text">@Model.Auction.WinningBid() point</span><br /><span class="auction-header-text">winning bid</span></p>
+                                }
+                            </div>
+                            <div class="tag-inline-block faint-border-left">
+                                <p><span class="auction-header-text">+@Model.Auction.Increment point</span><br /><span class="auction-header-text">increments</span></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-1 col-md-1 col-xl-1 vertical-align"></div>
+                    }
+                </div>
+                    @if ((Model.Auction.CreatorID.CompareTo(Model.LoggedInUser.Id) == 0 && Model.Auction.IsSilent == false) || Model.Auction.IsOpen() == false)
+                    {
+                        <div class="row custom-row">
+                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="col-header">User</span></div>
+                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="col-header">Bid</span></div>
+                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="col-header">Bid Time</span></div>
+                        </div>
+                        foreach (AuctionBid bid in Model.Auction.AuctionBids)
+                        {
+                            <div class="row store-entry-sm">
+                                <div class="col-lg-1 col-md-1 col-xl-1"></div>
+                                <div class="col-lg-3 col-md-3 col-xl-3 vertical-align text-left">
+                                    <div class="outer-avatar-container">
+                                        <div class="inner-avatar-container" style="background-image: url(@bid.AppUser.SmallAvatar)"></div>
+                                    </div>
+                                    <div class="store-entry-name vertical-align pad-right">@bid.AppUser.UserName</div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@bid.BidAmount</span></div>
+                                <div class="col-lg-4 col-md-4 col-xl-4 text-left"><span class="text-primary">@Model.GetConvertedDateTime(bid.BidDate).ToString("d MMMM") @@ @Model.GetConvertedDateTime(bid.BidDate).ToString("h:mm tt")</span></div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="row custom-row">
+                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="col-header">User</span></div>
+                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="col-header">Bid</span></div>
+                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="col-header">Bid Time</span></div>
+                        </div>
+                        <div class="row store-entry-sm">
+                            @{
+                                var id = "bid";
+                                var minBid = Model.Auction.MinimumBid;
+                                var idVal = id + "val";
+                                var idCont = id + "cont";
+                                if (Model.Auction.IsSilent)
+                                {
+                                    AuctionBid myBid = Model.Auction.UserAuctionBid(Model.LoggedInUser);
+                                    if (myBid != null)
+                                    {
+                                        minBid = myBid.BidAmount;
+                                    }
+                                }
+                                else
+                                {
+                                    AuctionBid winningBid = Model.Auction.LowestWinningAuctionBid();
+                                    if (Model.Auction.WinningBids() != null && Model.Auction.WinningBids().Count() < Model.Auction.Copies || winningBid == null)
+                                    {
+                                        minBid = Model.Auction.MinimumBid;
+                                    }
+                                    else if (Model.Auction.UserIsWinningBid(Model.LoggedInUser))
+                                    {
+                                        minBid = Model.Auction.UserWinningBid(Model.LoggedInUser).BidAmount;
+                                    }
+                                    else
+                                    {
+                                        minBid = winningBid.BidAmount + Model.Auction.Increment;
+                                    }
+                                }
+                                <div class="col-lg-1 col-md-1 col-xl-1"></div>
+                                <div class="col-lg-3 col-md-3 col-xl-3 vertical-align text-left">
+                                    <div class="outer-avatar-container">
+                                        <div class="inner-avatar-container" style="background-image: url(@Model.LoggedInUser.SmallAvatar)"></div>
+                                    </div>
+                                    <div class="store-entry-name vertical-align pad-right">@Model.LoggedInUser.UserName</div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-xl-4">
+                                    <div class="input-group-xs input-group">
+                                        @Html.TextBoxFor(m => m.AuctionBid.BidAmount, new { @class = "form-control", Value = @minBid })
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default btn-xs btn-success" title="Bid" type="submit">Submit Bid</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            }
+                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-primary">@Model.GetConvertedDateTime(DateTime.Now).ToString("d MMMM") @@ @Model.GetConvertedDateTime(DateTime.Now).ToString("h:mm tt")</span></div>
+                        </div>
+                        if (Model.Auction.IsSilent == false)
+                        {
+                            foreach (AuctionBid bid in Model.Auction.AuctionBids.OrderByDescending(a => a.BidAmount))
+                            {
+                                <div class="row store-entry-sm">
+                                    <div class="col-lg-1 col-md-1 col-xl-1"></div>
+                                    <div class="col-lg-3 col-md-3 col-xl-3 vertical-align text-left">
+                                        <div class="outer-avatar-container">
+                                            <div class="inner-avatar-container" style="background-image: url(@bid.AppUser.SmallAvatar)"></div>
+                                        </div>
+                                        <div class="store-entry-name vertical-align pad-right">@bid.AppUser.UserName</div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@bid.BidAmount</span></div>
+                                    <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-primary">@Model.GetConvertedDateTime(bid.BidDate).ToString("d MMMM") @@ @Model.GetConvertedDateTime(bid.BidDate).ToString("h:mm tt")</span></div>
+                                </div>
+                            }
+                        }
+                    }
+            </div>
+        </div>
+    </div>
+}

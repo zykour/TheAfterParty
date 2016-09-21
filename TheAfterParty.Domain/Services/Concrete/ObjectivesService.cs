@@ -16,14 +16,16 @@ namespace TheAfterParty.Domain.Services
     {
         private IObjectiveRepository objectiveRepository;
         private IListingRepository listingRepository;
+        private ISiteRepository siteRepository;
         private IUnitOfWork unitOfWork;
         public AppUserManager UserManager { get; private set; }
         public string userName { get; set; }
 
-        public ObjectivesService(IObjectiveRepository objectiveRepository, IListingRepository listingRepository, IUnitOfWork unitOfWork) : this(new AppUserManager(new UserStore<AppUser>(unitOfWork.DbContext)))
+        public ObjectivesService(IObjectiveRepository objectiveRepository, IListingRepository listingRepository, ISiteRepository siteRepository, IUnitOfWork unitOfWork) : this(new AppUserManager(new UserStore<AppUser>(unitOfWork.DbContext)))
         {
             this.objectiveRepository = objectiveRepository;
             this.listingRepository = listingRepository;
+            this.siteRepository = siteRepository;
             this.unitOfWork = unitOfWork;
             userName = "";
         }
@@ -51,6 +53,16 @@ namespace TheAfterParty.Domain.Services
         {
             objectiveRepository.InsertObjective(objective);
             unitOfWork.Save();
+            
+            SiteNotification notification = new SiteNotification();
+            string game = "";
+            if (objective.Product != null)
+            {
+                game = " for " + objective.Product.ProductName;
+            }
+            notification.Notification = "\"" + objective.ObjectiveName + "\" objective added" + game + "!";
+            notification.NotificationDate = DateTime.Now;
+            siteRepository.InsertSiteNotification(notification);
         }
 
         public void EditObjective(Objective objective, int productId)
@@ -101,6 +113,13 @@ namespace TheAfterParty.Domain.Services
             unitOfWork.Save();
         }
 
+        public void DeleteBoostedObjective(int id)
+        {
+            objectiveRepository.DeleteBoostedObjective(id);
+
+            unitOfWork.Save();
+        }
+
         public Product GetProductByID(int id)
         {
             return listingRepository.GetProductByID(id);
@@ -128,7 +147,7 @@ namespace TheAfterParty.Domain.Services
 
         public async Task<AppUser> GetCurrentUser()
         {
-            return await UserManager.FindByNameAsync(userName);
+            return await UserManager.FindByIdAsyncWithStoreFilters(userName);
         }
     }
 }

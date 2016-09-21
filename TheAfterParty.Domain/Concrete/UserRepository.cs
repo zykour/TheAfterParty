@@ -5,6 +5,8 @@ using TheAfterParty.Domain.Abstract;
 using TheAfterParty.Domain.Entities;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System.Threading.Tasks;
+using System.Data.Entity;
+using Microsoft.AspNet.Identity;
 
 namespace TheAfterParty.Domain.Concrete
 {
@@ -103,6 +105,106 @@ namespace TheAfterParty.Domain.Concrete
                 else
                 {
                     UpdateUserNotification(entry);
+                }
+            }
+
+            foreach (UserTag entry in appUser.UserTags)
+            {
+                if (entry.UserTagID == 0)
+                {
+                    InsertUserTag(entry);
+                }
+            }
+        }
+        public void UpdateAppUserSynch(AppUser appUser)
+        {
+            userManager.Update(appUser);
+
+            foreach (BalanceEntry entry in appUser.BalanceEntries)
+            {
+                if (entry.BalanceEntryID == 0)
+                {
+                    InsertBalanceEntry(entry);
+                }
+                else
+                {
+                    UpdateBalanceEntry(entry);
+                }
+            }
+
+            foreach (ClaimedProductKey entry in appUser.ClaimedProductKeys)
+            {
+                if (entry.ClaimedProductKeyID == 0)
+                {
+                    InsertClaimedProductKey(entry);
+                }
+                else
+                {
+                    UpdateClaimedProductKey(entry);
+                }
+            }
+
+            foreach (Gift entry in appUser.ReceivedGifts)
+            {
+                if (entry.GiftID == 0)
+                {
+                    InsertGift(entry);
+                }
+                else
+                {
+                    UpdateGift(entry);
+                }
+            }
+
+            foreach (Mail entry in appUser.ReceivedMail)
+            {
+                if (entry.MailID == 0)
+                {
+                    InsertMail(entry);
+                }
+                else
+                {
+                    UpdateMail(entry);
+                }
+            }
+
+            foreach (Order entry in appUser.Orders)
+            {
+                if (entry.OrderID == 0)
+                {
+                    InsertOrder(entry);
+                }
+                else
+                {
+                    UpdateOrder(entry);
+                }
+            }
+
+            foreach (OwnedGame entry in appUser.OwnedGames)
+            {
+                if (entry.OwnedGameID == 0)
+                {
+                    InsertOwnedGame(entry);
+                }
+            }
+
+            foreach (UserNotification entry in appUser.UserNotifications)
+            {
+                if (entry.UserNotificationID == 0)
+                {
+                    InsertUserNotification(entry);
+                }
+                else
+                {
+                    UpdateUserNotification(entry);
+                }
+            }
+
+            foreach (WishlistEntry entry in appUser.WishlistEntries)
+            {
+                if (entry.WishlistEntryID == 0)
+                {
+                    InsertWishlistEntry(entry);
                 }
             }
 
@@ -258,11 +360,22 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<Order> GetOrders()
         {
-            return context.Orders.ToList();
+            return context.Orders
+                            .Include(x => x.AppUser)
+                            .Include(x => x.ProductOrderEntries)
+                            .Include(x => x.ProductOrderEntries.Select(y => y.ClaimedProductKeys))
+                            .Include(x => x.ProductOrderEntries.Select(y => y.Listing))
+                            .ToList();
         }
         public Order GetOrderByID(int id)
         {
-            return context.Orders.Find(id);
+            return context.Orders
+                            .Include(x => x.AppUser)
+                            .Include(x => x.ProductOrderEntries)
+                            .Include(x => x.ProductOrderEntries.Select(y => y.ClaimedProductKeys))
+                            .Include(x => x.ProductOrderEntries.Select(y => y.Listing))
+                            .SingleOrDefault(x => x.OrderID == id);
+                            //.Find(id);
         }
         public void InsertOrder(Order order)
         {
@@ -319,11 +432,20 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<ProductOrderEntry> GetProductOrderEntries()
         {
-            return context.ProductOrderEntries.ToList();
+            return context.ProductOrderEntries
+                                    .Include(x => x.Listing)
+                                    .Include(x => x.Order)
+                                    .Include(x => x.ClaimedProductKeys)
+                                    .ToList();
         }
         public ProductOrderEntry GetProductOrderEntryByID(int id)
         {
-            return context.ProductOrderEntries.Find(id);
+            return context.ProductOrderEntries
+                                    .Include(x => x.Listing)
+                                    .Include(x => x.Order)
+                                    .Include(x => x.ClaimedProductKeys)
+                                    .SingleOrDefault(x => x.ProductOrderEntryID == id);
+            //.Find(id);
         }
         public void InsertProductOrderEntry(ProductOrderEntry productOrderEntry)
         {
@@ -374,11 +496,18 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<ClaimedProductKey> GetClaimedProductKeys()
         {
-            return context.ClaimedProductKeys.ToList();
+            return context.ClaimedProductKeys
+                                        .Include(x => x.AppUser)
+                                        .Include(x => x.Listing)
+                                        .ToList();
         }
         public ClaimedProductKey GetClaimedProductKeyByID(int id)
         {
-            return context.ClaimedProductKeys.Find(id);
+            return context.ClaimedProductKeys
+                                        .Include(x => x.AppUser)
+                                        .Include(x => x.Listing)
+                                        .SingleOrDefault(x => x.ClaimedProductKeyID == id);
+                                        //.Find(id);
         }
         public void InsertClaimedProductKey(ClaimedProductKey claimedProductKey)
         {

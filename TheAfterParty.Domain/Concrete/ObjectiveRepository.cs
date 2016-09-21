@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TheAfterParty.Domain.Abstract;
 using TheAfterParty.Domain.Entities;
+using System.Data.Entity;
 
 namespace TheAfterParty.Domain.Concrete
 {
@@ -20,14 +21,35 @@ namespace TheAfterParty.Domain.Concrete
         }
 
 
+        public IEnumerable<Objective> SearchObjectives(string searchText, int resultsLimit)
+        {
+            IQueryable<Objective> objectiveQuery = context.Objectives
+                                                        .Include(x => x.BoostedObjective)
+                                                        .Include(x => x.Product.ProductCategories)
+                                                        .Include(x => x.Product.Tags)
+                                                        .AsQueryable()
+                                                        .Where(o => o.IsActive);
 
+            searchText = searchText.ToLower().Trim();
+
+            objectiveQuery = objectiveQuery.Where(o => o.ObjectiveName.ToLower().Contains(searchText) || o.Title.ToLower().Contains(searchText)).Take(resultsLimit);
+
+            return objectiveQuery;
+        }
         public IEnumerable<Objective> GetObjectives()
         {
-            return context.Objectives.ToList();
+            return context.Objectives
+                                    .Include(x => x.BoostedObjective)
+                                    .Include(x => x.Product.ProductCategories)
+                                    .Include(x => x.Product.Tags);
         }
         public Objective GetObjectiveByID(int objectiveId)
         {
-            return context.Objectives.Find(objectiveId);
+            return context.Objectives
+                                    .Include(x => x.BoostedObjective)
+                                    .Include(x => x.Product.ProductCategories)
+                                    .Include(x => x.Product.Tags)
+                                    .SingleOrDefault(x => x.ObjectiveID == objectiveId);//.Find(objectiveId);
         }
         public void InsertObjective(Objective objective)
         {
@@ -76,11 +98,14 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<BoostedObjective> GetBoostedObjectives()
         {
-            return context.BoostedObjectives.ToList();
+            return context.BoostedObjectives
+                                        .Include(x => x.Objective);
         }
         public BoostedObjective GetBoostedObjectiveByID(int boostedObjectiveId)
         {
-            return context.BoostedObjectives.Find(boostedObjectiveId);
+            return context.BoostedObjectives
+                                        .Include(x => x.Objective)
+                                        .SingleOrDefault(x => x.BoostedObjectiveID == boostedObjectiveId); //.Find(boostedObjectiveId);
         }
         public void InsertBoostedObjective(BoostedObjective boostedObjective)
         {
@@ -92,6 +117,7 @@ namespace TheAfterParty.Domain.Concrete
              
             if (targetBoostedObjective != null)
             {
+                targetBoostedObjective.IsDaily = boostedObjective.IsDaily;
                 targetBoostedObjective.BoostAmount = boostedObjective.BoostAmount;
                 targetBoostedObjective.EndDate = boostedObjective.EndDate;
             }

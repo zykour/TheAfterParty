@@ -1,0 +1,33 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Auctions
+@model AddEditAuctionViewModel
+
+@{
+    ViewBag.Title = "Add Auction";
+}
+
+<h2>Add Auction</h2>
+
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("AddAuction", "Auctions", FormMethod.Post))
+{
+    <span>Listing ID: </span>@Html.TextBoxFor(x => x.Auction.ListingID, new { @Value = Model.Auction.ListingID })<br/>
+    <span>Alternative Prize (leave above blank if filling this out): </span>@Html.TextBoxFor(x => x.Auction.AlternativePrize, new { @Value = Model.Auction.AlternativePrize })<br />
+    <span># of copies (default 1): </span>@Html.TextBoxFor(x => x.Auction.Copies, new { @Value = Model.Auction.Copies })<br />
+    <span>Is silent?: </span>
+    if (Model.Auction.IsSilent)
+    {
+        @Html.CheckBoxFor(x => x.Auction.IsSilent, new { @checked = "checked" })<br />
+    }
+    else
+    {
+        @Html.CheckBoxFor(x => x.Auction.IsSilent)<br />
+    }
+
+    <span>If no (open auction) is there a bid increment (default of 1):</span>@Html.TextBoxFor(x => x.Auction.Increment, new { @Value = Model.Auction.Increment })<br />
+    <span>Minimum bid amount? (default of 1):</span>@Html.TextBoxFor(x => x.Auction.MinimumBid, new { @Value = Model.Auction.MinimumBid })<br />
+    <span>Ending Date: </span>@Html.TextBoxFor(x => x.Auction.EndTime, new { @Value = Model.Auction.EndTime })<br />
+    <span>Auction Keys (seperate by newline): </span>@Html.TextAreaFor(x => x.Auction.AuctionKeys, new { @Value = Model.Auction.AuctionKeys })<br />
+    <input type="submit" name="Submit" />
+}
