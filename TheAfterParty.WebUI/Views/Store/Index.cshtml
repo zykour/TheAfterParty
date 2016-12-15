@@ -110,7 +110,7 @@
                 </div>
                 <div class="col-lg-1 col-md-1 col-xl-1"></div>
             </div>
-            @if (Model.StoreListings.Count() == 0)
+            @if (Model.TotalItems == 0)
             {
                 Html.RenderPartial("_EmptyResults", "");
             }
@@ -182,9 +182,18 @@
                             {
                                 if (User.Identity.IsAuthenticated)
                                 {
-                                <div class="store-entry-blacklist" id="blacklistButton" onclick="AddToBlacklist(this, @storeListing.ListingID, @i);">
-                                    <i class="fa fa-ban fa-lg store-blacklist"></i>
-                                </div>
+                                    if (Model.LoggedInUser.IsBlacklisted(storeListing))
+                                    {
+                                        <div class="store-entry-blacklist text-inactive" id="blacklistButton" onclick="AddToBlacklist(this, @storeListing.ListingID, @i);">
+                                            <i class="fa fa-ban fa-lg store-blacklist store-blacklist-active"></i>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="store-entry-blacklist" id="blacklistButton" onclick="AddToBlacklist(this, @storeListing.ListingID, @i);">
+                                            <i class="fa fa-ban fa-lg store-blacklist"></i>
+                                        </div>
+                                    }
                                 }
                                 <div class="outer-banner-container">
                                     @if (String.IsNullOrEmpty(storeListing.Product?.GetHttpsSecuredHeaderImage()))
@@ -233,7 +242,7 @@
                     {
                         var listing = "listing" + i + "id1";
                         <div class="is-hidden" id="@listing">
-                            @foreach (Listing childListing in storeListing.ChildListings)
+                            @foreach (Listing childListing in storeListing.ChildListings.ToList())
                             {
                                 <div class="row store-sub-entry-sm">
                                     <div class="col-lg-1 col-md-1 col-xl-1"></div>

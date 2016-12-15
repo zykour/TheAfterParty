@@ -147,7 +147,7 @@ namespace TheAfterParty.Domain.Services
 
         public async Task<AppUser> GetCurrentUser()
         {
-            return await UserManager.FindByIdAsyncWithStoreFilters(userName);
+            return await UserManager.FindByNameAsyncWithStoreFilters(userName);
         }
     }
 }

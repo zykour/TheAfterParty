@@ -27,7 +27,7 @@ namespace TheAfterParty.Domain.Concrete
         {
             this.userManager = userManager;
         }
-
+        
         public IEnumerable<AppUser> GetAppUsers()
         {
             return userManager.Users;
@@ -327,7 +327,12 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<ShoppingCartEntry> GetShoppingCartEntries()
         {
-            return context.ShoppingCartEntries.ToList();
+            return context.ShoppingCartEntries
+                .Include(x => x.Listing.ChildListings.Select(y => y.Product.Listings.Select(z => z.ChildListings)))
+                .Include(x => x.AppUser)
+                .Include(x => x.Listing.Product)
+                .Include(x => x.Listing.DiscountedListings)
+                .Include(x => x.Listing.Platforms);
         }
         public ShoppingCartEntry GetShoppingCartEntryByID(int id)
         {
@@ -364,8 +369,7 @@ namespace TheAfterParty.Domain.Concrete
                             .Include(x => x.AppUser)
                             .Include(x => x.ProductOrderEntries)
                             .Include(x => x.ProductOrderEntries.Select(y => y.ClaimedProductKeys))
-                            .Include(x => x.ProductOrderEntries.Select(y => y.Listing))
-                            .ToList();
+                            .Include(x => x.ProductOrderEntries.Select(y => y.Listing));
         }
         public Order GetOrderByID(int id)
         {
@@ -434,9 +438,7 @@ namespace TheAfterParty.Domain.Concrete
         {
             return context.ProductOrderEntries
                                     .Include(x => x.Listing)
-                                    .Include(x => x.Order)
-                                    .Include(x => x.ClaimedProductKeys)
-                                    .ToList();
+                                    .Include(x => x.Order.AppUser);
         }
         public ProductOrderEntry GetProductOrderEntryByID(int id)
         {
@@ -498,8 +500,7 @@ namespace TheAfterParty.Domain.Concrete
         {
             return context.ClaimedProductKeys
                                         .Include(x => x.AppUser)
-                                        .Include(x => x.Listing)
-                                        .ToList();
+                                        .Include(x => x.Listing);
         }
         public ClaimedProductKey GetClaimedProductKeyByID(int id)
         {
@@ -540,7 +541,7 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<BalanceEntry> GetBalanceEntries()
         {
-            return context.BalanceEntries.ToList();
+            return context.BalanceEntries.Include(x => x.AppUser).Include(x => x.Objective.BoostedObjective);
         }
         public BalanceEntry GetBalanceEntryByID(int id)
         {
@@ -573,7 +574,7 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<Gift> GetGifts()
         {
-            return context.Gifts.ToList();
+            return context.Gifts;
         }
         public Gift GetGiftByID(int id)
         {
@@ -607,7 +608,7 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<Mail> GetMail()
         {
-            return context.Mail.ToList();
+            return context.Mail;
         }
         public Mail GetMailByID(int id)
         {
@@ -641,7 +642,7 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<UserNotification> GetUserNotifications()
         {
-            return context.UserNotifications.ToList();
+            return context.UserNotifications;
         }
         public UserNotification GetUserNotificationByID(int id)
         {
@@ -673,7 +674,7 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<WishlistEntry> GetWishlistEntries()
         {
-            return context.WishlistEntries.ToList();
+            return context.WishlistEntries;
         }
         public WishlistEntry GetWishlistEntryByID(int wishlistEntryId)
         {
@@ -694,7 +695,19 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<OwnedGame> GetOwnedGames()
         {
-            return context.OwnedGames.ToList();
+            return context.OwnedGames;
+        }
+        public IEnumerable<String> GetUsersWhoOwn(int appId)
+        {
+            return context.OwnedGames.Where(o => o.AppID == appId).Select(o => o.AppUser.UserName);
+        }
+        public IEnumerable<AppUser> GetAppUsersWhoDoNotOwn(int appId)
+        {
+            return userManager.Users.Where(u => !u.OwnedGames.Any(o => o.AppID == appId));
+        }
+        public IEnumerable<AppUser> GetAppUsersWhoOwn(int appId)
+        {
+            return context.OwnedGames.Where(o => o.AppID == appId).Select(o => o.AppUser);
         }
         public OwnedGame GetOwnedGameByID(int id)
         {
@@ -721,7 +734,7 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<UserTag> GetUserTags()
         {
-            return context.UserTags.ToList();
+            return context.UserTags;
         }
         public UserTag GetUserTagByID(int userTagId)
         {

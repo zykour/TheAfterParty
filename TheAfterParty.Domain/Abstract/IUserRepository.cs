@@ -59,6 +59,9 @@ namespace TheAfterParty.Domain.Abstract
         void DeleteGift(int giftId);
 
         IEnumerable<OwnedGame> GetOwnedGames();
+        IEnumerable<String> GetUsersWhoOwn(int appId);
+        IEnumerable<AppUser> GetAppUsersWhoOwn(int appId);
+        IEnumerable<AppUser> GetAppUsersWhoDoNotOwn(int appId);
         OwnedGame GetOwnedGameByID(int ownedGameId);
         void InsertOwnedGame(OwnedGame ownedGame);
         void UpdateOwnedGame(OwnedGame ownedGame);

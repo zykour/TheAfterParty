@@ -8,6 +8,8 @@ using TheAfterParty.Domain.Entities;
 using TheAfterParty.Domain.Concrete;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity;
+using Newtonsoft.Json.Linq;
+using System.Data.Entity;
 
 namespace TheAfterParty.Domain.Services
 {
@@ -31,6 +33,69 @@ namespace TheAfterParty.Domain.Services
                 userRepository.Dispose();
                 unitOfWork.Dispose();
             }
+        }
+        
+        public static void UpdateUserOwnedGames(string apiKey)
+        {
+            AppIdentityDbContext context;
+
+            using (context = AppIdentityDbContext.Create())
+            {
+                IUnitOfWork unitOfWork = new UnitOfWork(context);
+                IUserRepository userRepository = new UserRepository(unitOfWork);
+                AppUserManager UserManager = new AppUserManager(new UserStore<AppUser>(unitOfWork.DbContext));
+
+                IList<AppUser> users = UserManager.Users.ToList();
+
+                foreach (AppUser userHolder in users)
+                {
+                    AppUser user = UserManager.Users.Include(u => u.OwnedGames).SingleOrDefault(x => userHolder.Id == x.Id);
+
+                    string playerURL = String.Format("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={0}&steamids={1}&format=json", apiKey, user.UserSteamID);
+
+                    string result = new System.Net.WebClient().DownloadString(playerURL);
+
+                    JObject playerData = JObject.Parse(result);
+
+                    if (playerData["response"] != null && playerData["response"]["players"] != null)
+                    {
+                        user.LargeAvatar = (string)playerData["response"]["players"][0]["avatarfull"] ?? "";
+                        user.MediumAvatar = (string)playerData["response"]["players"][0]["avatarmedium"] ?? "";
+                        user.SmallAvatar = (string)playerData["response"]["players"][0]["avatar"] ?? "";
+                    }
+
+                    string gamesURL = String.Format("http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={0}&steamid={1}&format=json", apiKey, user.UserSteamID);
+
+                    result = new System.Net.WebClient().DownloadString(gamesURL);
+
+                    JObject gameData = JObject.Parse(result);
+
+                    if (gameData["response"] != null && gameData["response"]["games"] != null)
+                    {
+                        JArray jGames = (JArray)gameData["response"]["games"];
+                        for (int i = 0; i < jGames.Count; i++)
+                        {
+                            int appId = (int)jGames[i]["appid"];
+                            if (user.OwnedGames.Any(o => o.AppID == appId) == false)
+                            {
+                                user.AddOwnedGame(new OwnedGame((int)jGames[i]["appid"], (int)jGames[i]["playtime_forever"]));
+                            }
+                        }
+                    }
+
+                    UserManager.Update(user);
+                }
+
+                unitOfWork.Save();
+            }
+        }
+
+        public static DateTime GetMidnightEST()
+        {
+            DateTime utcTime = DateTime.UtcNow;
+            TimeZoneInfo info = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+            DateTime convertedTime = TimeZoneInfo.ConvertTime(utcTime, info);
+            return convertedTime;
         }
 
         public static void RolloverDailyDeal()
@@ -71,7 +136,7 @@ namespace TheAfterParty.Domain.Services
 
                 SelectDealPercent(newDiscountedListing);
 
-                DateTime expiry = DateTime.Now.AddDays(1).AddMinutes(-5);
+                DateTime expiry = GetMidnightEST().AddDays(1).AddMinutes(-5);
 
                 newDiscountedListing.DailyDeal = true;
                 newDiscountedListing.ItemSaleExpiry = expiry;
@@ -93,7 +158,7 @@ namespace TheAfterParty.Domain.Services
                     urlAndName = randomListing.ListingName;
                 }
 
-                SiteNotification notification = new SiteNotification() { Notification = "[daily][/daily] Today's [url=https://theafterparty.azurewebsites.net/store/deals/daily]daily deal[/url] is " + urlAndName + ", now on sale for [gtext]" + randomListing.SaleOrDefaultPrice() + "[/gtext] points!", NotificationDate = DateTime.Now };
+                SiteNotification notification = new SiteNotification() { Notification = "[daily][/daily] Today's [url=https://theafterparty.azurewebsites.net/store/deals/daily]daily deal[/url] is " + urlAndName + ", now on sale for [gtext]" + randomListing.SaleOrDefaultPrice() + "[/gtext] " + randomListing.GetPluralizedSalePriceUnit() + "!", NotificationDate = DateTime.Now };
                 siteRepository.InsertSiteNotification(notification);
 
                 unitOfWork.Save();
@@ -131,7 +196,7 @@ namespace TheAfterParty.Domain.Services
                     return;
                 }
 
-                DateTime dealExpiry = DateTime.Now.AddDays(7).AddMinutes(-5);
+                DateTime dealExpiry = GetMidnightEST().AddDays(7).AddMinutes(-5);
 
                 foreach (Listing listing in newDeals)
                 {
@@ -149,7 +214,7 @@ namespace TheAfterParty.Domain.Services
 
                 ISiteRepository siteRepository = new SiteRepository(unitOfWork);
 
-                SiteNotification notification = new SiteNotification() { Notification = "[weekly][/weekly] There are [gtext]" + numDeals + "[gtext] new [url=https://theafterparty.azurewebsites.net/store/deals/weekly]deals[/url] available this week!", NotificationDate = DateTime.Now };
+                SiteNotification notification = new SiteNotification() { Notification = "[weekly][/weekly] There are [gtext]" + numDeals + "[/gtext] new [url=https://theafterparty.azurewebsites.net/store/deals/weekly]deals[/url] available this week!", NotificationDate = DateTime.Now };
                 siteRepository.InsertSiteNotification(notification);
 
                 unitOfWork.Save();
@@ -185,7 +250,7 @@ namespace TheAfterParty.Domain.Services
 
                 SelectBoostAmount(newBoostedObjective);
 
-                DateTime endDate = DateTime.Now.AddDays(1).AddMinutes(-5);
+                DateTime endDate = GetMidnightEST().AddDays(1).AddMinutes(-5);
 
                 newBoostedObjective.EndDate = endDate;
                 newBoostedObjective.IsDaily = true;

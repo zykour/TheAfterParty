@@ -21,6 +21,7 @@ namespace TheAfterParty.WebUI.Controllers
         private IUserService userService;
         private const string allActionDest = "All Users";
         private const string adminsActionDest = "Admins";
+        private const string ownsActionDest = "Owns";
 
         public UserController(IUserService userService)
         {
@@ -46,6 +47,53 @@ namespace TheAfterParty.WebUI.Controllers
             model.Title = "Users";
             List<String> destNames = new List<String>() { allActionDest };
             model.FullNavList = CreateUserControllerNavList(destNames);
+
+            return View(model);
+        }
+
+        // GET: User/Owns/id
+        [HttpGet]
+        public async Task<ActionResult> Owns(int id = 0)
+        {
+            UserOwnsViewModel model = new UserOwnsViewModel();
+
+            model.Initialize((await userService.GetCurrentUser()), CreateUserControllerNavList(new List<String>() { ownsActionDest }));
+
+            if (id <= 0)
+            {
+                model.AppID = 0;
+
+                return View(model);
+            }
+
+            model.GameOwners = userService.GetUsersWhoOwn(id).ToList();
+            model.GameNonOwners = userService.GetUsersWhoDoNotOwn(id).ToList();
+            model.GameName = userService.GetGameName(id);
+            model.AppID = id;
+
+            ModelState.Clear();
+
+            return View(model);
+        }
+
+        // POST: User/Owns/id
+        [HttpPost]
+        public async Task<ActionResult> Owns(UserOwnsViewModel model)
+        {
+            model.Initialize((await userService.GetCurrentUser()), CreateUserControllerNavList(new List<String>() { ownsActionDest }));
+
+            if (model.AppID <= 0)
+            {
+                model.AppID = 0;
+
+                return View(model);
+            }
+
+            model.GameOwners = userService.GetUsersWhoOwn(model.AppID).ToList();
+            model.GameNonOwners = userService.GetUsersWhoDoNotOwn(model.AppID).ToList();
+            model.GameName = userService.GetGameName(model.AppID);
+
+            ModelState.Clear();
 
             return View(model);
         }
@@ -321,6 +369,7 @@ namespace TheAfterParty.WebUI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
+        [HttpGet]
         public async Task<ActionResult> AdminBalanceEntries()
         {
             AdminBalanceEntryViewModel model = new AdminBalanceEntryViewModel();
@@ -328,11 +377,49 @@ namespace TheAfterParty.WebUI.Controllers
             model.LoggedInUser = await userService.GetCurrentUser();
             model.FullNavList = CreateUserControllerAdminNavList();
 
-            model.BalanceEntries = userService.GetBalanceEntries();
+            model.CurrentPage = 1;
+            model.TotalItems = userService.GetBalanceEntries().Count();
+
+            if (model.LoggedInUser != null && model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.BalanceEntries = userService.GetBalanceEntries().OrderByDescending(p => p.Date).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.BalanceEntries = userService.GetBalanceEntries().OrderByDescending(p => p.Date).ToList();
+            }
 
             return View(model);
         }
-        
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult> AdminBalanceEntries(AdminBalanceEntryViewModel model)
+        {
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateUserControllerAdminNavList();
+
+            if (model.SelectedPage != 0)
+            {
+                model.CurrentPage = model.SelectedPage;
+            }
+
+            model.TotalItems = userService.GetBalanceEntries().Count();
+
+            if (model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.BalanceEntries = userService.GetBalanceEntries().OrderByDescending(p => p.Date).Skip((model.CurrentPage - 1) * model.LoggedInUser.PaginationPreference).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.BalanceEntries = userService.GetBalanceEntries().OrderByDescending(p => p.Date).ToList();
+            }
+
+            return View(model);
+        }
+
         [HttpGet, Authorize(Roles = "Admin")]
         public async Task<ActionResult> AddBalanceEntry(string id = "")
         {
@@ -410,6 +497,7 @@ namespace TheAfterParty.WebUI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
+        [HttpGet]
         public async Task<ActionResult> AdminClaimedProductKeys()
         {
             AdminClaimedProductKeyViewModel model = new AdminClaimedProductKeyViewModel();
@@ -417,7 +505,45 @@ namespace TheAfterParty.WebUI.Controllers
             model.LoggedInUser = await userService.GetCurrentUser();
             model.FullNavList = CreateUserControllerAdminNavList();
 
-            model.ClaimedProductKeys = userService.GetClaimedProductKeys();
+            model.CurrentPage = 1;
+            model.TotalItems = userService.GetClaimedProductKeys().Count();
+
+            if (model.LoggedInUser != null && model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.ClaimedProductKeys = userService.GetClaimedProductKeys().OrderByDescending(p => p.Date).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.ClaimedProductKeys = userService.GetClaimedProductKeys().OrderByDescending(p => p.Date).ToList();
+            }
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult> AdminClaimedProductKeys(AdminClaimedProductKeyViewModel model)
+        {
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateUserControllerAdminNavList();
+
+            if (model.SelectedPage != 0)
+            {
+                model.CurrentPage = model.SelectedPage;
+            }
+
+            model.TotalItems = userService.GetClaimedProductKeys().Count();
+
+            if (model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.ClaimedProductKeys = userService.GetClaimedProductKeys().OrderByDescending(p => p.Date).Skip((model.CurrentPage - 1) * model.LoggedInUser.PaginationPreference).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.ClaimedProductKeys = userService.GetClaimedProductKeys().OrderByDescending(p => p.Date).ToList();
+            }
 
             return View(model);
         }
@@ -499,6 +625,7 @@ namespace TheAfterParty.WebUI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
+        [HttpGet]
         public async Task<ActionResult> AdminOrders()
         {
             AdminOrderViewModel model = new AdminOrderViewModel();
@@ -506,7 +633,45 @@ namespace TheAfterParty.WebUI.Controllers
             model.LoggedInUser = await userService.GetCurrentUser();
             model.FullNavList = CreateUserControllerAdminNavList();
 
-            model.Orders = userService.GetOrders();
+            model.CurrentPage = 1;
+            model.TotalItems = userService.GetOrders().Count();
+
+            if (model.LoggedInUser != null && model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.Orders = userService.GetOrders().OrderByDescending(p => p.SaleDate).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.Orders = userService.GetOrders().OrderByDescending(p => p.SaleDate).ToList();
+            }
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult> AdminOrders(AdminOrderViewModel model)
+        {
+            model.LoggedInUser = await userService.GetCurrentUser();
+            model.FullNavList = CreateUserControllerAdminNavList();
+
+            if (model.SelectedPage != 0)
+            {
+                model.CurrentPage = model.SelectedPage;
+            }
+
+            model.TotalItems = userService.GetOrders().Count();
+
+            if (model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.Orders = userService.GetOrders().OrderByDescending(p => p.SaleDate).Skip((model.CurrentPage - 1) * model.LoggedInUser.PaginationPreference).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.Orders = userService.GetOrders().OrderByDescending(p => p.SaleDate).ToList();
+            }
 
             return View(model);
         }
@@ -665,6 +830,17 @@ namespace TheAfterParty.WebUI.Controllers
 
             navGrouping.NavItems = new List<NavItem>() { admin, users };
             navList = new List<NavGrouping>() { navGrouping };
+
+            navGrouping = new NavGrouping();
+            navGrouping.GroupingHeader = "Group Checker";
+
+            NavItem item = new NavItem();
+            item.Destination = "/user/owns/";
+            item.DestinationName = ownsActionDest;
+            item.SetSelected(destNames);
+
+            navGrouping.NavItems = new List<NavItem>() { item };
+            navList.Add(navGrouping);            
 
             return navList;
         }

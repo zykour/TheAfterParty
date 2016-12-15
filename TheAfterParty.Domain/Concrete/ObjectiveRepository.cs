@@ -41,7 +41,8 @@ namespace TheAfterParty.Domain.Concrete
             return context.Objectives
                                     .Include(x => x.BoostedObjective)
                                     .Include(x => x.Product.ProductCategories)
-                                    .Include(x => x.Product.Tags);
+                                    .Include(x => x.Product.Tags)
+                                    .Include(x => x.Product.Listings.Select(y => y.ChildListings));
         }
         public Objective GetObjectiveByID(int objectiveId)
         {
@@ -49,6 +50,7 @@ namespace TheAfterParty.Domain.Concrete
                                     .Include(x => x.BoostedObjective)
                                     .Include(x => x.Product.ProductCategories)
                                     .Include(x => x.Product.Tags)
+                                    .Include(x => x.BalanceEntries)
                                     .SingleOrDefault(x => x.ObjectiveID == objectiveId);//.Find(objectiveId);
         }
         public void InsertObjective(Objective objective)

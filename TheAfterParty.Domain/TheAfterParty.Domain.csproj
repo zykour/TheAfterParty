@@ -211,8 +211,6 @@
     <Compile Include="Services\Concrete\StoreService.cs" />
     <Compile Include="Services\Concrete\UserService.cs" />
     <Compile Include="Concrete\ListingFilter.cs" />
-    <Compile Include="Model\SelectedProductCategoryMapping.cs" />
-    <Compile Include="Model\SelectedTagMapping.cs" />
     <Compile Include="Model\StoreIndexDomainModel.cs" />
   </ItemGroup>
   <ItemGroup>

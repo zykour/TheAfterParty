@@ -26,10 +26,10 @@ namespace TheAfterParty.Domain.Concrete
         // ---- Listing entity persistance
             // ---- Parent entity
 
-        public IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems, StoreIndexDomainModel model)
+        public IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems)
         {
             IQueryable<Listing> listingQuery = context.Listings
-                        .Include(x => x.ChildListings.Select(y => y.Product.Listings))
+                        .Include(x => x.ChildListings.Select(y => y.Product.Listings.Select(z => z.ChildListings)))
                         .Include(x => x.ChildListings.Select(y => y.Platforms))
                         .Include(x => x.ChildListings.Select(y => y.DiscountedListings))
                         .Include(x => x.DiscountedListings)
@@ -61,6 +61,16 @@ namespace TheAfterParty.Domain.Concrete
             if (filter.IsNewest)
             {
                 var date = context.Listings.OrderByDescending(x => x.DateEdited).FirstOrDefault().DateEdited.Date;
+                var day = date.Day;
+                var month = date.Month;
+                var year = date.Year;
+
+                listingQuery = listingQuery.Where(x => x.DateEdited.Day == day && x.DateEdited.Year == year && x.DateEdited.Month == month);
+            }
+
+            if (filter.Date != null)
+            {
+                var date = (DateTime)filter.Date;
                 var day = date.Day;
                 var month = date.Month;
                 var year = date.Year;
@@ -176,11 +186,7 @@ namespace TheAfterParty.Domain.Concrete
             {
                 listingQuery = listingQuery.Skip((filter.Page - 1) * filter.PaginationNum).Take(filter.PaginationNum);
             }
-
-            model.StorePlatforms = GetActivePlatforms();
-            model.Tags = GetTags();
-            model.ProductCategories = GetProductCategories();
-
+            
             return listingQuery;
         }
         public IEnumerable<Listing> SearchListings(string searchText, int resultLimit)
@@ -238,6 +244,7 @@ namespace TheAfterParty.Domain.Concrete
                         .Include(x => x.Platforms)
                         .Include(x => x.ChildListings.Select(y => y.Product))
                         .Include(x => x.UsersBlacklist)
+                        .Include(x => x.DiscountedListings)
                         .SingleOrDefault(x => x.ListingID == id);
         }
         public void InsertListing(Listing listing)
@@ -732,7 +739,7 @@ namespace TheAfterParty.Domain.Concrete
         }
         public IEnumerable<Platform> GetActivePlatforms()
         {
-            return context.Platforms.Where(p => p.Listings.Any()).OrderBy(p => p.PlatformName);
+            return context.Platforms.Where(p => p.Listings.Any(l => l.Quantity > 0)).OrderBy(p => p.PlatformName);
         }
         public Platform GetPlatformByID(int platformId)
         {

@@ -14,23 +14,23 @@
     </div>
     <div class="row">
         <div class="col-lg-12 col-xl-12 col-md-12">
-            @foreach (IEnumerable<ActivityFeedContainer> feedGroup in Model.ActivityFeedList.GroupBy(f => f.ItemDate.Date).ToList())
+            @foreach (IEnumerable<ActivityFeedContainer> feedGroup in Model.ActivityFeedList.GroupBy(f => Model.GetConvertedDateTime(f.ItemDate).Date).ToList())
             {
                 <div class="row custom-row">
                     <div class="col-lg-12 col-xl-12 col-md-12 col-header text-left">
                         @Model.GetConvertedDateTime(feedGroup.First().ItemDate).ToString("dd MMMM")
                     </div>
                 </div>
-                foreach (ActivityFeedContainer feedItem in feedGroup)
+                foreach (ActivityFeedContainer feedItem in feedGroup.OrderByDescending(f => f.ItemDate))
                 {
                     if (feedItem.GetActivityFeedItem() is Order)
                     {
                         Order order = feedItem.GetActivityFeedItem() as Order;
                         <div class="row filter-div">
-                            <div class="col-lg-9 col-xl-9 col-md-9 activity-row">
+                            <div class="col-lg-10 col-xl-10 col-md-10 activity-row">
                                 <p>You made a purchase for <span class="text-warning">@order.TotalSalePrice()</span> points.</p>
                             </div>
-                            <div class="col-lg-3 col-xl-3 col-md-3 text-right activity-time">
+                            <div class="col-lg-2 col-xl-2 col-md-2 text-right activity-time">
                                 @feedItem.ItemDate.ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
                             </div>
                         </div>
@@ -39,10 +39,10 @@
                     {
                         GiveawayEntry entry = feedItem.GetActivityFeedItem() as GiveawayEntry;
                         <div class="row filter-div">
-                            <div class="col-lg-9 col-xl-9 col-md-9 activity-row">
+                            <div class="col-lg-10 col-xl-10 col-md-10 activity-row">
                                 <p>You entered a giveaway for <span class="text-success">@((entry.Giveaway.Listing == null) ? entry.Giveaway.Listing.ListingName : entry.Giveaway.Prize)</span>.</p>
                             </div>
-                            <div class="col-lg-3 col-xl-3 col-md-3 text-right activity-time">
+                            <div class="col-lg-2 col-xl-2 col-md-2 text-right activity-time">
                                 @feedItem.ItemDate.ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
                             </div>
                         </div>
@@ -51,10 +51,10 @@
                     {
                         ProductReview review = feedItem.GetActivityFeedItem() as ProductReview;
                         <div class="row filter-div">
-                            <div class="col-lg-9 col-xl-9 col-md-9 activity-row">
+                            <div class="col-lg-10 col-xl-10 col-md-10 activity-row">
                                 <p>You posted a review for <span class="text-success">@review.Product.ProductName</span>.</p>
                             </div>
-                            <div class="col-lg-3 col-xl-3 col-md-3 text-right activity-time">
+                            <div class="col-lg-2 col-xl-2 col-md-2 text-right activity-time">
                                 @feedItem.ItemDate.ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
                             </div>
                         </div>
@@ -63,10 +63,10 @@
                     {
                         BalanceEntry entry = feedItem.GetActivityFeedItem() as BalanceEntry;
                         <div class="row filter-div">
-                            <div class="col-lg-9 col-xl-9 col-md-9 activity-row">
+                            <div class="col-lg-10 col-xl-10 col-md-10 activity-row">
                                 <p>You earned <span class="text-success">@entry.PointsAdjusted</span> points@((entry.Objective == null) ? "" : " for completing the objective \"" + entry.Objective.ObjectiveName + "\"").</p>
                             </div>
-                            <div class="col-lg-3 col-xl-3 col-md-3 text-right activity-time">
+                            <div class="col-lg-2 col-xl-2 col-md-2 text-right activity-time">
                                 @feedItem.ItemDate.ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
                             </div>
                         </div>
@@ -75,10 +75,10 @@
                     {
                         WonPrize prize = feedItem.GetActivityFeedItem() as WonPrize;
                         <div class="row filter-div">
-                            <div class="col-lg-9 col-xl-9 col-md-9 activity-row">
+                            <div class="col-lg-10 col-xl-10 col-md-10 activity-row">
                                 <p>You won a prize for <span class="text-success">@prize.Prize.Listing.ListingName</span>.</p>
                             </div>
-                            <div class="col-lg-3 col-xl-3 col-md-3 text-right activity-time">
+                            <div class="col-lg-2 col-xl-2 col-md-2 text-right activity-time">
                                 @feedItem.ItemDate.ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
                             </div>
                         </div>
@@ -87,10 +87,10 @@
                     {
                         AuctionBid entry = feedItem.GetActivityFeedItem() as AuctionBid;
                         <div class="row filter-div">
-                            <div class="col-lg-9 col-xl-9 col-md-9 activity-row">
+                            <div class="col-lg-10 col-xl-10 col-md-10 activity-row">
                                 <p>You bid on an auction of <span class="text-success">@entry.Auction.Listing.ListingName</span> for <span class="text-warning">@entry.BidAmount</span> points.</p>
                             </div>
-                            <div class="col-lg-3 col-xl-3 col-md-3 text-right activity-time">
+                            <div class="col-lg-2 col-xl-2 col-md-2 text-right activity-time">
                                 @feedItem.ItemDate.ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
                             </div>
                         </div>
@@ -101,10 +101,10 @@
                         if (giveaway.IsCreator(Model.LoggedInUser))
                         {
                             <div class="row filter-div">
-                                <div class="col-lg-9 col-xl-9 col-md-9 activity-row">
+                                <div class="col-lg-10 col-xl-10 col-md-10 activity-row">
                                     <p>You created a giveaway for <span class="text-success">@((giveaway.Listing == null) ? giveaway.Prize : giveaway.Listing.ListingName)</span>.</p>
                                 </div>
-                                <div class="col-lg-3 col-xl-3 col-md-3 text-right activity-time">
+                                <div class="col-lg-2 col-xl-2 col-md-2 text-right activity-time">
                                     @feedItem.ItemDate.ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
                                 </div>
                             </div>
@@ -112,10 +112,10 @@
                         else
                         {
                             <div class="row filter-div">
-                                <div class="col-lg-9 col-xl-9 col-md-9 activity-row">
+                                <div class="col-lg-10 col-xl-10 col-md-10 activity-row">
                                     <p>You won a giveaway for <span class="text-success">@((giveaway.Listing == null) ? giveaway.Prize : giveaway.Listing.ListingName)</span>.</p>
                                 </div>
-                                <div class="col-lg-3 col-xl-3 col-md-3 text-right activity-time">
+                                <div class="col-lg-2 col-xl-2 col-md-2 text-right activity-time">
                                     @feedItem.ItemDate.ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
                                 </div>
                             </div>
@@ -127,10 +127,10 @@
                         if (auction.IsCreator(Model.LoggedInUser))
                         {
                             <div class="row filter-div">
-                                <div class="col-lg-9 col-xl-9 col-md-9 activity-row">
+                                <div class="col-lg-10 col-xl-10 col-md-10 activity-row">
                                     <p>You created an auction for <span class="text-success">@auction.Listing.ListingName</span>.</p>
                                 </div>
-                                <div class="col-lg-3 col-xl-3 col-md-3 text-right activity-time">
+                                <div class="col-lg-2 col-xl-2 col-md-2 text-right activity-time">
                                     @feedItem.ItemDate.ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
                                 </div>
                             </div>
@@ -138,10 +138,10 @@
                         else
                         {
                             <div class="row filter-div">
-                                <div class="col-lg-9 col-xl-9 col-md-9 activity-row">
-                                    <p>You won an auction of <span class="text-success">@auction.Listing.ListingName</span> for <span class="text-warning">@auction.AuctionBids.Max()</span> points.</p>
+                                <div class="col-lg-10 col-xl-10 col-md-10 activity-row">
+                                    <p>You won an auction of <span class="text-success">@auction.Listing.ListingName</span>.@* for <span class="text-warning">@auction.GetUserBids(Model.LoggedInUser).OrderByDescending(a => a.BidAmount).SingleOrDefault().BidAmount</span> points.</p>*@
                                 </div>
-                                <div class="col-lg-3 col-xl-3 col-md-3 text-right activity-time">
+                                <div class="col-lg-2 col-xl-2 col-md-2 text-right activity-time">
                                     @feedItem.ItemDate.ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
                                 </div>
                             </div>

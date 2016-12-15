@@ -9,6 +9,7 @@ namespace TheAfterParty.Domain.Services
 {
     public interface IApiService : IDisposable
     {
+        IEnumerable<String> GetUsersWhoOwn(int appId);
         IEnumerable<Listing> SearchListings(string searchText, int resultLimit);
         Listing GetListingByAppID(int appId);
         Listing GetDailyDeal();
@@ -21,6 +22,7 @@ namespace TheAfterParty.Domain.Services
 
         Order BuyAndRevealListing(AppUser user, int listingId, int price);
 
+        bool ToggleActiveObjective(Objective objective);
         IEnumerable<Objective> SearchObjectives(string searchText, int resultLimit);
 
         AppUser GetUserByNickName(string nickname);

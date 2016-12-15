@@ -30,5 +30,13 @@
             <div class="col-lg-3">@((key.Listing == null) ? "" : key.Listing.ListingName)</div>
         </div>
     }
+    @using (Html.BeginForm("AdminClaimedProductKeys", "User", FormMethod.Post))
+    {
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-xl-12 pagination-holder vertical-align">
+                @Html.PageLinks(Model)
+            </div>
+        </div>
+    }
 </div>
 <a href="/User/AddClaimedProductKey/">Add Key</a>

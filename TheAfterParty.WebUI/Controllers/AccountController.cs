@@ -222,7 +222,7 @@ namespace TheAfterParty.WebUI.Controllers
             model.FullNavList = CreateAccountControllerNavList(destNames);
 
             model.Keys = await userService.GetKeys();
-
+            
             PopulateKeysModel(model);
 
             model.Keys = model.Keys.OrderBy(k => k.Listing.ListingName).ToList();
@@ -348,14 +348,14 @@ namespace TheAfterParty.WebUI.Controllers
                     return View("Error", model);
                 }
             }
-
+            
             ClaimsIdentity ident = await userService.GetUserManager().CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
 
             ident.AddClaims(loginInfo.ExternalIdentity.Claims);
 
             AuthManager.SignIn(new AuthenticationProperties
             {
-                IsPersistent = false
+                IsPersistent = true
             }, ident);
 
             return Redirect(returnUrl ?? "/");
@@ -435,11 +435,11 @@ namespace TheAfterParty.WebUI.Controllers
                 model.CurrentPage = 1;
             }
             model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
-            model.TotalItems = model.Keys.Count;
+            model.TotalItems = model.Keys.Count();
 
             if (model.UserPaginationPreference != 0)
             {
-                model.Keys = model.Keys.Skip((model.CurrentPage - 1) * model.UserPaginationPreference).Take(model.UserPaginationPreference).ToList();
+                model.Keys = model.Keys.OrderByDescending(k => k.Listing.ListingName).Skip((model.CurrentPage - 1) * model.UserPaginationPreference).Take(model.UserPaginationPreference).ToList();
             }
         }
         

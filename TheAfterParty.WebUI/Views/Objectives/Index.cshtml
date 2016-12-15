@@ -14,75 +14,80 @@
     <div class="row">
         <div class="col-lg-10 col-md-10 col-xl-10">
             <div class="row custom-row-header"><h3>Objectives</h3></div>
-            @if (Model.MiscObjectives != null && Model.MiscObjectives.Count > 0)
-            {
-                <div class="row custom-row clickable" id="MiscObj" onclick="ToggleHidden(this,MiscObj)">
+            @{ 
+                int k = 1;
+                foreach (ICollection<Objective> group in Model.MiscObjectives.GroupBy(o => o.Title))
+                {
+                    k++;
+                    string id = "noprod" + k + "p";
+                    <div class="row custom-row clickable" id="@id" onclick="ToggleHidden(this,@id)">
                     <div class="col-lg-11 col-md-11 col-xl-11">
-                        <span class="objective-title">Misc.</span>
+                        <span class="objective-title">@group.FirstOrDefault().Title</span>
                     </div>
                     <div class="col-lg-1 col-md-1 col-xl-1">
                         <span class="fa fa-chevron-up fa-2x expand-button"></span>
                     </div>
                 </div>
-                <div id="MiscObj1" class="is-hidden">
-                    <div class="row custom-row">
-                        <div class="col-lg-1 col-md-1 col-xl-1 text-center"><span class="col-header">ID</span></div>
-                        <div class="col-lg-6 col-md-6 col-xl-6 text-center"><span class="col-header">Objective</span></div>
-                        <div class="col-lg-1 col-md-1 col-xl-1 text-center"><span class="col-header">Monuplay</span></div>
-                        <div class="col-lg-1 col-md-1 col-xl-1 text-center"><span class="col-header">Boosted</span></div>
-                        <div class="col-lg-1 col-md-1 col-xl-1 text-center"><span class="col-header">Reward</span></div>
-                        <div class="col-lg-1 col-md-1 col-xl-1 text-center"><span class="col-header">Expires</span></div>
-                    </div>
-                    @foreach (Objective obj in Model.MiscObjectives.OrderBy(o => o.ObjectiveID))
-                    {
-                        <div class="row store-entry-sm objective-row">
-                            <div class="col-lg-1 col-md-1 col-xl-1 text-center col-text text-lblue"><span>@obj.ObjectiveID</span></div>
-                            <div class="col-lg-6 col-md-6 col-xl-6 text-left">
-                                <p><span class="objective-name">@obj.ObjectiveName</span><br /><span>@obj.Description</span></p>
-                            </div>
-                            <div class="col-lg-1 col-md-1 col-xl-1 text-center">
-                                @if (obj.RequiresAdmin == false)
-                                {
-                                    <span class="fa fa-close fa-lg text-danger"></span>
-                                }
-                                else
-                                {
-                                    <span class="fa fa-check fa-lg text-success"></span>
-                                }
-                            </div>
-                            <div class="col-lg-1 col-md-1 col-xl-1 text-center">
-                                @if (obj.BoostedObjective == null)
-                                {
-                                    <span class="fa fa-close fa-lg text-danger"></span>
-                                }
-                                else
-                                {
-                                    <span class="col-text text-success">@(obj.BoostedObjective.BoostAmount)X</span>
-                                }
-                            </div>
-                            <div class="col-lg-1 col-md-1 col-xl-1 text-center">
-                                @if (obj.BoostedObjective == null)
-                                {
-                                    <span class="col-text">@obj.FixedReward()</span>
-                                }
-                                else
-                                {
-                                    <span class="col-text text-success">@obj.FixedReward()</span>
-                                }
-                            </div>
-                            <div class="col-lg-1 col-md-1 col-xl-1 text-center col-text">
-                                @if (obj.BoostedObjective == null)
-                                {
-                                    <span class="fa fa-close fa-lg text-danger"></span>
-                                }
-                                else
-                                {
-                                    <span class="objective-date">@(Model.GetConvertedDateTime(obj.BoostedObjective.EndDate).ToString("d MMM"))</span>
-                                }
-                            </div>
+                    <div id="@(id)1" class="is-hidden">
+                        <div class="row custom-row col-header">
+                            <div class="col-lg-1 col-md-1 col-xl-1">ID</div>
+                            <div class="col-lg-6 col-md-6 col-xl-6 text-center">Objective</div>
+                            <div class="col-lg-1 col-md-1 col-xl-1">Monuplay</div>
+                            <div class="col-lg-1 col-md-1 col-xl-1">Boosted</div>
+                            <div class="col-lg-1 col-md-1 col-xl-1">Reward</div>
+                            <div class="col-lg-1 col-md-1 col-xl-1">Expires</div>
                         </div>
-                    }
-                </div>
+                        @foreach (Objective obj in group)
+                        {
+                            <div class="row store-entry-sm objective-row text-center">
+                                <div class="col-lg-1 col-md-1 col-xl-1 col-text text-lblue">@obj.ObjectiveID</div>
+                                <div class="col-lg-6 col-md-6 col-xl-6 text-left">
+                                    <p><span class="objective-name">@obj.ObjectiveName</span><br />@obj.Description</p>
+                                </div>
+                                <div class="col-lg-1 col-md-1 col-xl-1 text-center">
+                                    @if (obj.RequiresAdmin == false)
+                                    {
+                                        <span class="fa fa-close fa-lg text-danger"></span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fa fa-check fa-lg text-success"></span>
+                                    }
+                                </div>
+                                <div class="col-lg-1 col-md-1 col-xl-1 text-center">
+                                    @if (obj.BoostedObjective == null)
+                                    {
+                                        <span class="fa fa-close fa-lg text-danger"></span>
+                                    }
+                                    else
+                                    {
+                                        <span class="col-text text-success">@(obj.BoostedObjective.BoostAmount)X</span>
+                                    }
+                                </div>
+                                <div class="col-lg-1 col-md-1 col-xl-1 text-center">
+                                    @if (obj.BoostedObjective == null)
+                                    {
+                                        <span class="col-text">@obj.FixedReward()</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="col-text text-success">@obj.FixedReward()</span>
+                                    }
+                                </div>
+                                <div class="col-lg-1 col-md-1 col-xl-1 text-center col-text">
+                                    @if (obj.BoostedObjective == null)
+                                    {
+                                        <span class="fa fa-close fa-lg text-danger"></span>
+                                    }
+                                    else
+                                    {
+                                        <span class="objective-date">@(Model.GetConvertedDateTime(obj.BoostedObjective.EndDate).ToString("d MMM"))</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
             }
             @foreach (ICollection<Objective> group in Model.Objectives.GroupBy(o => o.Title))
             {
@@ -94,11 +99,11 @@
                             <div class="outer-banner-container-row">
                                 @if (String.IsNullOrEmpty(group.FirstOrDefault().Product.GetHttpsSecuredHeaderImage()))
                                 {
-                                    <div class="inner-store-banner-container-row" style="background-image: url('/Content/applogo.gif')"></div>
+                                    <div class="inner-store-banner-container-row delayed-load" data-src="/Content/applogo.gif" style="background-image: url('a.gif')"></div>
                                 }
                                 else
                                 {
-                                    <div class="inner-store-banner-container-row" style="background-image: url(@group.FirstOrDefault().Product.GetHttpsSecuredHeaderImage())"></div>
+                                    <div class="inner-store-banner-container-row delayed-load" data-src="@group.FirstOrDefault().Product.GetHttpsSecuredHeaderImage()" style="background-image: url('a.gif')"></div>
                                 }
                             </div>
                         }

@@ -7,12 +7,12 @@ using TheAfterParty.Domain.Concrete;
 using System.Web.Http;
 using Microsoft.Owin.Security.OAuth;
 using System;
-using Microsoft.Owin.Cors;
 using TheAfterParty.WebUI;
-using Ninject.Web.WebApi.OwinHost;
-using Ninject.Web.Common.OwinHost;
-using TheAfterParty.WebUI.App_Start;
 using Hangfire;
+using Hangfire.Dashboard;
+using System.Collections.Generic;
+using TheAfterParty.WebUI.Infrastructure;
+using TheAfterParty.WebUI.App_Start;
 
 namespace TheAfterParty
 {
@@ -21,15 +21,6 @@ namespace TheAfterParty
         public void Configuration(IAppBuilder app)
         {
             HttpConfiguration config = new HttpConfiguration();
-
-            Hangfire.GlobalConfiguration.Configuration.UseSqlServerStorage("AppIdentityDbContext");
-            //var options = new BackgroundJobServerOptions { WorkerCount = 1 };
-
-            app.UseHangfireDashboard();
-            app.UseHangfireServer();
-
-            TaskRegister.RegisterAuctions();
-            TaskRegister.RegisterDailyTasks();
 
             app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
 
@@ -61,11 +52,25 @@ namespace TheAfterParty
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
-                LoginPath = new PathString("/account/login")
+                LoginPath = new PathString("/account/login"),
+                ExpireTimeSpan = TimeSpan.FromDays(30),
+                SlidingExpiration = true
             });
             
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
             app.UseSteamAuthentication(System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]);
+
+            Hangfire.GlobalConfiguration.Configuration.UseSqlServerStorage("AppIdentityDbContext");
+            var auth = new Hangfire.Dashboard.AuthorizationFilter() { Users = "Monukai", Roles = "Admin" };
+            //var options = new BackgroundJobServerOptions { WorkerCount = 1 };
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions {
+                Authorization = new[] { new HangfireAuthorizationFilter() { Roles = new List<String> { "Admin" } } }
+            });
+
+            app.UseHangfireServer();
+
+            TaskRegister.RegisterAuctions();
+            TaskRegister.RegisterDailyTasks();
         }        
     }
 }

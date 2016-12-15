@@ -170,20 +170,20 @@ namespace TheAfterParty.Domain.Services
                 activityFeed.Add(new ActivityFeedContainer(notification, notification.NotificationDate));
             }
 
-            foreach (Giveaway giveaway in giveawayRepository.GetGiveaways())
-            {
-                activityFeed.Add(new ActivityFeedContainer(giveaway, giveaway.CreatedTime));
-            }
+            //foreach (Giveaway giveaway in giveawayRepository.GetGiveaways())
+            //{
+            //    activityFeed.Add(new ActivityFeedContainer(giveaway, giveaway.CreatedTime));
+            //}
 
             foreach (Auction auction in auctionRepository.GetAuctions())
             {
                 activityFeed.Add(new ActivityFeedContainer(auction, auction.CreatedTime));
             }
             
-            foreach (GroupEvent groupEvent in siteRepository.GetGroupEvents())
-            {
-                activityFeed.Add(new ActivityFeedContainer(groupEvent, groupEvent.EventCreatedTime));
-            }
+            //foreach (GroupEvent groupEvent in siteRepository.GetGroupEvents())
+            //{
+            //    activityFeed.Add(new ActivityFeedContainer(groupEvent, groupEvent.EventCreatedTime));
+            //}
 
             foreach (POTW potw in siteRepository.GetPOTWs())
             {

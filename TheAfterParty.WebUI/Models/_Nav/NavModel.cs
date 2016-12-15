@@ -48,5 +48,54 @@ namespace TheAfterParty.WebUI.Models._Nav
             return (int)Math.Ceiling((decimal)TotalItems / UserPaginationPreference);
         }
         public int CurrentPage { get; set; }
+
+        public void Initialize(AppUser user, List<NavGrouping> navList, int selectedPage = 0, int totalItems = 0)
+        {
+            FullNavList = navList;
+            LoggedInUser = user;
+
+            if (user != null && user.PaginationPreference != 0)
+            {
+                UserPaginationPreference = user.PaginationPreference;
+                if (selectedPage != 0)
+                {
+                    CurrentPage = selectedPage;
+                }
+                else if (SelectedPage != 0)
+                {
+                    CurrentPage = SelectedPage;
+                }
+                else
+                {
+                    CurrentPage = 1;
+                }
+            }
+
+            TotalItems = totalItems;
+        }
+
+        /// <summary>
+        /// Adds the correct linq query to the IEnumerable for this user's pagination preference. Sets TotalItems if necessary
+        /// </summary>
+        /// <typeparam name="T"> The type being paginated</typeparam>
+        /// <param name="list"> The </param>
+        /// <returns> The IEnumerable with the correct Skip and Take linq query</returns>
+        /// <remarks> If the user's pagination preference is set to show all, this just returns the IEnumerable back to the user as is </remarks>
+        public IEnumerable<T> SkipAndTake<T>(IEnumerable<T> list)
+        {
+            if (TotalItems == 0)
+            {
+                TotalItems = list.Count();
+            }
+
+            if (UserPaginationPreference > 0)
+            {
+                return list.Skip((CurrentPage - 1) * UserPaginationPreference).Take(UserPaginationPreference);
+            }
+            else
+            {
+                return list;
+            }
+        }
     }
 }

@@ -1,0 +1,45 @@
+﻿@using TheAfterParty.WebUI.Models.Store
+@using TheAfterParty.Domain.Entities;
+@model StoreHistoryViewModel
+
+@{
+    ViewBag.Title = "History";
+}
+
+<div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-xl-12 text-center custom-row-header">
+            <h3 class="text-left">Purchase History</h3>
+        </div>
+    </div>
+    @foreach (ProductOrderEntry entry in Model.PurchaseEntries)
+    {
+        <div class="row">
+            <div class="col-lg-10 col-md-10 col-xl-10 activity-row">
+                <p>
+                    <a href="@Url.Action("UserProfile", "User", new { id = entry.Order.AppUser.UserName })" class="text-primary">@entry.Order.AppUser.UserName</a> purchased
+                    @if (entry.Listing.Quantity > 0)
+                    {
+                        <a href="@Url.Action("Game", "Store", new { id = entry.Listing.ListingID })">@entry.Listing.ListingName</a>
+                    }
+                    else
+                    {
+                        <span class="text-warning">@entry.Listing.ListingName</span>
+                    }
+                    for <span class="text-success">@entry.SalePrice</span> @(Html.FixPluralization(@entry.SalePrice, "point")).
+                </p>
+            </div>
+            <div class="col-lg-2 col-md-2 col-xl-2 text-right activity-time">
+                @Model.GetConvertedDateTime(((DateTime)entry.Order.SaleDate)).ToString("MMM dd h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+            </div>
+        </div>
+    }
+    @using (Html.BeginForm("History", "Store", FormMethod.Post))
+    {
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-xl-12 pagination-holder vertical-align">
+                @Html.PageLinks(Model)
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,229 @@
+﻿@using TheAfterParty.WebUI.Models.Store
+@using TheAfterParty.Domain.Entities
+@model StoreGameViewModel
+
+@{
+    ViewBag.Title = "Game";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="col-md-10 col-lg-10 col-xl-10">
+<div class="row custom-row-header"><h3>@Model.TargetListing.ListingName</h3></div>
+<div class="row custom-row">
+    <div class="col-lg-8 col-md-8 col-xl-8 text-center"><span class="col-header">Game</span></div>
+    <div class="col-lg-1 col-md-1 col-xl-1 text-center"><span class="col-header">Platform</span></div>
+    <div class="col-lg-1 col-md-1 col-xl-1 text-center"><span class="col-header">Quantity</span></div>
+    <div class="col-lg-1 col-md-1 col-xl-1 text-center"><span class="col-header">Price</span></div>
+    <div class="col-lg-1 col-md-1 col-xl-1"></div>
+</div>
+<div class="row store-entry-sm">
+    <div class="col-lg-8 col-md-8 col-xl-8 vertical-align">
+        @if (Model.TargetListing.Product.AppID != 0 && Model.TargetListing.Product.IsSteamAppID == true)
+        {
+            var url = String.Empty;
+
+            if (Model.TargetListing.IsComplex())
+            {
+                url = "http://store.steampowered.com/sub/";
+            }
+            else
+            {
+                url = "http://store.steampowered.com/app/";
+            }
+
+            url += Model.TargetListing.Product.AppID.ToString();
+
+            if (Model.TargetListing.IsComplex())
+            {
+                var listing = "listing1id";
+                <div id="@listing" onclick="ToggleHiddenAlt(this)">
+                    <span class="fa fa-fw fa-lg fa-chevron-right pad-left expand-button icon-blue"></span>
+                </div>
+            }
+
+            if (User.Identity.IsAuthenticated)
+            {
+                if (Model.LoggedInUser.IsBlacklisted(Model.TargetListing))
+                {
+                    <div class="store-entry-blacklist text-inactive" id="blacklistButton" onclick="AddToBlacklist(this, @Model.TargetListing.ListingID, '1');">
+                        <i class="fa fa-ban fa-lg store-blacklist store-blacklist-active"></i>
+                    </div>
+                }
+                else
+                {
+                    <div class="store-entry-blacklist" id="blacklistButton" onclick="AddToBlacklist(this, @Model.TargetListing.ListingID, '1');">
+                        <i class="fa fa-ban fa-lg store-blacklist"></i>
+                    </div>
+                }
+            }
+            <div class="outer-banner-container">
+                <a href="@url">
+                    @if (String.IsNullOrEmpty(Model.TargetListing.Product?.GetHttpsSecuredHeaderImage()))
+                    {
+                        <div class="inner-store-banner-container delayed-load" data-src="/Content/applogo.gif" style="background-image: url('a.gif')"></div>
+                    }
+                    else
+                    {
+                        <div class="inner-store-banner-container delayed-load" data-src="@Model.TargetListing.Product.GetHttpsSecuredHeaderImage()" style="background-image: url('a.gif')"></div>
+                    }
+                </a>
+            </div>
+            <div class="store-entry-name">
+                <a href="@url">
+                    @Model.TargetListing.ListingName
+                </a>
+            </div>
+        }
+        else
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                <div class="store-entry-blacklist" id="blacklistButton" onclick="AddToBlacklist(this, @Model.TargetListing.ListingID, 'i');">
+                    <i class="fa fa-ban fa-lg store-blacklist"></i>
+                </div>
+            }
+            <div class="outer-banner-container">
+                @if (String.IsNullOrEmpty(Model.TargetListing.Product?.GetHttpsSecuredHeaderImage()))
+                {
+                    <div class="inner-store-banner-container delayed-load" data-src="/Content/applogo.gif" style="background-image: url('a.gif')"></div>
+                }
+                else
+                {
+                    <div class="inner-store-banner-container delayed-load" data-src="@Model.TargetListing.Product.GetHttpsSecuredHeaderImage()" style="background-image: url('a.gif')"></div>
+                }
+            </div>
+            <div class="store-entry-name">
+                @Model.TargetListing.ListingName
+            </div>
+        }
+    </div>
+    <div class="col-lg-1 col-md-1 col-xl-1 vertical-align">
+        @foreach (string platformIconUrl in Model.TargetListing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
+        {
+            <div class="icon-image-container">
+                <div class="icon-image text-center delayed-load" data-src="@platformIconUrl" style="background-image: url('a.gif')"></div>
+            </div>
+        }
+    </div>
+    <div class="col-lg-1 col-md-1 col-xl-1 col-text text-center">
+        @Model.TargetListing.Quantity
+    </div>
+    <div class="col-lg-1 col-md-1 col-xl-1 col-text text-center text-nowrap">
+        @if (Model.TargetListing.HasSale())
+        {
+            <del>@Model.TargetListing.ListingPrice</del>   <span class="text-success tag-inline">@Model.TargetListing.SaleOrDefaultPrice()</span>
+        }
+        else
+        {
+            @Model.TargetListing.ListingPrice
+        }
+    </div>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="col-lg-1 col-md-1 col-xl-1 store-entry-cart" id="cartButton" onclick="AddToCart(@(Model.TargetListing.ListingID), this);">
+            <i class="fa fa-shopping-cart fa-lg store-cart"></i>
+        </div>
+    }
+</div>
+@if (Model.TargetListing.ChildListings.Count > 0)
+{
+    var listing = "listing1id1";
+    <div class="is-hidden" id="@listing">
+        @foreach (Listing childListing in Model.TargetListing.ChildListings.ToList())
+        {
+            <div class="row store-sub-entry-sm">
+                <div class="col-lg-1 col-md-1 col-xl-1"></div>
+                <div class="col-lg-7 col-md-7 col-xl-7 vertical-align">
+                    @if (childListing.Product.AppID != 0 && childListing.ContainsPlatform("Steam"))
+                    {
+                        var url = "http://store.steampowered.com/app/" + childListing.Product.AppID;
+                        <div class="outer-banner-container">
+                            <a href="@url">
+                                @if (String.IsNullOrEmpty(childListing.Product?.GetHttpsSecuredHeaderImage()))
+                                {
+                                    <div class="inner-store-banner-container delayed-load" data-src="/Content/applogo.gif" style="background-image: url('a.gif')"></div>
+                                }
+                                else
+                                {
+                                    <div class="inner-store-banner-container delayed-load" data-src="@childListing.Product.GetHttpsSecuredHeaderImage()" style="background-image: url('a.gif')"></div>
+                                }
+                            </a>
+                        </div>
+                        <div class="store-entry-name">
+                            <a href="@url">
+                                @childListing.ListingName
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="outer-banner-container">
+                            @if (String.IsNullOrEmpty(childListing.Product?.GetHttpsSecuredHeaderImage()))
+                            {
+                                <div class="inner-store-banner-container delayed-load" data-src="/Content/applogo.gif" style="background-image: url('a.gif')"></div>
+                            }
+                            else
+                            {
+                                <div class="inner-store-banner-container delayed-load" data-src="@Model.TargetListing.Product.GetHttpsSecuredHeaderImage()" style="background-image: url('a.gif')"></div>
+                            }
+                        </div>
+                        <div class="store-entry-name">
+                            @childListing.ListingName
+                        </div>
+                    }
+                </div>
+                <div class="col-lg-1 col-md-1 col-xl-1 vertical-align">
+                    @foreach (string platformIconUrl in childListing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
+                    {
+                        <div class="icon-image-container">
+                            <div class="icon-image text-center delayed-load" data-src="@platformIconUrl" style="background-image: url('a.gif')"></div>
+                        </div>
+                    }
+                </div>
+                <div class="col-lg-1 col-md-1 col-xl-1 col-text text-center">
+                    @childListing.Quantity
+                </div>
+                <div class="col-lg-1 col-md-1 col-xl-1 col-text text-center">
+                    @childListing.ListingPrice
+                </div>
+                <div class="col-lg-1 col-md-1 col-xl-1"></div>
+            </div>
+        }
+    </div>
+}
+@if (Model.TargetListing.IsComplex() == false)
+{
+    @Html.Partial("_OwnsPartial", Model.OwnedModel)
+}
+</div>
+<div class="col-md-2 col-lg-2 col-xl-2">
+    <div class="top-content-margin"></div>
+    <h3 class="text-primary nav-grouping-header">Categories</h3>
+    @if (Model.TargetListing.Product.ProductCategories.Count == 0)
+    {
+        <i class="fa fa-warning icon-red"></i> @Html.Label("No Categories", new { @class = "text-warning store-filter" })
+        <br />
+    }
+    else
+    {
+        foreach (ProductCategory category in Model.TargetListing.Product.ProductCategories.OrderBy(c => c.CategoryString))
+        {
+        <i class="fa fa-square fa-lg text-success"></i> @Html.Label(category.CategoryString, new { @class = "text-success store-filter" })
+        <br/>
+        }
+    }
+    <h3 class="text-primary nav-grouping-header top-content-margin">Genres</h3>
+    @if (Model.TargetListing.Product.Tags.Count == 0)
+    {
+        <i class="fa fa-warning icon-red"></i> @Html.Label("No Tags", new { @class = "text-warning store-filter" })
+        <br />
+    }
+    else
+    {
+        foreach (Tag tag in Model.TargetListing.Product.Tags.OrderBy(t => t.TagName))
+        {
+            <i class="fa fa-square fa-lg text-success"></i> @Html.Label(tag.TagName, new { @class = "text-success store-filter" })
+            <br/>
+        }
+    }
+</div>

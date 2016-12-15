@@ -60,6 +60,13 @@
                                             <p class="top-nav-inner-entry-text-secondary">View the newest additions to the shop.</p>
                                         </div>
                                     </a>
+                                    <a class="top-nav-inner-entry" href="@Url.Action("History", "Store")">
+                                        <i class="icon-blue fa fa-fw fa-clock-o"></i>
+                                        <div class="top-nav-inner-entry-text">
+                                            <p class="top-nav-inner-entry-text-primary">See who's buying what.</p>
+                                            <p class="top-nav-inner-entry-text-secondary">View site wide purchase history.</p>
+                                        </div>
+                                    </a>
                                 </div>
                             </div>
                             @Html.ActionLink("Store", "Index", "Store", null, new { @class = "top-nav-inner-btn top-nav-dropdown-left" })

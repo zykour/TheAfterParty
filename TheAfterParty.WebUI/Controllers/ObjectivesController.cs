@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using TheAfterParty.WebUI.Models._Nav;
 using System.Web.Routing;
 using TheAfterParty.WebUI.Models.Objectives;
-using TheAfterParty.Domain.Model;
+using TheAfterParty.WebUI.Models.Store;
 
 namespace TheAfterParty.WebUI.Controllers
 {
@@ -35,6 +35,7 @@ namespace TheAfterParty.WebUI.Controllers
                 objectiveService.SetUserName(User.Identity.Name);
             }
         }
+
         // GET: CoopShop/Objectives
         [HttpGet]
         public async Task<ActionResult> Index()
@@ -63,6 +64,70 @@ namespace TheAfterParty.WebUI.Controllers
             model.FormName = "Index";
             model.FormID = "";
 
+            ModelState.Clear();
+
+            return View(model);
+        }
+
+
+        // GET: CoopShop/Objective/id
+        [HttpGet]
+        [Authorize]
+        public async Task<ActionResult> Objective(int id)
+        {
+            ObjectiveViewModel model = new ObjectiveViewModel();
+            
+            List<String> destNames = new List<String>() { indexDestName };
+            model.Parser = HomeController.CreateBBCodeParser();
+
+            model.Objective = objectiveService.GetObjectiveByID(id);
+
+            if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+            {
+                model.Initialize((await objectiveService.GetCurrentUser()), CreateObjectivesAdminNavList(destNames));
+            }
+            else
+            {
+                model.Initialize((await objectiveService.GetCurrentUser()), CreateObjectivesNavList(destNames));
+            }
+
+            model.BalanceEntries = model.SkipAndTake<BalanceEntry>(model.Objective.BalanceEntries.OrderByDescending(b => b.Date));
+
+            if (model.Objective == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            return View(model);
+        }
+
+        // POST: CoopShop/Objective/id
+        [HttpPost]
+        [Authorize]
+        public async Task<ActionResult> Objective(ObjectiveViewModel model, int id)
+        {
+            List<String> destNames = new List<String>() { indexDestName };
+            model.Parser = HomeController.CreateBBCodeParser();
+            model.Objective = objectiveService.GetObjectiveByID(id);
+
+            if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+            {
+                model.Initialize((await objectiveService.GetCurrentUser()), CreateObjectivesAdminNavList(destNames));
+            }
+            else
+            {
+                model.Initialize((await objectiveService.GetCurrentUser()), CreateObjectivesNavList(destNames));
+            }
+
+
+            if (model.Objective == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            model.BalanceEntries = model.SkipAndTake<BalanceEntry>(model.Objective.BalanceEntries.OrderByDescending(b => b.Date));
+
+            // Clear the ModelState so changes in the model are reflected when using HtmlHelpers (their default behavior is to not use changes made to the model when re-rendering a view, not what we want here)
             ModelState.Clear();
 
             return View(model);
@@ -171,10 +236,48 @@ namespace TheAfterParty.WebUI.Controllers
         {
             AdminObjectivesViewModel model = new AdminObjectivesViewModel();
 
-            model.Objectives = objectiveService.GetObjectives();
-            model.BoostedObjectives = objectiveService.GetBoostedObjectives();
             model.LoggedInUser = await objectiveService.GetCurrentUser();
             model.FullNavList = CreateObjectivesAdminNavList();
+
+            model.CurrentPage = 1;
+            model.TotalItems = objectiveService.GetObjectives().Count();
+
+            if (model.LoggedInUser != null && model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.Objectives = objectiveService.GetObjectives().OrderByDescending(p => p.ObjectiveID).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.Objectives = objectiveService.GetObjectives().OrderByDescending(p => p.ObjectiveID).ToList();
+            }
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult> AdminObjectives(AdminObjectivesViewModel model)
+        {
+            model.LoggedInUser = await objectiveService.GetCurrentUser();
+            model.FullNavList = CreateObjectivesAdminNavList();
+
+            if (model.SelectedPage != 0)
+            {
+                model.CurrentPage = model.SelectedPage;
+            }
+
+            model.TotalItems = objectiveService.GetObjectives().Count();
+
+            if (model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.Objectives = objectiveService.GetObjectives().OrderByDescending(p => p.ObjectiveID).Skip((model.CurrentPage - 1) * model.LoggedInUser.PaginationPreference).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.Objectives = objectiveService.GetObjectives().OrderByDescending(p => p.ObjectiveID).ToList();
+            }
 
             return View(model);
         }

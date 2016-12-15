@@ -59,8 +59,8 @@
       <HintPath>..\packages\Glimpse.Ado.1.7.3\lib\net45\Glimpse.Ado.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Glimpse.AspNet, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Glimpse.AspNet.1.8.0\lib\net45\Glimpse.AspNet.dll</HintPath>
+    <Reference Include="Glimpse.AspNet, Version=1.9.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Glimpse.AspNet.1.9.2\lib\net45\Glimpse.AspNet.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Glimpse.Core, Version=1.8.6.0, Culture=neutral, processorArchitecture=MSIL">
@@ -75,16 +75,20 @@
       <HintPath>..\packages\Glimpse.Mvc5.1.5.3\lib\net45\Glimpse.Mvc5.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Hangfire.Core, Version=1.6.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Hangfire.Core.1.6.3\lib\net45\Hangfire.Core.dll</HintPath>
+    <Reference Include="Hangfire.Core, Version=1.6.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.Core.1.6.5\lib\net45\Hangfire.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Hangfire.Dashboard.Authorization, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.Dashboard.Authorization.2.1.0\lib\net45\Hangfire.Dashboard.Authorization.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Hangfire.Ninject, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Hangfire.Ninject.1.2.0\lib\net45\Hangfire.Ninject.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Hangfire.SqlServer, Version=1.6.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Hangfire.SqlServer.1.6.3\lib\net45\Hangfire.SqlServer.dll</HintPath>
+    <Reference Include="Hangfire.SqlServer, Version=1.6.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.SqlServer.1.6.5\lib\net45\Hangfire.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -262,10 +266,15 @@
     <Content Include="Content\font-awesome\css\font-awesome.min.css" />
     <Content Include="Content\font-awesome\fonts\fontawesome-webfont.svg" />
     <Content Include="Content\font-awesome\HELP-US-OUT.txt" />
+    <Content Include="Content\PlatformIcons\Battle.net.gif" />
+    <Content Include="Content\PlatformIcons\GOGGalaxy.png" />
+    <Content Include="Content\PlatformIcons\itch.io.png" />
+    <Content Include="Content\PlatformIcons\Origin.png" />
     <Content Include="Content\PlatformIcons\SquareEnix.ico" />
+    <Content Include="Content\PlatformIcons\Steam.png" />
+    <Content Include="Content\PlatformIcons\Uplay.png" />
     <Content Include="Content\Site.css" />
     <Content Include="Content\small_avatar.jpg" />
-    <Content Include="Content\PlatformIcons\Steam.png" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
@@ -276,6 +285,7 @@
     <Content Include="Content\bootstrap.css.map" />
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap-theme.css.map" />
+    <Content Include="robots.txt" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <None Include="Scripts\jquery-3.1.0.intellisense.js" />
@@ -359,6 +369,8 @@
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="GlimpseSecurityPolicy.cs" />
     <Compile Include="HtmlHelpers\PagingHelpers.cs" />
+    <Compile Include="HtmlHelpers\PluralizerHelper.cs" />
+    <Compile Include="Infrastructure\HangfireAuthorizationFilter.cs" />
     <Compile Include="Infrastructure\SimpleAuthorizationServerProvider.cs" />
     <Compile Include="Models\Account\AccountIndexModel.cs" />
     <Compile Include="Models\Account\AccountKeysModel.cs" />
@@ -396,36 +408,42 @@
     <Compile Include="Models\Objectives\AdminObjectivesViewModel.cs" />
     <Compile Include="Models\Objectives\CompletedObjectivesViewModel.cs" />
     <Compile Include="Models\Objectives\ObjectivesIndexViewModel.cs" />
-    <Compile Include="Models\Store\AddEditDiscountedListingViewModel.cs" />
-    <Compile Include="Models\Store\AddEditListingViewModel.cs" />
-    <Compile Include="Models\Store\AddEditProductCategoryViewModel.cs" />
-    <Compile Include="Models\Store\AddEditProductKeyViewModel.cs" />
-    <Compile Include="Models\Store\AddEditProductViewModel.cs" />
-    <Compile Include="Models\Store\AddedListingsViewModel.cs" />
-    <Compile Include="Models\Store\AddGamesViewModel.cs" />
-    <Compile Include="Models\Store\AddEditPlatformViewModel.cs" />
-    <Compile Include="Models\Store\AddNonSteamProductsViewModel.cs" />
-    <Compile Include="Models\Store\AddOrUpdateSteamProductsViewModel.cs" />
-    <Compile Include="Models\Store\AdminListingViewModel.cs" />
-    <Compile Include="Models\Store\AdminPlatformViewModel.cs" />
-    <Compile Include="Models\Store\AdminProductCategoryViewModel.cs" />
-    <Compile Include="Models\Store\AdminProductKeyViewModel.cs" />
-    <Compile Include="Models\Store\AdminProductViewModel.cs" />
+    <Compile Include="Models\Objectives\ObjectiveViewModel.cs" />
+    <Compile Include="Models\Store\AdminModels\AddEditDiscountedListingViewModel.cs" />
+    <Compile Include="Models\Store\AdminModels\AddEditListingViewModel.cs" />
+    <Compile Include="Models\Store\AdminModels\AddEditProductCategoryViewModel.cs" />
+    <Compile Include="Models\Store\AdminModels\AddEditProductKeyViewModel.cs" />
+    <Compile Include="Models\Store\AdminModels\AddEditProductViewModel.cs" />
+    <Compile Include="Models\Store\AdminModels\AddedListingsViewModel.cs" />
+    <Compile Include="Models\Store\AdminModels\AddGamesViewModel.cs" />
+    <Compile Include="Models\Store\AdminModels\AddEditPlatformViewModel.cs" />
+    <Compile Include="Models\Store\AdminModels\AddNonSteamProductsViewModel.cs" />
+    <Compile Include="Models\Store\AdminModels\AddOrUpdateSteamProductsViewModel.cs" />
+    <Compile Include="Models\Store\AdminModels\AdminListingViewModel.cs" />
+    <Compile Include="Models\Store\AdminModels\AdminPlatformViewModel.cs" />
+    <Compile Include="Models\Store\AdminModels\AdminProductCategoryViewModel.cs" />
+    <Compile Include="Models\Store\AdminModels\AdminProductKeyViewModel.cs" />
+    <Compile Include="Models\Store\AdminModels\AdminProductViewModel.cs" />
+    <Compile Include="Models\Store\SelectedProductCategoryMapping.cs" />
+    <Compile Include="Models\Store\SelectedTagMapping.cs" />
+    <Compile Include="Models\Store\StoreGameViewModel.cs" />
+    <Compile Include="Models\Store\StoreHistoryViewModel.cs" />
     <Compile Include="Models\Store\StoreIndexViewModel.cs" />
-    <Compile Include="Models\User\AddEditAppUserViewModel.cs" />
-    <Compile Include="Models\User\AddEditBalanceEntryViewModel.cs" />
-    <Compile Include="Models\User\AddEditClaimedProductKeyViewModel.cs" />
-    <Compile Include="Models\User\AddEditOrderViewModel.cs" />
-    <Compile Include="Models\User\AddEditProductOrderEntryViewModel.cs" />
-    <Compile Include="Models\User\AdminAppUserViewModel.cs" />
-    <Compile Include="Models\User\AdminBalanceEntryViewModel.cs" />
-    <Compile Include="Models\User\AdminClaimedProductKeyViewModel.cs" />
-    <Compile Include="Models\User\AdminOrderViewModel.cs" />
-    <Compile Include="Models\User\AdminSingleOrderViewModel.cs" />
+    <Compile Include="Models\User\AdminModels\AddEditAppUserViewModel.cs" />
+    <Compile Include="Models\User\AdminModels\AddEditBalanceEntryViewModel.cs" />
+    <Compile Include="Models\User\AdminModels\AddEditClaimedProductKeyViewModel.cs" />
+    <Compile Include="Models\User\AdminModels\AddEditOrderViewModel.cs" />
+    <Compile Include="Models\User\AdminModels\AddEditProductOrderEntryViewModel.cs" />
+    <Compile Include="Models\User\AdminModels\AdminAppUserViewModel.cs" />
+    <Compile Include="Models\User\AdminModels\AdminBalanceEntryViewModel.cs" />
+    <Compile Include="Models\User\AdminModels\AdminClaimedProductKeyViewModel.cs" />
+    <Compile Include="Models\User\AdminModels\AdminOrderViewModel.cs" />
+    <Compile Include="Models\User\AdminModels\AdminSingleOrderViewModel.cs" />
     <Compile Include="Models\Account\MySettingsViewModel.cs" />
     <Compile Include="Models\User\UserActivityFeedModel.cs" />
-    <Compile Include="Models\User\UserAddBalancesViewModel.cs" />
+    <Compile Include="Models\User\AdminModels\UserAddBalancesViewModel.cs" />
     <Compile Include="Models\User\UserIndexModel.cs" />
+    <Compile Include="Models\User\UserOwnsViewModel.cs" />
     <Compile Include="Models\User\UserProfileModel.cs" />
     <Compile Include="Models\_Nav\NavGrouping.cs" />
     <Compile Include="Models\_Nav\NavItem.cs" />
@@ -499,6 +517,11 @@
     <Content Include="Views\Account\Error.cshtml" />
     <Content Include="Views\Store\AddOrUpdateSteamProducts.cshtml" />
     <Content Include="Views\Store\AddNonSteamProducts.cshtml" />
+    <Content Include="Views\Store\History.cshtml" />
+    <Content Include="Views\User\Owns.cshtml" />
+    <Content Include="Views\Store\Game.cshtml" />
+    <Content Include="Views\Shared\_OwnsPartial.cshtml" />
+    <Content Include="Views\Objectives\Objective.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

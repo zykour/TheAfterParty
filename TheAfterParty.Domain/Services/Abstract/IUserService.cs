@@ -14,6 +14,8 @@ namespace TheAfterParty.Domain.Services
         AppUser GetCurrentUserSynch();
         AppUserManager GetUserManager();
 
+        String GetGameName(int appId);
+
         Task<bool> IsBlacklisted(int listingId);
         Task ToggleBlacklist(int listingId);
         Task TransferPoints(int points, string userId);
@@ -21,18 +23,20 @@ namespace TheAfterParty.Domain.Services
         AppUser GetRequestedUser(string profileName, bool nickname = false);
         IEnumerable<AppUser> GetAllUsers();
         IEnumerable<AppUser> GetAdmins();
+        IEnumerable<AppUser> GetUsersWhoOwn(int appId);
+        IEnumerable<AppUser> GetUsersWhoDoNotOwn(int appId);
         Task<AppUser> GetUserByID(string id);
         AppUser GetUserByNickname(string nickname);
         Task UpdateUser(string id, string apiKey);
 
-        Task<List<Order>> GetUserOrders();
-        Task<List<ClaimedProductKey>> GetKeys();
+        Task<IEnumerable<Order>> GetUserOrders();
+        Task<IEnumerable<ClaimedProductKey>> GetKeys();
 
         Task<List<ActivityFeedContainer>> GetPublicActivityFeedItems(AppUser user);
         Task<List<ActivityFeedContainer>> GetActivityFeedItems(bool includeNegativeBalanceEntries = false);
 
-        List<Auction> GetAuctions();
-        List<Giveaway> GetGiveaways();
+        IEnumerable<Auction> GetAuctions();
+        IEnumerable<Giveaway> GetGiveaways();
         Task<int> GetTotalReservedBalance();
         Task<int> GetSilentAuctionReservedBalance();
         Task<int> GetPublicAuctionReservedBalance();
@@ -42,7 +46,7 @@ namespace TheAfterParty.Domain.Services
         Task EditAppUser(AppUser appUser, string roleToAdd, string roleToRemove);
         Task EditAppUserSettings(AppUser appUser);
 
-        ICollection<BalanceEntry> GetBalanceEntries();
+        IEnumerable<BalanceEntry> GetBalanceEntries();
         Task CreateBalanceEntry(BalanceEntry entry, int objectiveId, string nickname);
         Task CreateBalanceEntry(BalanceEntry entry, int objectiveId);
         Task EditBalanceEntry(BalanceEntry entry, int objectiveId);
@@ -54,13 +58,13 @@ namespace TheAfterParty.Domain.Services
         void EditClaimedProductKey(ClaimedProductKey key);
         ClaimedProductKey GetClaimedProductKeyByID(int id);
         void DeleteClaimedProductKey(int id);
-        ICollection<ClaimedProductKey> GetClaimedProductKeys();
+        IEnumerable<ClaimedProductKey> GetClaimedProductKeys();
 
         Task CreateOrder(Order order, bool alreadyCharged, bool useDBKey = false);
         void EditOrder(Order order);
         Order GetOrderByID(int id);
         Task DeleteOrder(int id);
-        ICollection<Order> GetOrders();
+        IEnumerable<Order> GetOrders();
         ProductOrderEntry GetProductOrderEntryByID(int id);
         void EditProductOrderEntry(ProductOrderEntry orderEntry);
         Task DeleteProductOrderEntry(int id);

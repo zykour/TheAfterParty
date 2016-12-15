@@ -128,8 +128,6 @@ a.powered-by-steam {
     color: #5e9a34;
     cursor: pointer;
 }
-.store-blacklist, .store-blacklist-active { font-weight: bold; }
-.store-blacklist-active { color: #dd1111; }
 .nav-first-row { padding-top: 30px; }
 .header-text {
     color: #808080;
@@ -154,6 +152,10 @@ a.powered-by-steam {
 .store-search { padding-top: 35px; }
 .top-padding { padding-top: 48px; }
 .top-padding-sm { padding-top: 8px; }
+.vertical-pad {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
 .reveal-btn, .unused-btn, .used-btn, .toggle-used-btn, .toggle-used-inactive-btn, .top-nav-outer-btn {
     -moz-border-radius: 2px 2px 2px 2px;
     border-radius: 2px 2px 2px 2px;
@@ -388,20 +390,44 @@ a.powered-by-steam {
 .col-text {
     font: 700 18px/18px arial;
 }
-.objective-title, .auction-title {
-    font-size: 20px;
+.objective-title, .auction-title, .auctions-title {
     color: #000000;
     font-weight: bold;
-    text-shadow: 1px 1px #6e2f81;
     margin-top: 2px;
 }
 .auction-title {    
-    font-size: 16px;
-    width: 260px;
-    overflow: hidden;
+    font-size: 14px;
+    width: 220px;
     display: block;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+}
+.auctions-title {
+    font-size: 14px;
+    width: 200px;
+    display: block;
+}
+@media (min-width: 1200px) {
+    .auction-title {
+        width: 350px;
+        font-size: 16px;
+    }
+}
+@media (min-width: 1600px) {
+    .auction-title {
+        width: 575px;
+        font-size: 20px;
+    }
+}
+@media (min-width: 1200px) {
+    .auctions-title {
+        width: 330px;
+        font-size: 16px;
+    }
+}
+@media (min-width: 1600px) {
+    .auctions-title {
+        width: 525px;
+        font-size: 20px;
+    }
 }
 .auction-header-text {
     font: 700 10px/11px tahoma;
@@ -446,6 +472,8 @@ body {
 }
 .auction-time, .col-header {
     font: 700 11px/18px tahoma;
+}
+.col-header {
     color: #000000;
 }
 @media (min-width: 1200px) {
@@ -589,6 +617,7 @@ button.col-header:hover, button.col-header:focus, button.col-header:active,
     background: none;
     cursor: pointer;
     text-decoration: none !important;
+    display: block;
 }
 .nav-item-link {
     padding: 4px 8px;
@@ -745,10 +774,16 @@ textarea.input-group-xs > .input-group-btn > .btn {
     font-weight: bold;
 }
 
+.fixed-input {
+    width: 150px;
+}
+
 /*#region Color overrides*/
 .text-highlighted-primary, .text-highlighted-primary span { color: #5e9a34; }
 .text-inactive      { color: dimgrey; }
 .store-blacklist    { color: dimgray; }
+.store-blacklist, .store-blacklist-active { font-weight: bold; }
+.store-blacklist-active { color: #dd1111; }
 .text-primary       { color: #8e49a3; }
 h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6 { color: #8e49a3; }
 .text-success {

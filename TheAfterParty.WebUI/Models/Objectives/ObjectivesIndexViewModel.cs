@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using TheAfterParty.WebUI.Models._Nav;
 using TheAfterParty.Domain.Entities;
-using TheAfterParty.Domain.Model;
+using TheAfterParty.WebUI.Models.Store;
 
 namespace TheAfterParty.WebUI.Models.Objectives
 {

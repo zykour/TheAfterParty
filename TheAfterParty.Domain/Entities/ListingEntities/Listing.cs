@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System;
+using System.Text;
 
 namespace TheAfterParty.Domain.Entities
 {
@@ -475,7 +476,22 @@ namespace TheAfterParty.Domain.Entities
                 return 0;
             }
         }
-
+        /// <summary>
+        /// A simple routine to determine if the price unit should be "point" or "points"
+        /// </summary>
+        /// <returns> "point" if price is equal to 1, "points" otherwise</returns>
+        /// <remarks> Always returns a lowercase string </remarks>
+        public string GetPluralizedSalePriceUnit()
+        {
+            if (SaleOrDefaultPrice() != 1)
+            {
+                return "points";
+            }
+            else
+            {
+                return "point";
+            }
+        }
         #endregion
 
         /// <summary> A collection of parent listings for a simple listings</summary>
@@ -622,11 +638,11 @@ namespace TheAfterParty.Domain.Entities
                 {
                     if (IsComplex())
                     {
-                        return "https://http://store.steampowered.com/sub/" + Product.AppID.ToString();
+                        return "https://store.steampowered.com/sub/" + Product.AppID.ToString();
                     }
                     else
                     {
-                        return "https://http://store.steampowered.com/app/" + Product.AppID.ToString();
+                        return "https://store.steampowered.com/app/" + Product.AppID.ToString();
                     }
                 }
             }
@@ -678,6 +694,29 @@ namespace TheAfterParty.Domain.Entities
 
             return false;
         }
+        /// <summary>
+        /// Returns the list of tags for this listing as a human readable list
+        /// </summary>
+        /// <returns> A string of a human readable list tags or an empty string if there are none. </returns>
+        public String TagsAsReadableList()
+        {
+            if (Product == null || Product.Tags == null)
+            {
+                return String.Empty;
+            }
+
+            StringBuilder output = new StringBuilder(String.Empty);
+            List<Tag> tags = Product.Tags.OrderBy(p => p.TagName).ToList();
+
+            for (int i = 0; i < tags.Count - 1; i++)
+            {
+                output.Append(tags[i].TagName + ", ");
+            }
+            
+            output.Append(tags[tags.Count - 1].TagName);
+
+            return output.ToString();
+        }
         /// <summary> Determines if this listing's product contains the specified category. </summary>
         /// <param name="category">The category to be tested. </param>
         /// <returns> Returns true if this listing's product contains the category, and false otherwise. </returns> 
@@ -689,6 +728,30 @@ namespace TheAfterParty.Domain.Entities
             }
 
             return false;
+        }
+        /// <summary>
+        /// Returns the list of cateogory for this listing as a human readable list
+        /// </summary>
+        /// <returns> A string of a human readable list categories or an empty string if there are none. </returns>
+        public String ProductCategoriesAsReadableList()
+        {
+            if (Product == null || Product.ProductCategories == null)
+            {
+                return String.Empty;
+            }
+
+            StringBuilder output = new StringBuilder(String.Empty);
+
+            List<ProductCategory> categories = Product.ProductCategories.OrderBy(p => p.CategoryString).ToList();
+
+            for (int i = 0; i < categories.Count - 1; i++)
+            {
+                output.Append(categories[i].CategoryString + ", ");
+            }
+            
+            output.Append(categories[categories.Count - 1].CategoryString);
+
+            return output.ToString();
         }
 
         #endregion
@@ -807,7 +870,22 @@ namespace TheAfterParty.Domain.Entities
                 }
             }
         }
-
+        /// <summary>
+        /// A simple routine to determine if the quantity unit should be "copy" or "copies"
+        /// </summary>
+        /// <returns> "copy" if quantity is equal to 1, "copies" otherwise</returns>
+        /// <remarks> Always returns a lowercase string </remarks>
+        public string GetPluralizedQuantityUnit()
+        {
+            if (Quantity != 1)
+            {
+                return "copies";
+            }
+            else
+            {
+                return "copy";
+            }
+        }
         #endregion
 
         /// <summary> A collection of shopping cart entries associated with this listing. </summary>

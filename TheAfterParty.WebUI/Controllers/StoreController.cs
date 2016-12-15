@@ -28,6 +28,7 @@ namespace TheAfterParty.WebUI.Controllers
         private const string otherActionDest = "Other Deals";
         private const string allActionDest = "All Deals";
         private const string platformsActionDest = "All Platforms";
+        private const string historyActionDest = "Purchase History";
 
         public StoreController(IStoreService storeService)
         {
@@ -252,15 +253,55 @@ namespace TheAfterParty.WebUI.Controllers
         #region Listings
 
         [Authorize(Roles = "Admin")]
+        [HttpGet]
         public async Task<ActionResult> AdminListings()
         {
             AdminListingViewModel model = new AdminListingViewModel();
 
-            model.Listings = storeService.GetListings();
-
             model.LoggedInUser = await storeService.GetCurrentUser();
             model.FullNavList = CreateStoreControllerAdminNavList();
 
+            model.CurrentPage = 1;
+            model.TotalItems = storeService.GetListings().Count();
+
+            if (model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.Listings = storeService.GetListings().OrderByDescending(l => l.ListingID).Take(model.LoggedInUser.PaginationPreference);
+            }
+            else
+            {
+                model.Listings = storeService.GetListings().OrderByDescending(l => l.ListingID);
+            }
+
+            
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult> AdminListings(AdminListingViewModel model)
+        {
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            if (model.SelectedPage != 0)
+            {
+                model.CurrentPage = model.SelectedPage;
+            }
+            
+            model.TotalItems = storeService.GetListings().Count();
+
+            if (model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.Listings = storeService.GetListings().OrderByDescending(l => l.ListingID).Skip((model.CurrentPage - 1) * model.LoggedInUser.PaginationPreference).Take(model.LoggedInUser.PaginationPreference);
+            }
+            else
+            {
+                model.Listings = storeService.GetListings().OrderByDescending(l => l.ListingID);
+            }
+            
             return View(model);
         }
 
@@ -412,14 +453,53 @@ namespace TheAfterParty.WebUI.Controllers
         #region Products
 
         [Authorize(Roles = "Admin")]
+        [HttpGet]
         public async Task<ActionResult> AdminProducts()
         {
             AdminProductViewModel model = new AdminProductViewModel();
 
-            model.Products = storeService.GetProducts().Where(p => p?.Listings.Count == 0).ToList();
-
             model.LoggedInUser = await storeService.GetCurrentUser();
             model.FullNavList = CreateStoreControllerAdminNavList();
+
+            model.CurrentPage = 1;
+            model.TotalItems = storeService.GetProducts().Count();
+
+            if (model.LoggedInUser != null && model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.Products = storeService.GetProducts().OrderByDescending(p => p.ProductID).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.Products = storeService.GetProducts().OrderByDescending(p => p.ProductID).ToList();
+            }
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult> AdminProducts(AdminProductViewModel model)
+        {
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            if (model.SelectedPage != 0)
+            {
+                model.CurrentPage = model.SelectedPage;
+            }
+
+            model.TotalItems = storeService.GetProducts().Count();
+
+            if (model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.Products = storeService.GetProducts().OrderByDescending(p => p.ProductID).Skip((model.CurrentPage - 1) * model.LoggedInUser.PaginationPreference).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.Products = storeService.GetProducts().OrderByDescending(p => p.ProductID).ToList();
+            }
 
             return View(model);
         }
@@ -524,14 +604,53 @@ namespace TheAfterParty.WebUI.Controllers
         #region ProductKeys
 
         [Authorize(Roles = "Admin")]
+        [HttpGet]
         public async Task<ActionResult> AdminProductKeys()
         {
             AdminProductKeyViewModel model = new AdminProductKeyViewModel();
 
-            model.ProductKeys = storeService.GetProductKeys();
-
             model.LoggedInUser = await storeService.GetCurrentUser();
             model.FullNavList = CreateStoreControllerAdminNavList();
+
+            model.CurrentPage = 1;
+            model.TotalItems = storeService.GetProductKeys().Count();
+
+            if (model.LoggedInUser != null && model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.ProductKeys = storeService.GetProductKeys().OrderByDescending(p => p.ProductKeyID).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.ProductKeys = storeService.GetProductKeys().OrderByDescending(p => p.ProductKeyID).ToList();
+            }
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult> AdminProductKeys(AdminProductKeyViewModel model)
+        {
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            if (model.SelectedPage != 0)
+            {
+                model.CurrentPage = model.SelectedPage;
+            }
+
+            model.TotalItems = storeService.GetProductKeys().Count();
+
+            if (model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.ProductKeys = storeService.GetProductKeys().OrderByDescending(p => p.ProductKeyID).Skip((model.CurrentPage - 1) * model.LoggedInUser.PaginationPreference).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.ProductKeys = storeService.GetProductKeys().OrderByDescending(p => p.ProductKeyID).ToList();
+            }
 
             return View(model);
         }
@@ -585,7 +704,7 @@ namespace TheAfterParty.WebUI.Controllers
         {
             StoreIndexViewModel model = new StoreIndexViewModel();
 
-            IEnumerable<Listing> listings = storeService.GetStockedStoreListings();
+            //IEnumerable<Listing> listings = storeService.GetStockedStoreListings();
 
             await PopulateStoreIndexViewModelFromGet(model, null, GetApiKey(), id);
             model.FormName = "Index";
@@ -593,12 +712,46 @@ namespace TheAfterParty.WebUI.Controllers
 
             return View(model);
         }
-        
+
+
         [HttpPost]
         public async Task<ActionResult> Index(StoreIndexViewModel model, string id = "")
         {
             await PopulateStoreIndexViewModelFromPostback(model, null, GetApiKey(), id);
             
+            model.FormName = "Index";
+            model.FormID = "";
+
+            // Clear the ModelState so changes in the model are reflected when using HtmlHelpers (their default behavior is to not use changes made to the model when re-rendering a view, not what we want here)
+            ModelState.Clear();
+
+            return View(model);
+        }
+
+        // GET: CoopShop/Store
+        [HttpGet]
+        public async Task<ActionResult> Date(int month, int day, int year)
+        {
+            StoreIndexViewModel model = new StoreIndexViewModel();
+
+            //IEnumerable<Listing> listings = storeService.GetStockedStoreListings();
+
+            DateTime date = new DateTime(year, month, day);
+
+            await PopulateStoreIndexViewModelFromGet(model, null, GetApiKey(), null, date);
+            model.FormName = "Index";
+            model.FormID = "";
+
+            return View("Index", model);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Date(StoreIndexViewModel model, int month, int day, int year)
+        {
+            DateTime date = new DateTime(year, month, day);
+
+            await PopulateStoreIndexViewModelFromPostback(model, null, GetApiKey(), null, date);
+
             model.FormName = "Index";
             model.FormID = "";
 
@@ -732,17 +885,77 @@ namespace TheAfterParty.WebUI.Controllers
             return View("Index", model);
         }
 
+        // GET: Store/Game/id
+        [HttpGet]
+        [Authorize]
+        public async Task<ActionResult> Game(int id)
+        {
+            StoreGameViewModel model = new StoreGameViewModel();
+
+            model.Initialize((await storeService.GetCurrentUser()), CreateStoreControllerStoreNavList(new List<string>()));
+
+            model.TargetListing = storeService.GetListingByID(id);
+
+            if (model.TargetListing == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            if (model.TargetListing.Product.IsSteamAppID == true && model.TargetListing.Product.AppID > 0)
+            {
+                model.OwnedModel = new Models.User.UserOwnsViewModel();
+                model.OwnedModel.GameOwners = storeService.GetUsersWhoOwn(model.TargetListing.Product.AppID).ToList();
+                model.OwnedModel.GameNonOwners = storeService.GetUsersWhoDoNotOwn(model.TargetListing.Product.AppID).ToList();
+                model.OwnedModel.GameName = model.TargetListing.ListingName;
+                model.OwnedModel.AppID = model.TargetListing.Product.AppID;
+            }
+
+            return View(model);
+        }
+
+        // GET: Store/History
+        [HttpGet]
+        [Authorize]
+        public async Task<ActionResult> History()
+        {
+            StoreHistoryViewModel model = new StoreHistoryViewModel();
+
+            model.Initialize((await storeService.GetCurrentUser()), CreateStoreControllerStoreNavList(new List<string>() { historyActionDest }));
+            model.PurchaseEntries = model.SkipAndTake<ProductOrderEntry>(storeService.GetStoreHistory());
+            
+            return View(model);
+        }
+
+        // POST: Store/History
+        [HttpPost]
+        [Authorize]
+        public async Task<ActionResult> History(StoreHistoryViewModel model)
+        {
+            model.Initialize((await storeService.GetCurrentUser()), CreateStoreControllerStoreNavList(new List<string>() { historyActionDest }));
+            model.PurchaseEntries = model.SkipAndTake<ProductOrderEntry>(storeService.GetStoreHistory());
+
+            // Clear the ModelState so changes in the model are reflected when using HtmlHelpers (their default behavior is to not use changes made to the model when re-rendering a view, not what we want here)
+            ModelState.Clear();
+
+            return View(model);
+        }
+
         #endregion
-        
+
         #region Auxiliary Methods/Functions
 
-        private async Task PopulateStoreIndexViewModelFromGet(StoreIndexViewModel model, List<String> currentDestName, string apiKey = null, string id = null)
+        private async Task PopulateStoreIndexViewModelFromGet(StoreIndexViewModel model, List<String> currentDestName, string apiKey = null, string id = null, DateTime? date = null)
         {
             TheAfterParty.Domain.Concrete.ListingFilter filter = new Domain.Concrete.ListingFilter();
 
             model.LoggedInUser = await storeService.GetCurrentUserWithStoreFilters();
             model.CurrentPage = 1;
             filter.Page = 1;
+
+            if (date != null)
+            {
+                filter.Date = date;
+            }
 
             if (currentDestName == null)
             {
@@ -793,19 +1006,17 @@ namespace TheAfterParty.WebUI.Controllers
 
             int count = 0;
 
-            StoreIndexDomainModel domainModel = new StoreIndexDomainModel();
-
-            model.StoreListings = storeService.GetListingsWithFilter(filter, out count, domainModel).ToList();
+            model.StoreListings = storeService.GetListingsWithFilter(filter, out count).ToList();
 
             model.TotalItems = count;
 
-            model.StorePlatforms = domainModel.StorePlatforms.ToList();
+            model.StorePlatforms = storeService.GetActivePlatforms().ToList();
             
             model.FullNavList = CreateStoreControllerStoreNavList(model, currentDestName);
 
             List<SelectedTagMapping> tagMappings = new List<SelectedTagMapping>();
 
-            foreach (Tag tag in domainModel.Tags)
+            foreach (Tag tag in storeService.GetTags())
             {
                 tagMappings.Add(new SelectedTagMapping(tag, false));
             }
@@ -814,7 +1025,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             List<SelectedProductCategoryMapping> categoryMappings = new List<SelectedProductCategoryMapping>();
 
-            foreach (ProductCategory category in domainModel.ProductCategories)
+            foreach (ProductCategory category in storeService.GetProductCategories())
             {
                 categoryMappings.Add(new SelectedProductCategoryMapping(category, false));
             }
@@ -822,11 +1033,16 @@ namespace TheAfterParty.WebUI.Controllers
             model.SelectedProductCategoryMappings = categoryMappings.OrderBy(c => c.ProductCategory.CategoryString).ToList();
         }
 
-        private async Task PopulateStoreIndexViewModelFromPostback(StoreIndexViewModel model, List<String> currentDestName, string apiKey = null, string id = null)
+        private async Task PopulateStoreIndexViewModelFromPostback(StoreIndexViewModel model, List<String> currentDestName, string apiKey = null, string id = null, DateTime? date = null)
         {
             TheAfterParty.Domain.Concrete.ListingFilter filter = new Domain.Concrete.ListingFilter();
 
             model.LoggedInUser = await storeService.GetCurrentUserWithStoreFilters();
+
+            if (date != null)
+            {
+                filter.Date = date;
+            }
 
             if (currentDestName == null)
             {
@@ -941,7 +1157,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             model.TagToChange = 0;
 
-            if (model.SelectedPlatformID != 0)
+            if (model.SelectedPlatformID > 0)
             {
                 Platform platform = storeService.GetPlatformByID(model.SelectedPlatformID);
                 model.PreviousSelectedPlatformID = model.SelectedPlatformID;
@@ -949,15 +1165,16 @@ namespace TheAfterParty.WebUI.Controllers
                 filter.PlatformID = platform.PlatformID;
                 currentDestName.Add(platform.PlatformName);
             }
+            else if (model.SelectedPlatformID == -1)
+            {
+                model.PreviousSelectedPlatformID = 0;
+                currentDestName.Add(platformsActionDest);
+            }
             else if (model.PreviousSelectedPlatformID != 0)
             {
                 Platform platform = storeService.GetPlatformByID(model.PreviousSelectedPlatformID);
                 filter.PlatformID = platform.PlatformID;
                 currentDestName.Add(platform.PlatformName);
-            }
-            else
-            {
-                currentDestName.Add(platformsActionDest);
             }
 
             filter.BeginsWithSentinel = noSelectionSentinel;
@@ -1044,9 +1261,7 @@ namespace TheAfterParty.WebUI.Controllers
             {
                 filter.SetPriceSort(model.PreviousPriceSort);
             }
-
-            model.FullNavList = CreateStoreControllerStoreNavList(model, currentDestName);
-            
+                        
             if (model.LoggedInUser != null && model.LoggedInUser.PaginationPreference != 0)
             {
                 model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
@@ -1054,13 +1269,14 @@ namespace TheAfterParty.WebUI.Controllers
             }
 
             int count = 0;
-            StoreIndexDomainModel domainModel = new StoreIndexDomainModel();
 
-            model.StoreListings = storeService.GetListingsWithFilter(filter, out count, domainModel).ToList();
+            model.StoreListings = storeService.GetListingsWithFilter(filter, out count).ToList();
 
             model.TotalItems = count;
 
-            model.StorePlatforms = domainModel.StorePlatforms.ToList();
+            model.StorePlatforms = storeService.GetActivePlatforms().ToList();
+
+            model.FullNavList = CreateStoreControllerStoreNavList(model, currentDestName);
 
         }
 
@@ -1076,7 +1292,7 @@ namespace TheAfterParty.WebUI.Controllers
             navItem.IsFormSubmit = true;
             navItem.DestinationName = platformsActionDest;
             navItem.FormName = "SelectedPlatformID";
-            navItem.FormValue = "0";
+            navItem.FormValue = "-1";
             navItem.FormID = storeFormID;
             navItem.SetSelected(destNames);
 
@@ -1143,6 +1359,41 @@ namespace TheAfterParty.WebUI.Controllers
             deals.NavItems.Add(newestListings);
 
             navList.Add(deals);
+
+            NavGrouping misc = new NavGrouping();
+            misc.GroupingHeader = "Other";
+            misc.NavItems = new List<NavItem>();
+
+            NavItem item = new NavItem();
+            item.DestinationName = historyActionDest;
+            item.Destination = "/store/history";
+            item.SetSelected(destNames);
+            misc.NavItems.Add(item);
+
+            navList.Add(misc);            
+
+            return navList;
+        }
+
+        public List<NavGrouping> CreateStoreControllerStoreNavList(List<String> destNames)
+        {
+            List<NavGrouping> navList = new List<NavGrouping>();
+            
+            NavGrouping grouping = new NavGrouping();
+            grouping.GroupingHeader = "Store";
+            grouping.NavItems = new List<NavItem>();
+            
+            NavItem item = new NavItem();
+            item.DestinationName = "Store";
+            item.Destination = "/store";
+            grouping.NavItems.Add(item);
+            item = new NavItem();
+            item.DestinationName = historyActionDest;
+            item.Destination = "/store/history";
+            item.SetSelected(destNames);
+            grouping.NavItems.Add(item);
+
+            navList.Add(grouping);
 
             return navList;
         }

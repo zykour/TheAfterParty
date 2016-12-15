@@ -18,14 +18,17 @@ namespace TheAfterParty.Domain.Services
         IEnumerable<AppUser> GetAppUsers();
         IEnumerable<Listing> GetListingsWithDeals();
         IEnumerable<Listing> GetListings();
-        IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems, StoreIndexDomainModel model);
+        IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems);
         IEnumerable<Tag> GetTags();
         IEnumerable<ProductCategory> GetProductCategories();
         IEnumerable<Platform> GetPlatforms();
         IEnumerable<Platform> GetActivePlatforms();
         IEnumerable<Product> GetProducts();
         IEnumerable<ProductKey> GetProductKeys();
-        
+        IEnumerable<ProductOrderEntry> GetStoreHistory();
+        IEnumerable<AppUser> GetUsersWhoOwn(int appId);
+        IEnumerable<AppUser> GetUsersWhoDoNotOwn(int appId);
+
         DiscountedListing GetDiscountedListingByID(int id);
         
         Listing GetListingByAppID(int id, string platformName);

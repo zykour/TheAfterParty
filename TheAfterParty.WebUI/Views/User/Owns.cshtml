@@ -1,0 +1,43 @@
+﻿@using TheAfterParty.WebUI.Models.User
+@using TheAfterParty.Domain.Entities;
+@model UserOwnsViewModel
+
+@{
+    ViewBag.Title = "Owns";
+}
+<div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-xl-12 custom-row-header">
+            <h3 class="text-left">Group Checker</h3>
+        </div>
+    </div>
+    <div>
+    @using (Html.BeginForm("Owns", "User", FormMethod.Post))
+    {
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-xl-12 text-left">
+                <div class="row custom-row-hollow text-warning">
+                    <ul>
+                        <li>Package/Sub IDs will not work with the group checker</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row top-content-margin">
+            <div class="col-lg-12 col-md-12 col-xl-12 text-left vertical-align">
+                <span class="icon-blue pad-left">Steam App ID:</span>
+                <div class="tag-inline-block">
+                    <div class="input-group-xs input-group fixed-input">
+                        <input type="text" class="form-control gray-input" name="AppID" value="@Model.AppID" />
+                        <span class="input-group-btn">
+                            <button class="btn btn-default btn-xs green-bg" title="Check" type="submit"><i class="fa fa-search search-icon"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    </div>
+    <div class="top-content-margin"></div>
+    @Html.Partial("_OwnsPartial", Model)
+</div>

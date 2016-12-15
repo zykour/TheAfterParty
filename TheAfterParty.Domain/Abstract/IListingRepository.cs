@@ -16,7 +16,7 @@ namespace TheAfterParty.Domain.Abstract
         IQueryable<Listing> GetListingsQuery();
         IEnumerable<Listing> GetListings();
         IEnumerable<Listing> SearchListings(string searchText, int resultLimit);
-        IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems, StoreIndexDomainModel model);
+        IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems);
         Listing GetListingByID(int listingId);
         void InsertListing(Listing listing);
         void UpdateListing(Listing listing);

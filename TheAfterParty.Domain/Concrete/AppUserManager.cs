@@ -24,7 +24,7 @@ namespace TheAfterParty.Domain.Concrete
                 return base.Users;
             }
         }
-
+        
         public Task<AppUser> FindByIdAsyncWithStoreFilters(string userId)
         {
             return Users.Include(x => x.BlacklistedListings).Include(x => x.ShoppingCartEntries.Select(c => c.Listing.DiscountedListings)).Include(x => x.AuctionBids.Select(ab => ab.Auction)).FirstOrDefaultAsync(u => u.Id == userId);
@@ -62,7 +62,9 @@ namespace TheAfterParty.Domain.Concrete
 
         public Task<AppUser> FindByNameAsyncWithCartAndOpenAuctionBids(string userName)
         {
-            return Users.Include(x => x.ShoppingCartEntries.Select(c => c.Listing.DiscountedListings)).Include(x => x.AuctionBids.Select(a => a.Auction)).FirstOrDefaultAsync(u => u.UserName == userName);
+            return Users
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.DiscountedListings))
+                .Include(x => x.AuctionBids.Select(a => a.Auction)).FirstOrDefaultAsync(u => u.UserName == userName);
         }
 
         public static AppUserManager Create(IdentityFactoryOptions<AppUserManager> options, IOwinContext context)

@@ -57,7 +57,7 @@
             </div>
             <a href="@Url.Action("UserProfile", "User", new { id = Model.Users[i].UserName })">
                 <div class="outer-avatar-container">
-                    <div class="inner-avatar-container-lg" style="background-image: url(@Model.Users[i].SmallAvatar)"></div>
+                    <div class="inner-avatar-container-lg" style="background-image: url(@Model.Users[i].MediumAvatar)"></div>
                 </div>
             </a>
             <div class="pad-right col-text text-lblue" id="@("userName" + i)">@Model.Users[i].UserName</div>

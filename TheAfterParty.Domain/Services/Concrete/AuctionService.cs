@@ -152,7 +152,7 @@ namespace TheAfterParty.Domain.Services
                 {
                     AuctionBid winningBid = bid.Auction.WinningAuctionBid();
 
-                    if (winningBid.AppUser.Id.CompareTo(user.Id) == 0)
+                    if (winningBid != null && winningBid.AppUser.Id.CompareTo(user.Id) == 0)
                     {
                         if ((user.Balance - user.ReservedBalance() + (winningBid.BidAmount - bid.BidAmount)) >= 0)
                         {

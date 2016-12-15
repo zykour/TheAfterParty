@@ -95,6 +95,31 @@ namespace TheAfterParty.Domain.Services
             return UserManager.Users.Where(u => object.Equals(nickname.ToUpper(), u.Nickname.ToUpper())).SingleOrDefault();
         }
 
+        public String GetGameName(int appId)
+        {
+            if (appId <= 0)
+            {
+                return String.Empty;
+            }
+
+            String url = String.Format("http://store.steampowered.com/api/appdetails?appids={0}&filters=basic", appId.ToString());
+
+            string result = new System.Net.WebClient().DownloadString(url);
+
+            JObject jsonResult = JObject.Parse(result);
+
+            string appID = appId.ToString();
+
+            if (jsonResult == null || jsonResult[appID] == null || jsonResult[appID]["data"] == null)
+            {
+                return String.Empty;
+            }
+
+            JToken appData = jsonResult[appID]["data"];
+
+            return (string)appData["name"] ?? String.Empty;
+        }
+
         public async Task<bool> IsBlacklisted(int listingId)
         {
             Listing listing = listingRepository.GetListingByID(listingId);
@@ -159,25 +184,33 @@ namespace TheAfterParty.Domain.Services
         {
             return userRepository.GetProductOrderEntryByID(id);
         }
-        public ICollection<Order> GetOrders()
+        public IEnumerable<Order> GetOrders()
         {
-            return userRepository.GetOrders().ToList();
+            return userRepository.GetOrders();
         }
-        public ICollection<BalanceEntry> GetBalanceEntries()
+        public IEnumerable<BalanceEntry> GetBalanceEntries()
         {
-            return userRepository.GetBalanceEntries().ToList();
+            return userRepository.GetBalanceEntries();
         }
-        public ICollection<ClaimedProductKey> GetClaimedProductKeys()
+        public IEnumerable<ClaimedProductKey> GetClaimedProductKeys()
         {
-            return userRepository.GetClaimedProductKeys().ToList();
+            return userRepository.GetClaimedProductKeys();
         }
-        public List<Auction> GetAuctions()
+        public IEnumerable<Auction> GetAuctions()
         {
-            return auctionRepository.GetAuctions().ToList();
+            return auctionRepository.GetAuctions();
         }
-        public List<Giveaway> GetGiveaways()
+        public IEnumerable<Giveaway> GetGiveaways()
         {
-            return giveawayRepository.GetGiveaways().ToList();
+            return giveawayRepository.GetGiveaways();
+        }
+        public IEnumerable<AppUser> GetUsersWhoOwn(int appId)
+        {
+            return userRepository.GetAppUsersWhoOwn(appId).OrderBy(a => a.UserName);
+        }
+        public IEnumerable<AppUser> GetUsersWhoDoNotOwn(int appId)
+        {
+            return userRepository.GetAppUsersWhoDoNotOwn(appId).OrderBy(a => a.UserName);
         }
         public AppUser GetRequestedUser(string profileName, bool nickname = false)
         {
@@ -212,47 +245,47 @@ namespace TheAfterParty.Domain.Services
         {
             return userRepository.GetAppUsers().Where(au => UserManager.IsInRole(au.Id, "Admin")).ToList();
         }
-        public async Task<List<Order>> GetUserOrders()
+        public async Task<IEnumerable<Order>> GetUserOrders()
         {
             AppUser user = await GetCurrentUserNoProperties();
 
-            return userRepository.GetOrders().Where(o => object.Equals(o.UserID, user.Id)).ToList();
+            return userRepository.GetOrders().Where(o => object.Equals(o.UserID, user.Id));
         }
-        public async Task<List<ClaimedProductKey>> GetKeys()
+        public async Task<IEnumerable<ClaimedProductKey>> GetKeys()
         {
             AppUser user = await GetCurrentUserNoProperties();
 
-            return userRepository.GetClaimedProductKeys().Where(o => object.Equals(o.UserID, user.Id)).ToList();
+            return userRepository.GetClaimedProductKeys().Where(o => object.Equals(o.UserID, user.Id));
         }
-        public async Task<List<WonPrize>> GetWonPrizes()
+        public async Task<IEnumerable<WonPrize>> GetWonPrizes()
         {
             AppUser user = await GetCurrentUserNoProperties();
 
-            return prizeRepository.GetWonPrizes().Where(p => object.Equals(p.UserID, user.Id)).ToList();
+            return prizeRepository.GetWonPrizes().Where(p => object.Equals(p.UserID, user.Id));
         }
-        public async Task<List<AuctionBid>> GetAuctionBids()
+        public async Task<IEnumerable<AuctionBid>> GetAuctionBids()
         {
             AppUser user = await GetCurrentUserNoProperties();
 
-            return auctionRepository.GetAuctionBids().Where(b => object.Equals(b.UserID, user.Id)).ToList();
+            return auctionRepository.GetAuctionBids().Where(b => object.Equals(b.UserID, user.Id));
         }
-        public async Task<List<Auction>> GetCreatedAuctions()
+        public async Task<IEnumerable<Auction>> GetCreatedAuctions()
         {
             AppUser user = await GetCurrentUserNoProperties();
 
-            return auctionRepository.GetAuctions().Where(a => object.Equals(a.CreatorID, user.Id)).ToList();
+            return auctionRepository.GetAuctions().Where(a => object.Equals(a.CreatorID, user.Id));
         }
-        public async Task<List<GiveawayEntry>> GetGiveawayEntries()
+        public async Task<IEnumerable<GiveawayEntry>> GetGiveawayEntries()
         {
             AppUser user = await GetCurrentUserNoProperties();
 
-            return giveawayRepository.GetGiveawayEntries().Where(ge => object.Equals(ge.UserID, user.Id)).ToList();
+            return giveawayRepository.GetGiveawayEntries().Where(ge => object.Equals(ge.UserID, user.Id));
         }
-        public async Task<List<Giveaway>> GetCreatedGiveaways()
+        public async Task<IEnumerable<Giveaway>> GetCreatedGiveaways()
         {
             AppUser user = await GetCurrentUserNoProperties();
 
-            return giveawayRepository.GetGiveaways().Where(g => object.Equals(g.CreatorID, user.Id)).ToList();
+            return giveawayRepository.GetGiveaways().Where(g => object.Equals(g.CreatorID, user.Id));
         }
         #endregion
 
@@ -642,9 +675,10 @@ namespace TheAfterParty.Domain.Services
         {
             ProductOrderEntry entry = userRepository.GetProductOrderEntryByID(id);
 
-            foreach (ClaimedProductKey tempKey in entry.ClaimedProductKeys)
+            ClaimedProductKey[] keys = entry.ClaimedProductKeys.ToArray();
+            for (int i = 0; i < entry.ClaimedProductKeys.Count; i++)
             {
-                userRepository.DeleteClaimedProductKey(tempKey.ClaimedProductKeyID);
+                userRepository.DeleteClaimedProductKey(keys[i].ClaimedProductKeyID);
             }
 
             if (entry.SalePrice != 0)
@@ -723,6 +757,25 @@ namespace TheAfterParty.Domain.Services
                 }
             }
 
+            if (user.Orders != null)
+            {
+                foreach (Order order in user.Orders)
+                {
+                    foreach (ProductOrderEntry entry in order.ProductOrderEntries)
+                    {
+                        activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime((DateTime)order.SaleDate, info)));
+                    }
+                }
+            }
+
+            if (user.BalanceEntries != null)
+            {
+                foreach (BalanceEntry entry in user.BalanceEntries.Where(b => b.PointsAdjusted > 0))
+                {
+                    activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.Date, info)));
+                }
+            }
+
             return activityFeed.OrderByDescending(a => a.ItemDate).ToList();
         }
 
@@ -735,7 +788,7 @@ namespace TheAfterParty.Domain.Services
 
             List<ActivityFeedContainer> activityFeed = new List<ActivityFeedContainer>();
 
-            List<Order> orders = await GetUserOrders();
+            IEnumerable<Order> orders = await GetUserOrders();
 
             if (orders != null)
             {
@@ -777,7 +830,7 @@ namespace TheAfterParty.Domain.Services
                 }
                 foreach (Auction entry in user.WonAuctions)
                 {
-                    activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.CreatedTime, info)));
+                    activityFeed.Add(new ActivityFeedContainer(entry, ConvertDateTime(entry.EndTime, info)));
                 }
             }
 

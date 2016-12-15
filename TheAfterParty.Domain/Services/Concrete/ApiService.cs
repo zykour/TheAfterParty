@@ -35,6 +35,11 @@ namespace TheAfterParty.Domain.Services
             UserManager = userManager;
         }
 
+        public IEnumerable<String> GetUsersWhoOwn(int appId)
+        {
+            return userRepository.GetUsersWhoOwn(appId).OrderBy(s => s);
+        }
+
         public IEnumerable<Listing> SearchListings(string searchText, int resultLimit)
         {
             if (String.IsNullOrWhiteSpace(searchText))
@@ -188,6 +193,17 @@ namespace TheAfterParty.Domain.Services
             return objectiveRepository.SearchObjectives(searchText, resultsLimit);
         }
 
+        public bool ToggleActiveObjective(Objective objective)
+        {
+            objective.IsActive = !objective.IsActive;
+
+            objectiveRepository.UpdateObjective(objective);
+
+            unitOfWork.Save();
+
+            return objective.IsActive;
+        }
+
         public AppUser GetUserByNickName(string nickname)
         {
             nickname = nickname.ToUpper();
@@ -256,6 +272,7 @@ namespace TheAfterParty.Domain.Services
             POTW potw = new POTW();
             potw.AppUser = user;
             potw.StartDate = DateTime.Today;
+            potw.StartDate.AddHours(15);
 
             siteRepository.InsertPOTW(potw);
 

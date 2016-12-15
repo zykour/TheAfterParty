@@ -1,0 +1,116 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Objectives
+@using CodeKicker.BBCode
+@model ObjectiveViewModel
+
+@{
+    ViewBag.Title = Model.Objective.ObjectiveName;
+}
+
+@using (Html.BeginForm("Objective", "Objectives", new { id = Model.Objective.ObjectiveID }, FormMethod.Post, null))
+{
+        <div>
+            <div class="row top-content-margin">
+                <div class="col-lg-10 col-md-10 col-xl-10">
+                    <div class="row custom-row">
+                        <div class="col-lg-11 col-md-11 col-xl-11">
+                            @if (Model.Objective?.Product != null)
+                            {
+                                <div class="outer-banner-container-row">
+                                    @if (String.IsNullOrEmpty(Model.Objective.Product.GetHttpsSecuredHeaderImage()))
+                                    {
+                                        <div class="inner-store-banner-container-row delayed-load" data-src="/Content/applogo.gif" style="background-image: url('a.gif')"></div>
+                                    }
+                                    else
+                                    {
+                                        <div class="inner-store-banner-container-row delayed-load" data-src="@Model.Objective.Product.GetHttpsSecuredHeaderImage()" style="background-image: url('a.gif')"></div>
+                                    }
+                                </div>
+                            }
+                            <span class="objective-title">@Model.Objective.Title</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="row custom-row col-header">
+                            <div class="col-lg-1 col-md-1 col-xl-1">ID</div>
+                            <div class="col-lg-6 col-md-6 col-xl-6 text-center">Objective</div>
+                            <div class="col-lg-1 col-md-1 col-xl-1">Monuplay</div>
+                            <div class="col-lg-1 col-md-1 col-xl-1">Boosted</div>
+                            <div class="col-lg-1 col-md-1 col-xl-1">Reward</div>
+                            <div class="col-lg-1 col-md-1 col-xl-1">Expires</div>
+                        </div>
+                        <div class="row store-entry-sm objective-row text-center">
+                            <div class="col-lg-1 col-md-1 col-xl-1 col-text text-lblue">@Model.Objective.ObjectiveID</div>
+                            <div class="col-lg-6 col-md-6 col-xl-6 text-left">
+                                <p><span class="objective-name">@Model.Objective.ObjectiveName</span><br />@Model.Objective.Description</p>
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-xl-1 text-center">
+                                @if (Model.Objective.RequiresAdmin == false)
+                                {
+                                    <span class="fa fa-close fa-lg text-danger"></span>
+                                }
+                                else
+                                {
+                                    <span class="fa fa-check fa-lg text-success"></span>
+                                }
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-xl-1 text-center">
+                                @if (Model.Objective.BoostedObjective == null)
+                                {
+                                    <span class="fa fa-close fa-lg text-danger"></span>
+                                }
+                                else
+                                {
+                                    <span class="col-text text-success">@(Model.Objective.BoostedObjective.BoostAmount)X</span>
+                                }
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-xl-1 text-center">
+                                @if (Model.Objective.BoostedObjective == null)
+                                {
+                                    <span class="col-text">@Model.Objective.FixedReward()</span>
+                                }
+                                else
+                                {
+                                    <span class="col-text text-success">@Model.Objective.FixedReward()</span>
+                                }
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-xl-1 text-center col-text">
+                                @if (Model.Objective.BoostedObjective == null)
+                                {
+                                    <span class="fa fa-close fa-lg text-danger"></span>
+                                }
+                                else
+                                {
+                                    <span class="objective-date">@(Model.GetConvertedDateTime(Model.Objective.BoostedObjective.EndDate).ToString("d MMM"))</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    @foreach (IEnumerable<BalanceEntry> completedObjectives in Model.BalanceEntries.GroupBy(f => Model.GetConvertedDateTime(f.Date).Date).ToList())
+                    {
+                        <div class="row custom-row">
+                            <div class="col-lg-12 col-md-12 col-xl-12 col-header">
+                                @Model.GetConvertedDateTime(completedObjectives.First().Date).ToString("dd MMMM")
+                            </div>
+                        </div>
+                        foreach (BalanceEntry balanceEntry in completedObjectives.OrderByDescending(f => f.Date))
+                        {
+                            <div class="row">
+                                <div class="col-lg-10 col-md-10 col-xl-10 activity-row">
+                                    <p>@Html.Raw(Model.Parser.ToHtml("[purl=" + Url.Action("UserProfile", "User", new { id = balanceEntry.AppUser.UserName }) + "]" + balanceEntry.AppUser.UserName + "[/purl] completed this objective for [gtext]" + balanceEntry.PointsAdjusted + "[/gtext]!"))</p>
+                                </div>
+                                <div class="col-lg-2 col-md-2 col-xl-2 text-right activity-time">
+                                    @Model.GetConvertedDateTime(balanceEntry.Date).ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                                </div>
+                            </div>
+                        }
+                    }
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-xl-12 pagination-holder">
+                            @Html.PageLinks(Model)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }

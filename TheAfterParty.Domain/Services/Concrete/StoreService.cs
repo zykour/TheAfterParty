@@ -488,7 +488,8 @@ namespace TheAfterParty.Domain.Services
             }
             
             SiteNotification notification = new SiteNotification();
-            notification.Notification = "[new] [gtext]" + addedKeys.Count() + "[/gtext] items added to the [url=https://theafterparty.azurewebsites.net/store/newest]Co-op Shop[/url]!";
+            var url = String.Format("https://theafterparty.azurewebsites.net/store?month={0}&day={1}&year={2}", DateTime.Today.Month, DateTime.Today.Day, DateTime.Today.Year);
+            notification.Notification = "[new][/new] [url=" + url + "][gtext]" + addedKeys.Count() + "[/gtext][/url] items added to the [url=https://theafterparty.azurewebsites.net/store/newest]Co-op Shop[/url]!";
             notification.NotificationDate = DateTime.Now;
             siteRepository.InsertSiteNotification(notification);
 
@@ -652,7 +653,8 @@ namespace TheAfterParty.Domain.Services
             }
 
             SiteNotification notification = new SiteNotification();
-            notification.Notification = "[new] [gtext]" + addedKeys.Count() + "[/gtext] items added to the [url=https://theafterparty.azurewebsites.net/store/newest]Co-op Shop[/url]!";
+            var url = String.Format("https://theafterparty.azurewebsites.net/store?month={0}&day={1}&year={2}", DateTime.Today.Month, DateTime.Today.Day, DateTime.Today.Year);
+            notification.Notification = "[new][/new] [url=" + url + "][gtext]" + addedKeys.Count() + "[/gtext][/url] items added to the [url=https://theafterparty.azurewebsites.net/store/newest]Co-op Shop[/url]!";
             notification.NotificationDate = DateTime.Now;
             siteRepository.InsertSiteNotification(notification);
 
@@ -918,9 +920,9 @@ namespace TheAfterParty.Domain.Services
         {
             return listingRepository.GetListings().Where(l => l.HasSale() && l.Quantity > 0);
         }
-        public IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems, StoreIndexDomainModel model)
+        public IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems)
         {
-            return listingRepository.GetListingsWithFilter(filter, out TotalItems, model);
+            return listingRepository.GetListingsWithFilter(filter, out TotalItems);
         }
         public IEnumerable<AppUser> GetAppUsers()
         {
@@ -949,6 +951,18 @@ namespace TheAfterParty.Domain.Services
         public IEnumerable<ProductKey> GetProductKeys()
         {
             return listingRepository.GetProductKeys();
+        }
+        public IEnumerable<ProductOrderEntry> GetStoreHistory()
+        {
+            return userRepository.GetProductOrderEntries().OrderByDescending(p => p.ProductOrderEntryID).ThenBy(p => p.Listing.ListingName);
+        }
+        public IEnumerable<AppUser> GetUsersWhoOwn(int appId)
+        {
+            return userRepository.GetAppUsersWhoOwn(appId).OrderBy(a => a.UserName);
+        }
+        public IEnumerable<AppUser> GetUsersWhoDoNotOwn(int appId)
+        {
+            return userRepository.GetAppUsersWhoDoNotOwn(appId).OrderBy(a => a.UserName);
         }
         #endregion
         #region Object

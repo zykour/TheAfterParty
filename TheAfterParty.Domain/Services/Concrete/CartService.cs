@@ -49,12 +49,12 @@ namespace TheAfterParty.Domain.Services
             {
                 AppUser currentUser = await GetCurrentUser();
 
-                ShoppingCartEntry entry = currentUser.ShoppingCartEntries.Where(e => e.ListingID == listingId && Object.Equals(currentUser.Id, e.UserID)).SingleOrDefault(); //userRepository.GetShoppingCartEntries().Where(e => e.ListingID == listingId && Object.Equals(currentUser.Id, e.UserID)).SingleOrDefault();
+                ShoppingCartEntry entry = currentUser.ShoppingCartEntries.Where(e => e.ListingID == listingId).SingleOrDefault(); //userRepository.GetShoppingCartEntries().Where(e => e.ListingID == listingId && Object.Equals(currentUser.Id, e.UserID)).SingleOrDefault();
 
                 if (entry == null)
                 {
                     currentUser.AddShoppingCartEntry(listing);
-                    await userRepository.UpdateAppUser(currentUser); //userRepository.InsertShoppingCartEntry(currentUser.AddShoppingCartEntry(listing));
+                    await userRepository.UpdateAppUser(currentUser);
                 }
                 else
                 {

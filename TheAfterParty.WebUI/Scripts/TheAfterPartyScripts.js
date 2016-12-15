@@ -122,6 +122,7 @@ function ToggleFilters(id)
     FixFooterHeight();
 }
 
+
 function MarkKeyRevealed(id, caller)
 {
     if ($(caller).hasClass('ajax-awaiting') == false) {
@@ -190,6 +191,15 @@ function AddToBlacklist(caller, id, rowId)
                         $div.find('div').fadeOut(300, function () {
                             $div.remove();
                         });
+
+                        $div = $('#listing' + rowId + 'id1');
+
+                        alert('#listing' + rowId + 'id1');
+                        if ($div != null) {
+                            $div.find('div').fadeOut(300, function () {
+                                $div.remove();
+                            });
+                        }
                     }
                 }
                 $(caller).toggleClass('ajax-awaiting');

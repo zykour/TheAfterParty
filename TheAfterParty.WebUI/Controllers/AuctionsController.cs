@@ -108,6 +108,9 @@ namespace TheAfterParty.WebUI.Controllers
             }
 
             List<String> destNames = new List<String>();
+
+            model.Auction = auctionService.GetAuctionByID(model.Auction.AuctionID);
+
             if (model.Auction.IsOpen())
             {
                 destNames.Add(openDestName);
@@ -116,10 +119,10 @@ namespace TheAfterParty.WebUI.Controllers
             {
                 destNames.Add(closedDestName);
             }
+
             model.FullNavList = CreateAuctionNavList(destNames);
 
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            model.Auction = auctionService.GetAuctionByID(model.Auction.AuctionID);
 
             if (ModelState.IsValidField("AuctionBid.BidAmount") == false)
             {

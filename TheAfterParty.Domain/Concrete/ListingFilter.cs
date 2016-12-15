@@ -31,8 +31,10 @@ namespace TheAfterParty.Domain.Concrete
 
             Page = 0;
             PaginationNum = 100;
+            Date = null;
         }
 
+        public DateTime? Date { get; set; }
         public bool IsNewest { get; set; }
         public bool IsDailyDeal { get; set; }
         public bool IsWeeklyDeal { get; set; }

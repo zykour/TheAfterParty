@@ -1,5 +1,6 @@
 ﻿using TheAfterParty.Domain.Entities;
-namespace TheAfterParty.Domain.Model
+
+namespace TheAfterParty.WebUI.Models.Store
 {
     public class SelectedProductCategoryMapping
     {

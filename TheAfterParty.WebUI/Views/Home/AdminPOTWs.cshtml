@@ -22,4 +22,12 @@
             <div class="col-lg-4">@potw.StartDate.ToString()</div>
         </div>
     }
+    @using (Html.BeginForm("AdminPOTWs", "Home", FormMethod.Post))
+    {
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-xl-12 pagination-holder vertical-align">
+                @Html.PageLinks(Model)
+            </div>
+        </div>
+    }
 </div>

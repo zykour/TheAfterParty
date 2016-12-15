@@ -218,13 +218,53 @@ namespace TheAfterParty.WebUI.Controllers
         #region POTW
 
         [Authorize(Roles = "Admin")]
+        [HttpGet]
         public async Task<ActionResult> AdminPOTWs()
         {
             AdminPOTWsViewModel model = new AdminPOTWsViewModel();
 
-            model.POTWs = siteService.GetPOTWs().ToList();
             model.LoggedInUser = await siteService.GetCurrentUser();
             model.FullNavList = CreateHomeAdminNavList();
+
+            model.CurrentPage = 1;
+            model.TotalItems = siteService.GetPOTWs().Count();
+
+            if (model.LoggedInUser != null && model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.POTWs = siteService.GetPOTWs().OrderByDescending(p => p.StartDate).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.POTWs = siteService.GetPOTWs().OrderByDescending(p => p.StartDate).ToList();
+            }
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult> AdminPOTWs(AdminPOTWsViewModel model)
+        {
+            model.LoggedInUser = await siteService.GetCurrentUser();
+            model.FullNavList = CreateHomeAdminNavList();
+
+            if (model.SelectedPage != 0)
+            {
+                model.CurrentPage = model.SelectedPage;
+            }
+
+            model.TotalItems = siteService.GetPOTWs().Count();
+
+            if (model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.POTWs = siteService.GetPOTWs().OrderByDescending(p => p.StartDate).Skip((model.CurrentPage - 1) * model.LoggedInUser.PaginationPreference).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.POTWs = siteService.GetPOTWs().OrderByDescending(p => p.StartDate).ToList();
+            }
 
             return View(model);
         }
@@ -310,9 +350,48 @@ namespace TheAfterParty.WebUI.Controllers
         {
             AdminSiteNotificationsViewModel model = new AdminSiteNotificationsViewModel();
 
-            model.SiteNotifications = siteService.GetSiteNotifications().ToList();
             model.LoggedInUser = await siteService.GetCurrentUser();
             model.FullNavList = CreateHomeAdminNavList();
+
+            model.CurrentPage = 1;
+            model.TotalItems = siteService.GetSiteNotifications().Count();
+
+            if (model.LoggedInUser != null && model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.SiteNotifications = siteService.GetSiteNotifications().OrderByDescending(p => p.NotificationDate).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.SiteNotifications = siteService.GetSiteNotifications().OrderByDescending(p => p.NotificationDate).ToList();
+            }
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult> AdminSiteNotifications(AdminSiteNotificationsViewModel model)
+        {
+            model.LoggedInUser = await siteService.GetCurrentUser();
+            model.FullNavList = CreateHomeAdminNavList();
+
+            if (model.SelectedPage != 0)
+            {
+                model.CurrentPage = model.SelectedPage;
+            }
+
+            model.TotalItems = siteService.GetSiteNotifications().Count();
+
+            if (model.LoggedInUser.PaginationPreference != 0)
+            {
+                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
+                model.SiteNotifications = siteService.GetSiteNotifications().OrderByDescending(p => p.NotificationDate).Skip((model.CurrentPage - 1) * model.LoggedInUser.PaginationPreference).Take(model.UserPaginationPreference).ToList();
+            }
+            else
+            {
+                model.SiteNotifications = siteService.GetSiteNotifications().OrderByDescending(p => p.NotificationDate).ToList();
+            }
 
             return View(model);
         }
@@ -389,9 +468,8 @@ namespace TheAfterParty.WebUI.Controllers
 
 #endregion
 
-        public BBCodeParser CreateBBCodeParser()
-        {
-            
+        public static BBCodeParser CreateBBCodeParser()
+        {            
             return new BBCodeParser(new[]
             {
                 new BBTag("b", "<b>", "</b>"),

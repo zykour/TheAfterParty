@@ -108,7 +108,7 @@
                 {
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-xl-12">
-                        <p><span class="text-primary">@Model.RequestedUser.UserName</span> won an auction of <span class="text-success">@auction.Listing.ListingName</span> for <span class="text-warning">@auction.AuctionBids.Max()</span> points.</p>
+                        <p><span class="text-primary">@Model.RequestedUser.UserName</span> won an auction of <span class="text-success">@auction.Listing.ListingName</span> for <span class="text-warning">@auction.AuctionBids.OrderByDescending(a => a.BidAmount).FirstOrDefault().BidAmount</span> points.</p>
                      </div>
                 </div>
                 }
@@ -119,6 +119,31 @@
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-xl-12">
                         <p><span class="text-primary">@Model.RequestedUser.UserName</span> posted a review for <span class="text-success">@review.Product.ProductName</span>.</p>
+                    </div>
+                </div>
+            }
+            else if (feedItem.GetActivityFeedItem() is ProductOrderEntry)
+            {
+                ProductOrderEntry entry = feedItem.GetActivityFeedItem() as ProductOrderEntry;
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-xl-12">
+                        <p><span class="text-primary">@Model.RequestedUser.UserName</span> bought <span class="text-primary">@entry.Listing.ListingName</span> for <span class="text-success">@entry.SalePrice</span>.</p>
+                    </div>
+                </div>
+            }
+            else if (feedItem.GetActivityFeedItem() is BalanceEntry)
+            {
+                BalanceEntry entry = feedItem.GetActivityFeedItem() as BalanceEntry;
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-xl-12">
+                        @if (entry.Objective != null)
+                        {
+                            <p><span class="text-primary">@Model.RequestedUser.UserName</span> earned <span class="text-success">@entry.PointsAdjusted</span> points for completing <a href="@Url.Action("Objective", "Objectives", new { id = entry.Objective.ObjectiveID })"><span class="text-primary">@entry.Objective.ObjectiveName</span></a>.</p>
+                        }
+                        else
+                        {
+                            <p><span class="text-primary">@Model.RequestedUser.UserName</span> earned <span class="text-success">@entry.PointsAdjusted</span> points.</p>
+                        }
                     </div>
                 </div>
             }

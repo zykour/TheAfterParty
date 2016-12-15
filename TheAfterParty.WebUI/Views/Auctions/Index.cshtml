@@ -15,10 +15,10 @@
                     if (auction.IsOpen() == false)
                     {
                         string id = "auction" + auction.AuctionID;
-                        <div class="row custom-row vertical-align clickable" id="@id" onclick="ToggleHidden(this,@id)">
+                        <div class="row custom-row clickable" id="@id" onclick="ToggleHidden(this,@id)">
                         @if (auction.IsSilent)
-                        {
-                            <div class="col-lg-6 col-md-6 col-xl-6 vertical-align">
+                        {   
+                            <div class="col-lg-6 col-md-5 col-xl-7 vertical-align">
                                 <div class="tag-inline-block auction-title-padding">
                                     <span class="fa fa-fw fa-user-secret fa-2x icon-blue"></span>
                                 </div>
@@ -31,10 +31,10 @@
                                     }
                                 </div>
                                 <div class="tag-inline-block">
-                                    <span class="auction-title">@auction.Prize()</span>
+                                    <span class="auctions-title">@auction.Prize()</span>
                                 </div>
                             </div>
-                            <div class="col-lg-5 col-md-5 col-xl-5 text-left text-nowrap vertical-align">
+                            <div class="col-lg-5 col-md-6 col-xl-4 text-left text-nowrap vertical-align">
                                 <div class="tag-inline-block faint-border-left pad-right-far">
                                     @if (auction.Copies == 1)
                                     {
@@ -67,7 +67,7 @@
                         }
                         else
                         {
-                            <div class="col-lg-6 col-md-6 col-xl-6 vertical-align">
+                            <div class="col-lg-6 col-md-5 col-xl-7 vertical-align">
                                 <div class="tag-inline-block auction-title-padding">
                                     <span class="fa fa-fw fa-users fa-2x icon-blue"></span>
                                 </div>
@@ -80,10 +80,10 @@
                                     }
                                 </div>
                                 <div class="tag-inline-block">
-                                    <span class="auction-title">@auction.Prize()</span>
+                                    <span class="auctions-title">@auction.Prize()</span>
                                 </div>
                             </div>
-                            <div class="col-lg-5 col-md-5 col-xl-5 text-left text-nowrap vertical-align">
+                            <div class="col-lg-5 col-md-6 col-xl-4 text-left text-nowrap vertical-align">
                                 <div class="tag-inline-block faint-border-left pad-right-far">
                                     @if (auction.Copies == 1)
                                     {
@@ -122,18 +122,19 @@
                                 <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="col-header">Bid Time</span></div>
                             </div>
                             <div>
-                                @foreach (AuctionBid bid in auction.AuctionBids)
+                                @foreach (AuctionBid bid in auction.AuctionBids.OrderByDescending(a => a.BidAmount))
                                 {
-                                    <div class="row store-entry-sm">
-                                        <div class="col-lg-1 col-md-1 col-xl-1"></div>
-                                        <div class="col-lg-3 col-md-3 col-xl-3 vertical-align text-left">
-                                            <div class="outer-avatar-container">
-                                                <div class="inner-avatar-container" style="background-image: url(@bid.AppUser.SmallAvatar)"></div>
-                                            </div>
-                                            <div class="store-entry-name vertical-align pad-right">@bid.AppUser.UserName</div>
+                                    <div class="row user-row store-entry-sm">
+                                        <div class="col-lg-4 col-md-4 col-xl-4 vertical-align text-left">
+                                            <a href="@Url.Action("UserProfile", "User", new { id = bid.AppUser.UserName })">
+                                                <div class="outer-avatar-container">
+                                                    <div class="inner-avatar-container-lg" style="background-image: url(@bid.AppUser.MediumAvatar)"></div>
+                                                </div>
+                                            </a>
+                                            <div class="pad-right col-text text-lblue">@bid.AppUser.UserName</div>
                                         </div>
                                         <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@bid.BidAmount</span></div>
-                                        <div class="col-lg-4 col-md-4 col-xl-4 text-left"><span class="text-primary">@Model.GetConvertedDateTime(bid.BidDate).ToString("d MMM") @@ @Model.GetConvertedDateTime(bid.BidDate).ToString("h:mm tt")</span></div>
+                                        <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-lblue">@Model.GetConvertedDateTime(bid.BidDate).ToString("dd MMM h:mm:ss tt")</span></div>
                                     </div>
                                 }
                             </div>
@@ -151,7 +152,7 @@
                         if (auction.IsSilent)
                         {
                             <div class="row custom-row vertical-align">
-                                <div class="col-lg-6 col-md-6 col-xl-6 vertical-align">
+                                <div class="col-lg-6 col-md-5 col-xl-7 vertical-align">
                                     <div class="tag-inline-block auction-title-padding">
                                         <span class="fa fa-fw fa-user-secret fa-2x icon-blue"></span>
                                     </div>
@@ -186,10 +187,10 @@
                                         }
                                     </div>
                                     <div class="tag-inline-block">
-                                        <span class="auction-title">@auction.Prize()</span>
+                                        <span class="auctions-title">@auction.Prize()</span>
                                     </div>
                                 </div>
-                                <div class="col-lg-5 col-md-5 col-xl-5 text-left text-nowrap vertical-align">
+                                <div class="col-lg-5 col-md-6 col-xl-4 text-left text-nowrap vertical-align">
                                     <div class="tag-inline-block faint-border-left pad-right-far">
                                         @if (auction.Copies == 1)
                                         {
@@ -214,7 +215,7 @@
                         {
                             string id = "auction" + auction.AuctionID;
                             <div class="row custom-row vertical-align clickable" id="@id" onclick="ToggleHidden(this,@id)">
-                                <div class="col-lg-6 col-md-6 col-xl-6 vertical-align">
+                                <div class="col-lg-6 col-md-5 col-xl-7 vertical-align">
                                     <div class="tag-inline-block auction-title-padding">
                                         <span class="fa fa-fw fa-users fa-2x icon-blue"></span>
                                     </div>
@@ -249,10 +250,10 @@
                                         }
                                     </div>
                                     <div class="tag-inline-block">
-                                        <span class="auction-title">@auction.Prize()</span>
+                                        <span class="auctions-title">@auction.Prize()</span>
                                     </div>
                                 </div>
-                                <div class="col-lg-5 col-md-5 col-xl-5 text-left text-nowrap vertical-align">
+                                <div class="col-lg-5 col-md-6 col-xl-4 text-left text-nowrap vertical-align">
                                     <div class="tag-inline-block faint-border-left pad-right-far">
                                         @if (auction.Copies == 1)
                                         {
@@ -290,18 +291,19 @@
                                     <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="col-header">Bid Time</span></div>
                                 </div>
                                 <div>
-                                    @foreach (AuctionBid bid in auction.AuctionBids)
+                                    @foreach (AuctionBid bid in auction.AuctionBids.OrderByDescending(a => a.BidAmount))
                                     {
-                                        <div class="row store-entry-sm">
-                                            <div class="col-lg-1 col-md-1 col-xl-1"></div>
-                                            <div class="col-lg-3 col-md-3 col-xl-3 vertical-align text-left">
-                                                <div class="outer-avatar-container">
-                                                    <div class="inner-avatar-container" style="background-image: url(@bid.AppUser.SmallAvatar)"></div>
-                                                </div>
-                                                <div class="store-entry-name vertical-align pad-right">@bid.AppUser.UserName</div>
+                                        <div class="row user-row store-entry-sm">
+                                            <div class="col-lg-4 col-md-4 col-xl-4 vertical-align text-left">
+                                                <a href="@Url.Action("UserProfile", "User", new { id = bid.AppUser.UserName })">
+                                                    <div class="outer-avatar-container">
+                                                        <div class="inner-avatar-container-lg" style="background-image: url(@bid.AppUser.MediumAvatar)"></div>
+                                                    </div>
+                                                </a>
+                                                <div class="pad-right col-text text-lblue">@bid.AppUser.UserName</div>
                                             </div>
                                             <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@bid.BidAmount</span></div>
-                                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-primary">@Model.GetConvertedDateTime(bid.BidDate).ToString("d MMM") @@ @Model.GetConvertedDateTime(bid.BidDate).ToString("h:mm tt")</span></div>
+                                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-lblue">@Model.GetConvertedDateTime(bid.BidDate).ToString("dd MMM h:mm:ss tt")</span></div>
                                         </div>
                                     }
                                 </div>
@@ -356,7 +358,7 @@
                                     }
                                 </div>
                                 <div class="tag-inline-block">
-                                    <span class="auction-title">@auction.Prize()</span>
+                                    <span class="auctions-title">@auction.Prize()</span>
                                 </div>
                             </div>
                             <div class="col-lg-5 col-md-5 col-xl-5 text-left text-nowrap vertical-align">
@@ -411,7 +413,7 @@
                                     }
                                 </div>
                                 <div class="tag-inline-block">
-                                    <span class="auction-title">@auction.Prize()</span>
+                                    <span class="auctions-title">@auction.Prize()</span>
                                 </div>
                             </div>
                             <div class="col-lg-5 col-md-5 col-xl-5 text-nowrap vertical-align">
@@ -491,9 +493,9 @@
                                         }
                                         <div class="col-lg-4 col-md-4 col-xl-4" id="@idCont">
                                             <div class="input-group-xs input-group">
-                                                <input type="text" id="@idVal" class="form-control" value="@minBid" />
+                                                <input type="text" id="@idVal" class="form-control gray-input" value="@minBid" />
                                                 <span class="input-group-btn">
-                                                    <span class="btn btn-default btn-xs btn-success" onclick="SubmitBid('@id',this,@auction.AuctionID);">Submit Bid</span>
+                                                    <span class="btn btn-default btn-xs btn-success green-bg" onclick="SubmitBid('@id',this,@auction.AuctionID);">Submit Bid</span>
                                                 </span>
                                             </div>
                                         </div>
@@ -505,16 +507,17 @@
                                     <div>
                                         @foreach (AuctionBid bid in auction.AuctionBids.OrderByDescending(b => b.BidAmount))
                                         {
-                                            <div class="row store-entry-sm">
-                                                <div class="col-lg-1 col-md-1 col-xl-1"></div>
-                                                <div class="col-lg-3 col-md-3 col-xl-3 vertical-align text-left">
-                                                    <div class="outer-avatar-container">
-                                                        <div class="inner-avatar-container" style="background-image: url(@bid.AppUser.SmallAvatar)"></div>
-                                                    </div>
-                                                    <div class="store-entry-name vertical-align pad-right">@bid.AppUser.UserName</div>
+                                            <div class="row user-row store-entry-sm">
+                                                <div class="col-lg-4 col-md-4 col-xl-4 vertical-align text-left">
+                                                    <a href="@Url.Action("UserProfile", "User", new { id = bid.AppUser.UserName })">
+                                                        <div class="outer-avatar-container">
+                                                            <div class="inner-avatar-container-lg" style="background-image: url(@bid.AppUser.MediumAvatar)"></div>
+                                                        </div>
+                                                    </a>
+                                                    <div class="pad-right col-text text-lblue">@bid.AppUser.UserName</div>
                                                 </div>
                                                 <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@bid.BidAmount</span></div>
-                                                <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-primary">@Model.GetConvertedDateTime(bid.BidDate).ToString("d MMMM") @@ @Model.GetConvertedDateTime(bid.BidDate).ToString("h:mm tt")</span></div>
+                                                <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-lblue">@Model.GetConvertedDateTime(bid.BidDate).ToString("dd MMM h:mm:ss tt")</span></div>
                                             </div>
                                         }
                                     </div>

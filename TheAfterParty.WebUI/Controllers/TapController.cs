@@ -15,15 +15,15 @@ namespace TheAfterParty.WebUI.Controllers
 {
     public class TapController : ApiController
     {
-        private IApiService apiService;
+        /*private IApiService apiService;
 
         public TapController(IApiService apiService)
         {
             this.apiService = apiService;
-        }
+        }*/
         public TapController()
         {
-            apiService = NinjectWebCommon.CreateKernel().Get<IApiService>();
+            //apiService = NinjectWebCommon.CreateKernel().Get<IApiService>();
         }
 
         [HttpGet]
@@ -32,6 +32,7 @@ namespace TheAfterParty.WebUI.Controllers
             return Ok(true);
         }
 
+        /*
         // id = searchtext
         [HttpGet]
         public IHttpActionResult SearchListings(string id, int resultsLimit)
@@ -145,7 +146,7 @@ namespace TheAfterParty.WebUI.Controllers
             apiService.CreateNewWeeklyDeals(numDeals);
 
             return Ok();
-        }
+        }*/
 
     }
 }

@@ -14,7 +14,7 @@ namespace TheAfterParty.WebUI.Models.Account
             SearchText = "";
         }
 
-        public List<ClaimedProductKey> Keys { get; set; }
+        public IEnumerable<ClaimedProductKey> Keys { get; set; }
 
         public bool PreviousFilterRevealed { get; set; }
         public bool FilterRevealed { get; set; }
