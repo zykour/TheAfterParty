@@ -83,6 +83,11 @@ namespace TheAfterParty.Domain.Services
                 bid.Auction = GetAuctionByID(bid.AuctionID);
             }
 
+            if (bid.Auction == null)
+            {
+                return false;
+            }
+            
             if (bid.Auction.EndTime.CompareTo(DateTime.Now) < 0)
             {
                 return false;
@@ -108,9 +113,13 @@ namespace TheAfterParty.Domain.Services
 
             if (bid.Auction.IsSilent == false)
             {
-                if (bid.Auction.HasMoreCopiesThanWinningBids() == false)
+                if (bid.Auction.AuctionBids.Count > 0)
                 {
-                    if (bid.BidAmount < (bid.Auction.LowestWinningBid() + bid.Auction.Increment) && bid.Auction.UserIsWinningBid(user) == false)
+                    if (bid.BidAmount < (bid.Auction.PublicWinningBid() + bid.Auction.Increment) && bid.Auction.UserIsWinningBid(user) == false)
+                    {
+                        return false;
+                    }
+                    else if (bid.BidAmount < bid.Auction.PublicWinningBid() && bid.Auction.UserIsWinningBid(user) == true)
                     {
                         return false;
                     }
@@ -218,6 +227,12 @@ namespace TheAfterParty.Domain.Services
             foreach (AuctionBid bid in winningBids)
             {
                 auction.Winners.Add(bid.AppUser);
+                if (bid.AppUser.WonAuctions == null)
+                {
+                    bid.AppUser.WonAuctions = new HashSet<Auction>();
+                }
+                bid.AppUser.WonAuctions.Add(auction);
+
                 string key = String.Empty;
 
                 if (keys.Count > 0)
@@ -241,16 +256,23 @@ namespace TheAfterParty.Domain.Services
 
                 userKey = new ClaimedProductKey(pKey, bid.AppUser, DateTime.Now, auction.Prize() + " Auction");
 
-                balanceEntry = new BalanceEntry(bid.AppUser, auction.Prize() + " Auction", bid.BidAmount, DateTime.Now);
+                int cost = bid.BidAmount;
+
+                if (auction.IsSilent == false)
+                {
+                    cost = auction.PublicWinningBid();
+                }
+
+                balanceEntry = new BalanceEntry(bid.AppUser, auction.Prize() + " Auction", 0 - cost, DateTime.Now);
 
                 bid.AppUser.AddBalanceEntry(balanceEntry);
                 bid.AppUser.AddClaimedProductKey(userKey);
-                bid.AppUser.Balance -= bid.BidAmount;
+                bid.AppUser.Balance -= cost;
 
                 userRepository.UpdateAppUserSynch(bid.AppUser);
-                auctionRepository.UpdateAuction(auction);
-                unitOfWork.Save();
             }
+
+            unitOfWork.Save();
         }
 
         public void DeleteAuctionBid(int id)

@@ -12,16 +12,33 @@
 
 <div>
     <div class="row">
-        <div class="col-lg-2">Action</div>
-        <div class="col-lg-5">Listing</div>
-        <div class="col-lg-5">Sale Price</div>
+        <div class="col-lg-7">Actions</div>
+        <div class="col-lg-4">Listing</div>
+        <div class="col-lg-1">Sale Price</div>
     </div>
     @foreach (ProductOrderEntry entry in Model.Order.ProductOrderEntries)
     {
         <div class="row">
-            <div class="col-lg-4">@Html.ActionLink("Edit", "EditProductOrderEntry", "User", new { id = entry.ProductOrderEntryID }, null) @Html.ActionLink("Delete", "DeleteProductOrderEntry", "User", new { id = entry.ProductOrderEntryID }, null)</div>
+            <div class="col-lg-1">@Html.ActionLink("Edit", "EditProductOrderEntry", "User", new { id = entry.ProductOrderEntryID }, null)</div>
+            <div class="col-lg-2">@Html.ActionLink("Refund & Delete", "DeleteProductOrderEntry", "User", new { id = entry.ProductOrderEntryID }, null)</div>
+            @if (entry.ClaimedProductKeys.All(c => c.IsRevealed == false))
+            {
+                <div class="col-lg-2">@Html.ActionLink("Refund & Restock", "RestockProductOrderEntry", "User", new { id = entry.ProductOrderEntryID }, null)</div>
+            }
+            else
+            {
+                <div class="col-lg-2"></div>
+            }
+            @if (entry.Listing.Quantity > 0 && entry.ClaimedProductKeys.Count == 1)
+            {
+                <div class="col-lg-2">@Html.ActionLink("Pull New Key", "PullNextProductKey", "User", new { id = entry.ProductOrderEntryID }, null)</div>
+            }
+            else
+            {
+                <div class="col-lg-2"></div>
+            }
             <div class="col-lg-4">@entry.Listing.ListingName</div>
-            <div class="col-lg-4">@entry.SalePrice</div>
+            <div class="col-lg-1">@entry.SalePrice</div>
         </div>
     }
 </div>

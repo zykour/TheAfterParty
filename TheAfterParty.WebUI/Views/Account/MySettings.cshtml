@@ -33,6 +33,10 @@
     <div class="row custom-row-header">
         <h3>My Settings</h3>
     </div>
+    @if (Model.SuccessfulItemsAdded > 0)
+    {
+        <span>Successfully added @Model.SuccessfulItemsAdded items to the wishlist!</span>
+    }
     @Html.ValidationSummary()
     <div class="row">
         <div class="col-lg-6 col-md-6 col-xl-6 col-text text-purple">
@@ -42,6 +46,7 @@
             @Html.DropDownListFor(m => m.LoggedInUser.TimeZoneID, timeZoneList)
         </div>
     </div>
+    <hr />
     <br/>
     <div class="row">
         <div class="col-lg-6 col-md-6 col-xl-6 col-text text-purple">
@@ -51,6 +56,22 @@
             @Html.DropDownListFor(m => m.PaginationPreference, paginationPrefListItems)
         </div>
     </div>
+    <hr/>
+    <br />
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-xl-6 col-text text-purple">
+            <p><span>Enter comma separated values of AppIDs to set your wishlist to.</span><br/><br />
+                <span>THIS OVERWRITES all existing wishlist entries</span><br /><br />
+                <span>You can find an explortable version of your wishlist here: http://store.steampowered.com/dynamicstore/userdata/ </span><br /><br />
+                <span>Open it through the Steam browser if it doesn't work.</span><br /><br />
+                <span>Make sure to copy only the data INSIDE the brackets.</span><br /><br />
+                <span>You can manually add additional AppIDs to the list if you wish</span><br /><br />
+            </p>
+        </div>
+        <div class="col-lg-6 col-md-6 col-xl-6">
+            @Html.TextAreaFor(m => m.AppIDs)
+        </div>
+    </div>
     <br />
     <div class="row">
         <div class="col-lg-12 col-md-12 col-xl-12 pull-right">
@@ -58,6 +79,11 @@
         </div>
     </div>
     <br/>
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
     <div class="row">
         <div class="col-lg-6 col-md-6 col-xl-6 col-text text-purple">
             <p class="col-text text-primary">Update owned games. After clicking, feel free to browse the site, updates may take a few minutes.</p>
@@ -66,6 +92,7 @@
             <a href="@Url.Action("UpdateUser", "User", new { id = Model.LoggedInUser.Id, returnUrl = Request.RawUrl })" class="btn btn-sm btn-success">Update</a>
         </div>
     </div>
+    <br/>
 </div>
 }
 

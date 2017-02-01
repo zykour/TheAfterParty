@@ -39,16 +39,31 @@ namespace TheAfterParty.Domain.Services
         {
             AppIdentityDbContext context;
 
+            int day = (int)DateTime.Now.DayOfWeek;
+
             using (context = AppIdentityDbContext.Create())
             {
                 IUnitOfWork unitOfWork = new UnitOfWork(context);
                 IUserRepository userRepository = new UserRepository(unitOfWork);
                 AppUserManager UserManager = new AppUserManager(new UserStore<AppUser>(unitOfWork.DbContext));
 
-                IList<AppUser> users = UserManager.Users.ToList();
+                int usersPerDay = (int)Math.Ceiling((double)UserManager.Users.Count() / 7);
+
+                IList<AppUser> users = UserManager.Users.OrderBy(u => u.Id).Skip(day * usersPerDay).Take(usersPerDay).ToList();
 
                 foreach (AppUser userHolder in users)
                 {
+                    if (UserManager.IsInRole(userHolder.Id, "Member") == false && UserManager.IsInRole(userHolder.Id, "Admin") == false)
+                    {
+                        continue;
+                    }
+
+                    // we've already updated this user today, the job was suspended when the site was unloaded and is rerunning to completion, thus we ignore users already updated
+                    if (userHolder.LastUpdated.DayOfYear == DateTime.Now.DayOfYear)
+                    {
+                        continue;
+                    }
+
                     AppUser user = UserManager.Users.Include(u => u.OwnedGames).SingleOrDefault(x => userHolder.Id == x.Id);
 
                     string playerURL = String.Format("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={0}&steamids={1}&format=json", apiKey, user.UserSteamID);
@@ -83,19 +98,22 @@ namespace TheAfterParty.Domain.Services
                         }
                     }
 
+                    user.LastUpdated = DateTime.Now;
                     UserManager.Update(user);
+                    unitOfWork.Save();
                 }
-
-                unitOfWork.Save();
             }
         }
 
         public static DateTime GetMidnightEST()
         {
-            DateTime utcTime = DateTime.UtcNow;
-            TimeZoneInfo info = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
-            DateTime convertedTime = TimeZoneInfo.ConvertTime(utcTime, info);
-            return convertedTime;
+        //    DateTime utcTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
+        //    TimeZoneInfo info = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+        //    DateTime convertedTime = TimeZoneInfo.ConvertTime(utcTime, info);
+
+        //    return convertedTime;
+
+            return System.TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.UtcNow, System.TimeZoneInfo.Utc.Id, "Eastern Standard Time").Date;
         }
 
         public static void RolloverDailyDeal()
@@ -136,7 +154,7 @@ namespace TheAfterParty.Domain.Services
 
                 SelectDealPercent(newDiscountedListing);
 
-                DateTime expiry = GetMidnightEST().AddDays(1).AddMinutes(-5);
+                DateTime expiry = GetMidnightEST().AddDays(1);
 
                 newDiscountedListing.DailyDeal = true;
                 newDiscountedListing.ItemSaleExpiry = expiry;
@@ -196,7 +214,7 @@ namespace TheAfterParty.Domain.Services
                     return;
                 }
 
-                DateTime dealExpiry = GetMidnightEST().AddDays(7).AddMinutes(-5);
+                DateTime dealExpiry = GetMidnightEST().AddDays(7);
 
                 foreach (Listing listing in newDeals)
                 {
@@ -250,7 +268,7 @@ namespace TheAfterParty.Domain.Services
 
                 SelectBoostAmount(newBoostedObjective);
 
-                DateTime endDate = GetMidnightEST().AddDays(1).AddMinutes(-5);
+                DateTime endDate = GetMidnightEST().AddDays(1);
 
                 newBoostedObjective.EndDate = endDate;
                 newBoostedObjective.IsDaily = true;

@@ -78,6 +78,7 @@ namespace TheAfterParty.Domain.Entities
             return convertedTime;
         }
 
+        public DateTime LastUpdated { get; set; }
         public DateTime MemberSince { get; set; }
         public DateTime LastLogon { get; set; }
 

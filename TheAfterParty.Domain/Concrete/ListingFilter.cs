@@ -20,6 +20,7 @@ namespace TheAfterParty.Domain.Concrete
             BlacklistFilter = false;
             UnownedFilter = false;
             AffordableFilter = false;
+            WishlistFilter = false;
 
             SearchText = String.Empty;
             BeginsWithFilter = '.';
@@ -30,7 +31,7 @@ namespace TheAfterParty.Domain.Concrete
             GameSort = 1;
 
             Page = 0;
-            PaginationNum = 100;
+            PaginationNum = 0;
             Date = null;
         }
 
@@ -49,6 +50,7 @@ namespace TheAfterParty.Domain.Concrete
         public bool BlacklistFilter { get; set; }
         public bool UnownedFilter { get; set; }
         public bool AffordableFilter { get; set; }
+        public bool WishlistFilter { get; set; }
         public string SearchText { get; set; }
         public char BeginsWithFilter { get; set; }
         public char BeginsWithSentinel { get; set; }

@@ -43,14 +43,14 @@
                                         <i class="icon-yellow fa fa-fw fa-sun-o"></i>
                                         <div class="top-nav-inner-entry-text">
                                             <p class="top-nav-inner-entry-text-primary">View the daily deals.</p>
-                                            <p class="top-nav-inner-entry-text-secondary">New deal(s) every day.</p>
+                                            <p class="top-nav-inner-entry-text-secondary">A new deal every day.</p>
                                         </div>
                                     </a>
                                     <a class="top-nav-inner-entry" href="@Url.Action("Deals", "Store", new { id = "weekly" })">
                                         <i class="text-purple fa fa-fw fa-calendar"></i>
                                         <div class="top-nav-inner-entry-text">
                                             <p class="top-nav-inner-entry-text-primary">View the weekly deals.</p>
-                                            <p class="top-nav-inner-entry-text-secondary">New deals every Thursday.</p>
+                                            <p class="top-nav-inner-entry-text-secondary">New deals every Friday.</p>
                                         </div>
                                     </a>
                                     <a class="top-nav-inner-entry" href="@Url.Action("Newest", "Store")">
@@ -105,7 +105,7 @@
                                 <div class="top-sub-nav-absolute">
                                     @if (Model != null && Model.LoggedInUser != null && Model.LoggedInUser.ReservedBalance() > 0)
                                     {
-                                        <a class="top-nav-inner-entry" href="@Url.Action("MyWinningAuctions", "Auctions")">
+                                        <a class="top-nav-inner-entry" href="@Url.Action("MyWinningBids", "Auctions")">
                                             <i class="icon-yellow fa fa-fw fa-exclamation-circle"></i>
                                             <div class="top-nav-inner-entry-text">
                                                 <p class="top-nav-inner-entry-text-primary">View open auctions I'm winning.</p>
@@ -139,7 +139,7 @@
                                 <div class="top-sub-nav-relative is-hidden">
                                     <div class="top-sub-nav-absolute top-nav-right">
                                         <a class="top-nav-inner-entry" href="@Url.Action("Keys", "Account")">
-                                            <i class="icon-green fa fa-fw fa-key"></i>
+                                            <i class="icon-yellow fa fa-fw fa-key"></i>
                                             <div class="top-nav-inner-entry-text">
                                                 <p class="top-nav-inner-entry-text-primary">View my keys.</p>
                                                 <p class="top-nav-inner-entry-text-secondary">View the product keys you own.</p>
@@ -197,7 +197,7 @@
                             @using (Html.BeginForm("SteamLogin", "Account"))
                             {
                                 <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
-                                <input type="submit" value="" class="login-button" style="background: url(https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_small.png) no-repeat;"/>
+                                <input type="submit" value="" class="login-button"/>
                             }
                         </div>
                     }
@@ -207,7 +207,8 @@
     </div>
     <div class="banner-container">
         <div class="banner-div">
-            <img class="banner-img" src="~/Content/banner.png" />
+            <p><span class="s-blue">T</span><span class="s-yellow">h</span><span class="s-purp">e </span><span class="s-orange">A</span><span class="s-green">f</span><span class="s-red">t</span><span class="s-blue">e</span><span class="s-yellow">r </span><span class="s-purp">P</span><span class="s-orange">a</span><span class="s-green">r</span><span class="s-red">t</span><span class="s-blue">y</span></p>
+            @*<img class="banner-img" src="~/Content/banner.png" />*@
         </div>
     </div>
     <div class="container">

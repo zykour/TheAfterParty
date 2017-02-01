@@ -1,0 +1,37 @@
+﻿@using TheAfterParty.WebUI.Models.Store
+@using TheAfterParty.Domain.Entities;
+@model AddOrUpdateSteamProductsViewModel
+
+@{
+    ViewBag.Title = "Create Listings";
+}
+
+<h2>Add zero quantity listings</h2>
+
+
+@if (Model.AddedProducts != null)
+{
+    <h3>Added the following games:</h3>
+
+    foreach (String addedGame in Model.AddedProducts)
+    {
+        <span>@addedGame.ToString()</span>
+        <br />
+    }
+}
+
+<h3>IMPORTANT</h3>
+
+<p>
+    <h4>Steam</h4>
+
+    <span>Comma separated list of Steam app IDs to update or add</span>
+</p>
+
+@using (Html.BeginForm("AddListingFromAppID", "Store", FormMethod.Post))
+{
+    @Html.TextAreaFor(m => m.Input, new { @class = "text-box-multi-line form-control", rows = 5 })
+    <div class="panel-footer">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+}

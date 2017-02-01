@@ -35,6 +35,8 @@ namespace TheAfterParty.WebUI.Models.Store
             AffordableFilter = false;
             FilterBlacklist = false;
             FilterLibrary = false;
+            FilterWishlist = false;
+            PreviousFilterWishlist = false;
             PreviousAffordableFilter = false;
             PreviousFilterBlacklist = false;
             PreviousFilterLibrary = false;
@@ -65,6 +67,8 @@ namespace TheAfterParty.WebUI.Models.Store
         
         public bool AffordableFilter { get; set; }
         public bool PreviousAffordableFilter { get; set; }
+        public bool FilterWishlist { get; set; }
+        public bool PreviousFilterWishlist { get; set; }
         public bool FilterLibrary { get; set; }
         public bool PreviousFilterLibrary { get; set; }
         public bool FilterBlacklist { get; set; }

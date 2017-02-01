@@ -80,6 +80,20 @@ namespace TheAfterParty.Domain.Services
             return user.AssertValidOrder();
         }
 
+        public Listing GetDailyDeal()
+        {
+            DiscountedListing deal = listingRepository.GetDiscountedListings().Where(d => d.DailyDeal).FirstOrDefault();
+
+            if (deal == null)
+            {
+                return null;
+            }
+            else
+            {
+                return deal.Listing;
+            }
+        }
+
         public async Task<List<string>> GetOrderValidationErrors()
         {
             AppUser user = await GetCurrentUser();

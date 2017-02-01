@@ -37,26 +37,10 @@ namespace TheAfterParty.WebUI.Controllers
         {
             HomeIndexViewModel model = new HomeIndexViewModel();
 
-            IEnumerable<ActivityFeedContainer> list = siteService.GetSiteActivityFeedItems();
-            model.LoggedInUser = await siteService.GetCurrentUser();
-            List<String> destNames = new List<String>() { indexActionDest };
-            model.FullNavList = CreateHomeNavList(destNames);
-            
-            model.CurrentPage = 1;
-            model.TotalItems = list.Count();
-
             model.Parser = CreateBBCodeParser();
-
-            if (model.LoggedInUser != null && model.LoggedInUser.PaginationPreference != 0)
-            {
-                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
-
-                model.ActivityFeedList = list.Take(model.UserPaginationPreference).ToList();
-            }
-            else
-            {
-                model.ActivityFeedList = list.ToList();
-            }
+            
+            model.Initialize((await siteService.GetCurrentUser()), CreateHomeNavList(new List<string>() { indexActionDest }));
+            model.ActivityFeedList = model.SkipAndTake<ActivityFeedContainer>(siteService.GetSiteActivityFeedItems());
 
             return View(model);
         }
@@ -64,32 +48,12 @@ namespace TheAfterParty.WebUI.Controllers
         [HttpPost]
         public async Task<ActionResult> Index(HomeIndexViewModel model)
         {
-            IEnumerable<ActivityFeedContainer> list = siteService.GetSiteActivityFeedItems();
-            model.LoggedInUser = await siteService.GetCurrentUser();
-            List<String> destNames = new List<String>() { indexActionDest };
-            model.FullNavList = CreateHomeNavList(destNames);
-
-            model.CurrentPage = model.SelectedPage;
-
             model.Parser = CreateBBCodeParser();
-            
-            if (model.CurrentPage < 1)
-            {
-                model.CurrentPage = 1;
-            }
 
-            model.TotalItems = list.Count();
+            model.Initialize((await siteService.GetCurrentUser()), CreateHomeNavList(new List<string>() { indexActionDest }));
+            model.ActivityFeedList = model.SkipAndTake<ActivityFeedContainer>(siteService.GetSiteActivityFeedItems());
 
-            if (model.LoggedInUser != null && model.LoggedInUser.PaginationPreference != 0)
-            {
-                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
-
-                model.ActivityFeedList = list.Skip((model.CurrentPage - 1) * model.UserPaginationPreference).Take(model.UserPaginationPreference).ToList();
-            }
-            else
-            {
-                model.ActivityFeedList = list.ToList();
-            }
+            ModelState.Clear();
 
             return View(model);
         }

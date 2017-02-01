@@ -690,6 +690,90 @@ namespace TheAfterParty.Domain.Services
             userRepository.DeleteProductOrderEntry(id);
             unitOfWork.Save();
         }
+        public async Task RestockProductOrderEntry(int id)
+        {
+            ProductOrderEntry entry = userRepository.GetProductOrderEntryByID(id);
+
+            if (entry.ClaimedProductKeys.Any(c => c.IsRevealed == true))
+            {
+                return;
+            }
+
+            ClaimedProductKey[] keys = entry.ClaimedProductKeys.ToArray();
+            for (int i = 0; i < entry.ClaimedProductKeys.Count; i++)
+            {
+                keys[i].Listing.AddProductKeyAndUpdateQuantity(new ProductKey(keys[i].IsGift, keys[i].Key));
+                listingRepository.UpdateListing(keys[i].Listing);
+                userRepository.DeleteClaimedProductKey(keys[i].ClaimedProductKeyID);
+            }
+
+            if (entry.SalePrice != 0)
+            {
+                entry.Order.AppUser.CreateBalanceEntry("Refunded/Deleted a partial order", entry.SalePrice, DateTime.Now);
+                await UserManager.UpdateAsync(entry.Order.AppUser);
+            }
+
+            userRepository.DeleteProductOrderEntry(id);
+            unitOfWork.Save();
+        }
+        public void PullNewProductKey(int id)
+        {
+            ProductOrderEntry entry = userRepository.GetProductOrderEntryByID(id);
+
+            if (entry.Listing.Quantity == 0)
+            {
+                return;
+            }
+
+            ClaimedProductKey[] keys = entry.ClaimedProductKeys.ToArray();
+
+            if (entry.Listing.ProductKeys.Count > 0)
+            {
+                ProductKey key = entry.Listing.ProductKeys.First();                
+
+                if (keys.Count() > 1)
+                {
+                    for (int i = 0; i < keys.Count(); i++)
+                    {
+                        userRepository.DeleteClaimedProductKey(keys[i].ClaimedProductKeyID);
+                    }
+
+                    entry.AddClaimedProductKey(new ClaimedProductKey(key, entry.Order.AppUser, DateTime.Now, "Admin pulled new key"));
+                }
+                else
+                {
+                    keys[0].Key = key.ItemKey;
+                    keys[0].IsGift = key.IsGift;
+                }
+
+                Listing listing = key.Listing;
+                key.Listing.RemoveProductKeyAndUpdateQuantity(key);
+                listingRepository.DeleteProductKey(key.ProductKeyID);
+                listingRepository.UpdateListing(listing);
+            }
+            else if (entry.Listing.ChildListings.All(l => l.ProductKeys.Count > 0))
+            {
+                for (int i = 0; i < keys.Count(); i++)
+                {
+                    userRepository.DeleteClaimedProductKey(keys[i].ClaimedProductKeyID);
+                }
+
+                foreach (Listing childListing in entry.Listing.ChildListings)
+                {
+                    ProductKey key = childListing.ProductKeys.First();
+
+                    userRepository.InsertClaimedProductKey(new ClaimedProductKey(key, entry.Order.AppUser, DateTime.Now, "Admin pulled new key"));
+
+                    Listing listing = key.Listing;
+                    key.Listing.RemoveProductKeyAndUpdateQuantity(key);
+                    listingRepository.DeleteProductKey(key.ProductKeyID);
+                    listingRepository.UpdateListing(listing);
+                }
+            }
+            
+            userRepository.UpdateProductOrderEntry(entry);
+            unitOfWork.Save();
+        }
         #endregion
 
         public async Task EditAppUserSettings(AppUser appUser)
@@ -707,6 +791,50 @@ namespace TheAfterParty.Domain.Services
             await UserManager.UpdateAsync(updatedUser);
 
             unitOfWork.Save();
+        }
+
+        public async Task<int> AddWishlistItems(string appIds)
+        {
+            string[] apps = appIds.Split(new char[] { ',' });
+
+            if (apps.Count() != 0)
+            {
+                List<WishlistEntry> wishlistEntries = userRepository.GetWishlistEntries().ToList();
+
+                foreach (WishlistEntry entry in wishlistEntries)
+                {
+                    if (!apps.Any(x => entry.AppID.ToString().CompareTo(x) == 0))
+                    {
+                        userRepository.DeleteWishlistEntry(entry.WishlistEntryID);
+                    }
+                }
+
+                int numAdded = 0;
+                int appId = 0;
+                AppUser user = await GetCurrentUser();
+
+                foreach (String app in apps)
+                { 
+                    Int32.TryParse(app, out appId);
+                    
+                    if (appId != 0)
+                    {
+                        if (!wishlistEntries.Any(w => w.AppID == appId))
+                        {
+                            userRepository.InsertWishlistEntry(new WishlistEntry(user, appId));
+                        }
+                        numAdded++;
+                    }
+
+                    appId = 0;
+                }
+
+                unitOfWork.Save();
+
+                return numAdded;
+            }
+
+            return 0;
         }
 
         public async Task<List<ActivityFeedContainer>> GetPublicActivityFeedItems(AppUser user)

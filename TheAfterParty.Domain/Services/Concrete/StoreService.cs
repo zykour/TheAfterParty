@@ -210,6 +210,61 @@ namespace TheAfterParty.Domain.Services
             unitOfWork.Save();
         }
 
+        public List<String> BuildListingsWithSteamID(string appIDCsv)
+        {
+            string[] appIds = appIDCsv.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+            List<string> outputList = new List<string>();
+
+            if (appIds.Count() > 0)
+            {
+                foreach (string appId in appIds)
+                {
+                    int appIdVal = 0;
+
+                    Int32.TryParse(appId, out appIdVal);
+
+                    if (appIdVal != 0)
+                    {
+                        Product prod = listingRepository.GetProducts().FirstOrDefault(p => p.AppID == appIdVal);
+
+                        if (prod == null)
+                        {
+                            prod = new Product(appIdVal);
+                        }
+
+                        BuildOrUpdateSteamProduct(appIdVal, prod);
+                        
+                        if (prod != null)
+                        {
+
+                            if (prod.Listings == null || prod.Listings.Count == 0 || !prod.Listings.Any(l => l.ContainsPlatform("Steam")))
+                            {
+                                Listing newListing = new Listing(prod.ProductName);
+                                Platform steam = GetPlatforms().Where(p => p.PlatformName.CompareTo("Steam") == 0).Single();
+                                newListing.AddProduct(prod);
+                                newListing.AddPlatform(steam);
+                                listingRepository.InsertListing(newListing);
+                                outputList.Add("Added " + appId);
+                            }
+                            else
+                            {
+                                listingRepository.UpdateProduct(prod);
+                                outputList.Add("Updated " + appId);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        outputList.Add("Failed to add entry for " + appId);
+                    }
+                }
+            }
+
+            unitOfWork.Save();
+
+            return outputList;
+        }
         public List<String> BuildOrUpdateProductsWithSteamID(string appIDCsv)
         {
             string[] appIds = appIDCsv.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -488,7 +543,7 @@ namespace TheAfterParty.Domain.Services
             }
             
             SiteNotification notification = new SiteNotification();
-            var url = String.Format("https://theafterparty.azurewebsites.net/store?month={0}&day={1}&year={2}", DateTime.Today.Month, DateTime.Today.Day, DateTime.Today.Year);
+            var url = String.Format("https://theafterparty.azurewebsites.net/store/date?month={0}&day={1}&year={2}", DateTime.Today.Month, DateTime.Today.Day, DateTime.Today.Year);
             notification.Notification = "[new][/new] [url=" + url + "][gtext]" + addedKeys.Count() + "[/gtext][/url] items added to the [url=https://theafterparty.azurewebsites.net/store/newest]Co-op Shop[/url]!";
             notification.NotificationDate = DateTime.Now;
             siteRepository.InsertSiteNotification(notification);
@@ -653,7 +708,7 @@ namespace TheAfterParty.Domain.Services
             }
 
             SiteNotification notification = new SiteNotification();
-            var url = String.Format("https://theafterparty.azurewebsites.net/store?month={0}&day={1}&year={2}", DateTime.Today.Month, DateTime.Today.Day, DateTime.Today.Year);
+            var url = String.Format("https://theafterparty.azurewebsites.net/store/date?month={0}&day={1}&year={2}", DateTime.Today.Month, DateTime.Today.Day, DateTime.Today.Year);
             notification.Notification = "[new][/new] [url=" + url + "][gtext]" + addedKeys.Count() + "[/gtext][/url] items added to the [url=https://theafterparty.azurewebsites.net/store/newest]Co-op Shop[/url]!";
             notification.NotificationDate = DateTime.Now;
             siteRepository.InsertSiteNotification(notification);
@@ -969,7 +1024,7 @@ namespace TheAfterParty.Domain.Services
 
         public Listing GetListingByAppID(int id, string platformName)
         {
-            return listingRepository.GetListings().Where(l => l.Product.AppID == id && l.Product.IsSteamAppID == true && l.ContainsPlatform(platformName)).SingleOrDefault();
+            return listingRepository.GetListings().Where(l => l.Product != null && l.Product.AppID == id && l.Product.IsSteamAppID == true && l.ContainsPlatform(platformName)).SingleOrDefault();
         }
 
         public DiscountedListing GetDiscountedListingByID(int id)

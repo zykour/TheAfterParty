@@ -51,48 +51,21 @@ namespace TheAfterParty.WebUI.Controllers
         public async Task<ActionResult> Index()
         {
             AccountIndexModel model = new AccountIndexModel();
-
-            model.LoggedInUser = await userService.GetCurrentUser();
-            List<String> destNames = new List<String>() { indexActionDest };
-            model.FullNavList = CreateAccountControllerNavList(destNames);
-
-            model.ActivityFeedList = await userService.GetActivityFeedItems();
-
-            model.CurrentPage = 1;
-            model.TotalItems = model.ActivityFeedList.Count;
-
-            if (model.LoggedInUser.PaginationPreference != 0)
-            {
-                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
-
-                model.ActivityFeedList = model.ActivityFeedList.Take(model.UserPaginationPreference).ToList();
-            }
+            
+            List<ActivityFeedContainer> list = await userService.GetActivityFeedItems();
+            model.Initialize((await userService.GetCurrentUser()), CreateAccountControllerNavList(new List<string>() { indexActionDest }));
+            model.ActivityFeedList = model.SkipAndTake<ActivityFeedContainer>(list).ToList();
 
             return View(model);
         }
         [HttpPost]
         public async Task<ActionResult> Index(AccountIndexModel model)
         {
-            model.LoggedInUser = await userService.GetCurrentUser();
-            List<String> destNames = new List<String>() { indexActionDest };
-            model.FullNavList = CreateAccountControllerNavList(destNames);
+            List<ActivityFeedContainer> list = await userService.GetActivityFeedItems();
+            model.Initialize((await userService.GetCurrentUser()), CreateAccountControllerNavList(new List<string>() { indexActionDest }));
+            model.ActivityFeedList = model.SkipAndTake<ActivityFeedContainer>(list).ToList();
 
-            model.ActivityFeedList = await userService.GetActivityFeedItems();
-
-            model.CurrentPage = model.SelectedPage;
-            if (model.CurrentPage < 1)
-            {
-                model.CurrentPage = 1;
-            }
-
-            model.TotalItems = model.ActivityFeedList.Count;
-
-            if (model.LoggedInUser.PaginationPreference != 0)
-            {
-                model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
-
-                model.ActivityFeedList = model.ActivityFeedList.Skip((model.CurrentPage - 1) * model.UserPaginationPreference).Take(model.UserPaginationPreference).ToList();
-            }
+            ModelState.Clear();
 
             return View(model);
         }
@@ -132,6 +105,11 @@ namespace TheAfterParty.WebUI.Controllers
                 {
                     model.LoggedInUser.PaginationPreference = pagination;
                 }
+            }
+            
+            if (String.IsNullOrEmpty(model.AppIDs) == false)
+            {
+                model.SuccessfulItemsAdded = await userService.AddWishlistItems(model.AppIDs);
             }
 
             await userService.EditAppUserSettings(model.LoggedInUser);

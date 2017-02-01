@@ -14,7 +14,7 @@ namespace TheAfterParty.WebUI.App_Start
     {
         public static void RegisterDailyTasks()
         {
-            RecurringJob.AddOrUpdate("update-users-owned-games", () => HangfireJobService.UpdateUserOwnedGames(System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]), Cron.Weekly(DayOfWeek.Tuesday, 0, 4), TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
+            RecurringJob.AddOrUpdate("update-users-owned-games", () => HangfireJobService.UpdateUserOwnedGames(System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"]), Cron.Daily(0, 4), TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
             RecurringJob.AddOrUpdate("daily-roll-over", () => HangfireJobService.RolloverDailyDeal(), Cron.Daily(0, 4), TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
             RecurringJob.AddOrUpdate("daily-obj-roll-over", () => HangfireJobService.RolloverDailyBoosted(), Cron.Daily(0, 4), TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
             RecurringJob.AddOrUpdate("weekly-roll-over", () => HangfireJobService.RolloverWeeklyDeals(), Cron.Weekly(DayOfWeek.Friday, 0, 4), TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));

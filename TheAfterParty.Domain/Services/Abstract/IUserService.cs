@@ -29,6 +29,8 @@ namespace TheAfterParty.Domain.Services
         AppUser GetUserByNickname(string nickname);
         Task UpdateUser(string id, string apiKey);
 
+        Task<int> AddWishlistItems(string appIds);
+
         Task<IEnumerable<Order>> GetUserOrders();
         Task<IEnumerable<ClaimedProductKey>> GetKeys();
 
@@ -59,6 +61,8 @@ namespace TheAfterParty.Domain.Services
         ClaimedProductKey GetClaimedProductKeyByID(int id);
         void DeleteClaimedProductKey(int id);
         IEnumerable<ClaimedProductKey> GetClaimedProductKeys();
+        Task RestockProductOrderEntry(int id);
+        void PullNewProductKey(int id);
 
         Task CreateOrder(Order order, bool alreadyCharged, bool useDBKey = false);
         void EditOrder(Order order);

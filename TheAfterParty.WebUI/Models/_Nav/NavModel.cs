@@ -8,6 +8,8 @@ namespace TheAfterParty.WebUI.Models._Nav
 {
     public class NavModel
     {
+        private const int anonymousPaginationPref = 25;
+
         public NavModel()
         {
             UserPaginationPreference = 0;
@@ -53,6 +55,7 @@ namespace TheAfterParty.WebUI.Models._Nav
         {
             FullNavList = navList;
             LoggedInUser = user;
+            CurrentPage = 1;
 
             if (user != null && user.PaginationPreference != 0)
             {
@@ -65,10 +68,18 @@ namespace TheAfterParty.WebUI.Models._Nav
                 {
                     CurrentPage = SelectedPage;
                 }
-                else
+            }
+            else
+            {
+                if (selectedPage != 0)
                 {
-                    CurrentPage = 1;
+                    CurrentPage = selectedPage;
                 }
+                else if (SelectedPage != 0)
+                {
+                    CurrentPage = SelectedPage;
+                }
+                UserPaginationPreference = anonymousPaginationPref;
             }
 
             TotalItems = totalItems;
@@ -94,7 +105,7 @@ namespace TheAfterParty.WebUI.Models._Nav
             }
             else
             {
-                return list;
+                return list.Skip((CurrentPage - 1) * anonymousPaginationPref).Take(anonymousPaginationPref);
             }
         }
     }

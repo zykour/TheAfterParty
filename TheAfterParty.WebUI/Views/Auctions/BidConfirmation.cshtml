@@ -1,0 +1,27 @@
+﻿@using TheAfterParty.Domain.Entities;
+@using TheAfterParty.WebUI.Models.Auctions;
+@model BidConfirmationViewModel
+
+@{
+    ViewBag.Title = "Bid Confirmation";
+}
+
+<h2>BidConfirmation</h2>
+
+@using (Html.BeginForm("BidConfirmation", "Auctions", FormMethod.Post))
+{
+    @Html.HiddenFor(x => x.AuctionBid.BidAmount)
+    @Html.HiddenFor(x => x.Auction.AuctionID)
+    <div class="row custom-row-header">
+        <h3>Confirm Bid</h3>
+    </div>
+    @Html.ValidationSummary()
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-xl-12">
+            <span>I understand I am bidding @Model.AuctionBid.BidAmount points on an auction for @Model.Auction.Prize(), and while my bid is the winning bid my points will be reserved until I am outbid. I also understand that I will not be able to delete my bid.</span>
+        </div>
+        <div class="col-lg-12 col-md-12 col-xl-12">
+            <button type="submit" class="btn btn-success btn-sm" name="IsConfirmed" value="true">I Understand</button>
+        </div>
+    </div>
+}

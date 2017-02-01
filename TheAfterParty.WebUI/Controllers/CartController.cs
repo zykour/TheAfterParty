@@ -163,6 +163,13 @@ namespace TheAfterParty.WebUI.Controllers
         {
             Order order = await cartService.CreateOrder();
 
+            Listing deal = cartService.GetDailyDeal();
+
+            if (deal != null && deal.Quantity == 0)
+            {
+                Hangfire.RecurringJob.Trigger("daily-roll-over");
+            }
+
             if (order == null)  return RedirectToAction("Index");
             else                return RedirectToAction("Success", new { id = order.OrderID });
         }

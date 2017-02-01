@@ -67,7 +67,7 @@ function ToggleKeyUsed(id, caller, callerCompanionId)
     }
 }
 
-function SubmitBid(id, caller, auctionid)
+function SubmitBid(id, caller, auctionid, auctionName)
 {
     if ($(caller).hasClass('ajax-awaiting') == false) {
         $(caller).toggleClass('ajax-awaiting');
@@ -84,7 +84,12 @@ function SubmitBid(id, caller, auctionid)
 
         var points = parseInt(bidAmount, 10);
 
-        var confirmed = confirm("Are you sure you want to submit a bid for " + points);
+        var confirmed = confirm("Are you sure you want to submit a bid of " + points + " for " + auctionName);
+
+        if (confirmed)
+        {
+            confirmed = confirm("Are you POSITIVE you want to submit a bid for " + points + " for " + auctionName);
+        }
 
         if (confirmed) {
             $.ajax({
@@ -114,10 +119,15 @@ function SubmitBid(id, caller, auctionid)
     }
 }
 
+$(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+})
+
 function ToggleFilters(id)
 {
     $('#' + id + "Container").toggleClass("is-hidden");
-    $('#' + id + "Collapse").toggleClass("is-hidden");
+    $('#' + id + "chev").toggleClass("fa-chevron-down");
+    $('#' + id + "chev").toggleClass("fa-chevron-up");
 
     FixFooterHeight();
 }
@@ -194,7 +204,6 @@ function AddToBlacklist(caller, id, rowId)
 
                         $div = $('#listing' + rowId + 'id1');
 
-                        alert('#listing' + rowId + 'id1');
                         if ($div != null) {
                             $div.find('div').fadeOut(300, function () {
                                 $div.remove();
@@ -282,7 +291,7 @@ function FixFooterHeight()
     var footerTop = $('#footer').position().top + footerHeight;
 
     if (footerTop < docHeight) {
-        $('#footer').css('margin-top', (docHeight - footerTop) - 10 + 'px');
+        $('#footer').css('margin-top', (docHeight - footerTop) - 4 + 'px');
     }
     else
     {

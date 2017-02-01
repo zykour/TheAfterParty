@@ -141,13 +141,7 @@ namespace TheAfterParty.WebUI.Controllers
             {
                 return RedirectToAction("Index");
             }
-
-            if (model.RequestedUser.LargeAvatar == null)
-            {
-                Task task = new Task(new Action(() => userService.BuildUser(model.RequestedUser, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"])));
-                task.Start();
-            }
-
+            
             if (model.LoggedInUser.PaginationPreference != 0)
             {
                 model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
@@ -205,13 +199,6 @@ namespace TheAfterParty.WebUI.Controllers
             {
                 return RedirectToAction("Index");
             }
-
-            if (model.RequestedUser.LargeAvatar == null)
-            {
-                Task task = new Task(new Action(() => userService.BuildUser(model.RequestedUser, System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"])));
-                task.Start();
-            }
-
 
             if (model.LoggedInUser.PaginationPreference != 0)
             {
@@ -802,15 +789,35 @@ namespace TheAfterParty.WebUI.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteProductOrderEntry(int id)
         {
-            ProductOrderEntry entry = userService.GetProductOrderEntryByID(id);
+            int orderId = userService.GetProductOrderEntryByID(id).OrderID;
 
             await userService.DeleteProductOrderEntry(id);
 
-            return RedirectToAction("AdminOrder", new { id = entry.Order.OrderID });
+            return RedirectToAction("AdminOrder", new { id = orderId });
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> RestockProductOrderEntry(int id)
+        {
+            int orderId = userService.GetProductOrderEntryByID(id).OrderID;
+
+            await userService.RestockProductOrderEntry(id);
+
+            return RedirectToAction("AdminOrder", new { id = orderId });
+        }
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult PullNextProductKey(int id)
+        {
+            int orderId = userService.GetProductOrderEntryByID(id).OrderID;
+
+            userService.PullNewProductKey(id);
+
+            return RedirectToAction("AdminOrder", new { id = orderId });
         }
 
         #endregion
-        
+
         private List<NavGrouping> CreateUserControllerNavList(List<String> destNames)
         {
             List<NavGrouping> navList;

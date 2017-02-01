@@ -48,6 +48,7 @@ namespace TheAfterParty.Domain.Services
 
         void AddListing(Listing listing);
 
+        List<String> BuildListingsWithSteamID(string appIDCsv);
         List<String> AddProductKeys(Platform platform, string input);
         List<String> BuildOrUpdateProductsWithSteamID(string appIDCsv);
         List<String> AddOrUpdateNonSteamProducts(string input);

@@ -12,26 +12,67 @@
             <h3 class="text-left">Purchase History</h3>
         </div>
     </div>
-    @foreach (ProductOrderEntry entry in Model.PurchaseEntries)
+    @foreach (IEnumerable<ProductOrderEntry> order in Model.PurchaseEntries.GroupBy(p => p.OrderID))
     {
-        <div class="row">
-            <div class="col-lg-10 col-md-10 col-xl-10 activity-row">
-                <p>
-                    <a href="@Url.Action("UserProfile", "User", new { id = entry.Order.AppUser.UserName })" class="text-primary">@entry.Order.AppUser.UserName</a> purchased
-                    @if (entry.Listing.Quantity > 0)
-                    {
-                        <a href="@Url.Action("Game", "Store", new { id = entry.Listing.ListingID })">@entry.Listing.ListingName</a>
-                    }
-                    else
-                    {
-                        <span class="text-warning">@entry.Listing.ListingName</span>
-                    }
-                    for <span class="text-success">@entry.SalePrice</span> @(Html.FixPluralization(@entry.SalePrice, "point")).
-                </p>
+        Order userOrder = order.First().Order;
+        <div class="row padded-row">
+            <div class="col-lg-12 col-md-12 col-xl-12 activity-row vertical-align">
+                <a href="@Url.Action("UserProfile", "User", new { id = userOrder.AppUser.UserName })">
+                    <div class="outer-avatar-container">
+                        <div class="inner-avatar-container-lg" style="background-image: url(@userOrder.AppUser.MediumAvatar)"></div>
+                    </div>
+                </a>
+                @if (order.Count() == userOrder.ProductOrderEntries.Count)
+                {
+                    <span class="pad-right col-text text-lblue">@userOrder.AppUser.UserName</span><span>&nbsp;made a purchase of <span class="text-success">@userOrder.TotalSalePrice()</span> @Html.FixPluralization(userOrder.TotalSalePrice(), "point").</span>
+                }
+                else
+                {
+                    <span class="pad-right col-text text-lblue">@userOrder.AppUser.UserName</span><span>&nbsp;made a purchase of <span class="text-success">@userOrder.TotalSalePrice()</span> points. (Showing <span class="text-success">@order.Sum(p => p.SalePrice)</span> of <span class="text-success">@userOrder.TotalSalePrice()</span>)</span>
+                }
+                <span class="activity-time flex-right">@Model.GetConvertedDateTime(((DateTime)userOrder.SaleDate)).ToString("MMM dd h:mm tt", System.Globalization.CultureInfo.InvariantCulture)</span>
             </div>
-            <div class="col-lg-2 col-md-2 col-xl-2 text-right activity-time">
-                @Model.GetConvertedDateTime(((DateTime)entry.Order.SaleDate)).ToString("MMM dd h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+        </div>
+        <div class="container-fluid pad-bottom">
+        @foreach (ProductOrderEntry entry in order)
+        {
+            <div class="row padded-row">
+                <div class="col-lg-12 col-md-12 col-xl-12 activity-row vertical-align">
+                    <span class="leading-price">@(entry.SalePrice)</span>
+                    <div class="outer-banner-container">
+                        @{
+                            string url = entry.Listing.GetQualifiedSteamStorePageURL();
+
+                            if (String.IsNullOrEmpty(url) == true)
+                            {
+                                if (String.IsNullOrEmpty(entry.Listing.Product?.GetHttpsSecuredHeaderImage()))
+                                {
+                                    <div class="inner-store-banner-container delayed-load" data-src="/Content/applogo.gif" style="background-image: url('a.gif')"></div>
+                                }
+                                else
+                                {
+                                    <div class="inner-store-banner-container delayed-load" data-src="@entry.Listing.Product.GetHttpsSecuredHeaderImage()" style="background-image: url('a.gif')"></div>
+                                }
+                            }
+                            else
+                            {
+                                <a href="@url">
+                                    @if (String.IsNullOrEmpty(entry.Listing.Product?.GetHttpsSecuredHeaderImage()))
+                                    {
+                                        <div class="inner-store-banner-container delayed-load" data-src="/Content/applogo.gif" style="background-image: url('a.gif')"></div>
+                                    }
+                                    else
+                                    {
+                                        <div class="inner-store-banner-container delayed-load" data-src="@entry.Listing.Product.GetHttpsSecuredHeaderImage()" style="background-image: url('a.gif')"></div>
+                                    }
+                                </a>
+                            }
+                        }
+                    </div>
+                    <a href="@Url.Action("Game", "Store", new { id = entry.Listing.ListingID })" class="pad-right">@entry.Listing.ListingName</a>
+                </div>
             </div>
+        }
         </div>
     }
     @using (Html.BeginForm("History", "Store", FormMethod.Post))

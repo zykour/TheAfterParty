@@ -43,6 +43,11 @@ namespace TheAfterParty.Domain.Concrete
                 listingQuery = listingQuery.Where(x => x.DiscountedListings.Any(y => y.DailyDeal));
             }
 
+            if (filter.WishlistFilter)
+            {
+                listingQuery = listingQuery.Where(x => context.WishlistEntries.Where(y => y.UserID.Equals(filter.UserID)).Select(y => y.AppID).Any(z => z == x.Product.AppID));
+            }
+
             if (filter.IsOtherDeal)
             {
                 listingQuery = listingQuery.Where(x => x.DiscountedListings.Any(y => y.DailyDeal == false && y.WeeklyDeal == false));
@@ -60,7 +65,7 @@ namespace TheAfterParty.Domain.Concrete
 
             if (filter.IsNewest)
             {
-                var date = context.Listings.OrderByDescending(x => x.DateEdited).FirstOrDefault().DateEdited.Date;
+                var date = context.Listings.Where(l => l.Quantity > 0).OrderByDescending(x => x.DateEdited).FirstOrDefault().DateEdited.Date;
                 var day = date.Day;
                 var month = date.Month;
                 var year = date.Year;

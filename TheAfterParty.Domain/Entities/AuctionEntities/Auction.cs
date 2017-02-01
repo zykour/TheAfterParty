@@ -188,6 +188,54 @@ namespace TheAfterParty.Domain.Entities
 
             return max;
         }
+        public int UserPublicMaxBid(AppUser user)
+        {
+            if (IsSilent)
+            {
+                return 0;
+            }
+
+            if (AuctionBids.Count == 0)
+            {
+                return 0;
+            }
+
+            if (UserIsWinningBid(user))
+            {
+                return WinningBid();
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        public int PublicWinningBid()
+        {
+            if (IsSilent)
+            {
+                return 0;
+            }
+
+            if (AuctionBids.Count == 0)
+            {
+                return 0;
+            }
+
+            if (AuctionBids.Count == 1)
+            {
+                return MinimumBid;
+            }
+            
+            int calculatedBid = AuctionBids.OrderByDescending(a => a.BidAmount).Skip(1).Take(1).Single().BidAmount + Increment;
+
+            // if max bid is smaller than second highest bid + incr, then we want the max bid, otherwise return the calculated bid (second highest + incr.)
+            if (calculatedBid > WinningBid())
+            {
+                return WinningBid();
+            }
+
+            return calculatedBid;
+        }
         public int LowestWinningBid()
         {
             if (AuctionBidsIsNullOrEmpty())
@@ -208,7 +256,7 @@ namespace TheAfterParty.Domain.Entities
 
             int lowestBid = AuctionBids.GroupBy(a => a.AppUser.Id)
                                     .Select(g => g.OrderByDescending(x => x.BidAmount).First())
-                                    .OrderByDescending(a => a.BidAmount)
+                                    .OrderByDescending(a => a.BidAmount).ThenBy(a => a.BidDate)
                                     .Skip(Copies - 1)
                                     .Take(1)
                                     .FirstOrDefault()
@@ -230,7 +278,7 @@ namespace TheAfterParty.Domain.Entities
             
             return AuctionBids.GroupBy(a => a.AppUser.Id)
                                     .Select(g => g.OrderByDescending(x => x.BidAmount).First())
-                                    .OrderByDescending(a => a.BidAmount)
+                                    .OrderByDescending(a => a.BidAmount).ThenBy(a => a.BidDate)
                                     .Skip(Copies - 1)
                                     .Take(1)
                                     .FirstOrDefault();
@@ -254,7 +302,7 @@ namespace TheAfterParty.Domain.Entities
 
             return AuctionBids.GroupBy(a => a.AppUser.Id)
                                    .Select(g => g.OrderByDescending(x => x.BidAmount).First())
-                                   .OrderByDescending(a => a.BidAmount)
+                                   .OrderByDescending(a => a.BidAmount).ThenBy(a => a.BidDate)
                                    .Take(Copies);
         }
         public AuctionBid WinningAuctionBid()
@@ -319,7 +367,7 @@ namespace TheAfterParty.Domain.Entities
         {
             return AuctionBids.GroupBy(a => a.AppUser.Id)
                                    .Select(g => g.OrderByDescending(x => x.BidAmount).First())
-                                   .OrderByDescending(a => a.BidAmount)
+                                   .OrderByDescending(a => a.BidAmount).ThenBy(a => a.BidDate)
                                    .Take(Copies)
                                    .Count();
         }

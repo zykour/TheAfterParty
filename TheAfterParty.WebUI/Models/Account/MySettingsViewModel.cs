@@ -6,5 +6,7 @@ namespace TheAfterParty.WebUI.Models.Account
     {
         //public string TimeZoneID { get; set; }
         public string PaginationPreference { get; set; }
+        public string AppIDs { get; set; }
+        public int SuccessfulItemsAdded { get; set; }
     }
 }

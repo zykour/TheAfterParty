@@ -116,7 +116,7 @@ namespace TheAfterParty.Domain.Concrete
             modelBuilder.Entity<Prize>().HasRequired<Listing>(p => p.Listing).WithOptional(l => l.Prize).WillCascadeOnDelete(true);
             modelBuilder.Entity<ListingComment>().HasRequired<Listing>(lc => lc.Listing).WithMany(l => l.ListingComments).HasForeignKey(lc => lc.ListingID).WillCascadeOnDelete(true);
             modelBuilder.Entity<ProductKey>().HasRequired<Listing>(pk => pk.Listing).WithMany(l => l.ProductKeys).HasForeignKey(pk => pk.ListingID).WillCascadeOnDelete(false);
-            modelBuilder.Entity<WishlistEntry>().HasRequired<Listing>(we => we.Listing).WithMany(l => l.WishlistEntries).HasForeignKey(we => we.ListingID).WillCascadeOnDelete(false);
+            modelBuilder.Entity<WishlistEntry>().HasOptional<Listing>(we => we.Listing).WithMany(l => l.WishlistEntries).HasForeignKey(we => we.ListingID).WillCascadeOnDelete(false);
             modelBuilder.Entity<Product>().HasMany<Listing>(p => p.Listings).WithOptional(l => l.Product).WillCascadeOnDelete(false); 
             modelBuilder.Entity<Listing>().HasMany<Listing>(l => l.ChildListings).WithMany(l => l.ParentListings);
 

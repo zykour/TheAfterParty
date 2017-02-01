@@ -32,7 +32,11 @@ namespace TheAfterParty.Domain.Concrete
         
         public Task<AppUser> FindByNameAsyncWithStoreFilters(string userName)
         {
-            return Users.Include(x => x.BlacklistedListings).Include(x => x.ShoppingCartEntries.Select(c => c.Listing.DiscountedListings)).Include(x => x.AuctionBids.Select(ab => ab.Auction)).FirstOrDefaultAsync(u => u.UserName == userName);
+            return Users.Include(x => x.BlacklistedListings)
+                        .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.DiscountedListings))
+                        .Include(x => x.AuctionBids.Select(ab => ab.Auction))
+                        .Include(x => x.WishlistEntries)//.Select(we => we.Listing).Select(l => l.Product))
+                        .FirstOrDefaultAsync(u => u.UserName == userName);
         }
 
         public Task<AppUser> FindByNameAsyncWithBlacklist(string userName)

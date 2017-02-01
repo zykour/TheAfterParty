@@ -20,7 +20,7 @@
                 {
                     k++;
                     string id = "noprod" + k + "p";
-                    <div class="row custom-row clickable" id="@id" onclick="ToggleHidden(this,@id)">
+                    <div class="row custom-row vertical-align clickable" id="@id" onclick="ToggleHidden(this,@id)">
                     <div class="col-lg-11 col-md-11 col-xl-11">
                         <span class="objective-title">@group.FirstOrDefault().Title</span>
                     </div>
@@ -29,18 +29,18 @@
                     </div>
                 </div>
                     <div id="@(id)1" class="is-hidden">
-                        <div class="row custom-row col-header">
-                            <div class="col-lg-1 col-md-1 col-xl-1">ID</div>
-                            <div class="col-lg-6 col-md-6 col-xl-6 text-center">Objective</div>
-                            <div class="col-lg-1 col-md-1 col-xl-1">Monuplay</div>
-                            <div class="col-lg-1 col-md-1 col-xl-1">Boosted</div>
-                            <div class="col-lg-1 col-md-1 col-xl-1">Reward</div>
-                            <div class="col-lg-1 col-md-1 col-xl-1">Expires</div>
+                        <div class="row custom-row text-center">
+                            <div class="col-lg-1 col-md-1 col-xl-1"><span class="col-header-c">ID</span></div>
+                            <div class="col-lg-6 col-md-6 col-xl-6"><span class="col-header-c">Objective</span></div>
+                            <div class="col-lg-1 col-md-1 col-xl-1"><span class="col-header-c" data-toggle="tooltip" data-placement="top" title="Objective must be completed with Monukai">Monuplay</span></div>
+                            <div class="col-lg-1 col-md-1 col-xl-1"><span class="col-header-c">Boosted</span></div>
+                            <div class="col-lg-1 col-md-1 col-xl-1"><span class="col-header-c">Reward</span></div>
+                            <div class="col-lg-1 col-md-1 col-xl-1"><span class="col-header-c">Expires</span></div>
                         </div>
                         @foreach (Objective obj in group)
                         {
                             <div class="row store-entry-sm objective-row text-center">
-                                <div class="col-lg-1 col-md-1 col-xl-1 col-text text-lblue">@obj.ObjectiveID</div>
+                                <div class="col-lg-1 col-md-1 col-xl-1 col-text"><a href="@Url.Action("Objective", new { id = @obj.ObjectiveID })">@obj.ObjectiveID</a></div>
                                 <div class="col-lg-6 col-md-6 col-xl-6 text-left">
                                     <p><span class="objective-name">@obj.ObjectiveName</span><br />@obj.Description</p>
                                 </div>
@@ -67,11 +67,11 @@
                                 <div class="col-lg-1 col-md-1 col-xl-1 text-center">
                                     @if (obj.BoostedObjective == null)
                                     {
-                                        <span class="col-text">@obj.FixedReward()</span>
+                                        <span>@obj.FixedReward()</span>
                                     }
                                     else
                                     {
-                                        <span class="col-text text-success">@obj.FixedReward()</span>
+                                        <span class="text-success">@obj.FixedReward()</span>
                                     }
                                 </div>
                                 <div class="col-lg-1 col-md-1 col-xl-1 text-center col-text">
@@ -93,7 +93,7 @@
             {
                 string id = "prod" + group.First().Product.ProductID + "p";
                 <div class="row custom-row clickable" id="@id" onclick="ToggleHidden(this,@id)">
-                    <div class="col-lg-11 col-md-11 col-xl-11">
+                    <div class="col-lg-11 col-md-11 col-xl-11 vertical-align">
                         @if (group.FirstOrDefault()?.Product != null)
                         {
                             <div class="outer-banner-container-row">
@@ -114,18 +114,18 @@
                     </div>
                 </div>
                 <div id="@(id)1" class="is-hidden">
-                    <div class="row custom-row col-header">
-                        <div class="col-lg-1 col-md-1 col-xl-1">ID</div>
-                        <div class="col-lg-6 col-md-6 col-xl-6 text-center" >Objective</div>
-                        <div class="col-lg-1 col-md-1 col-xl-1">Monuplay</div>
-                        <div class="col-lg-1 col-md-1 col-xl-1">Boosted</div>
-                        <div class="col-lg-1 col-md-1 col-xl-1">Reward</div>
-                        <div class="col-lg-1 col-md-1 col-xl-1">Expires</div>
+                    <div class="row custom-row text-center">
+                        <div class="col-lg-1 col-md-1 col-xl-1"><span class="col-header-c">ID</span></div>
+                        <div class="col-lg-6 col-md-6 col-xl-6"><span class="col-header-c">Objective</span></div>
+                        <div class="col-lg-1 col-md-1 col-xl-1"><span class="col-header-c" data-toggle="tooltip" data-placement="top" title="Objective must be completed with Monukai">Monuplay</span></div>
+                        <div class="col-lg-1 col-md-1 col-xl-1"><span class="col-header-c">Boosted</span></div>
+                        <div class="col-lg-1 col-md-1 col-xl-1"><span class="col-header-c">Reward</span></div>
+                        <div class="col-lg-1 col-md-1 col-xl-1"><span class="col-header-c">Expires</span></div>
                     </div>
                     @foreach (Objective obj in group)
                     {
                         <div class="row store-entry-sm objective-row text-center">
-                            <div class="col-lg-1 col-md-1 col-xl-1 col-text text-lblue">@obj.ObjectiveID</div>
+                            <div class="col-lg-1 col-md-1 col-xl-1 col-text"><a href="@Url.Action("Objective", new { id = @obj.ObjectiveID })">@obj.ObjectiveID</a></div>
                             <div class="col-lg-6 col-md-6 col-xl-6 text-left">
                                 <p><span class="objective-name">@obj.ObjectiveName</span><br />@obj.Description</p>
                             </div>
@@ -182,13 +182,13 @@
                     @if (Model.PreviousFilterLibrary)
                     {
                         <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
-                            <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label("Owned", new { @class = "text-success store-filter" })
+                            <i class="fa fa-square adjusted-fa text-success"></i> @Html.Label("Owned", new { @class = "text-success store-filter" })
                         </button>
                     }
                     else
                     {
                         <button type="submit" class="btn-transparent" name="FilterLibrary" value="true">
-                            <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label("Owned", new { @class = "text-success store-filter" })
+                            <i class="fa fa-square-o adjusted-fa text-success"></i> @Html.Label("Owned", new { @class = "text-success store-filter" })
                         </button>
                     }
                 </div>
@@ -210,13 +210,13 @@
                         @if (Model.SelectedTagMappings[i].IsSelected)
                         {
                         <button class="btn-transparent text-nowrap" type="submit" name="TagToChange" value="@Model.SelectedTagMappings[i].StoreTag.TagID">
-                            <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
+                            <i class="fa fa-square adjusted-fa text-success"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
                         </button>
                         }
                         else
                         {
                         <button class="btn-transparent text-nowrap" type="submit" name="TagToChange" value="@Model.SelectedTagMappings[i].StoreTag.TagID">
-                            <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
+                            <i class="fa fa-square-o adjusted-fa text-success"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
                         </button>
                         }
                     </div>

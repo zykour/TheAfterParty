@@ -38,20 +38,25 @@
             @for (int i = 0; i < Model.Keys.Count(); i++)// each (ClaimedProductKey key in Model.Keys)
             {
                 ClaimedProductKey key = Model.Keys.ElementAt(i);
+                var url = "http://store.steampowered.com/app/" + Model.Keys.ElementAt(i).Listing.Product.AppID;
                 <div class="row store-entry-sm">
                     <div class="col-lg-6 col-md-6 col-xl-6 vertical-align">
                         <div class="outer-banner-container">
-                            @if (String.IsNullOrEmpty(key.Listing?.Product?.GetHttpsSecuredHeaderImage()))
-                            {
-                                <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
-                            }
-                            else
-                            {
-                                <div class="inner-store-banner-container" style="background-image: url(@key.Listing.Product.GetHttpsSecuredHeaderImage())"></div>
-                            }
+                            <a href="@url">
+                                @if (String.IsNullOrEmpty(key.Listing?.Product?.GetHttpsSecuredHeaderImage()))
+                                {
+                                    <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
+                                }
+                                else
+                                {
+                                    <div class="inner-store-banner-container" style="background-image: url(@key.Listing.Product.GetHttpsSecuredHeaderImage())"></div>
+                                }
+                            </a>
                         </div>
                         <div class="store-entry-name">
-                            @key.Listing.ListingName
+                            <a href="@url">
+                                @key.Listing.ListingName
+                            </a>
                         </div>
                     </div>
                     <div class="col-lg-1 col-md-1 col-xl-1 vertical-align">
@@ -107,13 +112,13 @@
                 @if (Model.PreviousFilterRevealed)
                 {
                     <button type="submit" class="btn-transparent text-nowrap" name="FilterRevealed" value="true">
-                        <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label("Revealed", new { @class = "text-success store-filter" })
+                        <i class="fa fa-square adjusted-fa text-success"></i> @Html.Label("Revealed", new { @class = "text-success store-filter" })
                     </button>
                 }
                 else
                 {
                     <button type="submit" class="btn-transparent text-nowrap" name="FilterRevealed" value="true">
-                        <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label("Revealed", new { @class = "text-success store-filter" })
+                        <i class="fa fa-square-o adjusted-fa text-success"></i> @Html.Label("Revealed", new { @class = "text-success store-filter" })
                     </button>
                 }
             </div>
@@ -121,13 +126,13 @@
                 @if (Model.PreviousFilterUnrevealed)
                 {
                     <button type="submit" class="btn-transparent text-nowrap" name="FilterUnrevealed" value="true">
-                        <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label("Unrevealed", new { @class = "text-success store-filter" })
+                        <i class="fa fa-square adjusted-fa text-success"></i> @Html.Label("Unrevealed", new { @class = "text-success store-filter" })
                     </button>
                 }
                 else
                 {
                     <button type="submit" class="btn-transparent text-nowrap" name="FilterUnrevealed" value="true">
-                        <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label("Unrevealed", new { @class = "text-success store-filter" })
+                        <i class="fa fa-square-o adjusted-fa text-success"></i> @Html.Label("Unrevealed", new { @class = "text-success store-filter" })
                     </button>
                 }
             </div>
@@ -135,13 +140,13 @@
                 @if (Model.PreviousFilterUsed)
                 {
                     <button type="submit" class="btn-transparent text-nowrap" name="FilterUsed" value="true">
-                        <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label("Used", new { @class = "text-success store-filter" })
+                        <i class="fa fa-square adjusted-fa text-success"></i> @Html.Label("Used", new { @class = "text-success store-filter" })
                     </button>
                 }
                 else
                 {
                     <button type="submit" class="btn-transparent text-nowrap" name="FilterUsed" value="true">
-                        <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label("Used", new { @class = "text-success store-filter" })
+                        <i class="fa fa-square-o adjusted-fa text-success"></i> @Html.Label("Used", new { @class = "text-success store-filter" })
                     </button>
                 }
             </div>
@@ -149,13 +154,13 @@
                 @if (Model.PreviousFilterUnused)
                 {
                     <button type="submit" class="btn-transparent text-nowrap" name="FilterUnused" value="true">
-                        <i class="fa fa-square fa-lg fa-lg text-success"></i> @Html.Label("Unused", new { @class = "text-success store-filter" })
+                        <i class="fa fa-square adjusted-fa text-success"></i> @Html.Label("Unused", new { @class = "text-success store-filter" })
                     </button>
                 }
                 else
                 {
                     <button type="submit" class="btn-transparent text-nowrap" name="FilterUnused" value="true">
-                        <i class="fa fa-square-o fa-lg text-success"></i> @Html.Label("Unused", new { @class = "text-success store-filter" })
+                        <i class="fa fa-square-o adjusted-fa text-success"></i> @Html.Label("Unused", new { @class = "text-success store-filter" })
                     </button>
                 }
             </div>

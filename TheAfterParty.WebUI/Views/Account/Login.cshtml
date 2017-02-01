@@ -3,12 +3,14 @@
     ViewBag.Title = "Login";
 }
 
-<h2>Login</h2>
+<div class="container">
+    <div class="col-lg-2 col-md-2 col-xl-2">
+    </div>
+    <div class="col-lg-10 col-md-10 col-xl-10">
+        <h2>Login</h2>
+        <br/>
+        @Html.ValidationSummary()
 
-@Html.ValidationSummary()
-
-@using (Html.BeginForm("SteamLogin", "Account"))
-{
-    <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
-    <button class="btn btn-primary" type="submit">Log In via Steam</button>
-}
+        <p>The After Party is a closed community group. All accounts are pre-authored by the site admin. If you are already a member you may login via Steam using the Steam Login button at the top of the page.</p>
+    </div>
+</div>

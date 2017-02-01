@@ -2,8 +2,6 @@
 @using TheAfterParty.WebUI.Models.Auctions
 @model AuctionsIndexViewModel
 
-
-
 @using (Html.BeginForm(Model.ActionName, "Auctions", FormMethod.Post))//null, FormMethod.Post, new { id = ViewBag.StoreFormID }))
 {
     <div>
@@ -31,7 +29,7 @@
                                     }
                                 </div>
                                 <div class="tag-inline-block">
-                                    <span class="auctions-title">@auction.Prize()</span>
+                                    <span class="tag-inline-block auctions-title">@auction.Prize()</span>
                                 </div>
                             </div>
                             <div class="col-lg-5 col-md-6 col-xl-4 text-left text-nowrap vertical-align">
@@ -80,7 +78,7 @@
                                     }
                                 </div>
                                 <div class="tag-inline-block">
-                                    <span class="auctions-title">@auction.Prize()</span>
+                                    <span class="tag-inline-block auctions-title">@auction.Prize()</span>
                                 </div>
                             </div>
                             <div class="col-lg-5 col-md-6 col-xl-4 text-left text-nowrap vertical-align">
@@ -101,11 +99,11 @@
                                     }
                                     else if (auction.Copies > 1)
                                     {
-                                        <p><span class="auction-header-text">@auction.LowestWinningBid()+ point</span><br /><span class="auction-header-text">winning bids</span></p>
+                                        <p><span class="auction-header-text">@auction.PublicWinningBid()+ point</span><br /><span class="auction-header-text">winning bids</span></p>
                                     }
                                     else
                                     {
-                                        <p><span class="auction-header-text">@auction.WinningBid() point</span><br /><span class="auction-header-text">winning bid</span></p>
+                                        <p><span class="auction-header-text">@auction.PublicWinningBid() point</span><br /><span class="auction-header-text">winning bid</span></p>
                                     }
                                 </div>
                                 <div class="tag-inline-block faint-border-left">
@@ -131,10 +129,19 @@
                                                     <div class="inner-avatar-container-lg" style="background-image: url(@bid.AppUser.MediumAvatar)"></div>
                                                 </div>
                                             </a>
-                                            <div class="pad-right col-text text-lblue">@bid.AppUser.UserName</div>
+                                            <a href="@Url.Action("UserProfile", "User", new { id = bid.AppUser.UserName })">
+                                                <div class="pad-right col-text text-lblue">@bid.AppUser.UserName</div>
+                                            </a>
                                         </div>
-                                        <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@bid.BidAmount</span></div>
-                                        <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-lblue">@Model.GetConvertedDateTime(bid.BidDate).ToString("dd MMM h:mm:ss tt")</span></div>
+                                        @if (bid.AuctionBidID == auction.WinningAuctionBid().AuctionBidID && auction.IsOpen() == false && auction.IsSilent == false)
+                                        {
+                                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@auction.PublicWinningBid() (@bid.BidAmount)</span></div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@bid.BidAmount</span></div>
+                                        }
+                                        <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span>@Model.GetConvertedDateTime(bid.BidDate).ToString("dd MMM h:mm:ss tt")</span></div>
                                     </div>
                                 }
                             </div>
@@ -265,17 +272,13 @@
                                         }
                                     </div>
                                     <div class="tag-inline-block faint-border-left">
-                                        @if (auction.HasMoreCopiesThanWinningBids() == true)
+                                        @if (auction.WinningAuctionBid() == null)
                                         {
                                             <p><span class="auction-header-text">@auction.MinimumBid point</span><br /><span class="auction-header-text">minimum bid</span></p>
                                         }
-                                        else if (auction.Copies > 1)
-                                        {
-                                            <p><span class="auction-header-text">@auction.LowestWinningBid()+ point</span><br /><span class="auction-header-text">winning bids</span></p>
-                                        }
                                         else
                                         {
-                                            <p><span class="auction-header-text">@auction.WinningBid() point</span><br /><span class="auction-header-text">winning bid</span></p>
+                                            <p><span class="auction-header-text">@auction.PublicWinningBid() point</span><br /><span class="auction-header-text">winning bid</span></p>
                                         }
                                     </div>
                                     <div class="tag-inline-block faint-border-left">
@@ -291,8 +294,33 @@
                                     <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="col-header">Bid Time</span></div>
                                 </div>
                                 <div>
-                                    @foreach (AuctionBid bid in auction.AuctionBids.OrderByDescending(a => a.BidAmount))
+                                    @if (auction.AuctionBidsIsNullOrEmpty() == false && auction.AuctionBids.OrderByDescending(a => a.BidAmount).FirstOrDefault() != null)
                                     {
+                                        AuctionBid highBid = auction.AuctionBids.OrderByDescending(a => a.BidAmount).FirstOrDefault();
+                                        <div class="row user-row store-entry-sm">
+                                            <div class="col-lg-4 col-md-4 col-xl-4 vertical-align text-left">
+                                                <a href="@Url.Action("UserProfile", "User", new { id = highBid.AppUser.UserName })">
+                                                    <div class="outer-avatar-container">
+                                                        <div class="inner-avatar-container-lg" style="background-image: url(@highBid.AppUser.MediumAvatar)"></div>
+                                                    </div>
+                                                </a>
+                                                <div class="pad-right col-text text-lblue">@highBid.AppUser.UserName</div>
+                                            </div>
+                                            @if (auction.UserIsWinningBid(Model.LoggedInUser) == true || auction.IsOpen() == false && auction.IsSilent == false)
+                                            {
+                                                <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@auction.PublicWinningBid() (@auction.WinningBid())</span></div>
+                                            }
+                                            else
+                                            {
+                                                <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@auction.PublicWinningBid()</span></div>
+                                            }
+                                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span>@Model.GetConvertedDateTime(highBid.BidDate).ToString("dd MMM h:mm:ss tt")</span></div>
+                                        </div>
+                                    }
+                                    @if (auction?.AuctionBids?.Count > 1)
+                                    {
+                                        foreach (AuctionBid bid in auction.AuctionBids.OrderByDescending(a => a.BidAmount).Skip(1))
+                                        {
                                         <div class="row user-row store-entry-sm">
                                             <div class="col-lg-4 col-md-4 col-xl-4 vertical-align text-left">
                                                 <a href="@Url.Action("UserProfile", "User", new { id = bid.AppUser.UserName })">
@@ -303,8 +331,9 @@
                                                 <div class="pad-right col-text text-lblue">@bid.AppUser.UserName</div>
                                             </div>
                                             <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@bid.BidAmount</span></div>
-                                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-lblue">@Model.GetConvertedDateTime(bid.BidDate).ToString("dd MMM h:mm:ss tt")</span></div>
+                                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span>@Model.GetConvertedDateTime(bid.BidDate).ToString("dd MMM h:mm:ss tt")</span></div>
                                         </div>
+                                        }
                                     }
                                 </div>
                                 <div class="row">
@@ -428,17 +457,13 @@
                                     }
                                 </div>
                                 <div class="tag-inline-block faint-border-left">
-                                    @if (auction.HasMoreCopiesThanWinningBids() == true)
+                                    @if (auction.WinningAuctionBid() == null)
                                     {
                                         <p><span class="auction-header-text">@auction.MinimumBid point</span><br /><span class="auction-header-text">minimum bid</span></p>
                                     }
-                                    else if (auction.Copies > 1)
-                                    {
-                                        <p><span class="auction-header-text">@auction.LowestWinningBid()+ point</span><br /><span class="auction-header-text">winning bids</span></p>
-                                    }
                                     else
                                     {
-                                        <p><span class="auction-header-text">@auction.WinningBid() point</span><br /><span class="auction-header-text">winning bid</span></p>
+                                        <p><span class="auction-header-text">@auction.PublicWinningBid() point</span><br /><span class="auction-header-text">winning bid</span></p>
                                     }
                                 </div>
                                 <div class="tag-inline-block faint-border-left">
@@ -477,36 +502,56 @@
                                         }
                                         else
                                         {
-                                            AuctionBid winningBid = auction.LowestWinningAuctionBid();
-                                            if (auction.WinningBids() != null && auction.WinningBids().Count() < auction.Copies || winningBid == null)
-                                            {
-                                                minBid = auction.MinimumBid;
-                                            }
-                                            else if (auction.UserIsWinningBid(Model.LoggedInUser))
+                                            if (auction.UserIsWinningBid(Model.LoggedInUser))
                                             {
                                                 minBid = auction.UserWinningBid(Model.LoggedInUser).BidAmount;
                                             }
                                             else
                                             {
-                                                minBid = winningBid.BidAmount + auction.Increment;
+                                                minBid = 0;
                                             }
                                         }
                                         <div class="col-lg-4 col-md-4 col-xl-4" id="@idCont">
                                             <div class="input-group-xs input-group">
                                                 <input type="text" id="@idVal" class="form-control gray-input" value="@minBid" />
                                                 <span class="input-group-btn">
-                                                    <span class="btn btn-default btn-xs btn-success green-bg" onclick="SubmitBid('@id',this,@auction.AuctionID);">Submit Bid</span>
+                                                    <span class="btn btn-default btn-xs btn-success green-bg" onclick="SubmitBid('@id',this,@auction.AuctionID,'@auction.Prize()');">Submit Bid</span>
                                                 </span>
                                             </div>
                                         </div>
                                     }
-                                    <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-primary">@Model.GetConvertedDateTime(DateTime.Now).ToString("d MMMM") @@ @Model.GetConvertedDateTime(DateTime.Now).ToString("h:mm tt")</span></div>
+                                    <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span>@Model.GetConvertedDateTime(DateTime.Now).ToString("d MMMM") @@ @Model.GetConvertedDateTime(DateTime.Now).ToString("h:mm tt")</span></div>
                                 </div>
                                 @if (auction.IsSilent == false)
                                 {
                                     <div>
-                                        @foreach (AuctionBid bid in auction.AuctionBids.OrderByDescending(b => b.BidAmount))
+                                        @if (auction.AuctionBidsIsNullOrEmpty() == false && auction.AuctionBids.OrderByDescending(a => a.BidAmount).FirstOrDefault() != null)
                                         {
+                                            AuctionBid highBid = auction.AuctionBids.OrderByDescending(a => a.BidAmount).FirstOrDefault();
+                                            <div class="row user-row store-entry-sm">
+                                                <div class="col-lg-4 col-md-4 col-xl-4 vertical-align text-left">
+                                                    <a href="@Url.Action("UserProfile", "User", new { id = highBid.AppUser.UserName })">
+                                                        <div class="outer-avatar-container">
+                                                            <div class="inner-avatar-container-lg" style="background-image: url(@highBid.AppUser.MediumAvatar)"></div>
+                                                        </div>
+                                                    </a>
+                                                    <div class="pad-right col-text text-lblue">@highBid.AppUser.UserName</div>
+                                                </div>
+                                                @if (auction.UserIsWinningBid(Model.LoggedInUser) == true || auction.IsOpen() == false && auction.IsSilent == false)
+                                                {
+                                                    <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@auction.PublicWinningBid() (@auction.WinningBid())</span></div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@auction.PublicWinningBid()</span></div>
+                                                }
+                                                <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span>@Model.GetConvertedDateTime(highBid.BidDate).ToString("dd MMM h:mm:ss tt")</span></div>
+                                            </div>
+                                        }
+                                        @if (auction?.AuctionBids?.Count > 1)
+                                        {
+                                            foreach (AuctionBid bid in auction.AuctionBids.OrderByDescending(b => b.BidAmount).Skip(1))
+                                            {
                                             <div class="row user-row store-entry-sm">
                                                 <div class="col-lg-4 col-md-4 col-xl-4 vertical-align text-left">
                                                     <a href="@Url.Action("UserProfile", "User", new { id = bid.AppUser.UserName })">
@@ -517,8 +562,9 @@
                                                     <div class="pad-right col-text text-lblue">@bid.AppUser.UserName</div>
                                                 </div>
                                                 <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@bid.BidAmount</span></div>
-                                                <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-lblue">@Model.GetConvertedDateTime(bid.BidDate).ToString("dd MMM h:mm:ss tt")</span></div>
+                                                <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span>@Model.GetConvertedDateTime(bid.BidDate).ToString("dd MMM h:mm:ss tt")</span></div>
                                             </div>
+                                            }
                                         }
                                     </div>
                                 }

@@ -152,6 +152,33 @@ namespace TheAfterParty.WebUI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
+        public async Task<ActionResult> AddListingFromAppID()
+        {
+            AddOrUpdateSteamProductsViewModel model = new AddOrUpdateSteamProductsViewModel();
+
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult> AddListingFromAppID(AddOrUpdateSteamProductsViewModel model)
+        {
+            model.LoggedInUser = await storeService.GetCurrentUser();
+            model.FullNavList = CreateStoreControllerAdminNavList();
+
+            model.AddedProducts = storeService.BuildListingsWithSteamID(model.Input);
+            model.Input = String.Empty;
+
+            ModelState.Clear();
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
         public async Task<ActionResult> AddNonSteamProducts()
         {
             AddNonSteamProductsViewModel model = new AddNonSteamProductsViewModel();
@@ -727,7 +754,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             return View(model);
         }
-
+        
         // GET: CoopShop/Store
         [HttpGet]
         public async Task<ActionResult> Date(int month, int day, int year)
@@ -1077,7 +1104,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             model.SpecialFilterType = String.Empty;
 
-            if (String.IsNullOrWhiteSpace(apiKey) == false && (model.FilterBlacklist | model.AffordableFilter | model.FilterLibrary) == false)
+            if (String.IsNullOrWhiteSpace(apiKey) == false && (model.FilterBlacklist | model.AffordableFilter | model.FilterLibrary | model.FilterWishlist) == false)
             {
                 if (String.IsNullOrWhiteSpace(model.FriendSteamID) == false)
                 {
@@ -1085,6 +1112,7 @@ namespace TheAfterParty.WebUI.Controllers
                     model.PreviousAffordableFilter = false;
                     model.PreviousFilterBlacklist = false;
                     model.PreviousFilterLibrary = false;
+                    model.PreviousFilterWishlist = false;
                 }
                 else if (String.IsNullOrWhiteSpace(id) == false)
                 {
@@ -1092,6 +1120,7 @@ namespace TheAfterParty.WebUI.Controllers
                     model.PreviousAffordableFilter = false;
                     model.PreviousFilterBlacklist = false;
                     model.PreviousFilterLibrary = false;
+                    model.PreviousFilterWishlist = false;
                     model.FriendSteamID = id;
                 }
             }
@@ -1206,6 +1235,16 @@ namespace TheAfterParty.WebUI.Controllers
             if (model.PreviousFilterLibrary && HttpContext.User.Identity.IsAuthenticated)
             {
                 filter.UnownedFilter = true;
+            }
+
+            if (model.FilterWishlist)
+            {
+                model.PreviousFilterWishlist = !model.PreviousFilterWishlist;
+                model.FilterWishlist = false;
+            }
+            if (model.PreviousFilterWishlist && HttpContext.User.Identity.IsAuthenticated)
+            {
+                filter.WishlistFilter = true;
             }
 
             if (model.FilterBlacklist)
@@ -1446,6 +1485,10 @@ namespace TheAfterParty.WebUI.Controllers
             item = new NavItem();
             item.DestinationName = "Add/Update Steam Products";
             item.Destination = "/Store/AddOrUpdateSteamProducts";
+            grouping.NavItems.Add(item);
+            item = new NavItem();
+            item.DestinationName = "Add/Update Steam Listings";
+            item.Destination = "/Store/AddListingFromAppID";
             grouping.NavItems.Add(item);
             item = new NavItem();
             item.DestinationName = "Add Non-Steam Products";

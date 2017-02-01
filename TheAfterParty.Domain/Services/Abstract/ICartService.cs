@@ -10,6 +10,7 @@ namespace TheAfterParty.Domain.Services
         void SetUserName(string userName);
         Task<AppUser> GetCurrentUser();
         AppUser GetCurrentUserSynch();
+        Listing GetDailyDeal();
 
         Task<IEnumerable<ShoppingCartEntry>> GetShoppingCartEntries();
         

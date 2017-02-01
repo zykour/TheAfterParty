@@ -255,17 +255,17 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\applogo.gif" />
-    <Content Include="Content\banner.png" />
-    <Content Include="Content\banner1.png" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\BootstrapXL.css" />
+    <Content Include="Content\PlatformIcons\DRMFree.ico" />
     <Content Include="Content\font-awesome\css\font-awesome.css" />
     <Content Include="Content\font-awesome\css\font-awesome.min.css" />
     <Content Include="Content\font-awesome\fonts\fontawesome-webfont.svg" />
     <Content Include="Content\font-awesome\HELP-US-OUT.txt" />
+    <Content Include="Content\footer_lodyas.png" />
     <Content Include="Content\PlatformIcons\Battle.net.gif" />
     <Content Include="Content\PlatformIcons\GOGGalaxy.png" />
     <Content Include="Content\PlatformIcons\itch.io.png" />
@@ -275,6 +275,7 @@
     <Content Include="Content\PlatformIcons\Uplay.png" />
     <Content Include="Content\Site.css" />
     <Content Include="Content\small_avatar.jpg" />
+    <Content Include="Content\stardust.png" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
@@ -288,6 +289,7 @@
     <Content Include="robots.txt" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Content\BotsmaticRegularDemo.ttf" />
     <None Include="Scripts\jquery-3.1.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.1.0.js" />
     <Content Include="Scripts\jquery-3.1.0.min.js" />
@@ -367,7 +369,6 @@
     <Compile Include="Controllers\StoreController.cs" />
     <Compile Include="Controllers\TapController.cs" />
     <Compile Include="Controllers\UserController.cs" />
-    <Compile Include="GlimpseSecurityPolicy.cs" />
     <Compile Include="HtmlHelpers\PagingHelpers.cs" />
     <Compile Include="HtmlHelpers\PluralizerHelper.cs" />
     <Compile Include="Infrastructure\HangfireAuthorizationFilter.cs" />
@@ -387,6 +388,7 @@
     <Compile Include="Models\Auctions\AdminAuctionsViewModel.cs" />
     <Compile Include="Models\Auctions\AuctionViewModel.cs" />
     <Compile Include="Models\Auctions\AuctionsIndexViewModel.cs" />
+    <Compile Include="Models\Auctions\BidConfirmationViewModel.cs" />
     <Compile Include="Models\Cart\CartIndexViewModel.cs" />
     <Compile Include="Models\Cart\CartLayoutViewModel.cs" />
     <Compile Include="Global.asax.cs">
@@ -522,6 +524,8 @@
     <Content Include="Views\Store\Game.cshtml" />
     <Content Include="Views\Shared\_OwnsPartial.cshtml" />
     <Content Include="Views\Objectives\Objective.cshtml" />
+    <Content Include="Views\Auctions\BidConfirmation.cshtml" />
+    <Content Include="Views\Store\AddListingFromAppID.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

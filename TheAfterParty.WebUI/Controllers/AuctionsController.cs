@@ -118,10 +118,12 @@ namespace TheAfterParty.WebUI.Controllers
             else
             {
                 destNames.Add(closedDestName);
+                model.FullNavList = CreateAuctionNavList(destNames);
+                model.LoggedInUser = await auctionService.GetCurrentUser();
+                return View(model);
             }
 
             model.FullNavList = CreateAuctionNavList(destNames);
-
             model.LoggedInUser = await auctionService.GetCurrentUser();
 
             if (ModelState.IsValidField("AuctionBid.BidAmount") == false)
@@ -132,21 +134,83 @@ namespace TheAfterParty.WebUI.Controllers
                 return View(model);
             }
 
+            if (model.Auction.IsSilent == false)
+            {
+                if ((model.Auction.AuctionBids.Count > 0 && (model.Auction.PublicWinningBid() + model.Auction.Increment) > model.AuctionBid.BidAmount)
+                    || (model.Auction.AuctionBids.Count == 0 && model.AuctionBid.BidAmount < model.Auction.MinimumBid))
+                {
+                    ModelState.AddModelError(String.Empty, "Invalid auction bid. Ensure you have enough points and that you bid enough to meet the requirements.");
+
+                    return View(model);
+                }
+                
+                return RedirectToAction("BidConfirmation", new { id = model.Auction.AuctionID, bid = model.AuctionBid.BidAmount });
+            }
+
             model.AuctionBid.BidDate = DateTime.Now;
             model.AuctionBid.AppUser = model.LoggedInUser;
+            model.AuctionBid.Auction = model.Auction;
 
             bool success = auctionService.AddAuctionBid(model.AuctionBid, model.Auction);
-
-            //model.Auction = auctionService.GetAuctionByID(model.Auction.AuctionID);
-
-            model.AuctionBid = new AuctionBid();
             
+            //model.AuctionBid = new AuctionBid();
+
             if (success == false)
             {
                 ModelState.AddModelError(String.Empty, "Invalid auction bid. Ensure you have enough points and that you bid enough to meet the requirements.");
             }
 
             return View(model);
+        }
+
+        // bid confirmation page for non-silent auctions
+        [HttpGet]
+        public async Task<ActionResult> BidConfirmation(int id, int bid)
+        {
+            if (id == 0 || bid == 0)
+            {
+                return RedirectToAction("Index");
+            }
+
+            BidConfirmationViewModel model = new BidConfirmationViewModel();
+
+            model.FullNavList = CreateAuctionNavList(new List<string>());
+            model.LoggedInUser = await auctionService.GetCurrentUser();
+            //model.AuctionBid.AddAppUser(model.LoggedInUser);
+
+            model.Auction = auctionService.GetAuctionByID(id);
+            model.AuctionBid.Auction = model.Auction;
+            model.AuctionBid.BidAmount = bid;
+            model.AuctionBid.AppUser = model.LoggedInUser;
+            model.AuctionBid.BidDate = DateTime.Now;
+            
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> BidConfirmation(BidConfirmationViewModel model)
+        {
+            if (model.IsConfirmed == false)
+            {
+                return RedirectToAction("Index");
+            }
+
+            model.Auction = auctionService.GetAuctionByID(model.Auction.AuctionID);
+            model.AuctionBid.BidDate = DateTime.Now;
+            AppUser user = await auctionService.GetCurrentUser();
+            model.AuctionBid.AppUser = user;
+            model.AuctionBid.Auction = model.Auction;
+
+            bool success = auctionService.AddAuctionBid(model.AuctionBid, model.Auction);
+            
+            if (success == false)
+            {
+                ModelState.AddModelError(String.Empty, "Invalid auction bid. Ensure you have enough points and that you bid enough to meet the requirements.");
+
+                return View(model);
+            }
+
+            return RedirectToAction("Auction", new { id = model.Auction.AuctionID });
         }
 
         [HttpGet]
@@ -273,7 +337,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             ViewBag.Title = "Winning Bids";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            model.Auctions = auctionService.GetAuctions().Where(a => a.UserIsWinningBid(model.LoggedInUser) && a.IsOpen()).ToList();
+            model.Auctions = auctionService.GetAuctions().Where(a => a.UserIsWinningBid(model.LoggedInUser) && a.IsSilent == false && a.IsOpen()).ToList();
             List<String> destNames = new List<String>() { mywinningDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 
@@ -290,7 +354,7 @@ namespace TheAfterParty.WebUI.Controllers
         {
             ViewBag.Title = "Winning Bids";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            model.Auctions = auctionService.GetAuctions().Where(a => a.UserIsWinningBid(model.LoggedInUser) && a.IsOpen()).ToList();
+            model.Auctions = auctionService.GetAuctions().Where(a => a.UserIsWinningBid(model.LoggedInUser) && a.IsSilent == false && a.IsOpen()).ToList();
             List<String> destNames = new List<String>() { mywinningDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 
@@ -362,6 +426,7 @@ namespace TheAfterParty.WebUI.Controllers
             auctionBid.BidAmount = bid;
             auctionBid.AppUser = user;
             auctionBid.BidDate = DateTime.Now;
+            auctionBid.Auction = auction;
             
             return auctionService.AddAuctionBid(auctionBid, auction);
         }
