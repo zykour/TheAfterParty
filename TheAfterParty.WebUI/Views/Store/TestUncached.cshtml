@@ -1,0 +1,16 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Store
+@model TestCachedViewModel
+
+@{
+    ViewBag.Title = "Test Uncached";
+}
+
+<h2>Test Uncached</h2>
+
+@foreach (Listing listing in Model.Listings)
+{
+    <span>@listing.ListingName</span>
+}
+
+<span>@((DateTime.UtcNow - HttpContext.Current.Timestamp.ToUniversalTime()).TotalSeconds.ToString("F4"))</span>

@@ -11,6 +11,8 @@ using TheAfterParty.WebUI.Models._Nav;
 using TheAfterParty.Domain.Entities;
 using System.Text.RegularExpressions;
 using TheAfterParty.Domain.Model;
+using Microsoft.Extensions.Caching.Memory;
+using System.Threading;
 
 namespace TheAfterParty.WebUI.Controllers
 {
@@ -30,10 +32,22 @@ namespace TheAfterParty.WebUI.Controllers
         private const string platformsActionDest = "All Platforms";
         private const string historyActionDest = "Purchase History";
 
-        public StoreController(IStoreService storeService)
+        private const string tagsCacheKey = "Tags";
+        private const string productCategoryCacheKey = "Categories";
+        private const string stockedListingsCacheKey = "Listings";
+        private const string newestDateCacheKey = "Newest"; 
+        private const string loggedUserCacheKey = "User";
+        private const string platformsCacheKey = "Platforms";
+
+        private IMemoryCache _cache;
+        static int cacheDuration = 300;
+        private static Object locker = new Object();
+
+        public StoreController(IStoreService storeService, IMemoryCache memoryCache)
         {
             this.storeService = storeService;
             ViewBag.StoreFormID = storeFormID;
+            _cache = memoryCache;
         }
 
         protected override void Initialize(RequestContext requestContext)
@@ -50,6 +64,48 @@ namespace TheAfterParty.WebUI.Controllers
         {
             return System.Configuration.ConfigurationManager.AppSettings["steamAPIKey"];
         }
+
+        #region Test
+
+        // GET: CoopShop/Store
+        [HttpGet]
+        public ActionResult TestCached(int id = 0)
+        {
+            TestCachedViewModel model = new TestCachedViewModel();
+
+            IEnumerable<Listing> listings = null;
+
+            if (!_cache.TryGetValue("Test", out listings))
+            {
+                // Key not in cache, so get data.
+                listings = storeService.GetListingsPlain().ToList();
+
+                // Set cache options.
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(cacheDuration));
+                // Keep in cache for this time, reset time if accessed.
+
+
+                // Save data in cache.
+                _cache.Set("Test", listings, cacheEntryOptions);
+            }
+
+            model.Listings = listings;
+
+            return View(model);
+        }
+
+        // GET: CoopShop/Store
+        [HttpGet]
+        public ActionResult TestUncached(int id = 0)
+        {
+            TestCachedViewModel model = new TestCachedViewModel();
+
+            model.Listings = storeService.GetStockedStoreListings().ToList();// storeService.GetListingsPlain();
+
+            return View(model);
+        }
+
+        #endregion
 
         #region Admin
 
@@ -971,11 +1027,207 @@ namespace TheAfterParty.WebUI.Controllers
 
         #region Auxiliary Methods/Functions
 
+        private async Task<AppUser> TryGetCachedUser()
+        {
+            AppUser user = null;
+            
+            if (!_cache.TryGetValue(loggedUserCacheKey, out user))
+            {
+                user = await storeService.GetCurrentUserWithStoreFilters();
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(cacheDuration));
+                _cache.Set(loggedUserCacheKey, user, cacheEntryOptions);
+            }
+
+            return user;
+        }
+
+        private AppUser TryGetCachedUserSynch()
+        {
+            AppUser user = null;
+
+            if (!_cache.TryGetValue(loggedUserCacheKey, out user))
+            {
+                user = storeService.GetCurrentUserWithStoreFiltersSynch();
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(cacheDuration));
+                _cache.Set(loggedUserCacheKey, user, cacheEntryOptions);
+            }
+
+            return user;
+        }
+
+        public Tag TryGetCachedTags(int id)
+        {
+            List<SelectedTagMapping> tagMappings = new List<SelectedTagMapping>();
+
+            if (!_cache.TryGetValue(tagsCacheKey, out tagMappings))
+            {
+                tagMappings = new List<SelectedTagMapping>();
+
+                foreach (Tag tag in storeService.GetTags())
+                {
+                    tagMappings.Add(new SelectedTagMapping(tag, false));
+                }
+
+                tagMappings = tagMappings.OrderBy(t => t.StoreTag.TagName).ToList();
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(cacheDuration));
+                _cache.Set(tagsCacheKey, tagMappings, cacheEntryOptions);
+            }
+
+            return tagMappings.SingleOrDefault(x => x.StoreTag.TagID == id).StoreTag;
+        }
+
+        private List<SelectedTagMapping> TryGetCachedTags()
+        {
+            List<SelectedTagMapping> tagMappings = new List<SelectedTagMapping>();
+
+            if (!_cache.TryGetValue(tagsCacheKey, out tagMappings))
+            {
+                tagMappings = new List<SelectedTagMapping>();
+
+                foreach (Tag tag in storeService.GetTags())
+                {
+                    tagMappings.Add(new SelectedTagMapping(tag, false));
+                }
+
+                tagMappings = tagMappings.OrderBy(t => t.StoreTag.TagName).ToList();
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(cacheDuration));
+                _cache.Set(tagsCacheKey, tagMappings, cacheEntryOptions);
+            }
+
+            return tagMappings;
+        }
+
+        private ProductCategory TryGetProductCategory(int id)
+        {
+            List<SelectedProductCategoryMapping> categoryMappings = new List<SelectedProductCategoryMapping>();
+
+            if (!_cache.TryGetValue(productCategoryCacheKey, out categoryMappings))
+            {
+                categoryMappings = new List<SelectedProductCategoryMapping>();
+
+                foreach (ProductCategory category in storeService.GetProductCategories())
+                {
+                    categoryMappings.Add(new SelectedProductCategoryMapping(category, false));
+                }
+
+                categoryMappings = categoryMappings.OrderBy(c => c.ProductCategory.CategoryString).ToList();
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(cacheDuration));
+                _cache.Set(productCategoryCacheKey, categoryMappings, cacheEntryOptions);
+            }
+
+            return categoryMappings.SingleOrDefault(x => x.ProductCategory.ProductCategoryID == id).ProductCategory;
+        }
+
+        private List<SelectedProductCategoryMapping> TryGetCachedProductCategories()
+        {
+            List<SelectedProductCategoryMapping> categoryMappings = new List<SelectedProductCategoryMapping>();
+
+            if (!_cache.TryGetValue(productCategoryCacheKey, out categoryMappings))
+            {
+                categoryMappings = new List<SelectedProductCategoryMapping>();
+
+                foreach (ProductCategory category in storeService.GetProductCategories())
+                {
+                    categoryMappings.Add(new SelectedProductCategoryMapping(category, false));
+                }
+
+                categoryMappings = categoryMappings.OrderBy(c => c.ProductCategory.CategoryString).ToList();
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(cacheDuration));
+                _cache.Set(productCategoryCacheKey, categoryMappings, cacheEntryOptions);
+            }
+
+            return categoryMappings;
+        }
+
+        private List<Platform> TryGetCachedPlatforms()
+        {
+            List<Platform> platforms = null;
+
+            if (!_cache.TryGetValue(platformsCacheKey, out platforms))
+            {
+                platforms = storeService.GetActivePlatforms().ToList();
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(cacheDuration));
+                _cache.Set(platformsCacheKey, platforms, cacheEntryOptions);
+            }
+
+            return platforms;
+        }
+
+        private DateTime TryGetNewestDate()
+        {
+            DateTime newestDate;
+
+            if (!_cache.TryGetValue<DateTime>(newestDateCacheKey, out newestDate))
+            {
+                newestDate = storeService.GetNewestDate();
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(cacheDuration));
+                _cache.Set(newestDateCacheKey, newestDate, cacheEntryOptions);
+            }
+
+            return newestDate;
+        }
+
+        //change this to just cache and rework the other method to accept the list of items to be queried?
+        private List<Listing> TryGetCachedListings(TheAfterParty.Domain.Concrete.ListingFilter filter, out int count)
+        {
+            List<Listing> listings = null;
+
+            if (!_cache.TryGetValue(stockedListingsCacheKey, out listings))
+            {
+                //FillListingCache();
+                Task.Run(() => FillListingCache(_cache));
+                //Hangfire.BackgroundJob.Enqueue(() => FillListingCache());
+            }
+            else
+            {                
+                filter.NewestDate = listings.Where(l => l.Quantity > 0).OrderByDescending(x => x.DateEdited).FirstOrDefault().DateEdited.Date;
+            }
+
+            return storeService.GetListingsWithFilter(filter, out count, listings).ToList();
+        }
+
+        public static void FillListingCache(IMemoryCache _cache)
+        {
+            List<Listing> listings = null;
+            
+            if (!_cache.TryGetValue(stockedListingsCacheKey, out listings))
+            {
+                if (Monitor.TryEnter(locker))
+                {
+                    using (TheAfterParty.Domain.Concrete.AppIdentityDbContext context = TheAfterParty.Domain.Concrete.AppIdentityDbContext.Create())
+                    {
+                        TheAfterParty.Domain.Concrete.ListingRepository _repo = new TheAfterParty.Domain.Concrete.ListingRepository(new Domain.Concrete.UnitOfWork(context));
+
+                        listings = _repo.GetListings().Where(l => l.Quantity > 0 && l.ListingPrice > 0).ToList();
+                    }
+                    //listings = storeService.GetStockedStoreListings().ToList();
+
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(cacheDuration));
+                    _cache.Set(stockedListingsCacheKey, listings, cacheEntryOptions);
+
+                    Monitor.Exit(locker);
+                }
+            }
+        }
+
         private async Task PopulateStoreIndexViewModelFromGet(StoreIndexViewModel model, List<String> currentDestName, string apiKey = null, string id = null, DateTime? date = null)
         {
             TheAfterParty.Domain.Concrete.ListingFilter filter = new Domain.Concrete.ListingFilter();
 
-            model.LoggedInUser = await storeService.GetCurrentUserWithStoreFilters();
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                model.LoggedInUser = await TryGetCachedUser();
+                filter.LoggedInUser = model.LoggedInUser;
+            }
+
             model.CurrentPage = 1;
             filter.Page = 1;
 
@@ -1029,42 +1281,38 @@ namespace TheAfterParty.WebUI.Controllers
                 filter.PaginationNum = model.UserPaginationPreference;  
             }
 
+            if (model.LoggedInUser == null)
+            {
+                model.UserPaginationPreference = 25;//change
+                filter.PaginationNum = model.UserPaginationPreference;
+            }
+
             currentDestName.Add(platformsActionDest);
 
             int count = 0;
 
-            model.StoreListings = storeService.GetListingsWithFilter(filter, out count).ToList();
+            model.StoreListings = TryGetCachedListings(filter, out count);
 
             model.TotalItems = count;
 
-            model.StorePlatforms = storeService.GetActivePlatforms().ToList();
+            model.StorePlatforms = TryGetCachedPlatforms();
             
             model.FullNavList = CreateStoreControllerStoreNavList(model, currentDestName);
-
-            List<SelectedTagMapping> tagMappings = new List<SelectedTagMapping>();
-
-            foreach (Tag tag in storeService.GetTags())
-            {
-                tagMappings.Add(new SelectedTagMapping(tag, false));
-            }
-
-            model.SelectedTagMappings = tagMappings.OrderBy(t => t.StoreTag.TagName).ToList();
-
-            List<SelectedProductCategoryMapping> categoryMappings = new List<SelectedProductCategoryMapping>();
-
-            foreach (ProductCategory category in storeService.GetProductCategories())
-            {
-                categoryMappings.Add(new SelectedProductCategoryMapping(category, false));
-            }
-
-            model.SelectedProductCategoryMappings = categoryMappings.OrderBy(c => c.ProductCategory.CategoryString).ToList();
+            
+            model.SelectedTagMappings = TryGetCachedTags();
+            
+            model.SelectedProductCategoryMappings = TryGetCachedProductCategories();
         }
 
         private async Task PopulateStoreIndexViewModelFromPostback(StoreIndexViewModel model, List<String> currentDestName, string apiKey = null, string id = null, DateTime? date = null)
         {
             TheAfterParty.Domain.Concrete.ListingFilter filter = new Domain.Concrete.ListingFilter();
 
-            model.LoggedInUser = await storeService.GetCurrentUserWithStoreFilters();
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                model.LoggedInUser = await TryGetCachedUser();
+                filter.LoggedInUser = model.LoggedInUser;
+            }
 
             if (date != null)
             {
@@ -1145,7 +1393,7 @@ namespace TheAfterParty.WebUI.Controllers
             {
                 filter.SearchText = model.SearchText;
             }
-
+            
             if (model?.SelectedProductCategoryMappings?.Count > 0)
             {
                 foreach (SelectedProductCategoryMapping mapping in model.SelectedProductCategoryMappings)
@@ -1155,7 +1403,7 @@ namespace TheAfterParty.WebUI.Controllers
                         mapping.IsSelected = !mapping.IsSelected;
                     }
 
-                    mapping.ProductCategory = storeService.GetProductCategoryByID(mapping.ProductCategory.ProductCategoryID);
+                    mapping.ProductCategory = TryGetProductCategory(mapping.ProductCategory.ProductCategoryID); //storeService.GetProductCategoryByID(mapping.ProductCategory.ProductCategoryID);
 
                     if (mapping.IsSelected)
                     {
@@ -1165,7 +1413,8 @@ namespace TheAfterParty.WebUI.Controllers
             }
 
             model.CategoryToChange = 0;
-
+            
+            //mark
             if (model?.SelectedTagMappings?.Count > 0)
             {
                 foreach (SelectedTagMapping mapping in model.SelectedTagMappings)
@@ -1175,7 +1424,7 @@ namespace TheAfterParty.WebUI.Controllers
                         mapping.IsSelected = !mapping.IsSelected;
                     }
 
-                    mapping.StoreTag = storeService.GetTagByID(mapping.StoreTag.TagID);
+                    mapping.StoreTag = TryGetCachedTags(mapping.StoreTag.TagID);//storeService.GetTagByID(mapping.StoreTag.TagID);
 
                     if (mapping.IsSelected)
                     {
@@ -1185,10 +1434,10 @@ namespace TheAfterParty.WebUI.Controllers
             }
 
             model.TagToChange = 0;
-
+            
             if (model.SelectedPlatformID > 0)
             {
-                Platform platform = storeService.GetPlatformByID(model.SelectedPlatformID);
+                Platform platform = TryGetCachedPlatforms().SingleOrDefault(x => x.PlatformID == model.SelectedPlatformID);// storeService.GetPlatformByID(model.SelectedPlatformID);
                 model.PreviousSelectedPlatformID = model.SelectedPlatformID;
                 model.SelectedPlatformID = 0;
                 filter.PlatformID = platform.PlatformID;
@@ -1201,7 +1450,7 @@ namespace TheAfterParty.WebUI.Controllers
             }
             else if (model.PreviousSelectedPlatformID != 0)
             {
-                Platform platform = storeService.GetPlatformByID(model.PreviousSelectedPlatformID);
+                Platform platform = TryGetCachedPlatforms().SingleOrDefault(x => x.PlatformID == model.PreviousSelectedPlatformID);//storeService.GetPlatformByID(model.PreviousSelectedPlatformID);
                 filter.PlatformID = platform.PlatformID;
                 currentDestName.Add(platform.PlatformName);
             }
@@ -1307,16 +1556,23 @@ namespace TheAfterParty.WebUI.Controllers
                 filter.PaginationNum = model.LoggedInUser.PaginationPreference;
             }
 
+            if (model.LoggedInUser == null)
+            {
+                model.UserPaginationPreference = 25;//change
+                filter.PaginationNum = model.UserPaginationPreference;
+            }
+
             int count = 0;
 
-            model.StoreListings = storeService.GetListingsWithFilter(filter, out count).ToList();
+            //mark
+            model.StoreListings = TryGetCachedListings(filter, out count); //storeService.GetListingsWithFilter(filter, out count).ToList();
 
             model.TotalItems = count;
 
-            model.StorePlatforms = storeService.GetActivePlatforms().ToList();
+            //mark
+            model.StorePlatforms = TryGetCachedPlatforms();
 
             model.FullNavList = CreateStoreControllerStoreNavList(model, currentDestName);
-
         }
 
         public List<NavGrouping> CreateStoreControllerStoreNavList(StoreIndexViewModel model, List<String> destNames)

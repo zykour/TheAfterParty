@@ -10,13 +10,15 @@ namespace TheAfterParty.Domain.Abstract
     public interface IListingRepository : IDisposable
     {
         // other product detail tables?
-
+        
         AppIdentityDbContext GetContext();
 
+        DateTime GetNewestDate();
+/*REMOVE*/IEnumerable<Listing> GetListingsPlain();
         IQueryable<Listing> GetListingsQuery();
         IEnumerable<Listing> GetListings();
         IEnumerable<Listing> SearchListings(string searchText, int resultLimit);
-        IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems);
+        IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems, List<Listing> listings = null);
         Listing GetListingByID(int listingId);
         void InsertListing(Listing listing);
         void UpdateListing(Listing listing);

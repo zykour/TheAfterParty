@@ -6,6 +6,7 @@ using TheAfterParty.Domain.Entities;
 using System.Data.Entity;
 using TheAfterParty.Domain.Model;
 
+
 namespace TheAfterParty.Domain.Concrete
 {
     public class ListingRepository : IListingRepository, IDisposable
@@ -21,22 +22,38 @@ namespace TheAfterParty.Domain.Concrete
             this.context = unitOfWork.DbContext;
         }
 
-
-
-        // ---- Listing entity persistance
-            // ---- Parent entity
-
-        public IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems)
+        public DateTime GetNewestDate()
         {
-            IQueryable<Listing> listingQuery = context.Listings
-                        .Include(x => x.ChildListings.Select(y => y.Product.Listings.Select(z => z.ChildListings)))
-                        .Include(x => x.ChildListings.Select(y => y.Platforms))
-                        .Include(x => x.ChildListings.Select(y => y.DiscountedListings))
-                        .Include(x => x.DiscountedListings)
-                        .Include(x => x.Platforms)
-                        .Include(x => x.Product.Listings)
-                        .AsQueryable()
-                        .Where(x => x.ListingPrice > 0 && x.Quantity > 0);
+            return context.Listings.Where(l => l.Quantity > 0).OrderByDescending(x => x.DateEdited).FirstOrDefault().DateEdited.Date;
+        }
+
+    // ---- Listing entity persistance
+    // ---- Parent entity
+
+/*REMOVE*/public IEnumerable<Listing> GetListingsPlain()
+        {
+            return context.Listings;
+        }
+        public IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems, List<Listing> listings = null)
+        {
+            IQueryable<Listing> listingQuery;
+
+            if (listings == null)
+            {
+                listingQuery = context.Listings
+                            .Include(x => x.ChildListings.Select(y => y.Product.Listings.Select(z => z.ChildListings)))
+                            .Include(x => x.ChildListings.Select(y => y.Platforms))
+                            .Include(x => x.ChildListings.Select(y => y.DiscountedListings))
+                            .Include(x => x.DiscountedListings)
+                            .Include(x => x.Platforms)
+                            .Include(x => x.Product.Listings.Select(z => z.ChildListings))
+                            .AsQueryable()
+                            .Where(x => x.ListingPrice > 0 && x.Quantity > 0);
+            }
+            else
+            {
+                listingQuery = listings.AsQueryable<Listing>();
+            }
 
             if (filter.IsDailyDeal)
             {
@@ -45,7 +62,14 @@ namespace TheAfterParty.Domain.Concrete
 
             if (filter.WishlistFilter)
             {
-                listingQuery = listingQuery.Where(x => context.WishlistEntries.Where(y => y.UserID.Equals(filter.UserID)).Select(y => y.AppID).Any(z => z == x.Product.AppID));
+                if (filter.LoggedInUser != null)
+                {
+                    listingQuery = listingQuery.Where(x => filter.LoggedInUser.WishlistEntries.Select(y => y.AppID).Any(z => z == x.Product.AppID));
+                }
+                else
+                {
+                    listingQuery = listingQuery.Where(x => context.WishlistEntries.Where(y => y.UserID.Equals(filter.UserID)).Select(y => y.AppID).Any(z => z == x.Product.AppID));
+                }
             }
 
             if (filter.IsOtherDeal)
@@ -65,7 +89,17 @@ namespace TheAfterParty.Domain.Concrete
 
             if (filter.IsNewest)
             {
-                var date = context.Listings.Where(l => l.Quantity > 0).OrderByDescending(x => x.DateEdited).FirstOrDefault().DateEdited.Date;
+                DateTime date;
+
+                if (filter.NewestDate != null )
+                {
+                    date = (DateTime)filter.NewestDate;
+                }
+                else
+                {
+                    date = context.Listings.Where(l => l.Quantity > 0).OrderByDescending(x => x.DateEdited).FirstOrDefault().DateEdited.Date;
+                }
+
                 var day = date.Day;
                 var month = date.Month;
                 var year = date.Year;
@@ -96,7 +130,7 @@ namespace TheAfterParty.Domain.Concrete
 
                 if (filter.BeginsWithSentinel != '0')
                 {
-                    listingQuery = listingQuery.Where(x => x.ListingName.StartsWith(beginsWithText));
+                    listingQuery = listingQuery.Where(x => x.ListingName.StartsWith(beginsWithText) || x.ListingName.ToLower().StartsWith(beginsWithText));
                 }
                 else
                 {
@@ -108,7 +142,14 @@ namespace TheAfterParty.Domain.Concrete
             {
                 if (filter.UnownedFilter)
                 {
-                    listingQuery = listingQuery.Where(x => !context.OwnedGames.Where(y => y.UserID.Equals(filter.UserID)).Select(y => y.AppID).Any(z => z == x.Product.AppID));
+                    if (filter.LoggedInUser != null)
+                    {
+                        listingQuery = listingQuery.Where(x => !filter.LoggedInUser.OwnedGames.Select(y => y.AppID).Any(z => z == x.Product.AppID));
+                    }
+                    else
+                    {
+                        listingQuery = listingQuery.Where(x => !context.OwnedGames.Where(y => y.UserID.Equals(filter.UserID)).Select(y => y.AppID).Any(z => z == x.Product.AppID));
+                    }
                 }
             }
 
@@ -129,7 +170,14 @@ namespace TheAfterParty.Domain.Concrete
             {
                 if (filter.BlacklistFilter)
                 {
-                    listingQuery = listingQuery.Where(x => !context.Users.FirstOrDefault(y => y.Id.Equals(filter.UserID)).BlacklistedListings.Select(z => z.ListingID).Any(a => a == x.ListingID));
+                    if (filter.LoggedInUser != null)
+                    {
+                        listingQuery = listingQuery.Where(x => filter.LoggedInUser.BlacklistedListings.Select(z => z.ListingID).Any(a => a == x.ListingID));
+                    }
+                    else
+                    {
+                        listingQuery = listingQuery.Where(x => !context.Users.FirstOrDefault(y => y.Id.Equals(filter.UserID)).BlacklistedListings.Select(z => z.ListingID).Any(a => a == x.ListingID));
+                    }
                 }
             }
 
@@ -137,7 +185,14 @@ namespace TheAfterParty.Domain.Concrete
             {
                 if (filter.AffordableFilter)
                 {
-                    listingQuery = listingQuery.Where(x => x.ListingPrice <= context.Users.FirstOrDefault(y => y.Id.Equals(filter.UserID)).Balance);
+                    if (filter.LoggedInUser != null)
+                    {
+                        listingQuery = listingQuery.Where(x => x.ListingPrice <= filter.LoggedInUser.Balance);
+                    }
+                    else
+                    {
+                        listingQuery = listingQuery.Where(x => x.ListingPrice <= context.Users.FirstOrDefault(y => y.Id.Equals(filter.UserID)).Balance);
+                    }
                 }
             }
 
@@ -191,7 +246,11 @@ namespace TheAfterParty.Domain.Concrete
             {
                 listingQuery = listingQuery.Skip((filter.Page - 1) * filter.PaginationNum).Take(filter.PaginationNum);
             }
-            
+            else if (filter.PaginationNum > 0)
+            {
+                listingQuery = listingQuery.Take(filter.PaginationNum);
+            }
+
             return listingQuery;
         }
         public IEnumerable<Listing> SearchListings(string searchText, int resultLimit)
@@ -231,6 +290,7 @@ namespace TheAfterParty.Domain.Concrete
             return context.Listings
                         .Include(x => x.Product.Tags)
                         .Include(x => x.Product.ProductCategories)
+                        .Include(x => x.Product.Listings.Select(z => z.ChildListings))
                         .Include(x => x.Platforms)
                         .Include(x => x.ChildListings.Select(y => y.Product.Listings))
                         .Include(x => x.ChildListings.Select(y => y.Platforms))

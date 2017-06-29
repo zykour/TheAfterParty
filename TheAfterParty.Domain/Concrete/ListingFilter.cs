@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TheAfterParty.Domain.Entities;
 
 namespace TheAfterParty.Domain.Concrete
 {
@@ -70,5 +71,8 @@ namespace TheAfterParty.Domain.Concrete
             GameSort = 0;
             PriceSort = sortVal;
         }
+
+        public AppUser LoggedInUser { get; set; }
+        public DateTime? NewestDate { get; set; }
     }
 }

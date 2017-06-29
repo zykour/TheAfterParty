@@ -12,13 +12,15 @@ namespace TheAfterParty.Domain.Services
         void SetUserName(string userName);
         Task<AppUser> GetCurrentUser();
         Task<AppUser> GetCurrentUserWithStoreFilters();
+        AppUser GetCurrentUserWithStoreFiltersSynch();
         AppUser GetCurrentUserSynch();
-
+        /*REMOVE*/IEnumerable<Listing> GetListingsPlain();
+        DateTime GetNewestDate();
         IEnumerable<Listing> GetStockedStoreListings();
         IEnumerable<AppUser> GetAppUsers();
         IEnumerable<Listing> GetListingsWithDeals();
         IEnumerable<Listing> GetListings();
-        IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems);
+        IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems, List<Listing> listings = null);
         IEnumerable<Tag> GetTags();
         IEnumerable<ProductCategory> GetProductCategories();
         IEnumerable<Platform> GetPlatforms();

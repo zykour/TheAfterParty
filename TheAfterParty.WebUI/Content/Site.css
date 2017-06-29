@@ -173,7 +173,7 @@ a.powered-by-steam {
     position: relative;
     top: 0;
     white-space: nowrap;
-    letter-spacing: 1px;
+    letter-spacing: 0px;
 }
 .search-icon {
     position: relative;
@@ -195,10 +195,11 @@ a.powered-by-steam {
     line-height: 20px;
     padding: 5px;
     margin: 0;
-    background: linear-gradient(top, var(--primary-purple), var(--primary-purple-dark));
+    background: linear-gradient(to top, #5F3C69, #55365e);
+    background: linear-gradient(to top, var(--primary-purple), var(--primary-purple-dark));
     background: -ms-linear-gradient(top, var(--primary-purple), var(--primary-purple-dark));
-    background: -webkit-gradient(linear, center top, center bottom, color-stop(0%, var(--primary-purple) ), color-stop(100%, var(--primary-purple-dark)));
     background: -moz-linear-gradient(top, var(--primary-purple), var(--primary-purple-dark)); 
+    background: -webkit-gradient(linear, center top, center bottom, color-stop(0%, var(--primary-purple) ), color-stop(100%, var(--primary-purple-dark)));
 }
 .top-nav-outer-btn {
     -moz-border-radius: 2px 4px 4px 2px;
@@ -231,10 +232,11 @@ a.powered-by-steam {
 .top-nav-dropdown-left { border-radius: 4px 0 0 4px; }
 .top-nav-dropdown-right { border-radius: 0 4px 4px 0; padding: 0 9px 0 9px; }
 .top-nav-outer-btn .top-nav-inner-btn:hover {
-    background: linear-gradient(top, #c670e0 , #8e49a3); 
-    background: -ms-linear-gradient(top, #c670e0 , #8e49a3);
-    background: -webkit-gradient(linear, center top, center bottom, color-stop(0%, #c670e0 ), color-stop(100%, #8e49a3));
+    background: linear-gradient(to top, #9f8aa5 , #8f7696); 
+    background: linear-gradient(to top, var(--primary-purple-ultra-lightest) , var(--primary-purple-ultra-light)); 
+    background: -ms-linear-gradient(top, var(--primary-purple-ultra-lightest) , var(--primary-purple-ultra-light));
     background: -moz-linear-gradient(top, var(--primary-purple-ultra-lightest), var(--primary-purple-ultra-light)); 
+    background: -webkit-gradient(linear, center top, center bottom, color-stop(0%, var(--primary-purple-ultra-lightest)), color-stop(100%, var(--primary-purple-ultra-light)));
     height: 100%;
     color: #000000;
 }
@@ -244,16 +246,18 @@ a.powered-by-steam {
     margin-right: 5px;
 }
 .selected-top-nav {
-    background: linear-gradient(top, #9b50b1, #6f3183);
-    background: -ms-linear-gradient(top, #9b50b1, #6f3183);
-    background: -webkit-gradient(linear, center top, center bottom, color-stop(0%, #9b50b1 ), color-stop(100%, #6f3183));
-    background: -moz-linear-gradient(top, var(--primary-purple-lightest), var(--primary-purple-light)); 
+    background: linear-gradient(to top, #7e6287, #6f4f78); 
+    background: linear-gradient(to top, var(--primary-purple-lightest), var(--primary-purple-light)); 
+    background: -ms-linear-gradient(top, var(--primary-purple-lightest), var(--primary-purple-light));
+    background: -moz-linear-gradient(top, var(--primary-purple-lightest), var(--primary-purple-light));
+    background: -webkit-gradient(linear, center top, center bottom, color-stop(0%, var(--primary-purple-lightest) ), color-stop(100%, var(--primary-purple-light)));
 }
 .top-nav-outer-btn .top-nav-inner-btn.is-selected {
-    background: linear-gradient(top, #681f71, #5f1d74);
-    background: -ms-linear-gradient(#6e2f81 0%, #6e2f81 100%);
-    background: -webkit-gradient(linear, center top, center bottom, color-stop(0%, #681f71), color-stop(100%, #400752));
+    background: linear-gradient(to top, #55365e, #4c3054);
+    background: linear-gradient(to top, var(--primary-purple-dark), var(--primary-purple-darkest));
+    background: -ms-linear-gradient(var(--primary-purple-dark) 0%, var(--primary-purple-darkest) 100%);
     background: -moz-linear-gradient(top, var(--primary-purple-dark), var(--primary-purple-darkest));
+    background: -webkit-gradient(linear, center top, center bottom, color-stop(0%, var(--primary-purple-dark)), color-stop(100%, var(--primary-purple-darkest)));
 }
 .reveal-btn, .unused-btn, .used-btn { min-width: 200px; }
 .unused-btn {    
@@ -300,7 +304,7 @@ a.powered-by-steam {
 .top-nav-clickthrough { pointer-events: none; }
 /*#region Test*/
 
-.top-nav-inner-entry:not(:first-child) { border-top: 1px dotted #5F3C69;; }
+.top-nav-inner-entry:not(:first-child) { border-top: 1px dotted #5F3C69; }
 .top-nav-inner-entry:hover, .top-nav-inner-entry:hover+.top-nav-inner-entry { border-top-color: transparent; }
 .top-nav-inner-entry i {
     font-size: 28px;
@@ -722,7 +726,7 @@ a.nav-item-link:not(:hover) .nav-underline,
 }
 .nav-item-link:hover,
 .btn-link:hover .nav-item-link {
-    background-image: linear-gradient(#292929 0%, #242424 100%);
+    background-image: linear-gradient(to top, #292929 0%, #242424 100%);
     background-image: -ms-linear-gradient(#292929 0%, #242424 100%);
     background-image: -moz-linear-gradient(#292929 0%, #242424 100%);
     background-image: -webkit-linear-gradient(#292929 0%, #242424 100%);
@@ -890,7 +894,7 @@ textarea.input-group-xs > .input-group-btn > .btn {
 }
 .btn-disabled { 
     border-color: dimgray;
-    background-image: linear-gradient(#808080 0%, dimgray 100%);
+    background-image: linear-gradient(to top, #808080 0%, dimgray 100%);
     background-image: -ms-linear-gradient(#808080 0%, dimgray 100%);
     background-image: -moz-linear-gradient(#808080 0%, dimgray 100%);
     background-image: -webkit-linear-gradient(#808080 0%, dimgray 100%);

@@ -39,6 +39,15 @@ namespace TheAfterParty.Domain.Concrete
                         .FirstOrDefaultAsync(u => u.UserName == userName);
         }
 
+        public AppUser FindByNameAsyncWithStoreFiltersSynch(string userName)
+        {
+            return Users.Include(x => x.BlacklistedListings)
+                        .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.DiscountedListings))
+                        .Include(x => x.AuctionBids.Select(ab => ab.Auction))
+                        .Include(x => x.WishlistEntries)//.Select(we => we.Listing).Select(l => l.Product))
+                        .FirstOrDefault(u => u.UserName == userName);
+        }
+
         public Task<AppUser> FindByNameAsyncWithBlacklist(string userName)
         {
             return Users.Include(x => x.BlacklistedListings).FirstOrDefaultAsync(u => u.UserName == userName);

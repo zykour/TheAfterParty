@@ -45,6 +45,11 @@ namespace TheAfterParty.Domain.Services
             this.userName = userName;
         }
 
+        /*REMOVE*/public IEnumerable<Listing> GetListingsPlain()
+        {
+            return listingRepository.GetListingsPlain();
+        }
+
         public IEnumerable<int> GetAppIDsByID(string id, string apiKey)
         {
             string gamesURL = String.Format("http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={0}&steamid={1}&format=json", apiKey, id);
@@ -62,6 +67,11 @@ namespace TheAfterParty.Domain.Services
             }
 
             return new HashSet<int>();
+        }
+
+        public DateTime GetNewestDate()
+        {
+            return listingRepository.GetNewestDate();
         }
 
         public List<Listing> FilterListingsByUserSteamID(List<Listing> currentListing, string id, string apiKey)
@@ -975,9 +985,9 @@ namespace TheAfterParty.Domain.Services
         {
             return listingRepository.GetListings().Where(l => l.HasSale() && l.Quantity > 0);
         }
-        public IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems)
+        public IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems, List<Listing> listings = null)
         {
-            return listingRepository.GetListingsWithFilter(filter, out TotalItems);
+            return listingRepository.GetListingsWithFilter(filter, out TotalItems, listings);
         }
         public IEnumerable<AppUser> GetAppUsers()
         {
@@ -1081,6 +1091,10 @@ namespace TheAfterParty.Domain.Services
         public async Task<AppUser> GetCurrentUserWithStoreFilters()
         {
             return await UserManager.FindByNameAsyncWithStoreFilters(userName);
+        }
+        public AppUser GetCurrentUserWithStoreFiltersSynch()
+        {
+            return UserManager.FindByNameAsyncWithStoreFiltersSynch(userName);
         }
         public async Task<AppUser> GetCurrentUser()
         {

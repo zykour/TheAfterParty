@@ -13,15 +13,23 @@ using Hangfire.Dashboard;
 using System.Collections.Generic;
 using TheAfterParty.WebUI.Infrastructure;
 using TheAfterParty.WebUI.App_Start;
+//using Microsoft.AspNetCore.Builder;
+//using Microsoft.Extensions.DependencyInjection;
 
 namespace TheAfterParty
 {
     public class IdentityConfig
     {
+        //public void ConfigureServices(IServiceCollection services)
+        //{
+         //   services.AddMemoryCache();
+         //   //services.AddMvc();
+        //}
+
         public void Configuration(IAppBuilder app)
         {
             HttpConfiguration config = new HttpConfiguration();
-
+            
             app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
 
             app.CreatePerOwinContext<AppIdentityDbContext>(AppIdentityDbContext.Create);

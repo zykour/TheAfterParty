@@ -122,7 +122,16 @@ else
                     <span class="text-success">@Model.CartEntries.ElementAt(i).Quantity</span>
                 }
             </div>
-            <div class="col-lg-1 col-md-1 col-xl-1 text-success">@Model.CartEntries.ElementAt(i).Listing.SaleOrDefaultPrice()</div>
+            <div class="col-lg-1 col-md-1 col-xl-1 text-success">
+                @if (Model.CartEntries.ElementAt(i).Listing.HasSale())
+                {
+                    <del>@Model.CartEntries.ElementAt(i).Listing.ListingPrice</del>   <span class="text-success tag-inline">@Model.CartEntries.ElementAt(i).Listing.SaleOrDefaultPrice()</span>
+                }
+                else
+                {
+                    @Model.CartEntries.ElementAt(i).Listing.ListingPrice
+                }
+            </div>
             <div class="col-lg-1 col-md-1 col-xl-1 text-success">@(Model.CartEntries.ElementAt(i).Listing.SaleOrDefaultPrice() * Model.CartEntries.ElementAt(i).Quantity)</div>
         </div>
         if (Model.CartEntries.ElementAt(i).Listing.ChildListings != null && Model.CartEntries.ElementAt(i).Listing.ChildListings.Count > 0)

@@ -12,7 +12,7 @@ namespace TheAfterParty.WebUI.Models._Nav
 
         public NavModel()
         {
-            UserPaginationPreference = 0;
+            UserPaginationPreference = anonymousPaginationPref;
             SelectedPage = 0;
         }
 

@@ -10,7 +10,7 @@ namespace TheAfterParty.WebUI.Models.Store
 {
     public class StoreIndexViewModel : NavModel
     {
-        public StoreIndexViewModel()
+        public StoreIndexViewModel() : base()
         {
             SearchText = "";
             SearchTextBool = false;
