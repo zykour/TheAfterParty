@@ -196,6 +196,7 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Abstract\IAuctionService.cs" />
+    <Compile Include="Services\Abstract\ICacheService.cs" />
     <Compile Include="Services\Abstract\ICartService.cs" />
     <Compile Include="Services\Abstract\IObjectivesService.cs" />
     <Compile Include="Services\Abstract\ISiteService.cs" />
@@ -203,6 +204,7 @@
     <Compile Include="Services\Abstract\IUserService.cs" />
     <Compile Include="Services\Concrete\ApiService.cs" />
     <Compile Include="Services\Concrete\AuctionService.cs" />
+    <Compile Include="Services\Concrete\CacheService.cs" />
     <Compile Include="Services\Concrete\HangfireJobService.cs" />
     <Compile Include="Services\Concrete\ObjectivesService.cs" />
     <Compile Include="Services\Concrete\SiteService.cs" />

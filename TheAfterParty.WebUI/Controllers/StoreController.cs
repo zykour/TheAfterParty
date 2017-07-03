@@ -1031,12 +1031,12 @@ namespace TheAfterParty.WebUI.Controllers
         {
             AppUser user = null;
             
-            if (!_cache.TryGetValue(loggedUserCacheKey, out user))
+            if (!_cache.TryGetValue(loggedUserCacheKey + HttpContext.User.Identity.Name, out user))
             {
                 user = await storeService.GetCurrentUserWithStoreFilters();
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(cacheDuration));
-                _cache.Set(loggedUserCacheKey, user, cacheEntryOptions);
+                _cache.Set(loggedUserCacheKey + HttpContext.User.Identity.Name, user, cacheEntryOptions);
             }
 
             return user;
@@ -1046,12 +1046,12 @@ namespace TheAfterParty.WebUI.Controllers
         {
             AppUser user = null;
 
-            if (!_cache.TryGetValue(loggedUserCacheKey, out user))
+            if (!_cache.TryGetValue(loggedUserCacheKey + HttpContext.User.Identity.Name, out user))
             {
                 user = storeService.GetCurrentUserWithStoreFiltersSynch();
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(cacheDuration));
-                _cache.Set(loggedUserCacheKey, user, cacheEntryOptions);
+                _cache.Set(loggedUserCacheKey + HttpContext.User.Identity.Name, user, cacheEntryOptions);
             }
 
             return user;
@@ -1221,7 +1221,7 @@ namespace TheAfterParty.WebUI.Controllers
         private async Task PopulateStoreIndexViewModelFromGet(StoreIndexViewModel model, List<String> currentDestName, string apiKey = null, string id = null, DateTime? date = null)
         {
             TheAfterParty.Domain.Concrete.ListingFilter filter = new Domain.Concrete.ListingFilter();
-
+            
             if (HttpContext.User.Identity.IsAuthenticated)
             {
                 model.LoggedInUser = await TryGetCachedUser();

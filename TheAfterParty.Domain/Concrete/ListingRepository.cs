@@ -172,7 +172,7 @@ namespace TheAfterParty.Domain.Concrete
                 {
                     if (filter.LoggedInUser != null)
                     {
-                        listingQuery = listingQuery.Where(x => filter.LoggedInUser.BlacklistedListings.Select(z => z.ListingID).Any(a => a == x.ListingID));
+                        listingQuery = listingQuery.Where(x => !filter.LoggedInUser.BlacklistedListings.Select(z => z.ListingID).Any(a => a == x.ListingID));
                     }
                     else
                     {
