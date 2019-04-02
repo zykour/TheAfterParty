@@ -9,6 +9,7 @@ namespace TheAfterParty.Domain.Services
     {
         void SetUserName(string userName);
         Task<AppUser> GetCurrentUser();
+        Task<AppUser> GetCurrentUserWithOrders();
         AppUser GetCurrentUserSynch();
         Listing GetDailyDeal();
 

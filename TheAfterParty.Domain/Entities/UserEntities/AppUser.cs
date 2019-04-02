@@ -129,9 +129,9 @@ namespace TheAfterParty.Domain.Entities
                 return 0;
             }
 
-            ICollection<AuctionBid> openBids = AuctionBids.Where(a => a.Auction.IsSilent == true && a.Auction.IsOpen()).ToList();
+            IEnumerable<AuctionBid> openBids = AuctionBids.Where(a => a.Auction.IsSilent == true && a.Auction.IsOpen());
 
-            if (openBids.Count == 0)
+            if (openBids.Count() == 0)
             {
                 return 0;
             }
@@ -145,9 +145,9 @@ namespace TheAfterParty.Domain.Entities
                 return 0;
             }
 
-            ICollection<AuctionBid> openBids = AuctionBids.Where(a => a.Auction.IsSilent == false && a.Auction.IsOpen() && a.BidAmount == a.Auction.WinningBid()).ToList();
+            IEnumerable<AuctionBid> openBids = AuctionBids.Where(a => a.Auction.IsSilent == false && a.Auction.IsOpen() && a.BidAmount == a.Auction.WinningBid());
 
-            if (openBids.Count == 0)
+            if (openBids.Count() == 0)
             {
                 return 0;
             }
@@ -419,9 +419,11 @@ namespace TheAfterParty.Domain.Entities
         public bool AssertQuantityOfCart()
         {
             // Get entries associated with this UserID
-            ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => Object.Equals(entry.UserID, this.Id)).ToList();
+            //ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => Object.Equals(entry.UserID, this.Id)).ToList();
 
-            foreach (ShoppingCartEntry entry in myEntries)
+
+            // Quick check that will catch most problems 
+            foreach (ShoppingCartEntry entry in ShoppingCartEntries)
             {
                 if (entry.Quantity > entry.Listing.Quantity)
                 {
@@ -431,7 +433,9 @@ namespace TheAfterParty.Domain.Entities
 
             Dictionary<Listing, int> quantityDict = new Dictionary<Listing, int>();
 
-            foreach (ShoppingCartEntry entry in myEntries.Where(e => e.Listing.IsComplex()).ToList())
+
+            // more in-depth check that is rarely needed, even non-complex items need to be checked alongside the complex items since non-complex items could be a child element in complex items
+            foreach (ShoppingCartEntry entry in ShoppingCartEntries.Where(e => e.Listing.IsComplex()))
             {
                 if (entry.Quantity > entry.Listing.ListingKeysQuantity())
                 {
@@ -441,7 +445,7 @@ namespace TheAfterParty.Domain.Entities
                     }
                 }
             }
-            foreach (ShoppingCartEntry entry in myEntries.Where(e => !e.Listing.IsComplex()).ToList())
+            foreach (ShoppingCartEntry entry in ShoppingCartEntries.Where(e => !e.Listing.IsComplex()))
             {
                 if (quantityDict.ContainsKey(entry.Listing))
                 {
@@ -482,17 +486,18 @@ namespace TheAfterParty.Domain.Entities
         }
         public int GetCartQuantity()
         {
-            int total = 0;
+            //int total = 0;
 
-            // Get entries associated with this UserID
-            ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => Object.Equals(entry.UserID, this.Id)).ToList();
-            
-            foreach (ShoppingCartEntry entry in myEntries)
-            {
-                total += entry.Quantity;
-            }
+            //// Get entries associated with this UserID
+            //ICollection<ShoppingCartEntry> myEntries = ShoppingCartEntries.Where(entry => Object.Equals(entry.UserID, this.Id)).ToList();
 
-            return total;
+            //foreach (ShoppingCartEntry entry in myEntries)
+            //{
+            //    total += entry.Quantity;
+            //}
+
+            //return total;
+            return ShoppingCartEntries.Count;
         }
 
         public virtual ICollection<UserTag> UserTags { get; set; }

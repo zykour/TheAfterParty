@@ -27,7 +27,7 @@
             }
             else
             {
-                <div class="col-lg-2"></div>
+                <div class="col-lg-2">@Html.ActionLink("Refund & Restock", "RestockProductOrderEntry", "User", new { id = entry.ProductOrderEntryID }, new { @class = ".s-red" })</div>
             }
             @if (entry.Listing.Quantity > 0 && entry.ClaimedProductKeys.Count == 1)
             {

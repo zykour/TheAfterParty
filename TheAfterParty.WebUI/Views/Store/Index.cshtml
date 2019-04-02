@@ -243,7 +243,7 @@
                     {
                         var listing = "listing" + i + "id1";
                         <div class="is-hidden" id="@listing">
-                            @foreach (Listing childListing in storeListing.ChildListings.ToList())
+                            @foreach (Listing childListing in storeListing.ChildListings)
                             {
                                 <div class="row store-sub-entry-sm">
                                     <div class="col-lg-1 col-md-1 col-xl-1"></div>
@@ -399,20 +399,21 @@
                         @for (int i = 0; i < Model.SelectedProductCategoryMappings.Count(); i++)
                         {
                             string idString = "SelectedProductCategoryMappings_" + i + "__IsSelected";
-                            @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].ProductCategory.ProductCategoryID)
-                            @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].ProductCategory.CategoryString)
-                            @Html.HiddenFor(x => x.SelectedProductCategoryMappings[i].IsSelected)
+                            SelectedProductCategoryMapping currentCategoryMapping = Model.SelectedProductCategoryMappings.ElementAt(i);
+                            @Html.HiddenFor(x => currentCategoryMapping.ProductCategory.ProductCategoryID)
+                            @Html.HiddenFor(x => currentCategoryMapping.ProductCategory.CategoryString)
+                            @Html.HiddenFor(x => currentCategoryMapping.IsSelected)
                             <div class="filter-div">                                
-                                @if (Model.SelectedProductCategoryMappings[i].IsSelected)
+                                @if (currentCategoryMapping.IsSelected)
                                 {
-                                <button type="submit" class="btn-transparent text-nowrap" name="CategoryToChange" value="@Model.SelectedProductCategoryMappings[i].ProductCategory.ProductCategoryID">
-                                    <i class="fa fa-square adjusted-fa text-success"></i> @Html.Label(Model.SelectedProductCategoryMappings[i].ProductCategory.CategoryString, new { @class = "store-filter text-success" })
+                                <button type="submit" class="btn-transparent text-nowrap" name="CategoryToChange" value="@currentCategoryMapping.ProductCategory.ProductCategoryID">
+                                    <i class="fa fa-square adjusted-fa text-success"></i> @Html.Label(currentCategoryMapping.ProductCategory.CategoryString, new { @class = "store-filter text-success" })
                                 </button>
                                 }
                                 else
                                 {
-                                <button type="submit" class="btn-transparent text-nowrap" name="CategoryToChange" value="@Model.SelectedProductCategoryMappings[i].ProductCategory.ProductCategoryID">
-                                    <i class="fa fa-square-o adjusted-fa text-success"></i> @Html.Label(Model.SelectedProductCategoryMappings[i].ProductCategory.CategoryString, new { @class = "store-filter text-success" })
+                                <button type="submit" class="btn-transparent text-nowrap" name="CategoryToChange" value="@currentCategoryMapping.ProductCategory.ProductCategoryID">
+                                    <i class="fa fa-square-o adjusted-fa text-success"></i> @Html.Label(currentCategoryMapping.ProductCategory.CategoryString, new { @class = "store-filter text-success" })
                                 </button>
                                 }
                             </div>
@@ -426,20 +427,21 @@
                         @for (int i = 0; i < Model.SelectedTagMappings.Count(); i++)
                         {
                             string idString = "SelectedTagMappings_" + i + "__IsSelected";
-                            @Html.HiddenFor(x => x.SelectedTagMappings[i].StoreTag.TagID)
-                            @Html.HiddenFor(x => x.SelectedTagMappings[i].StoreTag.TagName)
-                            @Html.HiddenFor(x => x.SelectedTagMappings[i].IsSelected)
+                            SelectedTagMapping currentTagMapping = Model.SelectedTagMappings.ElementAt(i);
+                            @Html.HiddenFor(x => currentTagMapping.StoreTag.TagID)
+                            @Html.HiddenFor(x => currentTagMapping.StoreTag.TagName)
+                            @Html.HiddenFor(x => currentTagMapping.IsSelected)
                             <div class="filter-div">
-                                @if (Model.SelectedTagMappings[i].IsSelected)
+                                @if (currentTagMapping.IsSelected)
                                 {
-                                    <button class="btn-transparent text-nowrap" type="submit" name="TagToChange" value="@Model.SelectedTagMappings[i].StoreTag.TagID">
-                                        <i class="fa fa-square adjusted-fa text-success"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
+                                    <button class="btn-transparent text-nowrap" type="submit" name="TagToChange" value="@currentTagMapping.StoreTag.TagID">
+                                        <i class="fa fa-square adjusted-fa text-success"></i> @Html.Label(currentTagMapping.StoreTag.TagName, new { @class = "store-filter text-success" })
                                     </button>
                                 }
                                 else
                                 {
-                                    <button class="btn-transparent text-nowrap" type="submit" name="TagToChange" value="@Model.SelectedTagMappings[i].StoreTag.TagID">
-                                        <i class="fa fa-square-o adjusted-fa text-success"></i> @Html.Label(Model.SelectedTagMappings[i].StoreTag.TagName, new { @class = "store-filter text-success" })
+                                    <button class="btn-transparent text-nowrap" type="submit" name="TagToChange" value="@currentTagMapping.StoreTag.TagID">
+                                        <i class="fa fa-square-o adjusted-fa text-success"></i> @Html.Label(currentTagMapping.StoreTag.TagName, new { @class = "store-filter text-success" })
                                     </button>
                                 }
                             </div>

@@ -13,7 +13,7 @@
 @using (Html.BeginForm("EditSiteNotification", "Home", FormMethod.Post))
 {
     @Html.HiddenFor(x => x.SiteNotification.SiteNotificationID)
-    <span>Notification text: </span>@Html.TextBoxFor(x => x.SiteNotification.Notification, new { @Value = Model.SiteNotification.Notification })<br />
+    <span>Notification text: </span>@Html.TextAreaFor(x => x.SiteNotification.Notification, new { @Value = Model.SiteNotification.Notification })<br />
     <span>Date: </span>@Html.EditorFor(x => x.SiteNotification.NotificationDate, new { @Value = Model.SiteNotification.NotificationDate.ToString() })<br/>
     <input type="submit" name="Submit" />
 }

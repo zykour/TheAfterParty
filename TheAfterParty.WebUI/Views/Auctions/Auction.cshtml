@@ -214,7 +214,7 @@
                                 {
                                     <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@Model.Auction.PublicWinningBid()</span></div>
                                 }
-                                <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span>@Model.GetConvertedDateTime(highBid.BidDate).ToString("dd MMM h:mm:ss tt")</span></div>
+                                <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-lblue">@Model.GetConvertedDateTime(highBid.BidDate).ToString("dd MMM h:mm:ss tt")</span></div>
                             </div>
                         }
                         if (Model.Auction?.AuctionBids?.Count > 1)
@@ -299,9 +299,13 @@
                                                 </a>
                                                 <div class="pad-right col-text text-lblue">@highBid.AppUser.UserName</div>
                                             </div>
-                                            @if (Model.Auction.UserIsWinningBid(Model.LoggedInUser) == true || Model.Auction.IsOpen() == false && Model.Auction.IsSilent == false)
+                                            @if (Model.Auction.UserIsWinningBid(Model.LoggedInUser) == true || (Model.Auction.IsOpen() == false && Model.Auction.IsSilent == false))
                                             {
                                                 <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@Model.Auction.PublicWinningBid() (@Model.Auction.WinningBid())</span></div>
+                                            }
+                                            else if (Model.Auction.IsOpen() == false)
+                                            {
+                                                <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@Model.Auction.WinningBid())</span></div>
                                             }
                                             else
                                             {
@@ -324,7 +328,7 @@
                                                 <div class="pad-right col-text text-lblue">@bid.AppUser.UserName</div>
                                             </div>
                                             <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-success">@bid.BidAmount</span></div>
-                                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span>@Model.GetConvertedDateTime(bid.BidDate).ToString("dd MMM h:mm:ss tt")</span></div>
+                                            <div class="col-lg-4 col-md-4 col-xl-4 text-center"><span class="text-lblue">@Model.GetConvertedDateTime(bid.BidDate).ToString("dd MMM h:mm:ss tt")</span></div>
                                         </div>
                                         }
                                     }

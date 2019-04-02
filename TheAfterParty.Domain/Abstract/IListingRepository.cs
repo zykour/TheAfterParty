@@ -19,12 +19,16 @@ namespace TheAfterParty.Domain.Abstract
         IEnumerable<Listing> GetListings();
         IEnumerable<Listing> SearchListings(string searchText, int resultLimit);
         IEnumerable<Listing> GetListingsWithFilter(ListingFilter filter, out int TotalItems, List<Listing> listings = null);
+        Listing GetListingsWithAppIDAndPlatformID(int appId, int platformId);
+        Listing GetListingByIDStripped(int id);
         Listing GetListingByID(int listingId);
         void InsertListing(Listing listing);
         void UpdateListing(Listing listing);
+        void UpdateListingSimple(Listing listing);
         void DeleteListing(int listingId);
 
         IEnumerable<DiscountedListing> GetDiscountedListings();
+        IEnumerable<DiscountedListing> GetDiscountedListingsQuery();
         DiscountedListing GetDiscountedListingByID(int discountedListingId);
         void InsertDiscountedListing(DiscountedListing discountedListing);
         void UpdateDiscountedListing(DiscountedListing discoutnedListing);

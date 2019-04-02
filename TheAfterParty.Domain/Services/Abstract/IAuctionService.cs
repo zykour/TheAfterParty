@@ -15,6 +15,7 @@ namespace TheAfterParty.Domain.Services
         AppUser GetCurrentUserSynch();
 
         IEnumerable<Auction> GetAuctions();
+        IQueryable<Auction> GetAuctionsAsQueryable();
         Auction GetAuctionByID(int id);
         void AddAuction(Auction auction);
         void EditAuction(Auction auction);

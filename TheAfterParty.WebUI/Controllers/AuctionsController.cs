@@ -44,16 +44,17 @@ namespace TheAfterParty.WebUI.Controllers
         public async Task<ActionResult> Index()
         {
             AuctionsIndexViewModel model = new AuctionsIndexViewModel();
+            IQueryable<Auction> modelAuctions;
 
             ViewBag.Title = "Open Auctions";
-            model.Auctions = auctionService.GetAuctions().Where(a => a.IsOpen()).ToList();
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.EndTime >= DateTime.Now); //a.IsOpen());
             List<String> destNames = new List<String>() { openDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
             model.LoggedInUser = await auctionService.GetCurrentUser();
 
             model.ActionName = "Index";
 
-            PopulateAuctionModel(model);
+            PopulateAuctionModel(model, modelAuctions);
 
             return View(model);
         }
@@ -61,15 +62,16 @@ namespace TheAfterParty.WebUI.Controllers
         [HttpPost]
         public async Task<ActionResult> Index(AuctionsIndexViewModel model)
         {
+            IQueryable<Auction> modelAuctions;
             ViewBag.Title = "Open Auctions";
-            model.Auctions = auctionService.GetAuctions().Where(a => a.IsOpen()).ToList();
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.EndTime >= DateTime.Now);
             List<String> destNames = new List<String>() { openDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
             model.LoggedInUser = await auctionService.GetCurrentUser();
 
             model.ActionName = "Index";
 
-            PopulateAuctionModel(model);
+            PopulateAuctionModel(model, modelAuctions);
 
             ModelState.Clear();
 
@@ -217,16 +219,17 @@ namespace TheAfterParty.WebUI.Controllers
         public async Task<ActionResult> Closed()
         {
             AuctionsIndexViewModel model = new AuctionsIndexViewModel();
+            IQueryable<Auction> modelAuctions;
 
             ViewBag.Title = "Closed Auctions";
-            model.Auctions = auctionService.GetAuctions().Where(a => a.IsOpen() == false).ToList();
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.EndTime < DateTime.Now);
             List<String> destNames = new List<String>() { closedDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
             model.LoggedInUser = await auctionService.GetCurrentUser();
 
             model.ActionName = "Closed";
 
-            PopulateAuctionModel(model);
+            PopulateAuctionModel(model, modelAuctions);
 
             model.Auctions = model.Auctions.OrderByDescending(a => a.EndTime).ToList();
 
@@ -236,15 +239,16 @@ namespace TheAfterParty.WebUI.Controllers
         [HttpPost]
         public async Task<ActionResult> Closed(AuctionsIndexViewModel model)
         {
+            IQueryable<Auction> modelAuctions;
             ViewBag.Title = "Closed Auctions";
-            model.Auctions = auctionService.GetAuctions().Where(a => a.IsOpen() == false).ToList();
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.EndTime < DateTime.Now);
             List<String> destNames = new List<String>() { closedDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
             model.LoggedInUser = await auctionService.GetCurrentUser();
 
             model.ActionName = "Closed";
 
-            PopulateAuctionModel(model);
+            PopulateAuctionModel(model, modelAuctions);
 
             model.Auctions = model.Auctions.OrderByDescending(a => a.EndTime).ToList();
 
@@ -257,17 +261,18 @@ namespace TheAfterParty.WebUI.Controllers
         [Authorize]
         public async Task<ActionResult> MyAuctions()
         {
+            IQueryable<Auction> modelAuctions;
             AuctionsIndexViewModel model = new AuctionsIndexViewModel();
 
             ViewBag.Title = "My Auctions";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            model.Auctions = model.LoggedInUser.Auctions.ToList();
+            modelAuctions = model.LoggedInUser.Auctions.AsQueryable();
             List<String> destNames = new List<String>() { myaucsDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 
             model.ActionName = "MyAuctions";
 
-            PopulateAuctionModel(model);
+            PopulateAuctionModel(model, modelAuctions);
 
             return View("Index", model);
         }
@@ -276,15 +281,16 @@ namespace TheAfterParty.WebUI.Controllers
         [Authorize]
         public async Task<ActionResult> MyAuctions(AuctionsIndexViewModel model)
         {
+            IQueryable<Auction> modelAuctions;
             ViewBag.Title = "My Auctions";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            model.Auctions = model.LoggedInUser.Auctions.ToList();
+            modelAuctions = model.LoggedInUser.Auctions.AsQueryable();
             List<String> destNames = new List<String>() { myaucsDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 
             model.ActionName = "MyAuctions";
 
-            PopulateAuctionModel(model);
+            PopulateAuctionModel(model, modelAuctions);
 
             ModelState.Clear();
 
@@ -295,17 +301,18 @@ namespace TheAfterParty.WebUI.Controllers
         [Authorize]
         public async Task<ActionResult> MyCurrentBids()
         {
+            IQueryable<Auction> modelAuctions;
             AuctionsIndexViewModel model = new AuctionsIndexViewModel();
 
             model.ActionName = "MyCurrentBids";
 
             ViewBag.Title = "My Bids";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            model.Auctions = auctionService.GetAuctions().Where(a => a.ContainsBidBy(model.LoggedInUser) && a.IsOpen()).ToList();
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.ContainsBidBy(model.LoggedInUser) && a.IsOpen());
             List<String> destNames = new List<String>() { livebidsDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 
-            PopulateAuctionModel(model);
+            PopulateAuctionModel(model, modelAuctions);
 
             return View("Index", model);
         }
@@ -314,15 +321,16 @@ namespace TheAfterParty.WebUI.Controllers
         [Authorize]
         public async Task<ActionResult> MyCurrentBids(AuctionsIndexViewModel model)
         {
+            IQueryable<Auction> modelAuctions;
             ViewBag.Title = "My Bids";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            model.Auctions = auctionService.GetAuctions().Where(a => a.ContainsBidBy(model.LoggedInUser) && a.IsOpen()).ToList();
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.ContainsBidBy(model.LoggedInUser) && a.IsOpen());
             List<String> destNames = new List<String>() { livebidsDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 
             model.ActionName = "MyCurrentBids";
 
-            PopulateAuctionModel(model);
+            PopulateAuctionModel(model, modelAuctions);
 
             ModelState.Clear();
 
@@ -333,17 +341,18 @@ namespace TheAfterParty.WebUI.Controllers
         [Authorize]
         public async Task<ActionResult> MyWinningBids()
         {
+            IQueryable<Auction> modelAuctions;
             AuctionsIndexViewModel model = new AuctionsIndexViewModel();
 
             ViewBag.Title = "Winning Bids";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            model.Auctions = auctionService.GetAuctions().Where(a => a.UserIsWinningBid(model.LoggedInUser) && a.IsSilent == false && a.IsOpen()).ToList();
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.UserIsWinningBid(model.LoggedInUser) && a.IsSilent == false && a.EndTime >= DateTime.Now);
             List<String> destNames = new List<String>() { mywinningDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 
             model.ActionName = "MyWinningBids";
 
-            PopulateAuctionModel(model);
+            PopulateAuctionModel(model, modelAuctions);
 
             return View("Index", model);
         }
@@ -352,15 +361,16 @@ namespace TheAfterParty.WebUI.Controllers
         [Authorize]
         public async Task<ActionResult> MyWinningBids(AuctionsIndexViewModel model)
         {
+            IQueryable<Auction> modelAuctions;
             ViewBag.Title = "Winning Bids";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            model.Auctions = auctionService.GetAuctions().Where(a => a.UserIsWinningBid(model.LoggedInUser) && a.IsSilent == false && a.IsOpen()).ToList();
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.UserIsWinningBid(model.LoggedInUser) && a.IsSilent == false && a.EndTime >= DateTime.Now);
             List<String> destNames = new List<String>() { mywinningDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 
             model.ActionName = "MyWinningBids";
 
-            PopulateAuctionModel(model);
+            PopulateAuctionModel(model, modelAuctions);
 
             ModelState.Clear();
 
@@ -371,17 +381,18 @@ namespace TheAfterParty.WebUI.Controllers
         [Authorize]
         public async Task<ActionResult> MyBidHistory()
         {
+            IQueryable<Auction> modelAuctions;
             AuctionsIndexViewModel model = new AuctionsIndexViewModel();
 
             ViewBag.Title = "My Bids";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            model.Auctions = auctionService.GetAuctions().Where(a => a.ContainsBidBy(model.LoggedInUser)).ToList();
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.ContainsBidBy(model.LoggedInUser));
             List<String> destNames = new List<String>() { allbidsDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 
             model.ActionName = "MyBidHistory";
 
-            PopulateAuctionModel(model);
+            PopulateAuctionModel(model, modelAuctions);
 
             model.Auctions = model.Auctions.OrderByDescending(a => a.EndTime).ToList();
 
@@ -392,15 +403,16 @@ namespace TheAfterParty.WebUI.Controllers
         [Authorize]
         public async Task<ActionResult> MyBidHistory(AuctionsIndexViewModel model)
         {
+            IQueryable<Auction> modelAuctions;
             ViewBag.Title = "My Bids";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            model.Auctions = auctionService.GetAuctions().Where(a => a.ContainsBidBy(model.LoggedInUser)).ToList();
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.ContainsBidBy(model.LoggedInUser));
             List<String> destNames = new List<String>() { allbidsDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 
             model.ActionName = "MyBidHistory";
 
-            PopulateAuctionModel(model);
+            PopulateAuctionModel(model, modelAuctions);
 
             model.Auctions = model.Auctions.OrderByDescending(a => a.EndTime).ToList();
 
@@ -412,6 +424,7 @@ namespace TheAfterParty.WebUI.Controllers
         [Authorize]
         public async Task<bool> AjaxSubmitBid(int auctionId, int bid)
         {
+            IQueryable<Auction> modelAuctions;
             AppUser user = await auctionService.GetCurrentUser(HttpContext.User.Identity.Name);
 
             Auction auction = auctionService.GetAuctionByID(auctionId);
@@ -540,7 +553,7 @@ namespace TheAfterParty.WebUI.Controllers
 
         #endregion
 
-        public void PopulateAuctionModel(AuctionsIndexViewModel model)
+        public void PopulateAuctionModel(AuctionsIndexViewModel model, IQueryable<Auction> auctions)
         {
             if (model.FilterAll == true)
             {
@@ -562,20 +575,20 @@ namespace TheAfterParty.WebUI.Controllers
 
             if (model.PreviousFilterPublic == true)
             {
-                model.Auctions = model.Auctions.Where(a => a.IsSilent == false).ToList();
+                auctions = auctions.Where(a => a.IsSilent == false);
             }
 
             if (model.PreviouslyFilterSilent == true)
             {
-                model.Auctions = model.Auctions.Where(a => a.IsSilent == true).ToList();
+                auctions = auctions.Where(a => a.IsSilent == true);
             }
 
             if (String.IsNullOrEmpty(model.SearchText) == false)
             {
-                model.Auctions = model.Auctions.Where(a => a.Prize().ToLower().Contains(model.SearchText.Trim().ToLower())).ToList();
+                auctions = auctions.Where(a => (a.Listing != null && a.Listing.ListingName.ToLower().Contains(model.SearchText.Trim().ToLower()) || a.AlternativePrize.ToLower().Contains(model.SearchText.Trim().ToLower())));   //GetPrize().ToLower().Contains(model.SearchText.Trim().ToLower()));
             }
-            
-            model.TotalItems = model.Auctions.Count;
+
+            model.TotalItems = auctions.Count();
 
             if (model.LoggedInUser.PaginationPreference != 0)
             {
@@ -588,13 +601,28 @@ namespace TheAfterParty.WebUI.Controllers
                     model.CurrentPage = 1;
                 }
                 model.UserPaginationPreference = model.LoggedInUser.PaginationPreference;
-                model.Auctions = model.Auctions.OrderBy(a => a.EndTime).Skip((model.CurrentPage - 1) * model.UserPaginationPreference).Take(model.UserPaginationPreference).ToList();
+                if (model.ActionName.CompareTo("Closed") == 0)
+                {
+                    auctions = auctions.OrderByDescending(a => a.EndTime).Skip((model.CurrentPage - 1) * model.UserPaginationPreference).Take(model.UserPaginationPreference);
+                    //var query = new { AuctionCount = auctions.Select(x => x).Count(), Auctions = auctions.OrderByDescending(a => a.EndTime).Skip((model.CurrentPage - 1) * model.UserPaginationPreference).Take(model.UserPaginationPreference) };
+                    //model.TotalItems = query.AuctionCount;
+                    //auctions = query.Auctions;
+                }
+                else
+                {
+                    auctions = auctions.OrderBy(a => a.EndTime).Skip((model.CurrentPage - 1) * model.UserPaginationPreference).Take(model.UserPaginationPreference);
+                //var query = new { AuctionCount = auctions.Select(x => x).Count(), Auctions = auctions.OrderBy(a => a.EndTime).Skip((model.CurrentPage - 1) * model.UserPaginationPreference).Take(model.UserPaginationPreference) };
+                //model.TotalItems = query.AuctionCount;
+                //auctions = query.Auctions;
+            }
             }
             else
             {
                 model.CurrentPage = 1;
-                model.Auctions = model.Auctions.OrderBy(a => a.EndTime).ToList();
+                auctions = auctions.OrderBy(a => a.EndTime);
             }
+
+            model.Auctions = auctions.ToList<Auction>();
         }
 
         public List<NavGrouping> CreateAuctionNavList(List<String> destNames)

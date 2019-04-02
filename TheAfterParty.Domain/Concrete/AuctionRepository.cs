@@ -29,7 +29,18 @@ namespace TheAfterParty.Domain.Concrete
                         .Include(x => x.Listing.Platforms)
                         .Include(x => x.Listing.Product)
                         .Include(x => x.Winners)
-                        .ToList();
+                        .AsQueryable();
+        }
+        public IQueryable<Auction> GetAuctionsAsQueryable()
+        {
+            return context.Auctions
+                        .Include(x => x.AuctionBids.Select(b => b.AppUser))
+                        .Include(x => x.Creator.AuctionBids)
+                        .Include(x => x.Creator.Auctions)
+                        .Include(x => x.Listing.Platforms)
+                        .Include(x => x.Listing.Product)
+                        .Include(x => x.Winners)
+                        .AsQueryable();
         }
         public Auction GetAuctionByID(int auctionId)
         {
@@ -89,7 +100,7 @@ namespace TheAfterParty.Domain.Concrete
             return context.AuctionBids
                             .Include(x => x.AppUser)
                             .Include(x => x.Auction)
-                            .ToList();
+                            .AsQueryable();
         }
         public AuctionBid GetAuctionBidByID(int auctionBidId)
         {

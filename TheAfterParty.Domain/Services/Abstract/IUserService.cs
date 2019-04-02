@@ -39,6 +39,9 @@ namespace TheAfterParty.Domain.Services
 
         IEnumerable<Auction> GetAuctions();
         IEnumerable<Giveaway> GetGiveaways();
+        Giveaway GetGiveawayByID(int giveawayId);
+        void AddGiveaway(Giveaway giveaway);
+        void DrawGiveawayWinners(int giveawayId);
         Task<int> GetTotalReservedBalance();
         Task<int> GetSilentAuctionReservedBalance();
         Task<int> GetPublicAuctionReservedBalance();

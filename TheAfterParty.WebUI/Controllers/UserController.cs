@@ -12,6 +12,7 @@ using TheAfterParty.Domain.Entities;
 using Microsoft.AspNet.Identity.Owin;
 using TheAfterParty.Domain.Concrete;
 using TheAfterParty.Domain.Model;
+using TheAfterParty.WebUI.Infrastructure;
 
 namespace TheAfterParty.WebUI.Controllers
 {
@@ -19,13 +20,15 @@ namespace TheAfterParty.WebUI.Controllers
     public class UserController : Controller
     {
         private IUserService userService;
+        private ICacheService cacheService;
         private const string allActionDest = "All Users";
         private const string adminsActionDest = "Admins";
         private const string ownsActionDest = "Owns";
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, ICacheService cacheService)
         {
             this.userService = userService;
+            this.cacheService = cacheService;
         }
 
         protected override void Initialize(RequestContext requestContext)
@@ -33,6 +36,7 @@ namespace TheAfterParty.WebUI.Controllers
             base.Initialize(requestContext);
 
             userService.SetUserName(User.Identity.Name);
+            cacheService.SetUserName(User.Identity.Name);
         }
 
         // GET: User
@@ -933,6 +937,7 @@ namespace TheAfterParty.WebUI.Controllers
         public async Task<bool> AjaxToggleBlacklist(int listingId)
         {
             await userService.ToggleBlacklist(listingId);
+            //await cacheService.CacheUser(HttpContext.User.Identity.Name);
             
             return await userService.IsBlacklisted(listingId);
         }
@@ -941,6 +946,7 @@ namespace TheAfterParty.WebUI.Controllers
         public async Task<ActionResult> AjaxTransferPoints(int points, string userId)
         {
             await userService.TransferPoints(points, userId);
+            //await cacheService.CacheUser(HttpContext.User.Identity.Name);
 
             return new PartialViewResult();
         }

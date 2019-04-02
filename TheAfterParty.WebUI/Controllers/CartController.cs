@@ -8,6 +8,7 @@ using TheAfterParty.WebUI.Models._Nav;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using TheAfterParty.WebUI.Infrastructure;
 
 namespace TheAfterParty.WebUI.Controllers
 {
@@ -15,10 +16,12 @@ namespace TheAfterParty.WebUI.Controllers
     public class CartController : Controller
     {
         private ICartService cartService;
+        private ICacheService cacheService;
         
-        public CartController(ICartService cartService)
+        public CartController(ICartService cartService, ICacheService cacheService)
         {
             this.cartService = cartService;
+            this.cacheService = cacheService;
         }
 
         protected override void Initialize(RequestContext requestContext)
@@ -26,6 +29,7 @@ namespace TheAfterParty.WebUI.Controllers
             base.Initialize(requestContext);
             
             cartService.SetUserName(User.Identity.Name);
+            cacheService.SetUserName(User.Identity.Name);
         }
 
 
@@ -42,7 +46,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             cartViewModel.FullNavList = CreateCartViewModelNavList();
 
-            cartViewModel.CartEntries = cartViewModel.CartEntries.OrderBy(e => e.Listing.ListingName).ToList();
+            cartViewModel.CartEntries = cartViewModel.CartEntries.OrderBy(e => e.Listing.ListingName);
 
             return View(cartViewModel);
         }
@@ -107,15 +111,17 @@ namespace TheAfterParty.WebUI.Controllers
         public async Task<string> AjaxAddToCart(int listingId)
         {
             await cartService.AddItemToCart(listingId);
+            //await cacheService.CacheUser(HttpContext.User.Identity.Name);
 
             Listing listing = cartService.GetListingByID(listingId);
-            
+
             return listing.SaleOrDefaultPrice().ToString();
         }
 
         public async Task<ActionResult> AddToCart(int listingId, string returnUrl)
         {
             await cartService.AddItemToCart(listingId);
+            //await cacheService.CacheUser(HttpContext.User.Identity.Name);
 
             return RedirectToAction("Index", new { returnUrl } );
         }
@@ -124,6 +130,7 @@ namespace TheAfterParty.WebUI.Controllers
         public async Task<ActionResult> IncrementCartQuantity(int shoppingId, string returnUrl)
         {
             await cartService.IncrementCartQuantity(shoppingId);
+            //await cacheService.CacheUser(HttpContext.User.Identity.Name);
             ModelState.Clear();
 
             return RedirectToAction("Index", new { returnUrl });
@@ -133,6 +140,7 @@ namespace TheAfterParty.WebUI.Controllers
         public async Task<ActionResult> DecrementCartQuantity(int shoppingId, string returnUrl)
         {
             await cartService.DecrementCartQuantity(shoppingId);
+            //await cacheService.CacheUser(HttpContext.User.Identity.Name);
             ModelState.Clear();
 
             return RedirectToAction("Index", new { returnUrl });
@@ -141,6 +149,7 @@ namespace TheAfterParty.WebUI.Controllers
         public ActionResult RemoveItem(int shoppingId, string returnUrl)
         {
             cartService.DeleteShoppingCartEntry(shoppingId);
+            //cacheService.CacheUserSynch(HttpContext.User.Identity.Name);
 
             return RedirectToAction("Index", new { returnUrl });
         }
@@ -148,6 +157,7 @@ namespace TheAfterParty.WebUI.Controllers
         public async Task<ActionResult> EmptyCart(string returnUrl)
         {
             await cartService.DeleteShoppingCart();
+            //await cacheService.CacheUser(HttpContext.User.Identity.Name);
 
             return RedirectToAction("Index", new { returnUrl });
         }
@@ -155,6 +165,7 @@ namespace TheAfterParty.WebUI.Controllers
         public ActionResult ModifyCartQuantity(int shoppingId, int newValue, string returnUrl)
         {
             cartService.UpdateShoppingCartEntry(shoppingId, newValue);
+            //cacheService.CacheUserSynch(HttpContext.User.Identity.Name);
 
             return RedirectToAction("Index", new { returnUrl });
         }
@@ -162,6 +173,8 @@ namespace TheAfterParty.WebUI.Controllers
         public async Task<ActionResult> Purchase(string returnUrl)
         {
             Order order = await cartService.CreateOrder();
+            //await cacheService.CacheUser(HttpContext.User.Identity.Name);
+            //cacheService.ForceCacheListings();
 
             Listing deal = cartService.GetDailyDeal();
 

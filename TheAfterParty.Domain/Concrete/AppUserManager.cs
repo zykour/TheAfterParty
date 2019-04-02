@@ -7,6 +7,7 @@ using System.Linq;
 using System.Data.Entity;
 using System.Threading.Tasks;
 using System.Collections;
+using System;
 
 namespace TheAfterParty.Domain.Concrete
 {
@@ -34,7 +35,14 @@ namespace TheAfterParty.Domain.Concrete
         {
             return Users.Include(x => x.BlacklistedListings)
                         .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.DiscountedListings))
-                        .Include(x => x.AuctionBids.Select(ab => ab.Auction))
+                        .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.Product))
+                        .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ProductKeys))
+                        .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.Platforms))
+                        .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(cl => cl.DiscountedListings)))
+                        .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(cl => cl.Product)))
+                        .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(cl => cl.Platforms)))
+                        .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(cl => cl.ProductKeys)))
+                        .Include(x => x.AuctionBids.Select(ab => ab.Auction.AuctionBids))
                         .Include(x => x.WishlistEntries)//.Select(we => we.Listing).Select(l => l.Product))
                         .FirstOrDefaultAsync(u => u.UserName == userName);
         }
@@ -77,7 +85,31 @@ namespace TheAfterParty.Domain.Concrete
         {
             return Users
                 .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.DiscountedListings))
-                .Include(x => x.AuctionBids.Select(a => a.Auction)).FirstOrDefaultAsync(u => u.UserName == userName);
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ProductKeys))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.Platforms))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.Product))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.DiscountedListings)))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.ProductKeys)))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.Platforms)))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.Product)))
+                .Include(x => x.AuctionBids.Select(a => a.Auction.AuctionBids)).FirstOrDefaultAsync(u => u.UserName == userName);
+        }
+        public Task<AppUser> FindByNameAsyncWithCartOpenAuctionBidsAndOrders(string userName)
+        {
+            return Users
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.DiscountedListings))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ProductKeys.Select(pk => pk.Listing)))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.Platforms))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.Product))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.DiscountedListings)))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.ProductKeys)))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.Platforms)))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.Product)))
+                .Include(x => x.AuctionBids.Select(a => a.Auction.AuctionBids))
+                .Include(x => x.Orders)
+                .Include(x => x.ClaimedProductKeys)
+                .Include(x => x.BalanceEntries)
+                .FirstOrDefaultAsync(u => u.UserName == userName);
         }
 
         public static AppUserManager Create(IdentityFactoryOptions<AppUserManager> options, IOwinContext context)

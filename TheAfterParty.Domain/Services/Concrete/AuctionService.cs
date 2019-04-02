@@ -43,6 +43,10 @@ namespace TheAfterParty.Domain.Services
         {
             return auctionRepository.GetAuctions();
         }
+        public IQueryable<Auction> GetAuctionsAsQueryable()
+        {
+            return auctionRepository.GetAuctionsAsQueryable();
+        }
         public Auction GetAuctionByID(int id)
         {
             return auctionRepository.GetAuctionByID(id);

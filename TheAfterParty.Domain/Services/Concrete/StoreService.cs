@@ -77,7 +77,7 @@ namespace TheAfterParty.Domain.Services
         public List<Listing> FilterListingsByUserSteamID(List<Listing> currentListing, string id, string apiKey)
         {
             string gamesURL = String.Format("http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={0}&steamid={1}&format=json", apiKey, id);
-
+            
             string result = new System.Net.WebClient().DownloadString(gamesURL);
 
             JObject gameData = JObject.Parse(result);
@@ -214,8 +214,8 @@ namespace TheAfterParty.Domain.Services
             ProductKey key = listingRepository.GetProductKeyByID(productKeyId);
             Listing listing = key.Listing;
             listingRepository.DeleteProductKey(productKeyId);
-            listing.UpdateQuantity();
-            listing.UpdateParentQuantities();
+            //listing.UpdateQuantity();
+            //listing.UpdateParentQuantities();
             listingRepository.UpdateListing(listing);
             unitOfWork.Save();
         }
@@ -391,6 +391,10 @@ namespace TheAfterParty.Domain.Services
                         product.ProductName = gameName;
                     }
 
+                    if (image.Contains("?t="))
+                    {
+                        image = image.Substring(0, image.IndexOf("?t="));
+                    }
                     product.HeaderImageURL = image;
 
                     if (product.ProductID == 0)
@@ -586,6 +590,7 @@ namespace TheAfterParty.Domain.Services
         // --- Listing building logic
         public List<String> AddSteamProductKeys(Platform platform, string input)
         {
+            List<Listing> listings = new List<Listing>();
             List<String> addedKeys = new List<String>();
 
             input = input.Replace("\r\n", "\r");
@@ -668,11 +673,29 @@ namespace TheAfterParty.Domain.Services
 
                 if (appId != 0)
                 {
-                    listing = GetListingByAppID(appId, platform.PlatformName);
+                    listing = listings.Where(x => x.Product.AppID == appId).SingleOrDefault();
+                    
+                    if (listing == null)
+                    {
+                        listing = GetListingByAppIDSteam(appId, platform.PlatformID);//GetListingByAppID(appId, platform.PlatformName);
+                        if (listing != null)
+                        {
+                            listings.Add(listing);
+                        }
+                    }
                 }
                 else if (subId != 0)
                 {
-                    listing = GetListingByAppID(subId, platform.PlatformName);
+                    listing = listings.Where(x => x.Product.AppID == subId).SingleOrDefault();
+
+                    if (listing == null)
+                    {
+                        listing = GetListingByAppIDSteam(subId, platform.PlatformID);//GetListingByAppID(subId, platform.PlatformName);
+                        if (listing != null)
+                        {
+                            listings.Add(listing);
+                        }
+                    }
                 }
 
                 if (listing != null)
@@ -680,7 +703,7 @@ namespace TheAfterParty.Domain.Services
                     listing.ListingPrice = price;
                     listing.AddProductKeyAndUpdateQuantity(new ProductKey(isGift, key));
                     listing.DateEdited = dateAdded;
-                    listingRepository.UpdateListing(listing);
+                    //listingRepository.UpdateListing(listing);
 
                     addedKeys.Add(platform.PlatformName + ": " + listing.ListingName + "...+1!");
                 }
@@ -709,14 +732,25 @@ namespace TheAfterParty.Domain.Services
                         BuildListingWithPackageID(listing, appIds, gameName);
                     }
 
-                    UpdateListing(listing);
+                    listings.Add(listing);
+                    //UpdateListing(listing);
 
                     addedKeys.Add(platform.PlatformName + ": " + listing.ListingName + "...created!");
                 }
-                
-                unitOfWork.Save();
             }
-
+            
+            foreach (Listing updatedListing in listings)
+            {
+                if (updatedListing.ListingID != 0)
+                {
+                    listingRepository.UpdateListing(updatedListing);
+                }
+                else
+                {
+                    listingRepository.InsertListing(updatedListing);
+                }
+            }
+            
             SiteNotification notification = new SiteNotification();
             var url = String.Format("https://theafterparty.azurewebsites.net/store/date?month={0}&day={1}&year={2}", DateTime.Today.Month, DateTime.Today.Day, DateTime.Today.Year);
             notification.Notification = "[new][/new] [url=" + url + "][gtext]" + addedKeys.Count() + "[/gtext][/url] items added to the [url=https://theafterparty.azurewebsites.net/store/newest]Co-op Shop[/url]!";
@@ -777,8 +811,8 @@ namespace TheAfterParty.Domain.Services
 
         public bool BuildOrUpdateSteamProduct(int appId, Product product)
         {
-            string url = String.Format("http://store.steampowered.com/api/appdetails?appids={0}", appId);
-
+            string url = String.Format("https://store.steampowered.com/api/appdetails?appids={0}", appId);
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             string result = new System.Net.WebClient().DownloadString(url);
 
             JObject jsonResult = JObject.Parse(result);
@@ -794,6 +828,11 @@ namespace TheAfterParty.Domain.Services
             
             product.ProductName = (string)appData["name"] ?? "";
             product.HeaderImageURL = (string)appData["header_image"] ?? "";
+
+            if (product.HeaderImageURL.Contains("?t="))
+            {
+                product.HeaderImageURL = product.HeaderImageURL.Substring(0, product.HeaderImageURL.IndexOf("?t="));
+            }
 
             if (!appData["genres"].IsNullOrEmpty())
             {
@@ -870,9 +909,9 @@ namespace TheAfterParty.Domain.Services
             {
                 throw new Exception("A valid product object was not added to the listing object!");
             }
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            string url = String.Format("https://store.steampowered.com/api/appdetails?appids={0}", listing.Product.AppID);
             
-            string url = String.Format("http://store.steampowered.com/api/appdetails?appids={0}", listing.Product.AppID);
-
             string result = new System.Net.WebClient().DownloadString(url);
 
             JObject jsonResult = JObject.Parse(result);
@@ -897,7 +936,11 @@ namespace TheAfterParty.Domain.Services
             }
                         
             listing.Product.HeaderImageURL = (string)appData["header_image"] ?? "";
-            
+            if (listing.Product.HeaderImageURL.Contains("?t="))
+            {
+                listing.Product.HeaderImageURL = listing.Product.HeaderImageURL.Substring(0, listing.Product.HeaderImageURL.IndexOf("?t="));
+            }
+
             if (!appData["genres"].IsNullOrEmpty())
             {
                 JArray jGenres = (JArray)appData["genres"];
@@ -1035,6 +1078,10 @@ namespace TheAfterParty.Domain.Services
         public Listing GetListingByAppID(int id, string platformName)
         {
             return listingRepository.GetListings().Where(l => l.Product != null && l.Product.AppID == id && l.Product.IsSteamAppID == true && l.ContainsPlatform(platformName)).SingleOrDefault();
+        }
+        public Listing GetListingByAppIDSteam(int id, int platformID)
+        {
+            return listingRepository.GetListingsWithAppIDAndPlatformID(id, platformID);
         }
 
         public DiscountedListing GetDiscountedListingByID(int id)

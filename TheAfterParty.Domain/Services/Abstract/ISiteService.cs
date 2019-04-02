@@ -36,7 +36,7 @@ namespace TheAfterParty.Domain.Services
         Product GetProductByID(int id);
         void AddProduct(Product product);
 
-        List<ActivityFeedContainer> GetSiteActivityFeedItems();
+        IEnumerable<ActivityFeedContainer> GetSiteActivityFeedItems();
 
         Task<AppUser> GetAppUserByID(string id);
     }

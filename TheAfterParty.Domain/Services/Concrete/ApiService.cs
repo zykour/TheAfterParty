@@ -34,7 +34,7 @@ namespace TheAfterParty.Domain.Services
         {
             UserManager = userManager;
         }
-
+        
         public IEnumerable<String> GetUsersWhoOwn(int appId)
         {
             return userRepository.GetUsersWhoOwn(appId).OrderBy(s => s);
@@ -158,7 +158,7 @@ namespace TheAfterParty.Domain.Services
                 listingRepository.DeleteProductKey(productKey.ProductKeyID);
 
                 productKey.Listing.Quantity--;
-                productKey.Listing.UpdateParentQuantities();
+                //productKey.Listing.UpdateParentQuantities();
 
                 listingRepository.UpdateListing(productKey.Listing);
 
@@ -479,6 +479,160 @@ namespace TheAfterParty.Domain.Services
             }
 
             return null;
+        }
+        
+        public void FixImages()
+        {
+
+            foreach (Product product in listingRepository.GetProducts().ToList())
+            {
+                if (product.HeaderImageURL != null && product.HeaderImageURL.Contains("?t="))
+                {
+                    product.HeaderImageURL = product.HeaderImageURL.Substring(0, product.HeaderImageURL.IndexOf("?t="));
+                    listingRepository.UpdateProduct(product);
+                }
+            }
+
+            unitOfWork.Save();
+        }
+
+        public int RollDeals(int deals, bool days, int duration, bool unique)
+        {
+            List<Listing> listings = new List<Listing>();
+            DiscountedListing discount = new DiscountedListing();
+            DateTime expiry = DateTime.UtcNow;
+
+
+            if (unique)
+            {
+                listings = listingRepository.GetListingsQuery().Where(x => x.Quantity > 0 && x.ListingPrice > 1 && x.DiscountedListings.Count == 0).OrderBy(x => Guid.NewGuid()).ToList();
+            }
+            else
+            {
+                listings = listingRepository.GetListingsQuery().Where(x => x.Quantity > 0 && x.ListingPrice > 1).OrderBy(x => Guid.NewGuid()).ToList();
+            }
+
+            if (days)
+            {
+                expiry = expiry.AddDays(duration);
+            }
+            else
+            {
+                expiry = expiry.AddHours(duration);
+            }
+
+            int count = 0;
+            int discountPct = 25;
+            Random rand = new Random();
+
+            int ran = 1;
+
+            foreach (Listing listing in listings)
+            {
+                ran = rand.Next(100);
+
+                if (ran < 40)
+                {
+                    discountPct = 33;
+                }
+                else if (ran < 65)
+                {
+                    discountPct = 50;
+                }
+                else if (ran < 85)
+                {
+                    discountPct = 66;
+                }
+                else if (ran < 99)
+                {
+                    discountPct = 75;
+                }
+                else
+                {
+                    discountPct = 85;
+                }
+
+                discount = new DiscountedListing(discountPct, expiry);
+                discount.Listing = listing;
+                discount.DailyDeal = false;
+                discount.WeeklyDeal = false;
+                
+               if (++count >= deals)
+                {
+                    break;
+                }
+
+                listingRepository.InsertDiscountedListing(discount);
+            }
+
+            unitOfWork.Save();
+
+            return count;
+        }
+
+        // If percent is 0, this signifies that percentages should be randomized
+        public int RollDeals(int percent, bool days, int duration)
+        {
+            List<Listing> listings = listingRepository.GetListingsQuery().Where(x => x.Quantity > 0 && x.ListingPrice > 1).OrderBy(x => Guid.NewGuid()).ToList();
+            DiscountedListing discount = new DiscountedListing();
+            DateTime expiry = DateTime.UtcNow;
+
+            if (days)
+            {
+                expiry = expiry.AddDays(duration);
+            }
+            else
+            {
+                expiry = expiry.AddHours(duration);
+            }
+
+            int discountPct = 25;
+
+            if (percent > 0)
+            {
+                discountPct = percent;
+            }
+            Random rand = new Random();
+            int count = 0;
+
+            int ran = 1;
+
+            foreach (Listing listing in listings)
+            {
+                if (percent == 0)
+                {
+                    ran = rand.Next(100);
+
+                    if (ran < 40)
+                    {
+                        discountPct = 33;
+                    }
+                    else if (ran < 65)
+                    {
+                        discountPct = 50;
+                    }
+                    else if (ran < 85)
+                    {
+                        discountPct = 66;
+                    }
+                    else if (ran < 99)
+                    {
+                        discountPct = 75;
+                    }
+                    else
+                    {
+                        discountPct = 85;
+                    }
+                }
+
+                discount = new DiscountedListing(discountPct, expiry);
+                count++;
+                listingRepository.InsertDiscountedListing(discount);
+            }
+
+            unitOfWork.Save();
+
+            return count;
         }
 
         public void Dispose()

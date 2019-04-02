@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TheAfterParty.Domain.Abstract;
 using TheAfterParty.Domain.Entities;
+using System.Data.Entity;
 
 namespace TheAfterParty.Domain.Concrete
 {
@@ -22,7 +23,14 @@ namespace TheAfterParty.Domain.Concrete
 
         public IEnumerable<Giveaway> GetGiveaways()
         {
-            return context.Giveaways.ToList();
+            return context.Giveaways
+                .Include(x => x.GiveawayEntries.Select(b => b.AppUser))
+                //.Include(x => x.Creator.GiveawayEntries)
+                //.Include(x => x.Creator.CreatedGiveaways)
+                .Include(x => x.Listing.Platforms)
+                .Include(x => x.Listing.Product)
+                .Include(x => x.Winner)
+                .ToList();
         }
         public Giveaway GetGiveawayByID(int giveawayId)
         {

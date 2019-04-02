@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TheAfterParty.Domain.Entities;
 using TheAfterParty.Domain.Concrete;
+using System.Linq;
 
 namespace TheAfterParty.Domain.Abstract
 {
@@ -10,6 +11,7 @@ namespace TheAfterParty.Domain.Abstract
         AppIdentityDbContext GetContext();
         
         IEnumerable<Auction> GetAuctions();
+        IQueryable<Auction> GetAuctionsAsQueryable();
         Auction GetAuctionByID(int auctionId);
         void InsertAuction(Auction auction);
         void UpdateAuction(Auction auction);

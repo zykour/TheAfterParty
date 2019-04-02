@@ -50,5 +50,9 @@ namespace TheAfterParty.Domain.Services
         void AddSiteNotification(string notification);
 
         Objective GetObjectiveWithBoostedDaily();
+
+        void FixImages();
+        int RollDeals(int deals, bool days, int duration, bool unique);
+        int RollDeals(int percent, bool days, int duration);
     }
 }

@@ -28,7 +28,6 @@ namespace TheAfterParty.Domain.Entities
                 return Prize;
             }
         }
-
         // if the prize is not a game, one of the options is to giveaway a number of points
         public int? PointsPrize { get; set; }
 
@@ -46,6 +45,11 @@ namespace TheAfterParty.Domain.Entities
 
         // the datetime this giveaway is supposed to end
         public DateTime EndDate { get; set; }
+        
+        public bool IsOpen()
+        {
+            return EndDate.CompareTo(DateTime.Now) > 0;
+        }
 
         // the datetime the giveaway starts
         public DateTime? StartDate { get; set; }

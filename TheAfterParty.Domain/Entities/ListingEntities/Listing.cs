@@ -145,7 +145,7 @@ namespace TheAfterParty.Domain.Entities
             listing.ParentListings.Add(this);
 
             // since this is a complex listing, adding a child listing may effect the quantity of this listing
-            UpdateQuantity();
+            //UpdateQuantity();
         }        
         /// <summary> Determines if this listing is complex (has child listings)</summary>
         /// <returns> Returns true if this listing has child listings, and false otherwise. </returns> 
@@ -516,7 +516,7 @@ namespace TheAfterParty.Domain.Entities
             ParentListings.Add(listing);
             listing.ChildListings.Add(this);
 
-            listing.UpdateQuantity();
+            //listing.UpdateQuantity();
         }
         /// <summary> Removes a parent listing from this simple listing</summary>
         /// <param name="listing">The parent listing to add</param>
@@ -775,7 +775,7 @@ namespace TheAfterParty.Domain.Entities
 
             Quantity++;
 
-            UpdateParentQuantities();
+            //UpdateParentQuantities();
         }
         /// <summary> Removes the specified product key entity from this listing and update the quantity of this listing. </summary>
         /// <param name="productKey"> The specified product key entity to remove from this listing. </param>
@@ -796,7 +796,7 @@ namespace TheAfterParty.Domain.Entities
             {
                 ProductKeys.Remove(productKey);
                 Quantity--;
-                UpdateParentQuantities();
+                //UpdateParentQuantities();
 
                 return productKey;
             }
@@ -822,54 +822,54 @@ namespace TheAfterParty.Domain.Entities
         #region Quantity
 
         /// <summary> Updates the quantity of this listing. </summary>
-        public void UpdateQuantity()
-        {
-            if (this?.ChildListings?.Count > 0)
-            {
-                int min = System.Int32.MaxValue;
+        //public void UpdateQuantity()
+        //{
+        //    if (this?.ChildListings?.Count > 0)
+        //    {
+        //        int min = System.Int32.MaxValue;
 
-                foreach (Listing listing in ChildListings)
-                {
-                    if (listing.Quantity < min)
-                    {
-                        min = listing.Quantity;
-                    }
-                }
+        //        foreach (Listing listing in ChildListings)
+        //        {
+        //            if (listing.Quantity < min)
+        //            {
+        //                min = listing.Quantity;
+        //            }
+        //        }
 
-                // min represents the minimum quantity of all child listings
-                // ListingKeysQuantity represents the number of keys that redeem this listing explicitly
-                // thus combining them gets the total number of copies available (the number of copies we get from combining keys from child listings..
-                // ... plus the number of copies directly for this listing)
-                this.Quantity = min + ListingKeysQuantity();
-            }
-            else if (ProductKeys != null)
-            {
-                Quantity = ProductKeys.Count;
-            }
-            else
-            {
-                Quantity = 0;
-            }
-        }
+        //        // min represents the minimum quantity of all child listings
+        //        // ListingKeysQuantity represents the number of keys that redeem this listing explicitly
+        //        // thus combining them gets the total number of copies available (the number of copies we get from combining keys from child listings..
+        //        // ... plus the number of copies directly for this listing)
+        //        this.Quantity = min + ListingKeysQuantity();
+        //    }
+        //    else if (ProductKeys != null)
+        //    {
+        //        Quantity = ProductKeys.Count;
+        //    }
+        //    else
+        //    {
+        //        Quantity = 0;
+        //    }
+        //}
         /// <summary> Updates the quantity of all parent listings of this listing. </summary>
         /// <remarks> Useful for when the quantity of this listing is changed or when adding this as a child listing to another listing. </remarks>
-        public void UpdateParentQuantities()
-        {
-            if (ParentListings == null)
-            {
-                return;
-            }
+        //public void UpdateParentQuantities()
+        //{
+        //    if (ParentListings == null)
+        //    {
+        //        return;
+        //    }
 
-            foreach (Listing listing in ParentListings)
-            {
-                listing.UpdateQuantity();
+        //    foreach (Listing listing in ParentListings)
+        //    {
+        //        listing.UpdateQuantity();
 
-                if (listing.ParentListings != null)
-                {
-                    listing.UpdateParentQuantities();
-                }
-            }
-        }
+        //        if (listing.ParentListings != null && listing.ParentListings.Count > 0)
+        //        {
+        //            listing.UpdateParentQuantities();
+        //        }
+        //    }
+        //}
         /// <summary>
         /// A simple routine to determine if the quantity unit should be "copy" or "copies"
         /// </summary>

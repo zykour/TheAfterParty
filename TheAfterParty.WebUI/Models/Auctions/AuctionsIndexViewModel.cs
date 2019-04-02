@@ -17,7 +17,7 @@ namespace TheAfterParty.WebUI.Models.Auctions
             SearchText = "";
         }
 
-        public List<Auction> Auctions { get; set; }
+        public IEnumerable<Auction> Auctions { get; set; }
         public string Title { get; set; }
 
         public string SearchText { get; set; }

@@ -161,7 +161,7 @@ namespace TheAfterParty.Domain.Services
             unitOfWork.Save();
         }
 
-        public List<ActivityFeedContainer> GetSiteActivityFeedItems()
+        public IEnumerable<ActivityFeedContainer> GetSiteActivityFeedItems()
         {
             List<ActivityFeedContainer> activityFeed = new List<ActivityFeedContainer>();
 
@@ -170,27 +170,28 @@ namespace TheAfterParty.Domain.Services
                 activityFeed.Add(new ActivityFeedContainer(notification, notification.NotificationDate));
             }
 
+            //**
             //foreach (Giveaway giveaway in giveawayRepository.GetGiveaways())
             //{
             //    activityFeed.Add(new ActivityFeedContainer(giveaway, giveaway.CreatedTime));
             //}
 
-            foreach (Auction auction in auctionRepository.GetAuctions())
-            {
-                activityFeed.Add(new ActivityFeedContainer(auction, auction.CreatedTime));
-            }
+    //foreach (Auction auction in auctionRepository.GetAuctions())
+    // {
+    //      activityFeed.Add(new ActivityFeedContainer(auction, auction.CreatedTime));
+    // }
             
             //foreach (GroupEvent groupEvent in siteRepository.GetGroupEvents())
             //{
             //    activityFeed.Add(new ActivityFeedContainer(groupEvent, groupEvent.EventCreatedTime));
             //}
 
-            foreach (POTW potw in siteRepository.GetPOTWs())
-            {
-                activityFeed.Add(new ActivityFeedContainer(potw, potw.StartDate));
-            }
-
-            return activityFeed.OrderByDescending(a => a.ItemDate).ToList();
+    //foreach (POTW potw in siteRepository.GetPOTWs())
+    //{
+    //    activityFeed.Add(new ActivityFeedContainer(potw, potw.StartDate));
+    //}
+            
+            return activityFeed.OrderByDescending(a => a.ItemDate);
         }
 
 

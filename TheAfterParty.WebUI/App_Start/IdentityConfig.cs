@@ -78,6 +78,7 @@ namespace TheAfterParty
             app.UseHangfireServer();
 
             TaskRegister.RegisterAuctions();
+            TaskRegister.RegisterGiveaways();
             TaskRegister.RegisterDailyTasks();
         }        
     }

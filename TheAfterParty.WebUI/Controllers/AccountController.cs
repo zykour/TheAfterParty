@@ -281,7 +281,7 @@ namespace TheAfterParty.WebUI.Controllers
             AppUser user = await userService.GetUserManager().FindAsync(loginInfo.Login);
 
             // regular expression logic for extracing a 64-bit steam id from the claimed id
-            Regex SteamIDRegex = new Regex(@"^http://steamcommunity\.com/openid/id/(7[0-9]{15,25})$");
+            Regex SteamIDRegex = new Regex(@"^https?://steamcommunity\.com/openid/id/(7[0-9]{15,25})$");
             Match IDMatch = SteamIDRegex.Match(loginInfo.Login.ProviderKey);
 
             Int64 steamId = 0;

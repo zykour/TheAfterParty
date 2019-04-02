@@ -16,6 +16,7 @@ namespace TheAfterParty.WebUI.App_Start
     using Domain.Concrete;
     using Microsoft.Extensions.Caching.Memory;
     using Microsoft.Extensions.Options;
+    using WebUI.Infrastructure;
 
     public static class NinjectWebCommon 
     {
@@ -88,6 +89,7 @@ namespace TheAfterParty.WebUI.App_Start
             kernel.Bind<IAuctionService>().To<AuctionService>().InRequestScope();
             kernel.Bind<IApiService>().To<ApiService>().InRequestScope();
             kernel.Bind<IMemoryCache>().To<MemoryCache>().InSingletonScope().WithConstructorArgument<MemoryCacheOptions>(new MemoryCacheOptions());
+            kernel.Bind<ICacheService>().To<CacheService>().InRequestScope();
             kernel.Bind<IOptions<MemoryCacheOptions>>().To<MemoryCacheOptions>().InSingletonScope();
         }        
     }

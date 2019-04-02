@@ -244,29 +244,30 @@ namespace TheAfterParty.Domain.Concrete
                 }
             }
 
-            foreach (Gift entry in appUser.ReceivedGifts)
-            {
-                if (entry.GiftID == 0)
-                {
-                    InsertGift(entry);
-                }
-                else
-                {
-                    UpdateGift(entry);
-                }
-            }
+            //TODO#Gift - add this back in when implementing the gifts feature
+            //foreach (Gift entry in appUser.ReceivedGifts)
+            //{
+            //    if (entry.GiftID == 0)
+            //    {
+            //        InsertGift(entry);
+            //    }
+            //    else
+            //    {
+            //        UpdateGift(entry);
+            //    }
+            //}
 
-            foreach (Mail entry in appUser.ReceivedMail)
-            {
-                if (entry.MailID == 0)
-                {
-                    InsertMail(entry);
-                }
-                else
-                {
-                    UpdateMail(entry);
-                }
-            }
+            //foreach (Mail entry in appUser.ReceivedMail)
+            //{
+            //    if (entry.MailID == 0)
+            //    {
+            //        InsertMail(entry);
+            //    }
+            //    else
+            //    {
+            //        UpdateMail(entry);
+            //    }
+            //}
 
             foreach (Order entry in appUser.Orders)
             {
@@ -280,41 +281,35 @@ namespace TheAfterParty.Domain.Concrete
                 }
             }
 
-            foreach (OwnedGame entry in appUser.OwnedGames)
+            foreach (OwnedGame entry in appUser.OwnedGames.Where(x => x.OwnedGameID == 0))
             {
-                if (entry.OwnedGameID == 0)
-                {
-                    InsertOwnedGame(entry);
-                }
+                InsertOwnedGame(entry);
             }
 
-            foreach (UserNotification entry in appUser.UserNotifications)
+            //foreach (UserNotification entry in appUser.UserNotifications)
+            //{
+            //    if (entry.UserNotificationID == 0)
+            //    {
+            //        InsertUserNotification(entry);
+            //    }
+            //    else
+            //    {
+            //        UpdateUserNotification(entry);
+            //    }
+            //}
+
+            foreach (WishlistEntry entry in appUser.WishlistEntries.Where(x => x.WishlistEntryID == 0))
             {
-                if (entry.UserNotificationID == 0)
-                {
-                    InsertUserNotification(entry);
-                }
-                else
-                {
-                    UpdateUserNotification(entry);
-                }
+                InsertWishlistEntry(entry);
             }
 
-            foreach (WishlistEntry entry in appUser.WishlistEntries)
-            {
-                if (entry.WishlistEntryID == 0)
-                {
-                    InsertWishlistEntry(entry);
-                }
-            }
-
-            foreach (UserTag entry in appUser.UserTags)
-            {
-                if (entry.UserTagID == 0)
-                {
-                    InsertUserTag(entry);
-                }
-            }
+            //foreach (UserTag entry in appUser.UserTags)
+            //{
+            //    if (entry.UserTagID == 0)
+            //    {
+            //        InsertUserTag(entry);
+            //    }
+            //}
         }
         public async Task DeleteAppUser(string appUserId)
         {
@@ -328,11 +323,16 @@ namespace TheAfterParty.Domain.Concrete
         public IEnumerable<ShoppingCartEntry> GetShoppingCartEntries()
         {
             return context.ShoppingCartEntries
-                .Include(x => x.Listing.ChildListings.Select(y => y.Product.Listings.Select(z => z.ChildListings)))
+                .Include(x => x.Listing.ChildListings.Select(y => y.Product.Listings.Select(z => z.ChildListings))) // this may be more eager than needed
+                .Include(x => x.Listing.ChildListings.Select(y => y.DiscountedListings))
+                .Include(x => x.Listing.ChildListings.Select(y => y.ProductKeys))
+                .Include(x => x.Listing.ChildListings.Select(y => y.Platforms))
                 .Include(x => x.AppUser)
                 .Include(x => x.Listing.Product)
                 .Include(x => x.Listing.DiscountedListings)
-                .Include(x => x.Listing.Platforms);
+                .Include(x => x.Listing.Platforms)
+                .Include(x => x.Listing.ProductKeys)
+                .AsQueryable();
         }
         public ShoppingCartEntry GetShoppingCartEntryByID(int id)
         {

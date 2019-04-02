@@ -54,11 +54,11 @@ namespace TheAfterParty.WebUI.Models.Store
         public string SpecialFilterType { get; set; }
 
         public IEnumerable<Listing> StoreListings { get; set; }
-        public List<Platform> StorePlatforms { get; set; }
+        public IEnumerable<Platform> StorePlatforms { get; set; }
 
         // Container objects for storing the entity (tags and ProductCategories) and whether or not that tag is selected)
-        public List<SelectedTagMapping> SelectedTagMappings { get; set; }
-        public List<SelectedProductCategoryMapping> SelectedProductCategoryMappings { get; set; }
+        public IEnumerable<SelectedTagMapping> SelectedTagMappings { get; set; }
+        public IEnumerable<SelectedProductCategoryMapping> SelectedProductCategoryMappings { get; set; }
         public int TagToChange { get; set; }
         public int CategoryToChange { get; set; }
 

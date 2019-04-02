@@ -102,7 +102,8 @@ namespace TheAfterParty.Domain.Services
                 return String.Empty;
             }
 
-            String url = String.Format("http://store.steampowered.com/api/appdetails?appids={0}&filters=basic", appId.ToString());
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            String url = String.Format("https://store.steampowered.com/api/appdetails?appids={0}&filters=basic", appId.ToString());
 
             string result = new System.Net.WebClient().DownloadString(url);
 
@@ -204,6 +205,10 @@ namespace TheAfterParty.Domain.Services
         {
             return giveawayRepository.GetGiveaways();
         }
+        public Giveaway GetGiveawayByID(int giveawayId)
+        {
+            return giveawayRepository.GetGiveawayByID(giveawayId);
+        }
         public IEnumerable<AppUser> GetUsersWhoOwn(int appId)
         {
             return userRepository.GetAppUsersWhoOwn(appId).OrderBy(a => a.UserName);
@@ -294,6 +299,7 @@ namespace TheAfterParty.Domain.Services
         {
             appUser.MemberSince = DateTime.Now;
             appUser.LastLogon = DateTime.Now;
+            appUser.LastUpdated = DateTime.Now;
 
             if (String.IsNullOrEmpty(password) == false)
             {
@@ -1143,6 +1149,24 @@ namespace TheAfterParty.Domain.Services
         public bool IsInRole(AppUser user, string role)
         {
             return UserManager.IsInRole(user.Id, role);
+        }
+
+        public void AddGiveaway(Giveaway giveaway)
+        {
+            throw new NotImplementedException();
+
+            // Check Validity?
+            // Add to Giveaways
+            // Schedule drawing?
+        }
+
+        public void DrawGiveawayWinners(int giveawayID)
+        {
+            throw new NotImplementedException();
+
+            // Check if it's valid to draw winner (closed, has entries.)
+            // Draw winners randomly and assign to Giveaway.Winners
+            
         }
 
         // --- GC and User logic

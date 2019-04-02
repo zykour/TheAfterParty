@@ -15,14 +15,16 @@ namespace TheAfterParty.WebUI.Controllers
     public class ObjectivesController : Controller
     { 
         private IObjectivesService objectiveService;
+        private ISiteService siteService;
         private const string objectiveFormID = "objectiveForm";
         private const string indexDestName = "Objectives";
         private const string boostedDestName = "Boosted";
         private const string completedDestName = "Completed";
 
-        public ObjectivesController(IObjectivesService objectiveService)
+        public ObjectivesController(IObjectivesService objectiveService, ISiteService siteService)
         {
             this.objectiveService = objectiveService;
+            this.siteService = siteService;
             ViewBag.StoreForMID = objectiveFormID;
         }
 
@@ -309,8 +311,16 @@ namespace TheAfterParty.WebUI.Controllers
                 {
                     model.Objective.Title = "Misc.";
                 }
+
+                SiteNotification notification = new SiteNotification();
                 
                 objectiveService.AddObjective(model.Objective);
+
+                notification.Notification = "[new][/new] [ptext]Monukai[/ptext] added an objective, [url=https://theafterparty.azurewebsites.net/objectives/objective/" + model.Objective.ObjectiveID + "][gtext]\"" + model.Objective.ObjectiveName + "\"[/gtext][/url], for the game [ptext]" + model.Objective.Title + "[/ptext]";
+                notification.NotificationDate = DateTime.UtcNow;
+                
+                siteService.AddSiteNotification(notification);
+
                 model.LoggedInUser = await objectiveService.GetCurrentUser();
                 model.FullNavList = CreateObjectivesAdminNavList();
 

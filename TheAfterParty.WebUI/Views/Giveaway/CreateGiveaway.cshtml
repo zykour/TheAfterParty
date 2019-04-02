@@ -1,0 +1,106 @@
+﻿@using TheAfterParty.Domain.Entities
+@using TheAfterParty.WebUI.Models.Giveaways
+@model AddEditGiveawayViewModel
+
+<link rel="stylesheet" href="/vendor/bootstrap-combobox/css/bootstrap-combobox.css">
+<script src="/vendor/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+#productForm .selectContainer .form-control-feedback,
+#productForm .inputGroupContainer .form-control-feedback {
+    right: -15px;
+}
+
+@{
+    ViewBag.Title = "Create A " + Model.Platform.PlatformName + " Give";
+}
+
+<h2>Create A Give</h2>
+
+@Html.ValidationSummary()
+
+@using (Html.BeginForm("Create", "Gives", FormMethod.Post, new { id = "productForm", @class = "form-horizontal" }))
+{
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Color</label>
+        <div class="col-xs-5 selectContainer">
+            <select class="form-control" name="game">
+                <option value="">Choose a game</option>
+                <option value="black">Black</option>
+            </select>
+        </div>
+    </div>
+    <span>if the game is not here, contact monu or follow this link and then refresh</span><br/>
+
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Copies of Gives</label>
+        <div class="col-xs-5">
+            <input type="text" class="form-control" name="name" value="1"/>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Is A Key?</label>
+        <div class="col-xs-8">
+            <input name="description" type="checkbox" class="form-control" rows="5" value="1">
+            <span>Key</span>
+        </div>
+    </div>
+    <span>If redemption is complicated, feel free to uncheck and contact winner with redemption details</span>
+
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Keys</label>
+        <div class="col-xs-8">
+            <textarea name="description" class="form-control" rows="5"></textarea>
+        </div>
+        <i>Seperate keys by line</i>
+    </div>
+
+    <span>date & time stuff here</span>
+
+    if (Model.Platform.PlatformName.ToLower().CompareTo("Steam") == 0)
+    {
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Restrict Users Who Already Own The Give From Entering?</label>
+            <div class="col-xs-8">
+                <input name="description" type="checkbox" class="form-control" rows="5" value="1">
+                <span>Restrict</span>
+            </div>
+        </div>
+        <span>User data can be up to one week old</span>
+    }
+
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Description</label>
+        <div class="col-xs-8">
+            <textarea name="description" class="form-control" rows="5"></textarea>
+        </div>
+        <i>Description is optional</i>
+    </div>
+
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Allow Tips?</label>
+        <div class="col-xs-8">
+            <input name="description" type="checkbox" class="form-control" rows="5" value="1">
+            <span>Allow</span>
+        </div>
+    </div>
+    <span>When Tips are allowed, users who enter may opt-in to donate 1 Co-op shop point in appreciation for your giveaway</span>
+
+    <span>Listing ID: </span>@Html.TextBoxFor(x => x.Auction.ListingID, new { @Value = Model.Auction.ListingID })<br />
+    <span>Alternative Prize (leave above blank if filling this out): </span>@Html.TextBoxFor(x => x.Auction.AlternativePrize, new { @Value = Model.Auction.AlternativePrize })<br />
+    <span># of copies (default 1): </span>@Html.TextBoxFor(x => x.Auction.Copies, new { @Value = Model.Auction.Copies })<<br />
+    <span>Is silent?: </span>
+    if (Model.Auction.IsSilent)
+    {
+        @Html.CheckBoxFor(x => x.Auction.IsSilent, new { @checked = "checked" })<br />
+    }
+    else
+    {
+        @Html.CheckBoxFor(x => x.Auction.IsSilent)<br />
+    }
+
+    <span>If no (open auction) is there a bid increment (default of 1):</span>@Html.TextBoxFor(x => x.Auction.Increment, new { @Value = Model.Auction.Increment })<br />
+    <span>Minimum bid amount? (default of 1):</span>@Html.TextBoxFor(x => x.Auction.MinimumBid, new { @Value = Model.Auction.MinimumBid })<<br />
+        <span>Ending Date: </span>@Html.TextBoxFor(x => x.Auction.EndTime, new { @Value = Model.Auction.EndTime })<br />
+        <span>Auction Keys (seperate by newline): </span>@Html.TextAreaFor(x => x.Auction.AuctionKeys, new { @Value = Model.Auction.AuctionKeys })<br />
+        <input type="submit" name="Submit" />
+}

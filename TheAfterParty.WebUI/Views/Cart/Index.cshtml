@@ -33,7 +33,7 @@ if (num == 1)
 }
 
 <div class="col-xl-10 col-lg-10 col-md-10">
-@if (Model.LoggedInUser.GetCartQuantity() == 0)
+@if (Model.CartEntries.Count() == 0)                           //Model.LoggedInUser.GetCartQuantity() == 0)
 {
     <div class="row custom-row-header"><h3>@(Model.LoggedInUser.UserName)'s Cart</h3></div>
     <br/>
@@ -70,9 +70,10 @@ else
     </div>
     for (int i = 0; i < Model.CartEntries.Count(); i++)
     {
+        ShoppingCartEntry currentEntry = Model.CartEntries.ElementAt(i);
         <div class="row store-entry-sm col-text text-center">
             <div class="col-lg-1 col-md-1 col-xl-1 text-center">
-                @using (Html.BeginForm("RemoveItem", "Cart", new { shoppingId = Model.CartEntries.ElementAt(i).ShoppingCartEntryID }, FormMethod.Post, new { @class = "tag-inline" }))
+                @using (Html.BeginForm("RemoveItem", "Cart", new { shoppingId = currentEntry.ShoppingCartEntryID }, FormMethod.Post, new { @class = "tag-inline" }))
                 {
                 <div class="tag-inline">
                     @Html.Hidden("returnUrl", Request.Url.PathAndQuery)
@@ -83,7 +84,7 @@ else
                 }
             </div>
             <div class="col-lg-7 col-md-7 col-xl-7 vertical-align">
-                @if (Model.CartEntries.ElementAt(i).Listing.IsComplex())
+                @if (currentEntry.Listing.IsComplex())
                 {
                 var listing = "listing" + i + "id";
                 <div id="@listing" onclick="ToggleHiddenAlt(this)">
@@ -91,21 +92,21 @@ else
                 </div>
                 }
                 <div class="outer-banner-container">
-                    @if (String.IsNullOrEmpty(Model.CartEntries.ElementAt(i).Listing?.Product?.GetHttpsSecuredHeaderImage()))
+                    @if (String.IsNullOrEmpty(currentEntry.Listing?.Product?.GetHttpsSecuredHeaderImage()))
                     {
                         <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
                     }
                     else
                     {
-                        <div class="inner-store-banner-container" style="background-image: url(@Model.CartEntries.ElementAt(i).Listing.Product.GetHttpsSecuredHeaderImage())"></div>
+                        <div class="inner-store-banner-container" style="background-image: url(@currentEntry.Listing.Product.GetHttpsSecuredHeaderImage())"></div>
                     }
                 </div>
                 <div class="store-entry-name">
-                    @Model.CartEntries.ElementAt(i).Listing.ListingName
+                    @currentEntry.Listing.ListingName
                 </div>
             </div>
             <div class="col-lg-1 col-md-1 col-xl-1">
-                @foreach (string platformIconUrl in Model.CartEntries.ElementAt(i).Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
+                @foreach (string platformIconUrl in currentEntry.Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
                     {
                     <div class="icon-image-container">
                         <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
@@ -113,32 +114,32 @@ else
                 }
             </div>
             <div class="col-lg-1 col-md-1 col-xl-1">
-                @if (Model.CartEntries.ElementAt(i).Quantity > Model.CartEntries.ElementAt(i).Listing.Quantity)
+                @if (currentEntry.Quantity > currentEntry.Listing.Quantity)
                 {
-                    <span class="text-warning">@Model.CartEntries.ElementAt(i).Quantity</span>
+                    <span class="text-warning">@currentEntry.Quantity</span>
                 }
                 else
                 {
-                    <span class="text-success">@Model.CartEntries.ElementAt(i).Quantity</span>
+                    <span class="text-success">@currentEntry.Quantity</span>
                 }
             </div>
             <div class="col-lg-1 col-md-1 col-xl-1 text-success">
-                @if (Model.CartEntries.ElementAt(i).Listing.HasSale())
+                @if (currentEntry.Listing.HasSale())
                 {
-                    <del>@Model.CartEntries.ElementAt(i).Listing.ListingPrice</del>   <span class="text-success tag-inline">@Model.CartEntries.ElementAt(i).Listing.SaleOrDefaultPrice()</span>
+                    <del>@currentEntry.Listing.ListingPrice</del>   <span class="text-success tag-inline">@currentEntry.Listing.SaleOrDefaultPrice()</span>
                 }
                 else
                 {
-                    @Model.CartEntries.ElementAt(i).Listing.ListingPrice
+                    @currentEntry.Listing.ListingPrice
                 }
             </div>
-            <div class="col-lg-1 col-md-1 col-xl-1 text-success">@(Model.CartEntries.ElementAt(i).Listing.SaleOrDefaultPrice() * Model.CartEntries.ElementAt(i).Quantity)</div>
+            <div class="col-lg-1 col-md-1 col-xl-1 text-success">@(currentEntry.Listing.SaleOrDefaultPrice() * currentEntry.Quantity)</div>
         </div>
-        if (Model.CartEntries.ElementAt(i).Listing.ChildListings != null && Model.CartEntries.ElementAt(i).Listing.ChildListings.Count > 0)
+        if (currentEntry.Listing.ChildListings != null && currentEntry.Listing.ChildListings.Count > 0)
         {
             var id = "listing" + i + "id1";
             <div class="is-hidden" id="@id">
-                @foreach (Listing child in Model.CartEntries.ElementAt(i).Listing.ChildListings)
+                @foreach (Listing child in currentEntry.Listing.ChildListings)
                 {
                 <div class="row store-sub-entry-sm">
                     <div class="col-lg-2 col-md-2 col-xl-2"></div>

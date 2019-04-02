@@ -15,6 +15,9 @@ namespace TheAfterParty.Domain.Services
 {
     public static class HangfireJobService
     {
+        private static int randBase = 10;
+        private static int randOffset = 15;
+
         public static void CloseAuction(int auctionId)
         {
             using (AppIdentityDbContext context = AppIdentityDbContext.Create())
@@ -34,7 +37,27 @@ namespace TheAfterParty.Domain.Services
                 unitOfWork.Dispose();
             }
         }
-        
+
+        public static void CloseGiveaway(int giveawayId)
+        {
+            using (AppIdentityDbContext context = AppIdentityDbContext.Create())
+            {
+                IUnitOfWork unitOfWork = new UnitOfWork(context);
+                IGiveawayRepository giveawayRepository = new GiveawayRepository(unitOfWork);
+                IListingRepository listingRepository = new ListingRepository(unitOfWork);
+                IUserRepository userRepository = new UserRepository(unitOfWork);
+                IUserService userService = new UserService(listingRepository, userRepository, null, giveawayRepository, null, null, unitOfWork);
+
+                userService.DrawGiveawayWinners(giveawayId);
+
+                userService.Dispose();
+                giveawayRepository.Dispose();
+                listingRepository.Dispose();
+                userRepository.Dispose();
+                unitOfWork.Dispose();
+            }
+        }
+
         public static void UpdateUserOwnedGames(string apiKey)
         {
             AppIdentityDbContext context;
@@ -204,7 +227,7 @@ namespace TheAfterParty.Domain.Services
 
                 Random rand = new Random();
 
-                int numDeals = rand.Next(51) + 50;
+                int numDeals = rand.Next(randBase) + randOffset;
 
                 List<Listing> newDeals = listingRepository.GetListings().Where(l => l.Quantity > 0 && l.ListingPrice > 1).OrderBy(x => Guid.NewGuid()).Take(numDeals).ToList();
 
@@ -283,7 +306,7 @@ namespace TheAfterParty.Domain.Services
 
                 if (randomObjective.Product.IsSteamAppID)
                 {
-                    urlAndName = "[url=http://store.steampowered.com/app/" + randomObjective.Product.AppID + "]" + randomObjective.Title + "[/url]";
+                    urlAndName = "[url=https://store.steampowered.com/app/" + randomObjective.Product.AppID + "]" + randomObjective.Title + "[/url]";
                 }
                 else
                 {
