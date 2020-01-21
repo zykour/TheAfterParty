@@ -308,7 +308,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             ViewBag.Title = "My Bids";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.ContainsBidBy(model.LoggedInUser) && a.IsOpen());
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.EndTime >= DateTime.Now && a.AuctionBids.Any(b => b.UserID == model.LoggedInUser.Id)); //ContainsBidBy(model.LoggedInUser) && a.IsOpen());
             List<String> destNames = new List<String>() { livebidsDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 
@@ -324,7 +324,7 @@ namespace TheAfterParty.WebUI.Controllers
             IQueryable<Auction> modelAuctions;
             ViewBag.Title = "My Bids";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.ContainsBidBy(model.LoggedInUser) && a.IsOpen());
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.EndTime >= DateTime.Now && a.AuctionBids.Any(b => b.UserID == model.LoggedInUser.Id));
             List<String> destNames = new List<String>() { livebidsDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 
@@ -346,7 +346,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             ViewBag.Title = "Winning Bids";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.UserIsWinningBid(model.LoggedInUser) && a.IsSilent == false && a.EndTime >= DateTime.Now);
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.EndTime >= DateTime.Now && a.IsSilent == false && a.AuctionBids.Count > 0 && a.AuctionBids.OrderByDescending(c => c.BidAmount).ThenBy(d => d.BidDate).FirstOrDefault().UserID == model.LoggedInUser.Id);
             List<String> destNames = new List<String>() { mywinningDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 
@@ -364,7 +364,7 @@ namespace TheAfterParty.WebUI.Controllers
             IQueryable<Auction> modelAuctions;
             ViewBag.Title = "Winning Bids";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.UserIsWinningBid(model.LoggedInUser) && a.IsSilent == false && a.EndTime >= DateTime.Now);
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.EndTime >= DateTime.Now && a.IsSilent == false && a.AuctionBids.Count > 0 && a.AuctionBids.OrderByDescending(c => c.BidAmount).ThenBy(d => d.BidDate).FirstOrDefault().UserID == model.LoggedInUser.Id);
             List<String> destNames = new List<String>() { mywinningDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 
@@ -386,7 +386,7 @@ namespace TheAfterParty.WebUI.Controllers
 
             ViewBag.Title = "My Bids";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.ContainsBidBy(model.LoggedInUser));
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.AuctionBids.Any(b => b.UserID == model.LoggedInUser.Id));
             List<String> destNames = new List<String>() { allbidsDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 
@@ -406,7 +406,7 @@ namespace TheAfterParty.WebUI.Controllers
             IQueryable<Auction> modelAuctions;
             ViewBag.Title = "My Bids";
             model.LoggedInUser = await auctionService.GetCurrentUser();
-            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.ContainsBidBy(model.LoggedInUser));
+            modelAuctions = auctionService.GetAuctionsAsQueryable().Where(a => a.AuctionBids.Any(b => b.UserID == model.LoggedInUser.Id));
             List<String> destNames = new List<String>() { allbidsDestName };
             model.FullNavList = CreateAuctionNavList(destNames);
 

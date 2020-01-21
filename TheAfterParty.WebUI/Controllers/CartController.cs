@@ -16,12 +16,12 @@ namespace TheAfterParty.WebUI.Controllers
     public class CartController : Controller
     {
         private ICartService cartService;
-        private ICacheService cacheService;
+        //private ICacheService cacheService;
         
-        public CartController(ICartService cartService, ICacheService cacheService)
+        public CartController(ICartService cartService)//, ICacheService cacheService)
         {
             this.cartService = cartService;
-            this.cacheService = cacheService;
+            //this.cacheService = cacheService;
         }
 
         protected override void Initialize(RequestContext requestContext)
@@ -29,7 +29,7 @@ namespace TheAfterParty.WebUI.Controllers
             base.Initialize(requestContext);
             
             cartService.SetUserName(User.Identity.Name);
-            cacheService.SetUserName(User.Identity.Name);
+            //cacheService.SetUserName(User.Identity.Name);
         }
 
 
@@ -40,13 +40,13 @@ namespace TheAfterParty.WebUI.Controllers
             CartIndexViewModel cartViewModel = new CartIndexViewModel
             {
                 LoggedInUser = await cartService.GetCurrentUser(),
-                CartEntries = await cartService.GetShoppingCartEntries(),
+                //CartEntries = await cartService.GetShoppingCartEntries(),
                 ReturnUrl = returnUrl
             };
 
-            cartViewModel.FullNavList = CreateCartViewModelNavList();
+            cartViewModel.CartEntries = cartService.GetShoppingCartEntries(cartViewModel.LoggedInUser.Id).OrderBy(e => e.Listing.ListingName).AsEnumerable();
 
-            cartViewModel.CartEntries = cartViewModel.CartEntries.OrderBy(e => e.Listing.ListingName);
+            cartViewModel.FullNavList = CreateCartViewModelNavList();
 
             return View(cartViewModel);
         }
@@ -182,22 +182,32 @@ namespace TheAfterParty.WebUI.Controllers
             {
                 Hangfire.RecurringJob.Trigger("daily-roll-over");
             }
-
-            if (order == null)  return RedirectToAction("Index");
+            
+            if (order == null)  return Redirect("~/Cart/Index");
             else                return RedirectToAction("Success", new { id = order.OrderID });
         }
 
-        public async Task<ActionResult> Success(string id)
+        public async Task<ActionResult> Success(string id = null)
         {
             PurchaseViewModel model = new PurchaseViewModel();
 
-            int orderId = System.Int32.Parse(id);
-
             model.LoggedInUser = await cartService.GetCurrentUser();
 
-            model.Order = model.LoggedInUser.Orders.SingleOrDefault(o => o.OrderID == orderId);
+            int orderId = 0;
 
-            if (model.Order == null)
+            if (String.IsNullOrEmpty(id) == false)
+            {
+                orderId = System.Int32.Parse(id);
+            }
+            else
+            {
+                orderId = cartService.GetNewestOrderId(model.LoggedInUser.Id);
+            }
+            
+            model.Order = cartService.GetOrderByID(orderId); //model.LoggedInUser.Orders.SingleOrDefault(o => o.OrderID == orderId);
+
+            // validate this order is by the person accessing it
+            if (model.Order == null || model.Order.UserID.Equals(model.LoggedInUser.Id) == false)
             {
                 return RedirectToAction("Orders", "Account", null);
             }

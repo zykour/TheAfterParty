@@ -134,7 +134,7 @@ namespace TheAfterParty.Domain.Services
         {
             AppUser user = await GetCurrentUserWithBlacklist();
 
-            Listing listing = listingRepository.GetListingByID(listingId);
+            Listing listing = listingRepository.GetListingByIDStripped(listingId);
 
             if (user.IsBlacklisted(listing))
             {
@@ -145,7 +145,7 @@ namespace TheAfterParty.Domain.Services
                 user.AddListingBlacklistEntry(listing);
             }
 
-            UserManager.Update(user);
+            await userRepository.UpdateAppUserSimple(user);
             unitOfWork.Save();
         }
 

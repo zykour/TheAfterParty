@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TheAfterParty.Domain.Entities;
 using TheAfterParty.Domain.Concrete;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace TheAfterParty.Domain.Abstract
 {
@@ -13,16 +14,19 @@ namespace TheAfterParty.Domain.Abstract
         IEnumerable<AppUser> GetAppUsers();
         Task<AppUser> GetAppUserByID(string appUserId);
         Task InsertAppUser(AppUser appUser);
+        Task UpdateAppUserSimple(AppUser appUser);
         Task UpdateAppUser(AppUser appUser);
         void UpdateAppUserSynch(AppUser appUser);
         Task DeleteAppUser(string appUserId);
 
         IEnumerable<ShoppingCartEntry> GetShoppingCartEntries();
+        IQueryable<ShoppingCartEntry> GetShoppingCartEntriesQuery();
         ShoppingCartEntry GetShoppingCartEntryByID(int shoppingCartEntryId);
         void InsertShoppingCartEntry(ShoppingCartEntry shoppingCartEntry);
         void UpdateShoppingCartEntry(ShoppingCartEntry shoppingCartEntry);
         void DeleteShoppingCartEntry(int shoppingCartEntryId);
 
+        IQueryable<Order> GetOrdersQuery();
         IEnumerable<Order> GetOrders();
         Order GetOrderByID(int orderId);
         void InsertOrder(Order order);

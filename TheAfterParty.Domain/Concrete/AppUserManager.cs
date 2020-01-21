@@ -25,7 +25,10 @@ namespace TheAfterParty.Domain.Concrete
                 return base.Users;
             }
         }
-        
+        public Task<AppUser> FindByNameSimple(string userName)
+        {
+            return Users.SingleOrDefaultAsync(x => x.UserName == userName);
+        }
         public Task<AppUser> FindByIdAsyncWithStoreFilters(string userId)
         {
             return Users.Include(x => x.BlacklistedListings).Include(x => x.ShoppingCartEntries.Select(c => c.Listing.DiscountedListings)).Include(x => x.AuctionBids.Select(ab => ab.Auction)).FirstOrDefaultAsync(u => u.Id == userId);
@@ -76,8 +79,8 @@ namespace TheAfterParty.Domain.Concrete
                     .Include(x => x.AuctionBids)
                     .Include(x => x.Orders.Select(o => o.ProductOrderEntries))
                     .Include(x => x.BalanceEntries)
-                    .Include(x => x.WonPrizes)
-                    .Include(x => x.ProductReviews)
+                    //.Include(x => x.WonPrizes)
+                    //.Include(x => x.ProductReviews)
                     .SingleOrDefaultAsync(x => x.UserName == userName);
         }
 
@@ -85,14 +88,15 @@ namespace TheAfterParty.Domain.Concrete
         {
             return Users
                 .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.DiscountedListings))
-                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ProductKeys))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ProductKeys.Select(pk => pk.Listing)))
                 .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.Platforms))
-                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.Product))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.Product.Listings.Select(d => d.ChildListings)))
                 .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.DiscountedListings)))
                 .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.ProductKeys)))
                 .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.Platforms)))
-                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.Product)))
-                .Include(x => x.AuctionBids.Select(a => a.Auction.AuctionBids)).FirstOrDefaultAsync(u => u.UserName == userName);
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.Product.Listings.Select(f => f.ChildListings))))
+                .Include(x => x.AuctionBids.Select(a => a.Auction.AuctionBids))
+                .FirstOrDefaultAsync(u => u.UserName == userName);
         }
         public Task<AppUser> FindByNameAsyncWithCartOpenAuctionBidsAndOrders(string userName)
         {
@@ -100,13 +104,16 @@ namespace TheAfterParty.Domain.Concrete
                 .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.DiscountedListings))
                 .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ProductKeys.Select(pk => pk.Listing)))
                 .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.Platforms))
-                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.Product))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.Product.Listings.Select(d => d.ChildListings)))
                 .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.DiscountedListings)))
                 .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.ProductKeys)))
                 .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.Platforms)))
-                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.Product)))
+                .Include(x => x.ShoppingCartEntries.Select(c => c.Listing.ChildListings.Select(d => d.Product.Listings.Select(f => f.ChildListings))))
                 .Include(x => x.AuctionBids.Select(a => a.Auction.AuctionBids))
-                .Include(x => x.Orders)
+                .Include(x => x.Orders.Select(c => c.ProductOrderEntries.Select(d => d.Listing.Product.Listings.Select(f => f.ChildListings))))
+                .Include(x => x.Orders.Select(c => c.ProductOrderEntries.Select(d => d.Listing.ChildListings.Select(f => f.Product.Listings.Select(g => g.ChildListings)))))
+                .Include(x => x.Orders.Select(c => c.ProductOrderEntries.Select(d => d.Listing.Platforms)))
+                .Include(x => x.Orders.Select(c => c.ProductOrderEntries.Select(d => d.ClaimedProductKeys)))
                 .Include(x => x.ClaimedProductKeys)
                 .Include(x => x.BalanceEntries)
                 .FirstOrDefaultAsync(u => u.UserName == userName);

@@ -22,7 +22,7 @@ namespace TheAfterParty.WebUI.Controllers
         private const char noSelectionSentinel = '.';
         private const string storeFormID = "storeForm";
         private IStoreService storeService;
-        private ICacheService cacheService;
+        //private ICacheService cacheService;
 
         private const string weeklyActionDest = "Weekly Deals";
         private const string dailyActionDest = "Daily Deals";
@@ -32,11 +32,11 @@ namespace TheAfterParty.WebUI.Controllers
         private const string platformsActionDest = "All Platforms";
         private const string historyActionDest = "Purchase History";
         
-        public StoreController(IStoreService storeService, ICacheService cacheService)
+        public StoreController(IStoreService storeService)//, ICacheService cacheService)
         {
             this.storeService = storeService;
             ViewBag.StoreFormID = storeFormID;
-            this.cacheService = cacheService;
+            //this.cacheService = cacheService;
         }
 
         protected override void Initialize(RequestContext requestContext)
@@ -46,7 +46,7 @@ namespace TheAfterParty.WebUI.Controllers
             if (HttpContext.User.Identity.IsAuthenticated)
             {
                 storeService.SetUserName(User.Identity.Name);
-                cacheService.SetUserName(User.Identity.Name);
+                //cacheService.SetUserName(User.Identity.Name);
             }
         }
 
@@ -1371,17 +1371,19 @@ namespace TheAfterParty.WebUI.Controllers
 
             platforms.NavItems.Add(navItem);
 
-            for (int i = 0; i < model.StorePlatforms.Count();  i++)
+            int i = 0;
+            foreach (Platform platform in  model.StorePlatforms)
             {
                 navItem = new NavItem();
                 navItem.IsFormSubmit = true;
-                navItem.DestinationName = model.StorePlatforms.ElementAt(i).PlatformName; 
+                navItem.DestinationName = platform.PlatformName; 
                 navItem.FormName = "SelectedPlatformID";
-                navItem.FormValue = model.StorePlatforms.ElementAt(i).PlatformID.ToString();
+                navItem.FormValue = platform.PlatformID.ToString();
                 navItem.FormID = storeFormID;
                 navItem.SetSelected(destNames);
 
                 platforms.NavItems.Add(navItem);
+                i++;
             }
 
             navList.Add(platforms);

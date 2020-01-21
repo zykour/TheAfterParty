@@ -177,7 +177,7 @@ namespace TheAfterParty.Domain.Services
 
                 SelectDealPercent(newDiscountedListing);
 
-                DateTime expiry = GetMidnightEST().AddDays(1);
+                DateTime expiry = GetMidnightEST().AddDays(1).AddHours(5);
 
                 newDiscountedListing.DailyDeal = true;
                 newDiscountedListing.ItemSaleExpiry = expiry;
@@ -237,7 +237,7 @@ namespace TheAfterParty.Domain.Services
                     return;
                 }
 
-                DateTime dealExpiry = GetMidnightEST().AddDays(7);
+                DateTime dealExpiry = GetMidnightEST().AddDays(7).AddHours(5);
 
                 foreach (Listing listing in newDeals)
                 {

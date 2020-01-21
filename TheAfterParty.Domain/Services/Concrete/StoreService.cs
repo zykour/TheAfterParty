@@ -811,7 +811,7 @@ namespace TheAfterParty.Domain.Services
 
         public bool BuildOrUpdateSteamProduct(int appId, Product product)
         {
-            string url = String.Format("https://store.steampowered.com/api/appdetails?appids={0}", appId);
+            string url = String.Format("https://store.steampowered.com/api/appdetails?appids={0}&l=english", appId);
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             string result = new System.Net.WebClient().DownloadString(url);
 
@@ -910,7 +910,7 @@ namespace TheAfterParty.Domain.Services
                 throw new Exception("A valid product object was not added to the listing object!");
             }
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            string url = String.Format("https://store.steampowered.com/api/appdetails?appids={0}", listing.Product.AppID);
+            string url = String.Format("https://store.steampowered.com/api/appdetails?appids={0}&l=english", listing.Product.AppID);
             
             string result = new System.Net.WebClient().DownloadString(url);
 

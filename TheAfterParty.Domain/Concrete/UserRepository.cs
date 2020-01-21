@@ -216,6 +216,11 @@ namespace TheAfterParty.Domain.Concrete
                 }
             }
         }
+
+        public async Task UpdateAppUserSimple(AppUser appUser)
+        {
+            await userManager.UpdateAsync(appUser);
+        }
         public async Task UpdateAppUser(AppUser appUser)
         {
             await userManager.UpdateAsync(appUser);
@@ -244,31 +249,6 @@ namespace TheAfterParty.Domain.Concrete
                 }
             }
 
-            //TODO#Gift - add this back in when implementing the gifts feature
-            //foreach (Gift entry in appUser.ReceivedGifts)
-            //{
-            //    if (entry.GiftID == 0)
-            //    {
-            //        InsertGift(entry);
-            //    }
-            //    else
-            //    {
-            //        UpdateGift(entry);
-            //    }
-            //}
-
-            //foreach (Mail entry in appUser.ReceivedMail)
-            //{
-            //    if (entry.MailID == 0)
-            //    {
-            //        InsertMail(entry);
-            //    }
-            //    else
-            //    {
-            //        UpdateMail(entry);
-            //    }
-            //}
-
             foreach (Order entry in appUser.Orders)
             {
                 if (entry.OrderID == 0)
@@ -286,30 +266,11 @@ namespace TheAfterParty.Domain.Concrete
                 InsertOwnedGame(entry);
             }
 
-            //foreach (UserNotification entry in appUser.UserNotifications)
-            //{
-            //    if (entry.UserNotificationID == 0)
-            //    {
-            //        InsertUserNotification(entry);
-            //    }
-            //    else
-            //    {
-            //        UpdateUserNotification(entry);
-            //    }
-            //}
-
             foreach (WishlistEntry entry in appUser.WishlistEntries.Where(x => x.WishlistEntryID == 0))
             {
                 InsertWishlistEntry(entry);
             }
 
-            //foreach (UserTag entry in appUser.UserTags)
-            //{
-            //    if (entry.UserTagID == 0)
-            //    {
-            //        InsertUserTag(entry);
-            //    }
-            //}
         }
         public async Task DeleteAppUser(string appUserId)
         {
@@ -321,6 +282,20 @@ namespace TheAfterParty.Domain.Concrete
         // ---- ShoppingCartEntry entity persistance
 
         public IEnumerable<ShoppingCartEntry> GetShoppingCartEntries()
+        {
+            return context.ShoppingCartEntries
+                .Include(x => x.Listing.ChildListings.Select(y => y.Product.Listings.Select(z => z.ChildListings))) // this may be more eager than needed
+                .Include(x => x.Listing.ChildListings.Select(y => y.DiscountedListings))
+                .Include(x => x.Listing.ChildListings.Select(y => y.ProductKeys))
+                .Include(x => x.Listing.ChildListings.Select(y => y.Platforms))
+                .Include(x => x.AppUser)
+                .Include(x => x.Listing.Product)
+                .Include(x => x.Listing.DiscountedListings)
+                .Include(x => x.Listing.Platforms)
+                .Include(x => x.Listing.ProductKeys)
+                .AsQueryable();
+        }
+        public IQueryable<ShoppingCartEntry> GetShoppingCartEntriesQuery()
         {
             return context.ShoppingCartEntries
                 .Include(x => x.Listing.ChildListings.Select(y => y.Product.Listings.Select(z => z.ChildListings))) // this may be more eager than needed
@@ -371,13 +346,23 @@ namespace TheAfterParty.Domain.Concrete
                             .Include(x => x.ProductOrderEntries.Select(y => y.ClaimedProductKeys))
                             .Include(x => x.ProductOrderEntries.Select(y => y.Listing));
         }
-        public Order GetOrderByID(int id)
+        public IQueryable<Order> GetOrdersQuery()
         {
             return context.Orders
                             .Include(x => x.AppUser)
                             .Include(x => x.ProductOrderEntries)
                             .Include(x => x.ProductOrderEntries.Select(y => y.ClaimedProductKeys))
                             .Include(x => x.ProductOrderEntries.Select(y => y.Listing))
+                            .AsQueryable();
+        }
+        public Order GetOrderByID(int id)
+        {
+            return context.Orders
+                            .Include(x => x.AppUser)
+                            .Include(x => x.ProductOrderEntries.Select(a => a.Listing.Product.Listings.Select(b => b.ChildListings)))
+                            .Include(x => x.ProductOrderEntries.Select(d => d.Listing.ChildListings.Select(f => f.Product.Listings.Select(g => g.ChildListings))))
+                            .Include(x => x.ProductOrderEntries.Select(y => y.ClaimedProductKeys))
+                            .Include(x => x.ProductOrderEntries.Select(y => y.Listing.Platforms))
                             .SingleOrDefault(x => x.OrderID == id);
                             //.Find(id);
         }
@@ -453,17 +438,17 @@ namespace TheAfterParty.Domain.Concrete
         {
             context.ProductOrderEntries.Add(productOrderEntry);
 
-            foreach (ClaimedProductKey key in productOrderEntry.ClaimedProductKeys)
-            {
-                if (key.ClaimedProductKeyID == 0)
-                {
-                    InsertClaimedProductKey(key);
-                }
-                else
-                {
-                    UpdateClaimedProductKey(key);
-                }
-            }
+            //foreach (ClaimedProductKey key in productOrderEntry.ClaimedProductKeys)
+            //{
+            //    if (key.ClaimedProductKeyID == 0)
+            //    {
+            //        InsertClaimedProductKey(key);
+            //    }
+            //    else
+            //    {
+            //        UpdateClaimedProductKey(key);
+            //    }
+            //}
         }
         public void UpdateProductOrderEntry(ProductOrderEntry productOrderEntry)
         {
@@ -475,17 +460,17 @@ namespace TheAfterParty.Domain.Concrete
                 targetOrderProduct.ListingID = productOrderEntry.ListingID;
             }
 
-            foreach (ClaimedProductKey key in productOrderEntry.ClaimedProductKeys)
-            {
-                if (key.ClaimedProductKeyID == 0)
-                {
-                    InsertClaimedProductKey(key);
-                }
-                else
-                {
-                    UpdateClaimedProductKey(key);
-                }
-            }
+            //foreach (ClaimedProductKey key in productOrderEntry.ClaimedProductKeys)
+            //{
+            //    if (key.ClaimedProductKeyID == 0)
+            //    {
+            //        InsertClaimedProductKey(key);
+            //    }
+            //    else
+            //    {
+            //        UpdateClaimedProductKey(key);
+            //    }
+            //}
         }
         public void DeleteProductOrderEntry(int productOrderEntryId)
         {

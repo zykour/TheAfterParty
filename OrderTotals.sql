@@ -1,0 +1,2 @@
+﻿select b.UserName, count(a.OrderID) from dbo.Orders A left join dbo.AspNetUsers b on A.UserID = B.Id group by b.UserName order by b.UserName
+select b.UserName, count(a.ClaimedProductKeyID) from dbo.ClaimedProductKeys A left join dbo.AspNetUsers b on A.UserID = B.Id group by b.UserName order by b.UserName

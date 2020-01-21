@@ -40,6 +40,10 @@ namespace TheAfterParty.Domain.Services
         {
             return userRepository.GetOrderByID(id);
         }
+        public int GetNewestOrderId(string id)
+        {
+            return userRepository.GetOrdersQuery().Where(a => a.UserID == id).OrderByDescending(b => b.SaleDate).FirstOrDefault().OrderID;
+        }
 
         public async Task AddItemToCart(int listingId)
         {
@@ -47,19 +51,19 @@ namespace TheAfterParty.Domain.Services
 
             if (listing != null)
             {
-                AppUser currentUser = await GetCurrentUser();
-
-                ShoppingCartEntry entry = currentUser.ShoppingCartEntries.Where(e => e.ListingID == listingId).SingleOrDefault(); //userRepository.GetShoppingCartEntries().Where(e => e.ListingID == listingId && Object.Equals(currentUser.Id, e.UserID)).SingleOrDefault();
+                AppUser user = await GetCurrentUserSimple();
+                
+                ShoppingCartEntry entry = userRepository.GetShoppingCartEntriesQuery().Where(a => a.ListingID == listingId && String.Equals(user.Id, a.UserID)).SingleOrDefault(); //userRepository.GetShoppingCartEntries().Where(e => e.ListingID == listingId && Object.Equals(currentUser.Id, e.UserID)).SingleOrDefault();
 
                 if (entry == null)
                 {
-                    currentUser.AddShoppingCartEntry(listing);
-                    await userRepository.UpdateAppUser(currentUser);
+                    entry = new ShoppingCartEntry(user, listing, 1);
+                    userRepository.InsertShoppingCartEntry(entry);
                 }
                 else
                 {
                     entry.Quantity++;
-                    await userRepository.UpdateAppUser(currentUser);
+                    userRepository.UpdateShoppingCartEntry(entry);
                 }
 
                 unitOfWork.Save();
@@ -71,6 +75,10 @@ namespace TheAfterParty.Domain.Services
             AppUser user = await GetCurrentUser();
 
             return userRepository.GetShoppingCartEntries().Where(e => Object.Equals(user.Id, e.UserID));
+        }
+        public IQueryable<ShoppingCartEntry> GetShoppingCartEntries(String userId)
+        {
+            return userRepository.GetShoppingCartEntriesQuery().Where(e => Object.Equals(userId, e.UserID));
         }
 
         public async Task<bool> ValidateOrder()
@@ -114,7 +122,7 @@ namespace TheAfterParty.Domain.Services
 
         public async Task<Order> CreateOrder()
         {
-            AppUser user = await GetCurrentUserWithOrders();
+            AppUser user = await GetCurrentUser();
             ICollection<ShoppingCartEntry> cartEntries = user.ShoppingCartEntries;
             
             if (user == null || cartEntries == null || cartEntries.Count == 0 || !user.AssertValidOrder())
@@ -124,31 +132,28 @@ namespace TheAfterParty.Domain.Services
 
             DateTime orderDate = DateTime.Now;
             Order order = new Order(user, orderDate);
+            userRepository.InsertOrder(order);
+            unitOfWork.Save();
 
-            //userRepository.InsertOrder(order);
-            //unitOfWork.Save();
-  
+
             foreach (ShoppingCartEntry entry in cartEntries)
             {
-                List<ProductKey> keys = entry.Listing.ProductKeys.Take(entry.Quantity).ToList();
-                int remainingQuantity = entry.Quantity - keys.Count;
+                IEnumerable<ProductKey> keys = entry.Listing.ProductKeys.Take(entry.Quantity);
+                // part of removed code below
+                //int remainingQuantity = entry.Quantity - keys.Count;
 
                 foreach (ProductKey productKey in keys)
                 {
                     productKey.Listing.Quantity--;
-                   // productKey.Listing.UpdateParentQuantities();
 
                     listingRepository.UpdateListingSimple(productKey.Listing);
                     listingRepository.DeleteProductKey(productKey.ProductKeyID);
 
                     ClaimedProductKey claimedKey = new ClaimedProductKey(productKey, user, orderDate, "Purchase - Order #" + order.OrderID);
-                    user.AddClaimedProductKey(claimedKey);
-                    //userRepository.InsertClaimedProductKey(claimedKey);
-                    //unitOfWork.Save();
+                    //user.AddClaimedProductKey(claimedKey);
+                    userRepository.InsertClaimedProductKey(claimedKey);
 
                     ProductOrderEntry orderEntry = new ProductOrderEntry(order, entry);
-                    //userRepository.InsertProductOrderEntry(orderEntry);
-                    // unitOfWork.Save();
                     orderEntry.AddClaimedProductKey(claimedKey);
 
                     order.AddProductOrderEntry(orderEntry);
@@ -251,14 +256,18 @@ namespace TheAfterParty.Domain.Services
                 #endregion
             }
 
-            await DeleteShoppingCart();
-            
-            BalanceEntry balanceEntry = new BalanceEntry(user, "Purchase - Order #" + order.OrderID, 0 - order.TotalSalePrice() , orderDate);
-            user.BalanceEntries.Add(balanceEntry);
+            DeleteShoppingCart(user);
 
-            user.Balance -= order.TotalSalePrice();
-            user.AddOrder(order);
-            await userRepository.UpdateAppUser(user);
+            int totalSalePrice = order.TotalSalePrice();
+
+            BalanceEntry balanceEntry = new BalanceEntry(user, "Purchase - Order #" + order.OrderID, 0 - totalSalePrice, orderDate);
+            //user.BalanceEntries.Add(balanceEntry);
+            userRepository.InsertBalanceEntry(balanceEntry);
+
+            user.Balance -= totalSalePrice;
+            //user.AddOrder(order);
+            userRepository.UpdateOrder(order);
+            await userRepository.UpdateAppUserSimple(user);
 
             this.unitOfWork.Save();
 
@@ -285,6 +294,15 @@ namespace TheAfterParty.Domain.Services
 
             this.unitOfWork.Save();
         }
+        public void DeleteShoppingCart(AppUser user)
+        {
+            List<Int32> entryIds = user.ShoppingCartEntries.Select(e => e.ShoppingCartEntryID).ToList();
+
+            foreach (Int32 id in entryIds)
+            {
+                userRepository.DeleteShoppingCartEntry(id);
+            }
+        }
         public void DeleteShoppingCart(IEnumerable<ShoppingCartEntry> entries)
         {
             List<Int32> entryIds = entries.Select(e => e.ShoppingCartEntryID).ToList();
@@ -296,14 +314,17 @@ namespace TheAfterParty.Domain.Services
             }
         }
 
-        public async Task UpdateShoppingCartEntry(int entryId, int quantity)
+        public void UpdateShoppingCartEntry(int entryId, int quantity)
         {
-            AppUser user = await GetCurrentUser();
-            ShoppingCartEntry entry = user.ShoppingCartEntries.Where(e => e.ShoppingCartEntryID == entryId).Single(); //userRepository.GetShoppingCartEntryByID(entryId);
-            entry.Quantity = quantity;
-            await userRepository.UpdateAppUser(user);
+            ShoppingCartEntry entry = userRepository.GetShoppingCartEntriesQuery().Where(a => a.ShoppingCartEntryID == entryId).SingleOrDefault(); //userRepository.GetShoppingCartEntries().Where(e => e.ListingID == listingId && Object.Equals(currentUser.Id, e.UserID)).SingleOrDefault();
 
-            this.unitOfWork.Save();
+            if (entry != null)
+            {
+                entry.Quantity = quantity;
+                userRepository.UpdateShoppingCartEntry(entry);
+            }
+
+            unitOfWork.Save();
         }
 
         public async Task IncrementCartQuantity(int entryId)
@@ -357,6 +378,10 @@ namespace TheAfterParty.Domain.Services
             return UserManager.FindByName(userName);
         }
 
+        public async Task<AppUser> GetCurrentUserSimple()
+        {
+            return await UserManager.FindByNameSimple(userName);
+        }
         public async Task<AppUser> GetCurrentUser()
         {
             return await UserManager.FindByNameAsyncWithCartAndOpenAuctionBids(userName);

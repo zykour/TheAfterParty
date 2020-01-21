@@ -17,72 +17,75 @@
         <div class="col-lg-4 col-md-4 col-xl-4">Product Key</div>
         <div class="col-lg-1 col-md-1 col-xl-1">Price</div>
     </div>
-    @for (int k = 0; k < Model.Order.ProductOrderEntries.Count; k++)
+    @{int k = 0; }
+    @foreach (ProductOrderEntry entry in Model.Order.ProductOrderEntries)
     {
-        ProductOrderEntry entry = Model.Order.ProductOrderEntries.ElementAt(k);
         if (entry.Listing.ChildListings == null || entry.Listing.ChildListings.Count == 0 || entry.ClaimedProductKeys.Count == 1)
         {
-        <div class="row store-entry-sm text-center">
-            <div class="col-lg-6 col-md-6 col-xl-6 text-left vertical-align">
-                <div class="outer-banner-container">
-                    @if (String.IsNullOrEmpty(entry.Listing?.Product?.GetHttpsSecuredHeaderImage()))
-                    {
-                        <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
-                    }
-                    else
-                    {
-                        <div class="inner-store-banner-container" style="background-image: url(@entry.Listing.Product.GetHttpsSecuredHeaderImage())"></div>
-                    }
-                </div>
-                <div class="store-entry-name">
-                    @entry.Listing.ListingName
-                </div>
-            </div>
-            <div class="col-lg-1 col-md-1 col-xl-1">
-                @foreach (string platformIconUrl in entry.Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
-                    {
-                    <div class="icon-image-container">
-                        <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
+            <div class="row store-entry-sm text-center">
+                <div class="col-lg-6 col-md-6 col-xl-6 text-left vertical-align">
+                    <div class="outer-banner-container">
+                        @{ String imageUrl = entry.Listing?.Product?.GetHttpsSecuredHeaderImage();}
+                        @if (String.IsNullOrEmpty(imageUrl))
+                        {
+                            <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
+                        }
+                        else
+                        {
+                            <div class="inner-store-banner-container" style="background-image: url(@imageUrl)"></div>
+                        }
                     </div>
+                    <div class="store-entry-name">
+                        @entry.Listing.ListingName
+                    </div>
+                </div>
+                <div class="col-lg-1 col-md-1 col-xl-1">
+                    @foreach (string platformIconUrl in entry.Listing.Platforms.OrderBy(p => p.PlatformName).Select(p => p.PlatformIconURL))
+                    {
+                        <div class="icon-image-container">
+                            <div class="icon-image text-center" style="background-image: url('@platformIconUrl')"></div>
+                        </div>
                     }
+                </div>
+                <div class="col-lg-4 col-md-4 col-xl-4">
+                    @{
+                        string keyBtn = "keyBtn" + k;
+                        string toggleBtn = keyBtn + "toggle";
+                        ClaimedProductKey currentKey = entry.ClaimedProductKeys.First();
+                        if (currentKey.IsGift)
+                        {
+                            <input type="button" value="🔒" class="toggle-used-inactive-btn" /><input type="button" value="Gift Copy" class="reveal-btn" />
+                        }
+                        else if (currentKey.IsRevealed && !currentKey.IsUsed)
+                        {
+                            <input type="button" id="@toggleBtn" value="🔒" class="toggle-used-btn" onclick="ToggleKeyUsed(@currentKey.ClaimedProductKeyID,this,@keyBtn);" /><input id="@keyBtn" type="button" value="@currentKey.Key" class="unused-btn" />
+                        }
+                        else if (currentKey.IsRevealed && currentKey.IsUsed)
+                        {
+                            <input type="button" id="@toggleBtn" value="🔓" class="toggle-used-btn" onclick="ToggleKeyUsed(@currentKey.ClaimedProductKeyID,this,@keyBtn);" /><input id="@keyBtn" type="button" value="@currentKey.Key" class="used-btn" />
+                        }
+                        else
+                        {
+                            <input type="button" id="@toggleBtn" value="🔒" class="awaiting-reveal toggle-used-inactive-btn" onclick="ToggleKeyUsed(@currentKey.ClaimedProductKeyID,this,@keyBtn);" /><input id="@keyBtn" type="button" value="Reveal" class="reveal-btn" onclick="MarkKeyRevealed(@currentKey.ClaimedProductKeyID,this);" />
+                        }
+                    }
+                </div>
+                <div class="col-lg-1 col-md-1 col-xl-1 col-text text-success">@entry.SalePrice</div>
             </div>
-            <div class="col-lg-4 col-md-4 col-xl-4">
-                @{
-                    string keyBtn = "keyBtn" + k;
-                    string toggleBtn = keyBtn + "toggle";
-                    if (entry.ClaimedProductKeys.First().IsGift)
-                    {
-                        <input type="button" value="🔒" class="toggle-used-inactive-btn" /><input type="button" value="Gift Copy" class="reveal-btn" />
-                    }
-                    else if (entry.ClaimedProductKeys.First().IsRevealed && !entry.ClaimedProductKeys.First().IsUsed)
-                    {
-                        <input type="button" id="@toggleBtn" value="🔒" class="toggle-used-btn" onclick="ToggleKeyUsed(@entry.ClaimedProductKeys.First().ClaimedProductKeyID,this,@keyBtn);" /><input id="@keyBtn" type="button" value="@entry.ClaimedProductKeys.First().Key" class="unused-btn" />
-                    }
-                    else if (entry.ClaimedProductKeys.First().IsRevealed && entry.ClaimedProductKeys.First().IsUsed)
-                    {
-                        <input type="button" id="@toggleBtn" value="🔓" class="toggle-used-btn" onclick="ToggleKeyUsed(@entry.ClaimedProductKeys.First().ClaimedProductKeyID,this,@keyBtn);" /><input id="@keyBtn" type="button" value="@entry.ClaimedProductKeys.First().Key" class="used-btn" />
-                    }
-                    else
-                    {
-                        <input type="button" id="@toggleBtn" value="🔒" class="awaiting-reveal toggle-used-inactive-btn" onclick="ToggleKeyUsed(@entry.ClaimedProductKeys.First().ClaimedProductKeyID,this,@keyBtn);" /><input id="@keyBtn" type="button" value="Reveal" class="reveal-btn" onclick="MarkKeyRevealed(@entry.ClaimedProductKeys.First().ClaimedProductKeyID,this);" />
-                    }
-                }
-            </div>
-            <div class="col-lg-1 col-md-1 col-xl-1 col-text text-success">@entry.SalePrice</div>
-        </div>
         }
         else
         {
             <div class="row store-entry-sm text-center">
                 <div class="col-lg-6 col-md-6 col-xl-6 vertical-align text-left">
                     <div class="outer-banner-container">
-                        @if (String.IsNullOrEmpty(entry.Listing?.Product?.GetHttpsSecuredHeaderImage()))
-                    {
+                        @{ String imageUrl = entry.Listing?.Product?.GetHttpsSecuredHeaderImage();}
+                        @if (String.IsNullOrEmpty(imageUrl))
+                        {
                             <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
                         }
                         else
                         {
-                            <div class="inner-store-banner-container" style="background-image: url(@entry.Listing.Product.GetHttpsSecuredHeaderImage())"></div>
+                            <div class="inner-store-banner-container" style="background-image: url(@imageUrl)"></div>
                         }
                     </div>
                     <div class="store-entry-name">
@@ -100,20 +103,21 @@
                 <div class="col-lg-4 col-md-4 col-xl-4"></div>
                 <div class="col-lg-1 col-md-1 col-xl-1 text-success col-text">@entry.SalePrice</div>
             </div>
-            for (int i = 0; i < entry.ClaimedProductKeys.Count; i++)
+            int i = 0;
+            foreach (ClaimedProductKey claimedKey in entry.ClaimedProductKeys)
             {
-                ClaimedProductKey claimedKey = entry.ClaimedProductKeys.ElementAt(i);
                 <div class="row store-sub-entry-sm text-center">
                     <div class="col-lg-1 col-md-1 col-xl-1"></div>
                     <div class="col-lg-5 col-md-5 col-xl-5 vertical-align text-left">
                         <div class="outer-banner-container">
-                            @if (String.IsNullOrEmpty(claimedKey.Listing?.Product?.GetHttpsSecuredHeaderImage()))
+                            @{ String keyImageUrl = claimedKey.Listing?.Product?.GetHttpsSecuredHeaderImage();}
+                            @if (String.IsNullOrEmpty(imageUrl))
                             {
                                 <div class="inner-store-banner-container" style="background-image: url('/Content/applogo.gif')"></div>
                             }
                             else
                             {
-                                <div class="inner-store-banner-container" style="background-image: url(@claimedKey.Listing.Product.GetHttpsSecuredHeaderImage())"></div>
+                                <div class="inner-store-banner-container" style="background-image: url(@imageUrl)"></div>
                             }
                         </div>
                         <div class="store-entry-name">
@@ -152,10 +156,12 @@
                     </div>
                     <div class="col-lg-1 col-md-1 col-xl-1 text-center"></div>
                 </div>
+                i++;
             }
         }
+        k++;
     }
-    <br/>
+    <br />
     <div class="row col-text">
         <div class="col-lg-8 col-md-8 col-xl-8"></div>
         <div class="col-lg-1 col-md-1 col-xl-1 text-primary">Total:</div>

@@ -89,7 +89,7 @@ namespace TheAfterParty.WebUI.App_Start
             kernel.Bind<IAuctionService>().To<AuctionService>().InRequestScope();
             kernel.Bind<IApiService>().To<ApiService>().InRequestScope();
             kernel.Bind<IMemoryCache>().To<MemoryCache>().InSingletonScope().WithConstructorArgument<MemoryCacheOptions>(new MemoryCacheOptions());
-            kernel.Bind<ICacheService>().To<CacheService>().InRequestScope();
+            //kernel.Bind<ICacheService>().To<CacheService>().InRequestScope();
             kernel.Bind<IOptions<MemoryCacheOptions>>().To<MemoryCacheOptions>().InSingletonScope();
         }        
     }

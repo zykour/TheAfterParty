@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net;
 using TheAfterParty.Domain.Abstract;
 using TheAfterParty.Domain.Entities;
 using TheAfterParty.Domain.Concrete;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity;
+using Newtonsoft.Json.Linq;
 
 namespace TheAfterParty.Domain.Services
 {
@@ -284,50 +286,104 @@ namespace TheAfterParty.Domain.Services
             return objectiveRepository.GetObjectiveByID(objectiveId);
         }
 
-        public List<String> AddBalance(int points, string[] userNickNames)
+        public List<String> AddBalance(string[] userNickNames)
         {
+            int points = 0;
+
             List<String> updatedUsers = new List<String>();
 
             DateTime time = DateTime.Now;
 
-            foreach (string nickname in userNickNames)
+            foreach (string userNickname in userNickNames)
             {
+                string nickname = userNickname;
+                if (char.IsNumber(nickname[0]) == true || nickname[0] == '-')
+                {
+                    string numSubString = String.Empty;
+                    int k = 0;
+
+                    // easy way to check the first part of the string to see if it's a negative number
+                    if (nickname[0] == '-')
+                    {
+                        k = 1;
+                        numSubString = "-";
+                    }
+
+                    for (int i = k; i < nickname.Length - 1; i++)
+                    {
+                        if (char.IsNumber(nickname[i]))
+                        {
+                            numSubString += nickname[i];
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    
+                    nickname = nickname.Substring(numSubString.Length);
+                    Int32.TryParse(numSubString, out points);
+                }
                 AppUser user = GetUserByNickName(nickname);
 
                 if (user != null)
                 {
                     user.CreateBalanceEntry("Admin adjusted balance update", points , time);
                     UserManager.Update(user);
-                    unitOfWork.Save();
 
-                    updatedUsers.Add(user.UserName);
+                    updatedUsers.Add(user.UserName + ": " + points + "\n");
                 }
             }
+            unitOfWork.Save();
 
             return updatedUsers;
         }
 
-        public List<String> AddBalanceForObjective(Objective objective, string[] userNickNames)
+        public List<String> AddBalanceForObjective(Objective objective, string[] userNickNames, int objectiveReward)
         {
-            List<String> updatedUsers = new List<String>();
+            List<String> userRewards = new List<String>();
+            int numCompletions = 1; //default 1
 
             DateTime time = DateTime.Now;
 
-            foreach (string nickname in userNickNames)
+            foreach (string userNickname in userNickNames)
             {
+                string nickname = userNickname;
+                if (char.IsNumber(nickname[0]) == true)
+                {
+                    string numSubString = String.Empty;
+
+                    for (int i = 0; i < nickname.Length - 1; i++)
+                    {
+                        if (char.IsNumber(nickname[i]))
+                        {
+                            numSubString = numSubString += nickname[i];
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    nickname = nickname.Substring(numSubString.Length);
+                    Int32.TryParse(numSubString, out numCompletions);
+                }
                 AppUser user = GetUserByNickName(nickname);
 
                 if (user != null)
                 {
-                    user.CreateBalanceEntry(objective, time);
+                    for (int i = 0; i < numCompletions; i++)
+                    {
+                        user.CreateBalanceEntry(objective, time);
+                    }
                     UserManager.Update(user);
-                    unitOfWork.Save();
 
-                    updatedUsers.Add(user.UserName);
+                    userRewards.Add(user.UserName + ": " + objectiveReward * numCompletions + "\n");
                 }
             }
 
-            return updatedUsers;
+            unitOfWork.Save();
+
+            return userRewards;
         }
 
         public IEnumerable<Auction> GetOpenAuctions()
@@ -491,6 +547,126 @@ namespace TheAfterParty.Domain.Services
                     product.HeaderImageURL = product.HeaderImageURL.Substring(0, product.HeaderImageURL.IndexOf("?t="));
                     listingRepository.UpdateProduct(product);
                 }
+            }
+
+            unitOfWork.Save();
+        }
+
+
+        // change return to string list
+        public String FixNames(string webApiKey)
+        {
+            String nullNames = String.Empty;
+            //foreach (Listing listing in listingRepository.GetListings().ToList())
+            //{
+            //    /// temp
+            //    if (listing.ListingName.StartsWith("ValveTest") == false)
+            //    {
+            //        continue;
+            //    }
+            //    else if (listing.Product.ProductName != null)
+            //    {
+            //        listing.ListingName = listing.Product.ProductName;
+            //        listingRepository.UpdateListing(listing);
+            //    }
+            //}
+            //unitOfWork.Save();
+            //return nullNames;
+
+            foreach (Listing listing in listingRepository.GetListings().ToList())
+            {
+                //temp
+                if (listing.ListingName.StartsWith("UntitledAp") == false)
+                {
+                    continue;
+                }
+                if (listing.Product.AppID <= 0)
+                {
+                    nullNames += listing.ListingID + "(NoAppID) ";
+                    continue;
+                }
+
+                string appID = listing.Product.AppID.ToString();
+                string url = String.Format("https://store.steampowered.com/api/appdetails?appids={0}&l=english", appID); //String.Format("http://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/?key={0}&appid={1}&l=english", webApiKey, appID);
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                string result = String.Empty;
+                try
+                {
+                    result = new System.Net.WebClient().DownloadString(url);
+                }
+                catch (WebException webEx)
+                {
+                    nullNames += listing.ListingID + "(WebEx) ";
+                    continue;
+                }
+                JObject jsonResult = JObject.Parse(result);                
+
+                if (jsonResult == null || jsonResult["game"] == null || jsonResult["game"]["gameName"] == null || ((JToken)jsonResult["game"]["gameName"]).IsNullOrEmpty())
+                {
+                    //url = String.Format("https://store.steampowered.com/api/appdetails?appids={0}&l=english", appID);
+                    //try
+                    //{
+                    //    result = new System.Net.WebClient().DownloadString(url);
+                    //}
+                    //catch (WebException webEx)
+                    //{
+                    //    nullNames += listing.ListingID + "(WebEx) ";
+                    //    continue;
+                    //}
+                    //jsonResult = JObject.Parse(result);
+
+                    if (jsonResult == null || jsonResult[appID] == null || jsonResult[appID]["data"] == null)
+                    {
+                        nullNames += listing.ListingID + " ";
+                        continue;
+                    }           
+                    else
+                    {
+                        JToken appData = jsonResult[appID]["data"];
+
+                        if (appData["name"].IsNullOrEmpty())
+                        {
+                            nullNames += listing.ListingID + " ";
+                            continue;
+                        }
+                        else
+                        {
+                            listing.Product.ProductName = (string)appData["name"];
+                            listing.ListingName = (string)appData["name"];
+                        }
+                    }
+                }
+                else
+                {
+                    JToken appData = jsonResult["game"];
+
+                    if (appData["gameName"].IsNullOrEmpty())
+                    {
+                        nullNames += listing.ListingID + " ";
+                        continue;
+                    }
+                    else
+                    {
+                        listing.Product.ProductName = (string)appData["gameName"];
+                        listing.ListingName = (string)appData["gameName"];
+                    }
+                }
+
+                listingRepository.UpdateListing(listing);
+            }
+
+            unitOfWork.Save();
+
+            return nullNames;
+        }
+
+        public void FixQuantities()
+        {
+            foreach (Listing listing in listingRepository.GetListingsPlain().ToList())
+            {
+                // count on ProductKeys for listingID
+                // listing.Quantity = actualQuantity
+                listingRepository.UpdateListing(listing);
             }
 
             unitOfWork.Save();

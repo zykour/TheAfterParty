@@ -35,8 +35,8 @@ namespace TheAfterParty.Domain.Services
         void SetPOTW(AppUser user);
 
         Objective GetObjectiveByID(int objectiveId);
-        List<String> AddBalance(int points, string[] userNickNames);
-        List<String> AddBalanceForObjective(Objective objective, string[] userNickNames);
+        List<String> AddBalance(string[] userNickNames);
+        List<String> AddBalanceForObjective(Objective objective, string[] userNickNames, int pointReward);
 
         IEnumerable<Auction> GetOpenAuctions();
         IEnumerable<BoostedObjective> GetLiveBoostedObjectives();
@@ -52,6 +52,8 @@ namespace TheAfterParty.Domain.Services
         Objective GetObjectiveWithBoostedDaily();
 
         void FixImages();
+        String FixNames(string apiKey);
+        void FixQuantities();
         int RollDeals(int deals, bool days, int duration, bool unique);
         int RollDeals(int percent, bool days, int duration);
     }

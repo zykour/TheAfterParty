@@ -20,15 +20,15 @@ namespace TheAfterParty.WebUI.Controllers
     public class UserController : Controller
     {
         private IUserService userService;
-        private ICacheService cacheService;
+        //private ICacheService cacheService;
         private const string allActionDest = "All Users";
         private const string adminsActionDest = "Admins";
         private const string ownsActionDest = "Owns";
 
-        public UserController(IUserService userService, ICacheService cacheService)
+        public UserController(IUserService userService)//, ICacheService cacheService)
         {
             this.userService = userService;
-            this.cacheService = cacheService;
+            //this.cacheService = cacheService;
         }
 
         protected override void Initialize(RequestContext requestContext)
@@ -36,7 +36,7 @@ namespace TheAfterParty.WebUI.Controllers
             base.Initialize(requestContext);
 
             userService.SetUserName(User.Identity.Name);
-            cacheService.SetUserName(User.Identity.Name);
+            //cacheService.SetUserName(User.Identity.Name);
         }
 
         // GET: User

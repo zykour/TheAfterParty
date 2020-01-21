@@ -59,7 +59,7 @@ namespace TheAfterParty.Domain.Concrete
                             .Include(x => x.Platforms)
                             .Include(x => x.Product.Listings.Select(z => z.ChildListings))
                             .AsQueryable()
-                            .Where(x => x.ListingPrice > 0 && x.Quantity > 0);
+                            .Where(x => x.Quantity > 0 && x.ListingPrice > 0);
             }
             else
             {
@@ -178,12 +178,14 @@ namespace TheAfterParty.Domain.Concrete
                     {
                         List<int> ids = filter.LoggedInUser.BlacklistedListings.Select(z => z.ListingID).ToList();
                         listingQuery = listingQuery.Where(x => !ids.Any(a => a == x.ListingID));
+                        //IEnumerable<Listing> blacklist = filter.LoggedInUser.BlacklistedListings.AsEnumerable();
+                        //listingQuery = from listing in listingQuery where !(from bl in blacklist select bl.ListingID).Contains(listing.ListingID) select listing;
                     }
-                    else
-                    {
-                        List<int> ids = filter.LoggedInUser.BlacklistedListings.Select(z => z.ListingID).ToList();
-                        listingQuery = listingQuery.Where(x => !ids.Any(a => a == x.ListingID));
-                    }
+                    //else
+                    //{
+                    //    //List<int> ids = filter.LoggedInUser.BlacklistedListings.Select(z => z.ListingID).ToList();
+                    //    //listingQuery = listingQuery.Where(x => !ids.Any(a => a == x.ListingID));
+                    //}
                 }
             }
 

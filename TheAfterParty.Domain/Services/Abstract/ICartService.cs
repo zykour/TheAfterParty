@@ -2,6 +2,7 @@
 using TheAfterParty.Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace TheAfterParty.Domain.Services
 {
@@ -14,7 +15,8 @@ namespace TheAfterParty.Domain.Services
         Listing GetDailyDeal();
 
         Task<IEnumerable<ShoppingCartEntry>> GetShoppingCartEntries();
-        
+        IQueryable<ShoppingCartEntry> GetShoppingCartEntries(String userId);
+
         Task AddItemToCart(int listingId);
 
         Task<bool> ValidateOrder();
@@ -22,14 +24,16 @@ namespace TheAfterParty.Domain.Services
         Task<Order> CreateOrder();
 
         void DeleteShoppingCartEntry(int entryId);
-        Task UpdateShoppingCartEntry(int entryId, int quantity);
+        void UpdateShoppingCartEntry(int entryId, int quantity);
         Task DeleteShoppingCart();
+        void DeleteShoppingCart(AppUser user);
         Task IncrementCartQuantity(int entryId);
         Task DecrementCartQuantity(int entryId);
         Task<bool> ListingQuantityExceedsCartQuantity(int entryId, int listingId);
 
         Listing GetListingByID(int listingId);
 
+        int GetNewestOrderId(string id);
         Order GetOrderByID(int id);
     }
 }
